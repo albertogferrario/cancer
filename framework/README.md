@@ -15,7 +15,7 @@ tokio = { version = "1", features = ["full"] }
 ## Quick Start
 
 ```rust
-use kit::{json_response, Router, Server, Request, Response};
+use kit::{json_response, text, Router, Server, Request, Response};
 
 #[tokio::main]
 async fn main() {
@@ -31,11 +31,11 @@ async fn main() {
 }
 
 async fn index(_req: Request) -> Response {
-    Response::text("Welcome to Kit!")
+    text("Welcome to Kit!")
 }
 
 async fn show_user(req: Request) -> Response {
-    let id = req.param("id").unwrap_or_default();
+    let id = req.param("id")?;  // Returns 400 if missing
     json_response!({
         "id": id,
         "name": format!("User {}", id)
@@ -48,6 +48,7 @@ async fn show_user(req: Request) -> Response {
 - **Simple routing** - GET, POST, PUT, DELETE with route parameters
 - **Async handlers** - Built on Tokio for high performance
 - **Response builders** - Text, JSON, and custom responses
+- **Error handling** - Use `?` operator for automatic 400 responses
 - **Laravel-inspired** - Familiar patterns for Laravel developers
 
 ## CLI Tool

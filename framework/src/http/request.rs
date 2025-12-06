@@ -1,3 +1,4 @@
+use super::ParamError;
 use std::collections::HashMap;
 
 /// HTTP Request wrapper providing Laravel-like access to request data
@@ -30,8 +31,14 @@ impl Request {
     }
 
     /// Get a route parameter by name (e.g., /users/{id})
-    pub fn param(&self, name: &str) -> Option<&String> {
-        self.params.get(name)
+    /// Returns Err(ParamError) if the parameter is missing, enabling use of `?` operator
+    pub fn param(&self, name: &str) -> Result<&str, ParamError> {
+        self.params
+            .get(name)
+            .map(|s| s.as_str())
+            .ok_or_else(|| ParamError {
+                param_name: name.to_string(),
+            })
     }
 
     /// Get all route parameters

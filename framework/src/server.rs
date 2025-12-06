@@ -1,4 +1,4 @@
-use crate::http::{Request, Response};
+use crate::http::{HttpResponse, Request};
 use crate::routing::Router;
 use bytes::Bytes;
 use http_body_util::Full;
@@ -78,10 +78,12 @@ async fn handle_request(
         Some((handler, params)) => {
             let request = Request::new(req).with_params(params);
             let response = handler(request).await;
-            response.into_hyper()
+            // Unwrap the Result - both Ok and Err contain HttpResponse
+            let http_response = response.unwrap_or_else(|e| e);
+            http_response.into_hyper()
         }
         None => {
-            Response::text("404 Not Found")
+            HttpResponse::text("404 Not Found")
                 .status(404)
                 .into_hyper()
         }

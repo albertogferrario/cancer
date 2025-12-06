@@ -52,10 +52,10 @@ pub fn controllers_mod() -> &'static str {
 }
 
 pub fn home_controller() -> &'static str {
-    r#"use kit::{Request, Response};
+    r#"use kit::{text, Request, Response};
 
 pub async fn index(_req: Request) -> Response {
-    Response::text("Welcome to Kit!")
+    text("Welcome to Kit!")
 }
 "#
 }

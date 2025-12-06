@@ -2,13 +2,16 @@ use bytes::Bytes;
 use http_body_util::Full;
 
 /// HTTP Response builder providing Laravel-like response creation
-pub struct Response {
+pub struct HttpResponse {
     status: u16,
     body: String,
     headers: Vec<(String, String)>,
 }
 
-impl Response {
+/// Response type alias - allows using `?` operator for early returns
+pub type Response = Result<HttpResponse, HttpResponse>;
+
+impl HttpResponse {
     pub fn new() -> Self {
         Self {
             status: 200,
@@ -47,6 +50,11 @@ impl Response {
         self
     }
 
+    /// Wrap this response in Ok() for use as Response type
+    pub fn ok(self) -> Response {
+        Ok(self)
+    }
+
     /// Convert to hyper response
     pub fn into_hyper(self) -> hyper::Response<Full<Bytes>> {
         let mut builder = hyper::Response::builder().status(self.status);
@@ -61,7 +69,7 @@ impl Response {
     }
 }
 
-impl Default for Response {
+impl Default for HttpResponse {
     fn default() -> Self {
         Self::new()
     }

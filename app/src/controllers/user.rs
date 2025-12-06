@@ -10,7 +10,7 @@ pub async fn index(_req: Request) -> Response {
 }
 
 pub async fn show(req: Request) -> Response {
-    let id = req.param("id").map(|s| s.as_str()).unwrap_or("unknown");
+    let id = req.param("id")?;
     json_response!({
         "id": id,
         "name": format!("User {}", id)
