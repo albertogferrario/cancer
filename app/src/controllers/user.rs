@@ -1,4 +1,4 @@
-use kit::{json_response, route, Redirect, Request, Response, ResponseExt};
+use kit::{json_response, redirect, route, Request, Response, ResponseExt};
 
 pub async fn index(_req: Request) -> Response {
     json_response!({
@@ -22,8 +22,8 @@ pub async fn show(req: Request) -> Response {
 pub async fn store(_req: Request) -> Response {
     // ... create user logic would go here ...
 
-    // Redirect to users.index
-    Redirect::route("users.index").into()
+    // Redirect to users.index (compile-time validated!)
+    redirect!("users.index").into()
 }
 
 /// Example: Redirect to a specific user with query params
@@ -32,8 +32,8 @@ pub async fn redirect_example(_req: Request) -> Response {
     let url = route("users.show", &[("id", "42")]);
     println!("Generated URL: {:?}", url);
 
-    // Redirect with query parameters
-    Redirect::route("users.index")
+    // Redirect with query parameters (compile-time validated!)
+    redirect!("users.index")
         .query("page", "1")
         .query("sort", "name")
         .into()

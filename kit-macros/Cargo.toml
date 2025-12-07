@@ -15,3 +15,4 @@ quote = "1"
 syn = { version = "2", features = ["full", "parsing"] }
 serde = { version = "1", features = ["derive"] }
 serde_derive_internals = "0.29"
+regex = "1"

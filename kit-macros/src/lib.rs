@@ -340,3 +340,133 @@ fn levenshtein_distance(a: &str, b: &str) -> usize {
 
     matrix[len_a][len_b]
 }
+
+// ============================================================================
+// redirect! macro - Compile-time validated redirects to named routes
+// ============================================================================
+
+/// Custom parser for redirect! macro
+struct RedirectInput {
+    route_name: LitStr,
+}
+
+impl Parse for RedirectInput {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        Ok(RedirectInput {
+            route_name: input.parse()?,
+        })
+    }
+}
+
+/// Create a redirect to a named route with compile-time validation
+///
+/// # Examples
+///
+/// ```rust,ignore
+/// // Simple redirect
+/// redirect!("users.index").into()
+///
+/// // Redirect with route parameters
+/// redirect!("users.show").with("id", "42").into()
+///
+/// // Redirect with query parameters
+/// redirect!("users.index").query("page", "1").into()
+/// ```
+///
+/// This macro validates that the route name exists at compile time.
+/// If the route doesn't exist, you'll get a compile error with suggestions.
+#[proc_macro]
+pub fn redirect(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as RedirectInput);
+    let route_name = input.route_name.value();
+    let route_lit = &input.route_name;
+
+    // Validate the route exists at compile time
+    if let Err(err) = validate_route_exists(&route_name, route_lit.span()) {
+        return err.to_compile_error().into();
+    }
+
+    // Generate the redirect builder
+    let expanded = quote! {
+        ::kit::Redirect::route(#route_lit)
+    };
+
+    expanded.into()
+}
+
+fn validate_route_exists(route_name: &str, span: Span) -> Result<(), syn::Error> {
+    // Get the manifest directory
+    let manifest_dir = match std::env::var("CARGO_MANIFEST_DIR") {
+        Ok(dir) => dir,
+        Err(_) => return Ok(()), // Skip validation if env not available
+    };
+
+    let project_root = PathBuf::from(&manifest_dir);
+
+    // Scan main.rs for route definitions
+    let available_routes = extract_route_names(&project_root);
+
+    if available_routes.is_empty() {
+        // No routes found, skip validation (might be running in different context)
+        return Ok(());
+    }
+
+    if !available_routes.contains(&route_name.to_string()) {
+        let mut error_msg = format!("Route '{}' not found.", route_name);
+
+        error_msg.push_str("\n\nAvailable routes:");
+        for route in &available_routes {
+            error_msg.push_str(&format!("\n  - {}", route));
+        }
+
+        // Suggest similar route names
+        if let Some(suggestion) = find_similar_route(route_name, &available_routes) {
+            error_msg.push_str(&format!("\n\nDid you mean '{}'?", suggestion));
+        }
+
+        return Err(syn::Error::new(span, error_msg));
+    }
+
+    Ok(())
+}
+
+fn extract_route_names(project_root: &PathBuf) -> Vec<String> {
+    let main_rs = project_root.join("src").join("main.rs");
+
+    let content = match std::fs::read_to_string(&main_rs) {
+        Ok(c) => c,
+        Err(_) => return Vec::new(),
+    };
+
+    // Use regex to find .name("...") patterns
+    let re = regex::Regex::new(r#"\.name\s*\(\s*"([^"]+)"\s*\)"#).unwrap();
+
+    re.captures_iter(&content)
+        .filter_map(|cap| cap.get(1).map(|m| m.as_str().to_string()))
+        .collect()
+}
+
+fn find_similar_route(target: &str, available: &[String]) -> Option<String> {
+    let target_lower = target.to_lowercase();
+
+    // Check for case-insensitive exact match first
+    for route in available {
+        if route.to_lowercase() == target_lower {
+            return Some(route.clone());
+        }
+    }
+
+    // Find closest match using Levenshtein distance
+    let mut best_match: Option<(String, usize)> = None;
+    for route in available {
+        let distance = levenshtein_distance(&target_lower, &route.to_lowercase());
+        let threshold = std::cmp::max(2, target.len() / 3);
+        if distance <= threshold {
+            if best_match.is_none() || distance < best_match.as_ref().unwrap().1 {
+                best_match = Some((route.clone(), distance));
+            }
+        }
+    }
+
+    best_match.map(|(name, _)| name)
+}
