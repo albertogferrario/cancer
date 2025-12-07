@@ -38,11 +38,21 @@ pub fn run(name: Option<String>, no_interaction: bool, no_git: bool) {
     println!();
     println!("Next steps:");
     println!("  {} {}", style("cd").cyan(), project_name);
-    println!("  {}", style("cargo run").cyan());
+    println!("  {}", style("cd frontend && npm install").cyan());
+    println!("  {}", style("npm run dev").cyan());
+    println!(
+        "  {} {}",
+        style("cargo run").cyan(),
+        style("(in a new terminal)").dim()
+    );
     println!();
     println!(
-        "Your app will be running at {}",
+        "Backend will be at {}",
         style("http://localhost:8080").underlined()
+    );
+    println!(
+        "Frontend dev server at {}",
+        style("http://localhost:5173").underlined()
     );
     println!();
 }
@@ -114,6 +124,21 @@ fn to_snake_case(s: &str) -> String {
     s.replace('-', "_").to_lowercase()
 }
 
+fn to_title_case(s: &str) -> String {
+    s.replace('-', " ")
+        .replace('_', " ")
+        .split_whitespace()
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                None => String::new(),
+                Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 fn create_project(
     project_name: &str,
     package_name: &str,
@@ -128,8 +153,19 @@ fn create_project(
     }
 
     // Create directory structure
+    // Backend directories
     fs::create_dir_all(project_path.join("src/controllers"))
         .map_err(|e| format!("Failed to create directories: {}", e))?;
+
+    // Frontend directories
+    fs::create_dir_all(project_path.join("frontend/src/pages"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
+
+    // Public assets directory (for production builds)
+    fs::create_dir_all(project_path.join("public/assets"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
+
+    // === Backend files ===
 
     // Write Cargo.toml
     let cargo_toml = templates::cargo_toml(package_name, description, author);
@@ -157,6 +193,47 @@ fn create_project(
         templates::home_controller(),
     )
     .map_err(|e| format!("Failed to write src/controllers/home.rs: {}", e))?;
+
+    // === Frontend files ===
+
+    // Write frontend/package.json
+    let package_json = templates::package_json(project_name);
+    fs::write(project_path.join("frontend/package.json"), package_json)
+        .map_err(|e| format!("Failed to write frontend/package.json: {}", e))?;
+
+    // Write frontend/vite.config.ts
+    fs::write(
+        project_path.join("frontend/vite.config.ts"),
+        templates::vite_config(),
+    )
+    .map_err(|e| format!("Failed to write frontend/vite.config.ts: {}", e))?;
+
+    // Write frontend/tsconfig.json
+    fs::write(
+        project_path.join("frontend/tsconfig.json"),
+        templates::tsconfig(),
+    )
+    .map_err(|e| format!("Failed to write frontend/tsconfig.json: {}", e))?;
+
+    // Write frontend/index.html
+    let title = to_title_case(project_name);
+    let index_html = templates::index_html(&title);
+    fs::write(project_path.join("frontend/index.html"), index_html)
+        .map_err(|e| format!("Failed to write frontend/index.html: {}", e))?;
+
+    // Write frontend/src/main.tsx
+    fs::write(
+        project_path.join("frontend/src/main.tsx"),
+        templates::main_tsx(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/main.tsx: {}", e))?;
+
+    // Write frontend/src/pages/Home.tsx
+    fs::write(
+        project_path.join("frontend/src/pages/Home.tsx"),
+        templates::home_page(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/pages/Home.tsx: {}", e))?;
 
     // Initialize git repository
     if !no_git {
