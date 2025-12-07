@@ -74,3 +74,19 @@ impl Default for HttpResponse {
         Self::new()
     }
 }
+
+/// Extension trait for Response to enable method chaining on macros
+pub trait ResponseExt {
+    fn status(self, code: u16) -> Self;
+    fn header(self, name: impl Into<String>, value: impl Into<String>) -> Self;
+}
+
+impl ResponseExt for Response {
+    fn status(self, code: u16) -> Self {
+        self.map(|r| r.status(code))
+    }
+
+    fn header(self, name: impl Into<String>, value: impl Into<String>) -> Self {
+        self.map(|r| r.header(name, value))
+    }
+}

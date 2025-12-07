@@ -1,5 +1,7 @@
-use kit::{text, Request, Response};
+use kit::{text_response, Request, Response, ResponseExt};
 
 pub async fn index(_req: Request) -> Response {
-    text("Welcome to Kit!")
+    text_response!("Welcome to Kit!")
+        .status(200)
+        .header("content-type", "text/html")
 }
