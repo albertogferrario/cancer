@@ -3,9 +3,9 @@ pub mod inertia;
 pub mod routing;
 pub mod server;
 
-pub use http::{json, text, HttpResponse, Request, Response, ResponseExt};
+pub use http::{json, text, HttpResponse, Redirect, Request, Response, ResponseExt};
 pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
-pub use routing::Router;
+pub use routing::{route, RouteBuilder, Router};
 pub use server::Server;
 
 // Re-export for macro usage

@@ -3,7 +3,65 @@ use matchit::Router as MatchitRouter;
 use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock, RwLock};
+
+/// Global registry mapping route names to path patterns
+static ROUTE_REGISTRY: OnceLock<RwLock<HashMap<String, String>>> = OnceLock::new();
+
+/// Register a route name -> path mapping
+fn register_route_name(name: &str, path: &str) {
+    let registry = ROUTE_REGISTRY.get_or_init(|| RwLock::new(HashMap::new()));
+    if let Ok(mut map) = registry.write() {
+        map.insert(name.to_string(), path.to_string());
+    }
+}
+
+/// Generate a URL for a named route with parameters
+///
+/// # Arguments
+/// * `name` - The route name (e.g., "users.show")
+/// * `params` - Slice of (key, value) tuples for path parameters
+///
+/// # Returns
+/// * `Some(String)` - The generated URL with parameters substituted
+/// * `None` - If the route name is not found
+///
+/// # Example
+/// ```
+/// let url = route("users.show", &[("id", "123")]);
+/// assert_eq!(url, Some("/users/123".to_string()));
+/// ```
+pub fn route(name: &str, params: &[(&str, &str)]) -> Option<String> {
+    let registry = ROUTE_REGISTRY.get()?.read().ok()?;
+    let path_pattern = registry.get(name)?;
+
+    let mut url = path_pattern.clone();
+    for (key, value) in params {
+        url = url.replace(&format!("{{{}}}", key), value);
+    }
+    Some(url)
+}
+
+/// Generate URL with HashMap parameters (used internally by Redirect)
+pub fn route_with_params(name: &str, params: &HashMap<String, String>) -> Option<String> {
+    let registry = ROUTE_REGISTRY.get()?.read().ok()?;
+    let path_pattern = registry.get(name)?;
+
+    let mut url = path_pattern.clone();
+    for (key, value) in params {
+        url = url.replace(&format!("{{{}}}", key), value);
+    }
+    Some(url)
+}
+
+/// HTTP method for tracking the last registered route
+#[derive(Clone, Copy)]
+enum Method {
+    Get,
+    Post,
+    Put,
+    Delete,
+}
 
 /// Type alias for route handlers
 pub type BoxedHandler = Box<
@@ -29,47 +87,63 @@ impl Router {
     }
 
     /// Register a GET route
-    pub fn get<H, Fut>(mut self, path: &str, handler: H) -> Self
+    pub fn get<H, Fut>(mut self, path: &str, handler: H) -> RouteBuilder
     where
         H: Fn(Request) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Response> + Send + 'static,
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
         self.get_routes.insert(path, Arc::new(handler)).ok();
-        self
+        RouteBuilder {
+            router: self,
+            last_path: path.to_string(),
+            _last_method: Method::Get,
+        }
     }
 
     /// Register a POST route
-    pub fn post<H, Fut>(mut self, path: &str, handler: H) -> Self
+    pub fn post<H, Fut>(mut self, path: &str, handler: H) -> RouteBuilder
     where
         H: Fn(Request) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Response> + Send + 'static,
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
         self.post_routes.insert(path, Arc::new(handler)).ok();
-        self
+        RouteBuilder {
+            router: self,
+            last_path: path.to_string(),
+            _last_method: Method::Post,
+        }
     }
 
     /// Register a PUT route
-    pub fn put<H, Fut>(mut self, path: &str, handler: H) -> Self
+    pub fn put<H, Fut>(mut self, path: &str, handler: H) -> RouteBuilder
     where
         H: Fn(Request) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Response> + Send + 'static,
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
         self.put_routes.insert(path, Arc::new(handler)).ok();
-        self
+        RouteBuilder {
+            router: self,
+            last_path: path.to_string(),
+            _last_method: Method::Put,
+        }
     }
 
     /// Register a DELETE route
-    pub fn delete<H, Fut>(mut self, path: &str, handler: H) -> Self
+    pub fn delete<H, Fut>(mut self, path: &str, handler: H) -> RouteBuilder
     where
         H: Fn(Request) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Response> + Send + 'static,
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
         self.delete_routes.insert(path, Arc::new(handler)).ok();
-        self
+        RouteBuilder {
+            router: self,
+            last_path: path.to_string(),
+            _last_method: Method::Delete,
+        }
     }
 
     /// Match a request and return the handler with extracted params
@@ -100,5 +174,63 @@ impl Router {
 impl Default for Router {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// Builder returned after registering a route, enabling .name() chaining
+pub struct RouteBuilder {
+    router: Router,
+    last_path: String,
+    #[allow(dead_code)]
+    _last_method: Method,
+}
+
+impl RouteBuilder {
+    /// Name the most recently registered route
+    pub fn name(self, name: &str) -> Router {
+        register_route_name(name, &self.last_path);
+        self.router
+    }
+
+    /// Register a GET route (for chaining without .name())
+    pub fn get<H, Fut>(self, path: &str, handler: H) -> RouteBuilder
+    where
+        H: Fn(Request) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Response> + Send + 'static,
+    {
+        self.router.get(path, handler)
+    }
+
+    /// Register a POST route (for chaining without .name())
+    pub fn post<H, Fut>(self, path: &str, handler: H) -> RouteBuilder
+    where
+        H: Fn(Request) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Response> + Send + 'static,
+    {
+        self.router.post(path, handler)
+    }
+
+    /// Register a PUT route (for chaining without .name())
+    pub fn put<H, Fut>(self, path: &str, handler: H) -> RouteBuilder
+    where
+        H: Fn(Request) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Response> + Send + 'static,
+    {
+        self.router.put(path, handler)
+    }
+
+    /// Register a DELETE route (for chaining without .name())
+    pub fn delete<H, Fut>(self, path: &str, handler: H) -> RouteBuilder
+    where
+        H: Fn(Request) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Response> + Send + 'static,
+    {
+        self.router.delete(path, handler)
+    }
+}
+
+impl From<RouteBuilder> for Router {
+    fn from(builder: RouteBuilder) -> Self {
+        builder.router
     }
 }

@@ -2,7 +2,7 @@ mod request;
 mod response;
 
 pub use request::Request;
-pub use response::{HttpResponse, Response, ResponseExt};
+pub use response::{HttpResponse, Redirect, RedirectRouteBuilder, Response, ResponseExt};
 
 /// Error type for missing route parameters
 #[derive(Debug)]

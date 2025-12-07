@@ -90,3 +90,122 @@ impl ResponseExt for Response {
         self.map(|r| r.header(name, value))
     }
 }
+
+/// HTTP Redirect response builder
+pub struct Redirect {
+    location: String,
+    query_params: Vec<(String, String)>,
+    status: u16,
+}
+
+impl Redirect {
+    /// Create a redirect to a specific URL/path
+    pub fn to(path: impl Into<String>) -> Self {
+        Self {
+            location: path.into(),
+            query_params: Vec::new(),
+            status: 302,
+        }
+    }
+
+    /// Create a redirect to a named route
+    pub fn route(name: &str) -> RedirectRouteBuilder {
+        RedirectRouteBuilder {
+            name: name.to_string(),
+            params: std::collections::HashMap::new(),
+            query_params: Vec::new(),
+            status: 302,
+        }
+    }
+
+    /// Add a query parameter
+    pub fn query(mut self, key: &str, value: impl Into<String>) -> Self {
+        self.query_params.push((key.to_string(), value.into()));
+        self
+    }
+
+    /// Set status to 301 (Moved Permanently)
+    pub fn permanent(mut self) -> Self {
+        self.status = 301;
+        self
+    }
+
+    fn build_url(&self) -> String {
+        if self.query_params.is_empty() {
+            self.location.clone()
+        } else {
+            let query = self
+                .query_params
+                .iter()
+                .map(|(k, v)| format!("{}={}", k, v))
+                .collect::<Vec<_>>()
+                .join("&");
+            format!("{}?{}", self.location, query)
+        }
+    }
+}
+
+/// Auto-convert Redirect to Response
+impl From<Redirect> for Response {
+    fn from(redirect: Redirect) -> Response {
+        Ok(HttpResponse::new()
+            .status(redirect.status)
+            .header("Location", redirect.build_url()))
+    }
+}
+
+/// Builder for redirects to named routes with parameters
+pub struct RedirectRouteBuilder {
+    name: String,
+    params: std::collections::HashMap<String, String>,
+    query_params: Vec<(String, String)>,
+    status: u16,
+}
+
+impl RedirectRouteBuilder {
+    /// Add a route parameter value
+    pub fn with(mut self, key: &str, value: impl Into<String>) -> Self {
+        self.params.insert(key.to_string(), value.into());
+        self
+    }
+
+    /// Add a query parameter
+    pub fn query(mut self, key: &str, value: impl Into<String>) -> Self {
+        self.query_params.push((key.to_string(), value.into()));
+        self
+    }
+
+    /// Set status to 301 (Moved Permanently)
+    pub fn permanent(mut self) -> Self {
+        self.status = 301;
+        self
+    }
+
+    fn build_url(&self) -> Option<String> {
+        use crate::routing::route_with_params;
+
+        let mut url = route_with_params(&self.name, &self.params)?;
+        if !self.query_params.is_empty() {
+            let query = self
+                .query_params
+                .iter()
+                .map(|(k, v)| format!("{}={}", k, v))
+                .collect::<Vec<_>>()
+                .join("&");
+            url = format!("{}?{}", url, query);
+        }
+        Some(url)
+    }
+}
+
+/// Auto-convert RedirectRouteBuilder to Response
+impl From<RedirectRouteBuilder> for Response {
+    fn from(redirect: RedirectRouteBuilder) -> Response {
+        let url = redirect.build_url().ok_or_else(|| {
+            HttpResponse::text(format!("Route '{}' not found", redirect.name)).status(500)
+        })?;
+        Ok(HttpResponse::new()
+            .status(redirect.status)
+            .header("Location", url))
+    }
+}

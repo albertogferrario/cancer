@@ -18,9 +18,9 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(router: Router) -> Self {
+    pub fn new(router: impl Into<Router>) -> Self {
         Self {
-            router: Arc::new(router),
+            router: Arc::new(router.into()),
             host: "127.0.0.1".to_string(),
             port: 8000,
         }

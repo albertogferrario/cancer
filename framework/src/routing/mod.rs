@@ -1,3 +1,3 @@
 mod router;
 
-pub use router::Router;
+pub use router::{route, route_with_params, RouteBuilder, Router};
