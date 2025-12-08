@@ -95,6 +95,23 @@ impl ProcessManager {
     }
 }
 
+fn get_package_name() -> Result<String, String> {
+    let cargo_toml = Path::new("Cargo.toml");
+    let content = std::fs::read_to_string(cargo_toml)
+        .map_err(|e| format!("Failed to read Cargo.toml: {}", e))?;
+
+    let parsed: toml::Value = content
+        .parse()
+        .map_err(|e| format!("Failed to parse Cargo.toml: {}", e))?;
+
+    parsed
+        .get("package")
+        .and_then(|p| p.get("name"))
+        .and_then(|n| n.as_str())
+        .map(|s| s.to_string())
+        .ok_or_else(|| "Could not find package name in Cargo.toml".to_string())
+}
+
 fn validate_kit_project(backend_only: bool, frontend_only: bool) -> Result<(), String> {
     let cargo_toml = Path::new("Cargo.toml");
     let frontend_dir = Path::new("frontend");
@@ -264,15 +281,24 @@ pub fn run(port: u16, frontend_port: u16, backend_only: bool, frontend_only: boo
 
     // Start backend with cargo-watch
     if !frontend_only {
+        let package_name = match get_package_name() {
+            Ok(name) => name,
+            Err(e) => {
+                eprintln!("{} {}", style("Error:").red().bold(), e);
+                std::process::exit(1);
+            }
+        };
+
         println!(
             "{} Backend server on http://127.0.0.1:{}",
             style("[backend]").magenta().bold(),
             backend_port
         );
 
+        let run_cmd = format!("run --bin {}", package_name);
         if let Err(e) = manager.spawn_with_prefix(
             "cargo",
-            &["watch", "-x", "run"],
+            &["watch", "-x", &run_cmd],
             None,
             "[backend] ",
             console::Color::Magenta,
