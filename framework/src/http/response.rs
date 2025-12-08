@@ -209,3 +209,33 @@ impl From<RedirectRouteBuilder> for Response {
             .header("Location", url))
     }
 }
+
+/// Auto-convert FrameworkError to HttpResponse
+///
+/// This enables using the `?` operator in controller handlers to propagate
+/// framework errors as appropriate HTTP responses.
+impl From<crate::error::FrameworkError> for HttpResponse {
+    fn from(err: crate::error::FrameworkError) -> HttpResponse {
+        let status = err.status_code();
+        let body = match &err {
+            crate::error::FrameworkError::ParamError { param_name } => {
+                serde_json::json!({
+                    "error": format!("Missing required parameter: {}", param_name)
+                })
+            }
+            crate::error::FrameworkError::ValidationError { field, message } => {
+                serde_json::json!({
+                    "error": "Validation failed",
+                    "field": field,
+                    "message": message
+                })
+            }
+            _ => {
+                serde_json::json!({
+                    "error": err.to_string()
+                })
+            }
+        };
+        HttpResponse::json(body).status(status)
+    }
+}

@@ -320,6 +320,36 @@ impl App {
         container.read().ok()?.make::<T>()
     }
 
+    /// Resolve a concrete type, returning an error if not found
+    ///
+    /// This allows using the `?` operator in controllers and services for
+    /// automatic error propagation with proper HTTP responses.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// pub async fn index(_req: Request) -> Response {
+    ///     let service = App::resolve::<MyService>()?;
+    ///     // ...
+    /// }
+    /// ```
+    pub fn resolve<T: Any + Send + Sync + Clone + 'static>(
+    ) -> Result<T, crate::error::FrameworkError> {
+        Self::get::<T>().ok_or_else(crate::error::FrameworkError::service_not_found::<T>)
+    }
+
+    /// Resolve a trait binding, returning an error if not found
+    ///
+    /// This allows using the `?` operator for trait object resolution.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let client: Arc<dyn HttpClient> = App::resolve_make::<dyn HttpClient>()?;
+    /// ```
+    pub fn resolve_make<T: ?Sized + Send + Sync + 'static>(
+    ) -> Result<Arc<T>, crate::error::FrameworkError> {
+        Self::make::<T>().ok_or_else(crate::error::FrameworkError::service_not_found::<T>)
+    }
+
     /// Check if a concrete type is registered
     pub fn has<T: Any + 'static>() -> bool {
         // Check test container first

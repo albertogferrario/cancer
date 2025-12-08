@@ -5,6 +5,9 @@ pub use request::Request;
 pub use response::{HttpResponse, Redirect, RedirectRouteBuilder, Response, ResponseExt};
 
 /// Error type for missing route parameters
+///
+/// This type is kept for backward compatibility. New code should use
+/// `FrameworkError::param()` instead.
 #[derive(Debug)]
 pub struct ParamError {
     pub param_name: String,
@@ -16,6 +19,20 @@ impl From<ParamError> for HttpResponse {
             "error": format!("Missing required parameter: {}", err.param_name)
         }))
         .status(400)
+    }
+}
+
+impl From<ParamError> for crate::error::FrameworkError {
+    fn from(err: ParamError) -> crate::error::FrameworkError {
+        crate::error::FrameworkError::ParamError {
+            param_name: err.param_name,
+        }
+    }
+}
+
+impl From<ParamError> for Response {
+    fn from(err: ParamError) -> Response {
+        Err(HttpResponse::from(crate::error::FrameworkError::from(err)))
     }
 }
 

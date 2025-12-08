@@ -23,8 +23,9 @@ pub struct HomeProps {
 }
 
 pub async fn index(_req: Request) -> Response {
-    // Get the action from the service container
-    let action = App::get::<ExampleAction>().expect("ExampleAction not registered");
+    // Get the action from the service container using resolve()
+    // This returns a proper error response if not registered
+    let action = App::resolve::<ExampleAction>()?;
     let message = action.execute();
 
     inertia_response!("Home", HomeProps {

@@ -1,5 +1,6 @@
 pub mod config;
 pub mod container;
+pub mod error;
 pub mod http;
 pub mod inertia;
 pub mod middleware;
@@ -10,6 +11,7 @@ pub use config::{
     env, env_optional, env_required, AppConfig, Config, Environment, ServerConfig,
 };
 pub use container::{App, Container};
+pub use error::FrameworkError;
 pub use http::{json, text, HttpResponse, Redirect, Request, Response, ResponseExt};
 pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
 pub use middleware::{Middleware, MiddlewareFuture, MiddlewareRegistry, Next};
