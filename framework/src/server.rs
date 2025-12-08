@@ -41,7 +41,8 @@ impl Server {
         let config = Config::get::<ServerConfig>().unwrap_or_else(ServerConfig::from_env);
         Self {
             router: Arc::new(router.into()),
-            middleware: MiddlewareRegistry::new(),
+            // Pull global middleware registered via global_middleware! in bootstrap.rs
+            middleware: MiddlewareRegistry::from_global(),
             host: config.host,
             port: config.port,
         }

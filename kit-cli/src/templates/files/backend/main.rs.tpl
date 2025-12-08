@@ -15,14 +15,13 @@ async fn main() {
     // Register application configs
     config::register_all();
 
-    // Register services that need runtime configuration
+    // Register services and global middleware
     bootstrap::register();
 
     let router = routes::register();
 
     // Create server with configuration from environment
     Server::from_config(router)
-        .middleware(middleware::LoggingMiddleware)
         .run()
         .await
         .expect("Failed to start server");

@@ -27,6 +27,7 @@ mod chain;
 mod registry;
 
 pub use chain::MiddlewareChain;
+pub use registry::register_global_middleware;
 pub use registry::MiddlewareRegistry;
 
 use crate::http::{Request, Response};

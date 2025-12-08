@@ -14,7 +14,9 @@ pub use container::{App, Container};
 pub use error::FrameworkError;
 pub use http::{json, text, HttpResponse, Redirect, Request, Response, ResponseExt};
 pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
-pub use middleware::{Middleware, MiddlewareFuture, MiddlewareRegistry, Next};
+pub use middleware::{
+    register_global_middleware, Middleware, MiddlewareFuture, MiddlewareRegistry, Next,
+};
 pub use routing::{delete, get, post, put, route, GroupBuilder, GroupRouter, RouteBuilder, RouteDefBuilder, Router};
 pub use server::Server;
 
@@ -50,6 +52,30 @@ macro_rules! json_response {
 macro_rules! text_response {
     ($text:expr) => {
         Ok($crate::HttpResponse::text($text))
+    };
+}
+
+/// Register global middleware that runs on every request
+///
+/// Global middleware is registered in `bootstrap.rs` and runs in registration order,
+/// before any route-specific middleware.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// // In bootstrap.rs
+/// use kit::global_middleware;
+/// use crate::middleware;
+///
+/// pub fn register() {
+///     global_middleware!(middleware::LoggingMiddleware);
+///     global_middleware!(middleware::CorsMiddleware);
+/// }
+/// ```
+#[macro_export]
+macro_rules! global_middleware {
+    ($middleware:expr) => {
+        $crate::register_global_middleware($middleware)
     };
 }
 
