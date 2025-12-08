@@ -103,6 +103,13 @@ enum Commands {
     /// Drop all tables and re-run all migrations
     #[command(name = "migrate:fresh")]
     MigrateFresh,
+    /// Sync database schema to entity files (runs migrations + generates entities)
+    #[command(name = "db:sync")]
+    DbSync {
+        /// Skip running migrations before sync
+        #[arg(long)]
+        skip_migrations: bool,
+    },
 }
 
 fn main() {
@@ -154,6 +161,9 @@ fn main() {
         }
         Commands::MigrateFresh => {
             commands::migrate_fresh::run();
+        }
+        Commands::DbSync { skip_migrations } => {
+            commands::db_sync::run(skip_migrations);
         }
     }
 }

@@ -1,3 +1,4 @@
+pub mod db_sync;
 pub mod generate_types;
 pub mod make_action;
 pub mod make_controller;
