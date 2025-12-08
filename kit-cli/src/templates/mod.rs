@@ -340,31 +340,69 @@ impl ActiveModel {{
 }}
 
 // ============================================================================
-// RELATED TRAITS
-// Implement Related<T> to enable navigation between entities.
+// RELATIONS
+// Define relationships to other entities here.
+//
+// Note: The Relation enum is in the auto-generated entities file and will be
+// overwritten by `kit db:sync`. Define your relations using the patterns below.
 // ============================================================================
 
-// Example: One-to-many relation (e.g., User has many Posts)
-// First, add a variant to the Relation enum above:
-//   #[sea_orm(has_many = "super::posts::Entity")]
-//   Posts,
-// Then implement Related:
-// impl Related<super::posts::Entity> for Entity {{
-//     fn to() -> RelationDef {{
-//         Relation::Posts.def()
+// ----------------------------------------------------------------------------
+// DEFINING RELATIONS
+// Use Entity's relation builder methods to define RelationDef manually.
+// This approach doesn't require modifying the auto-generated Relation enum.
+// ----------------------------------------------------------------------------
+
+// Example: One-to-Many relation (e.g., User has many Posts)
+// impl Entity {{
+//     pub fn has_many_posts() -> RelationDef {{
+//         Entity::has_many(super::posts::Entity).into()
 //     }}
 // }}
 
-// Example: Many-to-one relation (e.g., Post belongs to User)
-// First, add a variant to the Relation enum above:
-//   #[sea_orm(belongs_to = "super::users::Entity", from = "Column::UserId", to = "super::users::Column::Id")]
-//   User,
-// Then implement Related:
-// impl Related<super::users::Entity> for Entity {{
-//     fn to() -> RelationDef {{
-//         Relation::User.def()
+// Example: Many-to-One / Belongs-To relation (e.g., Post belongs to User)
+// impl Entity {{
+//     pub fn belongs_to_user() -> RelationDef {{
+//         Entity::belongs_to(super::users::Entity)
+//             .from(Column::UserId)
+//             .to(super::users::Column::Id)
+//             .into()
 //     }}
 // }}
+
+// Example: Many-to-Many through a junction table (e.g., Post has many Tags)
+// impl Entity {{
+//     pub fn has_many_tags() -> RelationDef {{
+//         Entity::has_many(super::post_tags::Entity).into()
+//     }}
+// }}
+
+// ----------------------------------------------------------------------------
+// IMPLEMENTING Related<T>
+// Implement the Related trait to enable .find_related() queries.
+// ----------------------------------------------------------------------------
+
+// impl Related<super::posts::Entity> for Entity {{
+//     fn to() -> RelationDef {{
+//         Self::has_many_posts()
+//     }}
+// }}
+
+// impl Related<super::users::Entity> for Entity {{
+//     fn to() -> RelationDef {{
+//         Self::belongs_to_user()
+//     }}
+// }}
+
+// ----------------------------------------------------------------------------
+// USAGE EXAMPLE
+// Once relations are defined, you can use them in queries:
+//
+// let user_with_posts = users::Entity::find_by_id(1)
+//     .find_with_related(posts::Entity)
+//     .all(db)
+//     .await?;
+// ----------------------------------------------------------------------------
 "#,
         table_name = table_name,
         struct_name = struct_name,
