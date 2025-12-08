@@ -156,6 +156,8 @@ fn create_project(
         .map_err(|e| format!("Failed to create directories: {}", e))?;
     fs::create_dir_all(project_path.join("src/actions"))
         .map_err(|e| format!("Failed to create directories: {}", e))?;
+    fs::create_dir_all(project_path.join("src/models"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
     fs::create_dir_all(project_path.join("src/migrations"))
         .map_err(|e| format!("Failed to create directories: {}", e))?;
     fs::create_dir_all(project_path.join("src/bin"))
@@ -267,6 +269,13 @@ fn create_project(
         templates::example_action(),
     )
     .map_err(|e| format!("Failed to write src/actions/example_action.rs: {}", e))?;
+
+    // Write src/models/mod.rs
+    fs::write(
+        project_path.join("src/models/mod.rs"),
+        templates::models_mod(),
+    )
+    .map_err(|e| format!("Failed to write src/models/mod.rs: {}", e))?;
 
     // Write src/migrations/mod.rs
     fs::write(

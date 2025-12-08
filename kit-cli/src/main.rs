@@ -76,6 +76,12 @@ enum Commands {
         /// Name of the action (e.g., AddTodo, CreateUser)
         name: String,
     },
+    /// Generate a new model
+    #[command(name = "make:model")]
+    MakeModel {
+        /// Name of the model (e.g., Todo, User, Post)
+        name: String,
+    },
     /// Generate a new database migration
     #[command(name = "make:migration")]
     MakeMigration {
@@ -130,6 +136,9 @@ fn main() {
         }
         Commands::MakeAction { name } => {
             commands::make_action::run(name);
+        }
+        Commands::MakeModel { name } => {
+            commands::make_model::run(name);
         }
         Commands::MakeMigration { name } => {
             commands::make_migration::run(name);

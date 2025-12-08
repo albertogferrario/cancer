@@ -3,6 +3,7 @@ pub mod make_action;
 pub mod make_controller;
 pub mod make_middleware;
 pub mod make_migration;
+pub mod make_model;
 pub mod migrate;
 pub mod migrate_fresh;
 pub mod migrate_rollback;

@@ -3,6 +3,7 @@ mod bootstrap;
 mod config;
 mod controllers;
 mod middleware;
+mod models;
 mod routes;
 
 use kit::{Config, Server};
