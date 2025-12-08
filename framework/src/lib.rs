@@ -1,4 +1,5 @@
 pub mod config;
+pub mod container;
 pub mod http;
 pub mod inertia;
 pub mod middleware;
@@ -8,6 +9,7 @@ pub mod server;
 pub use config::{
     env, env_optional, env_required, AppConfig, Config, Environment, ServerConfig,
 };
+pub use container::{App, Container};
 pub use http::{json, text, HttpResponse, Redirect, Request, Response, ResponseExt};
 pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
 pub use middleware::{Middleware, MiddlewareFuture, MiddlewareRegistry, Next};
@@ -28,6 +30,7 @@ pub use serde;
 pub use kit_macros::inertia_response;
 pub use kit_macros::InertiaProps;
 pub use kit_macros::redirect;
+pub use kit_macros::service;
 
 #[macro_export]
 macro_rules! json_response {
@@ -41,4 +44,12 @@ macro_rules! text_response {
     ($text:expr) => {
         Ok($crate::HttpResponse::text($text))
     };
+}
+
+/// Testing utilities for the application container
+///
+/// Provides `TestContainer` for setting up isolated test environments with
+/// fake implementations.
+pub mod testing {
+    pub use crate::container::testing::{TestContainer, TestContainerGuard};
 }

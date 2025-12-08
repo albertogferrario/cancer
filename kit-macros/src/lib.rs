@@ -8,6 +8,7 @@ use proc_macro::TokenStream;
 
 mod inertia;
 mod redirect;
+mod service;
 mod utils;
 
 /// Derive macro for generating `Serialize` implementation for Inertia props
@@ -73,4 +74,40 @@ pub fn inertia_response(input: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn redirect(input: TokenStream) -> TokenStream {
     redirect::redirect_impl(input)
+}
+
+/// Mark a trait as a service for the App container
+///
+/// This attribute macro automatically adds `Send + Sync + 'static` bounds
+/// to your trait, making it suitable for use with the dependency injection
+/// container.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use kit::service;
+///
+/// #[service]
+/// pub trait HttpClient {
+///     async fn get(&self, url: &str) -> Result<String, Error>;
+/// }
+///
+/// // This expands to:
+/// pub trait HttpClient: Send + Sync + 'static {
+///     async fn get(&self, url: &str) -> Result<String, Error>;
+/// }
+/// ```
+///
+/// Then you can use it with the App container:
+///
+/// ```rust,ignore
+/// // Register
+/// App::bind::<dyn HttpClient>(Arc::new(RealHttpClient::new()));
+///
+/// // Resolve
+/// let client: Arc<dyn HttpClient> = App::make::<dyn HttpClient>().unwrap();
+/// ```
+#[proc_macro_attribute]
+pub fn service(_attr: TokenStream, input: TokenStream) -> TokenStream {
+    service::service_impl(input)
 }

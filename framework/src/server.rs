@@ -1,4 +1,5 @@
 use crate::config::{Config, ServerConfig};
+use crate::container::App;
 use crate::http::{HttpResponse, Request};
 use crate::inertia::InertiaContext;
 use crate::middleware::{Middleware, MiddlewareChain, MiddlewareRegistry};
@@ -31,6 +32,9 @@ impl Server {
     }
 
     pub fn from_config(router: impl Into<Router>) -> Self {
+        // Initialize the App container
+        App::init();
+
         let config = Config::get::<ServerConfig>().unwrap_or_else(ServerConfig::from_env);
         Self {
             router: Arc::new(router.into()),
