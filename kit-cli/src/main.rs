@@ -58,6 +58,12 @@ enum Commands {
         #[arg(long, short = 'w')]
         watch: bool,
     },
+    /// Generate a new middleware
+    #[command(name = "make:middleware")]
+    MakeMiddleware {
+        /// Name of the middleware (e.g., Auth, RateLimit)
+        name: String,
+    },
 }
 
 fn main() {
@@ -82,6 +88,9 @@ fn main() {
         }
         Commands::GenerateTypes { output, watch } => {
             commands::generate_types::run(output, watch);
+        }
+        Commands::MakeMiddleware { name } => {
+            commands::make_middleware::run(name);
         }
     }
 }

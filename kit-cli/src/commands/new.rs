@@ -152,6 +152,8 @@ fn create_project(
         .map_err(|e| format!("Failed to create directories: {}", e))?;
     fs::create_dir_all(project_path.join("src/config"))
         .map_err(|e| format!("Failed to create directories: {}", e))?;
+    fs::create_dir_all(project_path.join("src/middleware"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
 
     // Frontend directories
     fs::create_dir_all(project_path.join("frontend/src/pages"))
@@ -224,6 +226,20 @@ fn create_project(
         templates::config_mail(),
     )
     .map_err(|e| format!("Failed to write src/config/mail.rs: {}", e))?;
+
+    // Write src/middleware/mod.rs
+    fs::write(
+        project_path.join("src/middleware/mod.rs"),
+        templates::middleware_mod(),
+    )
+    .map_err(|e| format!("Failed to write src/middleware/mod.rs: {}", e))?;
+
+    // Write src/middleware/logging.rs
+    fs::write(
+        project_path.join("src/middleware/logging.rs"),
+        templates::middleware_logging(),
+    )
+    .map_err(|e| format!("Failed to write src/middleware/logging.rs: {}", e))?;
 
     // === Frontend files ===
 

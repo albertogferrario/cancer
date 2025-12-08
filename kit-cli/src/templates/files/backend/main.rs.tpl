@@ -1,5 +1,6 @@
 mod config;
 mod controllers;
+mod middleware;
 mod routes;
 
 use kit::{Config, Server};
@@ -16,6 +17,7 @@ async fn main() {
 
     // Create server with configuration from environment
     Server::from_config(router)
+        .middleware(middleware::LoggingMiddleware)
         .run()
         .await
         .expect("Failed to start server");

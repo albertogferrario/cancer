@@ -31,6 +31,39 @@ pub fn home_controller() -> &'static str {
     include_str!("files/backend/controllers/home.rs.tpl")
 }
 
+// Middleware templates
+
+pub fn middleware_mod() -> &'static str {
+    include_str!("files/backend/middleware/mod.rs.tpl")
+}
+
+pub fn middleware_logging() -> &'static str {
+    include_str!("files/backend/middleware/logging.rs.tpl")
+}
+
+/// Template for generating new middleware with make:middleware command
+pub fn middleware_template(name: &str, struct_name: &str) -> String {
+    format!(
+        r#"//! {name} middleware
+
+use kit::{{async_trait, Middleware, Next, Request, Response}};
+
+/// {name} middleware
+pub struct {struct_name};
+
+#[async_trait]
+impl Middleware for {struct_name} {{
+    async fn handle(&self, request: Request, next: Next) -> Response {{
+        // TODO: Implement middleware logic
+        next(request).await
+    }}
+}}
+"#,
+        name = name,
+        struct_name = struct_name
+    )
+}
+
 // Config templates
 
 pub fn config_mod() -> &'static str {
