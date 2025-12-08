@@ -1,6 +1,7 @@
 use kit::Router;
 
 use crate::controllers;
+use crate::middleware::AuthMiddleware;
 
 pub fn register() -> Router {
     Router::new()
@@ -10,5 +11,7 @@ pub fn register() -> Router {
         .post("/users", controllers::user::store).name("users.store")
         .get("/redirect-example", controllers::user::redirect_example)
         .get("/config", controllers::config_example::show).name("config.show")
+        // Protected route - requires Authorization header
+        .get("/protected", controllers::home::index).middleware(AuthMiddleware)
         .into()
 }

@@ -1,4 +1,5 @@
 use crate::http::{Request, Response};
+use crate::middleware::{into_boxed, BoxedMiddleware, Middleware};
 use matchit::Router as MatchitRouter;
 use std::collections::HashMap;
 use std::future::Future;
@@ -74,6 +75,8 @@ pub struct Router {
     post_routes: MatchitRouter<Arc<BoxedHandler>>,
     put_routes: MatchitRouter<Arc<BoxedHandler>>,
     delete_routes: MatchitRouter<Arc<BoxedHandler>>,
+    /// Middleware assignments: path -> boxed middleware instances
+    route_middleware: HashMap<String, Vec<BoxedMiddleware>>,
 }
 
 impl Router {
@@ -83,7 +86,41 @@ impl Router {
             post_routes: MatchitRouter::new(),
             put_routes: MatchitRouter::new(),
             delete_routes: MatchitRouter::new(),
+            route_middleware: HashMap::new(),
         }
+    }
+
+    /// Get middleware for a specific route path
+    pub fn get_route_middleware(&self, path: &str) -> Vec<BoxedMiddleware> {
+        self.route_middleware.get(path).cloned().unwrap_or_default()
+    }
+
+    /// Register middleware for a path (internal use)
+    pub(crate) fn add_middleware(&mut self, path: &str, middleware: BoxedMiddleware) {
+        self.route_middleware
+            .entry(path.to_string())
+            .or_default()
+            .push(middleware);
+    }
+
+    /// Insert a GET route with a pre-boxed handler (internal use for groups)
+    pub(crate) fn insert_get(&mut self, path: &str, handler: Arc<BoxedHandler>) {
+        self.get_routes.insert(path, handler).ok();
+    }
+
+    /// Insert a POST route with a pre-boxed handler (internal use for groups)
+    pub(crate) fn insert_post(&mut self, path: &str, handler: Arc<BoxedHandler>) {
+        self.post_routes.insert(path, handler).ok();
+    }
+
+    /// Insert a PUT route with a pre-boxed handler (internal use for groups)
+    pub(crate) fn insert_put(&mut self, path: &str, handler: Arc<BoxedHandler>) {
+        self.put_routes.insert(path, handler).ok();
+    }
+
+    /// Insert a DELETE route with a pre-boxed handler (internal use for groups)
+    pub(crate) fn insert_delete(&mut self, path: &str, handler: Arc<BoxedHandler>) {
+        self.delete_routes.insert(path, handler).ok();
     }
 
     /// Register a GET route
@@ -179,7 +216,7 @@ impl Default for Router {
 
 /// Builder returned after registering a route, enabling .name() chaining
 pub struct RouteBuilder {
-    router: Router,
+    pub(crate) router: Router,
     last_path: String,
     #[allow(dead_code)]
     _last_method: Method,
@@ -190,6 +227,21 @@ impl RouteBuilder {
     pub fn name(self, name: &str) -> Router {
         register_route_name(name, &self.last_path);
         self.router
+    }
+
+    /// Apply middleware to the most recently registered route
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// Router::new()
+    ///     .get("/admin", admin_handler).middleware(AuthMiddleware)
+    ///     .get("/api/users", users_handler).middleware(CorsMiddleware)
+    /// ```
+    pub fn middleware<M: Middleware + 'static>(mut self, middleware: M) -> RouteBuilder {
+        self.router
+            .add_middleware(&self.last_path, into_boxed(middleware));
+        self
     }
 
     /// Register a GET route (for chaining without .name())

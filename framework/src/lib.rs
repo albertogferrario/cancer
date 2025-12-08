@@ -1,6 +1,7 @@
 pub mod config;
 pub mod http;
 pub mod inertia;
+pub mod middleware;
 pub mod routing;
 pub mod server;
 
@@ -9,8 +10,12 @@ pub use config::{
 };
 pub use http::{json, text, HttpResponse, Redirect, Request, Response, ResponseExt};
 pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
-pub use routing::{route, RouteBuilder, Router};
+pub use middleware::{Middleware, MiddlewareFuture, MiddlewareRegistry, Next};
+pub use routing::{route, GroupBuilder, GroupRouter, RouteBuilder, Router};
 pub use server::Server;
+
+// Re-export async_trait for middleware implementations
+pub use async_trait::async_trait;
 
 // Re-export for macro usage
 #[doc(hidden)]

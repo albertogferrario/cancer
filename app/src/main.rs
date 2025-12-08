@@ -2,6 +2,7 @@ use kit::{Config, Server};
 
 mod config;
 mod controllers;
+mod middleware;
 mod routes;
 
 #[tokio::main]
@@ -14,8 +15,8 @@ async fn main() {
 
     let router = routes::register();
 
-    // Use config-based server (reads SERVER_PORT from .env)
     Server::from_config(router)
+        .middleware(middleware::LoggingMiddleware) // Global middleware
         .run()
         .await
         .expect("Failed to start server");
