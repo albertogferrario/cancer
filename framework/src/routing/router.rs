@@ -10,7 +10,7 @@ use std::sync::{Arc, OnceLock, RwLock};
 static ROUTE_REGISTRY: OnceLock<RwLock<HashMap<String, String>>> = OnceLock::new();
 
 /// Register a route name -> path mapping
-fn register_route_name(name: &str, path: &str) {
+pub fn register_route_name(name: &str, path: &str) {
     let registry = ROUTE_REGISTRY.get_or_init(|| RwLock::new(HashMap::new()));
     if let Ok(mut map) = registry.write() {
         map.insert(name.to_string(), path.to_string());
@@ -241,6 +241,17 @@ impl RouteBuilder {
     pub fn middleware<M: Middleware + 'static>(mut self, middleware: M) -> RouteBuilder {
         self.router
             .add_middleware(&self.last_path, into_boxed(middleware));
+        self
+    }
+
+    /// Apply pre-boxed middleware to the most recently registered route
+    /// (Used internally by route macros)
+    pub fn middleware_boxed(mut self, middleware: BoxedMiddleware) -> RouteBuilder {
+        self.router
+            .route_middleware
+            .entry(self.last_path.clone())
+            .or_default()
+            .push(middleware);
         self
     }
 

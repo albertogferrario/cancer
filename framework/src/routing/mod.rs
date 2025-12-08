@@ -1,5 +1,7 @@
 mod group;
+mod macros;
 mod router;
 
 pub use group::{GroupBuilder, GroupRouter};
-pub use router::{route, route_with_params, BoxedHandler, RouteBuilder, Router};
+pub use macros::{delete, get, post, put, HttpMethod, RouteDefBuilder};
+pub use router::{register_route_name, route, route_with_params, BoxedHandler, RouteBuilder, Router};

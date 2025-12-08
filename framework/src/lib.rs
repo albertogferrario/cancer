@@ -11,7 +11,7 @@ pub use config::{
 pub use http::{json, text, HttpResponse, Redirect, Request, Response, ResponseExt};
 pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
 pub use middleware::{Middleware, MiddlewareFuture, MiddlewareRegistry, Next};
-pub use routing::{route, GroupBuilder, GroupRouter, RouteBuilder, Router};
+pub use routing::{delete, get, post, put, route, GroupBuilder, GroupRouter, RouteBuilder, RouteDefBuilder, Router};
 pub use server::Server;
 
 // Re-export async_trait for middleware implementations

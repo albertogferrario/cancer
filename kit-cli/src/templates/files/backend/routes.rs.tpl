@@ -1,9 +1,7 @@
-use kit::Router;
+use kit::{get, routes};
 
 use crate::controllers;
 
-pub fn register() -> Router {
-    Router::new()
-        .get("/", controllers::home::index)
-        .into()
+routes! {
+    get("/", controllers::home::index),
 }
