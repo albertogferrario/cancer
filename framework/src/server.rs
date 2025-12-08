@@ -35,6 +35,9 @@ impl Server {
         // Initialize the App container
         App::init();
 
+        // Boot all auto-registered services from #[service(ConcreteType)]
+        App::boot_services();
+
         let config = Config::get::<ServerConfig>().unwrap_or_else(ServerConfig::from_env);
         Self {
             router: Arc::new(router.into()),

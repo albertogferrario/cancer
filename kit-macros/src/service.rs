@@ -1,18 +1,19 @@
 //! Service trait macro for the Kit framework
 //!
-//! Provides the `#[service]` attribute macro that automatically adds
-//! `Send + Sync + 'static` bounds to trait definitions.
+//! Provides the `#[service]` attribute macro that:
+//! 1. Adds `Send + Sync + 'static` bounds to trait definitions
+//! 2. Optionally auto-registers a concrete implementation with the container
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ItemTrait};
+use syn::{parse_macro_input, ItemTrait, Path};
 
 /// Implements the `#[service]` attribute macro
 ///
 /// This macro transforms a trait definition to add `Send + Sync + 'static` bounds,
 /// making it suitable for use with the App container.
 ///
-/// # Example
+/// # Without concrete type (existing behavior)
 ///
 /// ```rust,ignore
 /// #[service]
@@ -25,7 +26,19 @@ use syn::{parse_macro_input, ItemTrait};
 ///     async fn get(&self, url: &str) -> Result<String, Error>;
 /// }
 /// ```
-pub fn service_impl(input: TokenStream) -> TokenStream {
+///
+/// # With concrete type (auto-registration)
+///
+/// ```rust,ignore
+/// #[service(RedisCache)]
+/// pub trait CacheStore {
+///     fn get(&self, key: &str) -> Option<String>;
+/// }
+///
+/// // This also registers the binding at startup:
+/// // App::bind::<dyn CacheStore>(Arc::new(RedisCache::default()))
+/// ```
+pub fn service_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut item_trait = parse_macro_input!(input as ItemTrait);
 
     // Add Send + Sync + 'static to the trait's supertraits
@@ -75,11 +88,35 @@ pub fn service_impl(input: TokenStream) -> TokenStream {
         item_trait.supertraits.push(static_bound);
     }
 
-    // If there were no supertraits before, we need to add the colon
-    // syn handles this automatically
+    let trait_name = &item_trait.ident;
+    let trait_name_str = trait_name.to_string();
 
-    let expanded = quote! {
-        #item_trait
+    // Check if a concrete type was specified in the attribute
+    let expanded = if attr.is_empty() {
+        // No concrete type - just add bounds
+        quote! {
+            #item_trait
+        }
+    } else {
+        // Parse the concrete type from attribute
+        let concrete_type = parse_macro_input!(attr as Path);
+
+        // Generate inventory submission for auto-registration
+        quote! {
+            #item_trait
+
+            // Auto-register this service binding at startup
+            ::kit::inventory::submit! {
+                ::kit::container::provider::ServiceBindingEntry {
+                    register: || {
+                        ::kit::App::bind::<dyn #trait_name>(
+                            ::std::sync::Arc::new(<#concrete_type as ::std::default::Default>::default())
+                        );
+                    },
+                    name: #trait_name_str,
+                }
+            }
+        }
     };
 
     TokenStream::from(expanded)

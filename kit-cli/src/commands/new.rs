@@ -241,6 +241,13 @@ fn create_project(
     )
     .map_err(|e| format!("Failed to write src/middleware/logging.rs: {}", e))?;
 
+    // Write src/bootstrap.rs
+    fs::write(
+        project_path.join("src/bootstrap.rs"),
+        templates::bootstrap(),
+    )
+    .map_err(|e| format!("Failed to write src/bootstrap.rs: {}", e))?;
+
     // === Frontend files ===
 
     // Write frontend/package.json

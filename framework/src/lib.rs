@@ -19,6 +19,10 @@ pub use server::Server;
 // Re-export async_trait for middleware implementations
 pub use async_trait::async_trait;
 
+// Re-export inventory for #[service(ConcreteType)] macro
+#[doc(hidden)]
+pub use inventory;
+
 // Re-export for macro usage
 #[doc(hidden)]
 pub use serde_json;

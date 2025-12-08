@@ -108,6 +108,6 @@ pub fn redirect(input: TokenStream) -> TokenStream {
 /// let client: Arc<dyn HttpClient> = App::make::<dyn HttpClient>().unwrap();
 /// ```
 #[proc_macro_attribute]
-pub fn service(_attr: TokenStream, input: TokenStream) -> TokenStream {
-    service::service_impl(input)
+pub fn service(attr: TokenStream, input: TokenStream) -> TokenStream {
+    service::service_impl(attr, input)
 }

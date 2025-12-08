@@ -1,3 +1,4 @@
+mod bootstrap;
 mod config;
 mod controllers;
 mod middleware;
@@ -12,6 +13,9 @@ async fn main() {
 
     // Register application configs
     config::register_all();
+
+    // Register services that need runtime configuration
+    bootstrap::register();
 
     let router = routes::register();
 

@@ -5,25 +5,27 @@
 //! - Factories: new instance per resolution
 //! - Trait bindings: bind interfaces to implementations
 //! - Test faking: swap implementations in tests
+//! - Service Providers: bootstrap services with register/boot lifecycle
 //!
 //! # Example
 //!
 //! ```rust,ignore
 //! use kit::{App, service};
 //!
-//! // Define a service trait
-//! #[service]
+//! // Define a service trait with auto-registration
+//! #[service(RealHttpClient)]
 //! pub trait HttpClient {
 //!     async fn get(&self, url: &str) -> Result<String, Error>;
 //! }
 //!
-//! // Register implementation
-//! App::bind::<dyn HttpClient>(RealHttpClient::new());
+//! // Or register manually
+//! App::bind::<dyn HttpClient>(Arc::new(RealHttpClient::new()));
 //!
 //! // Resolve anywhere in your app
 //! let client: Arc<dyn HttpClient> = App::make::<dyn HttpClient>().unwrap();
 //! ```
 
+pub mod provider;
 pub mod testing;
 
 use std::any::{Any, TypeId};
@@ -357,5 +359,13 @@ impl App {
             .and_then(|c| c.read().ok())
             .map(|c| c.has_binding::<T>())
             .unwrap_or(false)
+    }
+
+    /// Boot all auto-registered services
+    ///
+    /// This registers all services marked with `#[service(ConcreteType)]`.
+    /// Called automatically by `Server::from_config()`.
+    pub fn boot_services() {
+        provider::bootstrap();
     }
 }

@@ -95,6 +95,10 @@ pub fn config_mail() -> &'static str {
     include_str!("files/backend/config/mail.rs.tpl")
 }
 
+pub fn bootstrap() -> &'static str {
+    include_str!("files/backend/bootstrap.rs.tpl")
+}
+
 // Frontend templates
 
 pub fn package_json(project_name: &str) -> String {
