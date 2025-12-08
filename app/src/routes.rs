@@ -12,4 +12,7 @@ routes! {
     get("/config", controllers::config_example::show).name("config.show"),
     // Protected route - requires Authorization header
     get("/protected", controllers::home::index).middleware(AuthMiddleware),
+    // Todo routes
+    get("/todos", controllers::todo::list).name("todos.index"),
+    post("/todos/random", controllers::todo::create_random).name("todos.create_random"),
 }

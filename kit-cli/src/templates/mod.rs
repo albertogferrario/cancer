@@ -132,6 +132,16 @@ pub fn bootstrap() -> &'static str {
     include_str!("files/backend/bootstrap.rs.tpl")
 }
 
+// Migrations templates
+
+pub fn migrations_mod() -> &'static str {
+    include_str!("files/backend/migrations/mod.rs.tpl")
+}
+
+pub fn migrate_bin() -> &'static str {
+    include_str!("files/backend/bin/migrate.rs.tpl")
+}
+
 // Frontend templates
 
 pub fn package_json(project_name: &str) -> String {

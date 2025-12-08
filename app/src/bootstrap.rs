@@ -33,8 +33,8 @@ use crate::middleware;
 /// Called from main.rs before `Server::from_config()`.
 /// Middleware and services registered here can use environment variables, config files, etc.
 pub async fn register() {
-    // Initialize database connection (optional - comment out if not using database)
-    // DB::init().await.expect("Failed to connect to database");
+    // Initialize database connection
+    DB::init().await.expect("Failed to connect to database");
 
     // Global middleware (runs on every request in registration order)
     global_middleware!(middleware::LoggingMiddleware);

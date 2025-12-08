@@ -5,6 +5,7 @@ mod bootstrap;
 mod config;
 mod controllers;
 mod middleware;
+mod models;
 mod routes;
 
 #[tokio::main]

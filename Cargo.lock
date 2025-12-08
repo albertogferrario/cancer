@@ -100,7 +100,9 @@ dependencies = [
  "async-trait",
  "dotenvy",
  "kit-rs",
+ "sea-orm",
  "sea-orm-migration",
+ "serde",
  "tokio",
 ]
 

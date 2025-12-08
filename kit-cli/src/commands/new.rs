@@ -156,6 +156,10 @@ fn create_project(
         .map_err(|e| format!("Failed to create directories: {}", e))?;
     fs::create_dir_all(project_path.join("src/actions"))
         .map_err(|e| format!("Failed to create directories: {}", e))?;
+    fs::create_dir_all(project_path.join("src/migrations"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
+    fs::create_dir_all(project_path.join("src/bin"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
 
     // Frontend directories
     fs::create_dir_all(project_path.join("frontend/src/pages"))
@@ -263,6 +267,20 @@ fn create_project(
         templates::example_action(),
     )
     .map_err(|e| format!("Failed to write src/actions/example_action.rs: {}", e))?;
+
+    // Write src/migrations/mod.rs
+    fs::write(
+        project_path.join("src/migrations/mod.rs"),
+        templates::migrations_mod(),
+    )
+    .map_err(|e| format!("Failed to write src/migrations/mod.rs: {}", e))?;
+
+    // Write src/bin/migrate.rs
+    fs::write(
+        project_path.join("src/bin/migrate.rs"),
+        templates::migrate_bin(),
+    )
+    .map_err(|e| format!("Failed to write src/bin/migrate.rs: {}", e))?;
 
     // === Frontend files ===
 
