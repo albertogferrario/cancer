@@ -13,24 +13,24 @@
 //! // For services needing runtime config, register here:
 //! pub fn register() {
 //!     let db_url = std::env::var("DATABASE_URL").unwrap();
-//!     App::bind::<dyn Database>(Arc::new(PostgresDB::connect(&db_url)));
+//!     bind!(dyn Database, PostgresDB::connect(&db_url));
 //! }
 //! ```
 
 #[allow(unused_imports)]
-use kit::App;
+use kit::{bind, singleton, App};
 
 /// Register services that need runtime configuration
 ///
 /// Called from main.rs before `Server::from_config()`.
 /// Services registered here can use environment variables, config files, etc.
 pub fn register() {
-    // Example: Register a service with runtime config
+    // Example: Register a trait binding with runtime config
     // let db_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost/app".to_string());
-    // App::bind::<dyn Database>(Arc::new(PostgresDB::connect(&db_url)));
+    // bind!(dyn Database, PostgresDB::connect(&db_url));
 
-    // Example: Register a singleton
-    // App::singleton(CacheService::new());
+    // Example: Register a concrete singleton
+    // singleton!(CacheService::new());
 
     // Add your service registrations here
 }

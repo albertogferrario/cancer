@@ -10,7 +10,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use kit::{App, service};
+//! use kit::{App, bind, singleton, service};
 //!
 //! // Define a service trait with auto-registration
 //! #[service(RealHttpClient)]
@@ -18,8 +18,9 @@
 //!     async fn get(&self, url: &str) -> Result<String, Error>;
 //! }
 //!
-//! // Or register manually
-//! App::bind::<dyn HttpClient>(Arc::new(RealHttpClient::new()));
+//! // Or register manually using macros
+//! bind!(dyn HttpClient, RealHttpClient::new());
+//! singleton!(CacheService::new());
 //!
 //! // Resolve anywhere in your app
 //! let client: Arc<dyn HttpClient> = App::make::<dyn HttpClient>().unwrap();
@@ -189,11 +190,11 @@ impl Default for Container {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::App;
+/// use kit::{App, bind, singleton};
 ///
-/// // Register services at startup
-/// App::singleton(DatabaseConnection::new(&url));
-/// App::bind::<dyn HttpClient>(Arc::new(RealHttpClient::new()));
+/// // Register services at startup using macros
+/// singleton!(DatabaseConnection::new(&url));
+/// bind!(dyn HttpClient, RealHttpClient::new());
 ///
 /// // Resolve anywhere
 /// let db: DatabaseConnection = App::get().unwrap();
@@ -368,4 +369,60 @@ impl App {
     pub fn boot_services() {
         provider::bootstrap();
     }
+}
+
+/// Bind a trait to a singleton implementation (auto-wraps in Arc)
+///
+/// # Example
+/// ```rust,ignore
+/// bind!(dyn Database, PostgresDB::connect(&db_url));
+/// bind!(dyn HttpClient, RealHttpClient::new());
+/// ```
+#[macro_export]
+macro_rules! bind {
+    ($trait:ty, $instance:expr) => {
+        $crate::App::bind::<$trait>(::std::sync::Arc::new($instance) as ::std::sync::Arc<$trait>)
+    };
+}
+
+/// Bind a trait to a factory (auto-wraps in Arc, new instance each resolution)
+///
+/// # Example
+/// ```rust,ignore
+/// bind_factory!(dyn HttpClient, || RealHttpClient::new());
+/// ```
+#[macro_export]
+macro_rules! bind_factory {
+    ($trait:ty, $factory:expr) => {{
+        let f = $factory;
+        $crate::App::bind_factory::<$trait, _>(move || {
+            ::std::sync::Arc::new(f()) as ::std::sync::Arc<$trait>
+        })
+    }};
+}
+
+/// Register a singleton instance (concrete type)
+///
+/// # Example
+/// ```rust,ignore
+/// singleton!(DatabaseConnection::new(&url));
+/// ```
+#[macro_export]
+macro_rules! singleton {
+    ($instance:expr) => {
+        $crate::App::singleton($instance)
+    };
+}
+
+/// Register a factory (concrete type, new instance each resolution)
+///
+/// # Example
+/// ```rust,ignore
+/// factory!(|| RequestLogger::new());
+/// ```
+#[macro_export]
+macro_rules! factory {
+    ($factory:expr) => {
+        $crate::App::factory($factory)
+    };
 }
