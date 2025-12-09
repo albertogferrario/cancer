@@ -120,6 +120,24 @@ impl {struct_name} {{
     )
 }
 
+/// Template for generating new Inertia page with make:inertia command
+pub fn inertia_page_template(component_name: &str) -> String {
+    format!(
+        r#"export default function {component_name}() {{
+  return (
+    <div className="font-sans p-8 max-w-xl mx-auto">
+      <h1 className="text-3xl font-bold">{component_name}</h1>
+      <p className="mt-2">
+        Edit <code className="bg-gray-100 px-1 rounded">frontend/src/pages/{component_name}.tsx</code> to get started.
+      </p>
+    </div>
+  )
+}}
+"#,
+        component_name = component_name
+    )
+}
+
 /// Template for generating new error with make:error command
 pub fn error_template(struct_name: &str) -> String {
     // Convert PascalCase to human readable message

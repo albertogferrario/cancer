@@ -82,6 +82,12 @@ enum Commands {
         /// Name of the error (e.g., UserNotFound, InvalidInput)
         name: String,
     },
+    /// Generate a new Inertia page
+    #[command(name = "make:inertia")]
+    MakeInertia {
+        /// Name of the page (e.g., About, UserProfile)
+        name: String,
+    },
     /// Generate a new database migration
     #[command(name = "make:migration")]
     MakeMigration {
@@ -146,6 +152,9 @@ fn main() {
         }
         Commands::MakeError { name } => {
             commands::make_error::run(name);
+        }
+        Commands::MakeInertia { name } => {
+            commands::make_inertia::run(name);
         }
         Commands::MakeMigration { name } => {
             commands::make_migration::run(name);
