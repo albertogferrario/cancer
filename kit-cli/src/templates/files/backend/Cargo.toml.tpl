@@ -16,5 +16,7 @@ path = "src/bin/migrate.rs"
 kit = {{ package = "kit-rs", version = "0.1" }}
 tokio = {{ version = "1", features = ["full"] }}
 sea-orm-migration = {{ version = "1.0", features = ["sqlx-sqlite", "sqlx-postgres", "runtime-tokio-native-tls"] }}
+sea-orm = {{ version = "1.0", features = ["sqlx-sqlite", "sqlx-postgres", "runtime-tokio-native-tls", "macros"] }}
+serde = {{ version = "1.0", features = ["derive"] }}
 async-trait = "0.1"
 dotenvy = "0.15"
