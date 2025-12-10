@@ -80,7 +80,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
     if params.is_empty() {
         let output = quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(_: kit_rs::Request) #fn_output {
+            #fn_vis #async_token fn #fn_name #fn_generics(_: kit::Request) #fn_output {
                 #fn_block
             }
         };
@@ -127,7 +127,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
         // If we have a Request param, we need to handle it specially
         quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(__kit_req: kit_rs::Request) #fn_output {
+            #fn_vis #async_token fn #fn_name #fn_generics(__kit_req: kit::Request) #fn_output {
                 let __kit_params = __kit_req.params().clone();
                 #(#extractions)*
                 #fn_block
@@ -136,7 +136,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
     } else {
         quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(__kit_req: kit_rs::Request) #fn_output {
+            #fn_vis #async_token fn #fn_name #fn_generics(__kit_req: kit::Request) #fn_output {
                 let __kit_params = __kit_req.params().clone();
                 #(#extractions)*
                 #fn_block
@@ -167,7 +167,7 @@ fn classify_param_type(ty: &Type) -> ParamKind {
                 return ParamKind::Request;
             }
             if segments.len() == 2
-                && segments[0].ident == "kit_rs"
+                && segments[0].ident == "kit"
                 && segments[1].ident == "Request"
             {
                 return ParamKind::Request;
@@ -236,8 +236,8 @@ fn generate_extraction(
             quote! {
                 let #pat: #ty = {
                     let __value = __kit_params.get(#param_name)
-                        .ok_or_else(|| kit_rs::FrameworkError::param(#param_name))?;
-                    <#ty as kit_rs::FromParam>::from_param(__value)?
+                        .ok_or_else(|| kit::FrameworkError::param(#param_name))?;
+                    <#ty as kit::FromParam>::from_param(__value)?
                 };
             }
         }
@@ -247,8 +247,8 @@ fn generate_extraction(
             quote! {
                 let #pat: #ty = {
                     let __value = __kit_params.get(#param_name)
-                        .ok_or_else(|| kit_rs::FrameworkError::param(#param_name))?;
-                    <#ty as kit_rs::AutoRouteBinding>::from_route_param(__value).await?
+                        .ok_or_else(|| kit::FrameworkError::param(#param_name))?;
+                    <#ty as kit::AutoRouteBinding>::from_route_param(__value).await?
                 };
             }
         }
@@ -256,7 +256,7 @@ fn generate_extraction(
             // Use FromRequest trait (consumes request body)
             *has_consumer = true;
             quote! {
-                let #pat: #ty = <#ty as kit_rs::FromRequest>::from_request(__kit_req).await?;
+                let #pat: #ty = <#ty as kit::FromRequest>::from_request(__kit_req).await?;
             }
         }
     }
