@@ -12,9 +12,9 @@ pub use config::{
     env, env_optional, env_required, AppConfig, Config, Environment, ServerConfig,
 };
 pub use container::{App, Container};
-pub use database::{Database, DatabaseConfig, DatabaseType, DbConnection, Model, ModelMut, DB};
+pub use database::{Database, DatabaseConfig, DatabaseType, DbConnection, Model, ModelMut, RouteBinding, DB};
 pub use error::{AppError, FrameworkError, HttpError, ValidationErrors};
-pub use http::{json, text, FormRequest, FromRequest, HttpResponse, Redirect, Request, Response, ResponseExt};
+pub use http::{json, text, FormRequest, FromParam, FromRequest, HttpResponse, Redirect, Request, Response, ResponseExt};
 pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
 pub use middleware::{
     register_global_middleware, Middleware, MiddlewareFuture, MiddlewareRegistry, Next,

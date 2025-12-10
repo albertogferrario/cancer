@@ -52,3 +52,74 @@ impl FromRequest for Request {
         Ok(req)
     }
 }
+
+/// Trait for types that can be extracted from a single path parameter
+///
+/// This trait enables automatic extraction of typed values from route parameters
+/// like `/users/{id}` where `{id}` can be extracted as an `i32`.
+///
+/// # Example
+///
+/// The `#[handler]` macro uses this trait to transform:
+///
+/// ```rust,ignore
+/// #[handler]
+/// pub async fn show(id: i32, slug: String) -> Response {
+///     // ...
+/// }
+/// ```
+///
+/// Into code that extracts `id` and `slug` from the route parameters.
+pub trait FromParam: Sized {
+    /// Extract Self from a string parameter value
+    ///
+    /// Returns `Err(FrameworkError)` if extraction fails, which will be
+    /// converted to an appropriate HTTP error response (400 Bad Request).
+    fn from_param(value: &str) -> Result<Self, FrameworkError>;
+}
+
+impl FromParam for String {
+    fn from_param(value: &str) -> Result<Self, FrameworkError> {
+        Ok(value.to_string())
+    }
+}
+
+impl FromParam for i32 {
+    fn from_param(value: &str) -> Result<Self, FrameworkError> {
+        value
+            .parse()
+            .map_err(|_| FrameworkError::param_parse(value, "i32"))
+    }
+}
+
+impl FromParam for i64 {
+    fn from_param(value: &str) -> Result<Self, FrameworkError> {
+        value
+            .parse()
+            .map_err(|_| FrameworkError::param_parse(value, "i64"))
+    }
+}
+
+impl FromParam for u32 {
+    fn from_param(value: &str) -> Result<Self, FrameworkError> {
+        value
+            .parse()
+            .map_err(|_| FrameworkError::param_parse(value, "u32"))
+    }
+}
+
+impl FromParam for u64 {
+    fn from_param(value: &str) -> Result<Self, FrameworkError> {
+        value
+            .parse()
+            .map_err(|_| FrameworkError::param_parse(value, "u64"))
+    }
+}
+
+impl FromParam for usize {
+    fn from_param(value: &str) -> Result<Self, FrameworkError> {
+        value
+            .parse()
+            .map_err(|_| FrameworkError::param_parse(value, "usize"))
+    }
+}

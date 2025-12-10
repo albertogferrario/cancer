@@ -314,6 +314,26 @@ pub enum FrameworkError {
     /// Used when FormRequest::authorize() returns false.
     #[error("This action is unauthorized.")]
     Unauthorized,
+
+    /// Model not found (404 Not Found)
+    ///
+    /// Used when route model binding fails to find the requested resource.
+    #[error("{model_name} not found")]
+    ModelNotFound {
+        /// The name of the model that was not found
+        model_name: String,
+    },
+
+    /// Parameter parse error (400 Bad Request)
+    ///
+    /// Used when a path parameter cannot be parsed to the expected type.
+    #[error("Invalid parameter '{param}': expected {expected_type}")]
+    ParamParse {
+        /// The parameter value that failed to parse
+        param: String,
+        /// The expected type (e.g., "i32", "uuid")
+        expected_type: &'static str,
+    },
 }
 
 impl FrameworkError {
@@ -370,12 +390,29 @@ impl FrameworkError {
             Self::Domain { status_code, .. } => *status_code,
             Self::Validation(_) => 422,
             Self::Unauthorized => 403,
+            Self::ModelNotFound { .. } => 404,
+            Self::ParamParse { .. } => 400,
         }
     }
 
     /// Create a Validation error from ValidationErrors struct
     pub fn validation_errors(errors: ValidationErrors) -> Self {
         Self::Validation(errors)
+    }
+
+    /// Create a ModelNotFound error (404)
+    pub fn model_not_found(name: impl Into<String>) -> Self {
+        Self::ModelNotFound {
+            model_name: name.into(),
+        }
+    }
+
+    /// Create a ParamParse error (400)
+    pub fn param_parse(param: impl Into<String>, expected_type: &'static str) -> Self {
+        Self::ParamParse {
+            param: param.into(),
+            expected_type,
+        }
     }
 }
 
