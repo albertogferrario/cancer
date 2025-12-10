@@ -41,6 +41,39 @@ use crate::routing::router::{register_route_name, BoxedHandler, Router};
 use std::future::Future;
 use std::sync::Arc;
 
+/// Convert Express-style `:param` route parameters to matchit-style `{param}`
+///
+/// This allows developers to use either syntax:
+/// - `/:id` (Express/Rails style)
+/// - `/{id}` (matchit native style)
+///
+/// # Examples
+///
+/// - `/users/:id` → `/users/{id}`
+/// - `/posts/:post_id/comments/:id` → `/posts/{post_id}/comments/{id}`
+/// - `/users/{id}` → `/users/{id}` (already correct syntax, unchanged)
+fn convert_route_params(path: &str) -> String {
+    let mut result = String::with_capacity(path.len() + 4); // Extra space for braces
+    let mut chars = path.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        if ch == ':' {
+            // Start of parameter - collect until '/' or end
+            result.push('{');
+            while let Some(&next) = chars.peek() {
+                if next == '/' {
+                    break;
+                }
+                result.push(chars.next().unwrap());
+            }
+            result.push('}');
+        } else {
+            result.push(ch);
+        }
+    }
+    result
+}
+
 /// HTTP method for route definitions
 #[derive(Clone, Copy)]
 pub enum HttpMethod {
@@ -89,12 +122,15 @@ where
 
     /// Register this route definition with a router
     pub fn register(self, router: Router) -> Router {
+        // Convert :param to {param} for matchit compatibility
+        let converted_path = convert_route_params(self.path);
+
         // First, register the route based on method
         let builder = match self.method {
-            HttpMethod::Get => router.get(self.path, self.handler),
-            HttpMethod::Post => router.post(self.path, self.handler),
-            HttpMethod::Put => router.put(self.path, self.handler),
-            HttpMethod::Delete => router.delete(self.path, self.handler),
+            HttpMethod::Get => router.get(&converted_path, self.handler),
+            HttpMethod::Post => router.post(&converted_path, self.handler),
+            HttpMethod::Put => router.put(&converted_path, self.handler),
+            HttpMethod::Delete => router.delete(&converted_path, self.handler),
         };
 
         // Apply any middleware
@@ -305,12 +341,15 @@ impl GroupDef {
     /// - Otherwise, prefix and route path are concatenated
     pub fn register(self, mut router: Router) -> Router {
         for route in self.routes {
+            // Convert :param to {param} for matchit compatibility
+            let converted_route_path = convert_route_params(route.path);
+
             // Build full path with prefix
             // If route path is "/" (root), just use the prefix without trailing slash
-            let full_path = if route.path == "/" {
+            let full_path = if converted_route_path == "/" {
                 self.prefix.to_string()
             } else {
-                format!("{}{}", self.prefix, route.path)
+                format!("{}{}", self.prefix, converted_route_path)
             };
             // We need to leak the string to get a 'static str for the router
             let full_path: &'static str = Box::leak(full_path.into_boxed_str());
@@ -442,4 +481,37 @@ macro_rules! routes {
             router
         }
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_convert_route_params() {
+        // Basic parameter conversion
+        assert_eq!(convert_route_params("/users/:id"), "/users/{id}");
+
+        // Multiple parameters
+        assert_eq!(
+            convert_route_params("/posts/:post_id/comments/:id"),
+            "/posts/{post_id}/comments/{id}"
+        );
+
+        // Already uses matchit syntax - should be unchanged
+        assert_eq!(convert_route_params("/users/{id}"), "/users/{id}");
+
+        // No parameters - should be unchanged
+        assert_eq!(convert_route_params("/users"), "/users");
+        assert_eq!(convert_route_params("/"), "/");
+
+        // Mixed syntax (edge case)
+        assert_eq!(
+            convert_route_params("/users/:user_id/posts/{post_id}"),
+            "/users/{user_id}/posts/{post_id}"
+        );
+
+        // Parameter at the end
+        assert_eq!(convert_route_params("/api/v1/:version"), "/api/v1/{version}");
+    }
 }
