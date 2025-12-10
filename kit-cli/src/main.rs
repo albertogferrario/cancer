@@ -94,12 +94,6 @@ enum Commands {
         /// Name of the migration (e.g., create_users_table, add_email_to_users)
         name: String,
     },
-    /// Generate a new form request with validation
-    #[command(name = "make:request")]
-    MakeRequest {
-        /// Name of the request (e.g., CreateUser, UpdatePost)
-        name: String,
-    },
     /// Run all pending database migrations
     Migrate,
     /// Rollback the last database migration(s)
@@ -164,9 +158,6 @@ fn main() {
         }
         Commands::MakeMigration { name } => {
             commands::make_migration::run(name);
-        }
-        Commands::MakeRequest { name } => {
-            commands::make_request::run(name);
         }
         Commands::Migrate => {
             commands::migrate::run();
