@@ -19,7 +19,7 @@ pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
 pub use middleware::{
     register_global_middleware, Middleware, MiddlewareFuture, MiddlewareRegistry, Next,
 };
-pub use routing::{delete, get, post, put, route, GroupBuilder, GroupRouter, RouteBuilder, RouteDefBuilder, Router};
+pub use routing::{delete, get, post, put, route, GroupBuilder, GroupDef, GroupRoute, GroupRouter, RouteBuilder, RouteDefBuilder, Router};
 pub use server::Server;
 
 // Re-export async_trait for middleware implementations

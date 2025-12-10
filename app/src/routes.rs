@@ -1,18 +1,28 @@
-use kit::{get, post, routes};
+use kit::{get, group, post, routes};
 
 use crate::controllers;
 use crate::middleware::AuthMiddleware;
 
 routes! {
     get("/", controllers::home::index).name("home"),
-    get("/users", controllers::user::index).name("users.index"),
-    get("/users/{id}", controllers::user::show).name("users.show"),
-    post("/users", controllers::user::store).name("users.store"),
     get("/redirect-example", controllers::user::redirect_example),
     get("/config", controllers::config_example::show).name("config.show"),
-    // Protected route - requires Authorization header
-    get("/protected", controllers::home::index).middleware(AuthMiddleware),
-    // Todo routes
-    get("/todos", controllers::todo::list).name("todos.index"),
-    post("/todos/random", controllers::todo::create_random).name("todos.create_random"),
+
+    // User routes group
+    group!("/users", {
+        get("", controllers::user::index).name("users.index"),
+        get("/{id}", controllers::user::show).name("users.show"),
+        post("", controllers::user::store).name("users.store"),
+    }),
+
+    // Protected routes - requires Authorization header
+    group!("/protected", {
+        get("", controllers::home::index).name("protected.home"),
+    }).middleware(AuthMiddleware),
+
+    // Todo routes group
+    group!("/todos", {
+        get("", controllers::todo::list).name("todos.index"),
+        post("/random", controllers::todo::create_random).name("todos.create_random"),
+    }),
 }

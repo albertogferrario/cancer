@@ -3,20 +3,27 @@
 //! This module provides a clean, declarative way to define routes:
 //!
 //! ```rust,ignore
-//! use kit::{routes, get, post, put, delete};
+//! use kit::{routes, get, post, put, delete, group};
 //!
 //! routes! {
 //!     get("/", controllers::home::index).name("home"),
 //!     get("/users", controllers::user::index).name("users.index"),
 //!     post("/users", controllers::user::store).name("users.store"),
 //!     get("/protected", controllers::home::index).middleware(AuthMiddleware),
+//!
+//!     // Route groups with prefix and middleware
+//!     group!("/api", {
+//!         get("/users", controllers::api::user::index).name("api.users.index"),
+//!         post("/users", controllers::api::user::store).name("api.users.store"),
+//!     }).middleware(AuthMiddleware),
 //! }
 //! ```
 
 use crate::http::{Request, Response};
 use crate::middleware::{into_boxed, BoxedMiddleware, Middleware};
-use crate::routing::router::Router;
+use crate::routing::router::{register_route_name, BoxedHandler, Router};
 use std::future::Future;
+use std::sync::Arc;
 
 /// HTTP method for route definitions
 #[derive(Clone, Copy)]
@@ -143,6 +150,170 @@ where
     Fut: Future<Output = Response> + Send + 'static,
 {
     RouteDefBuilder::new(HttpMethod::Delete, path, handler)
+}
+
+// ============================================================================
+// Route Grouping Support
+// ============================================================================
+
+/// A route stored within a group (type-erased handler)
+pub struct GroupRoute {
+    method: HttpMethod,
+    path: &'static str,
+    handler: Arc<BoxedHandler>,
+    name: Option<&'static str>,
+    middlewares: Vec<BoxedMiddleware>,
+}
+
+/// Group definition that collects routes and applies prefix/middleware
+///
+/// # Example
+///
+/// ```rust,ignore
+/// routes! {
+///     group!("/api", {
+///         get("/users", controllers::user::index).name("api.users"),
+///         post("/users", controllers::user::store),
+///     }).middleware(AuthMiddleware),
+/// }
+/// ```
+pub struct GroupDef {
+    prefix: &'static str,
+    routes: Vec<GroupRoute>,
+    group_middlewares: Vec<BoxedMiddleware>,
+}
+
+impl GroupDef {
+    /// Create a new route group with the given prefix
+    pub fn new(prefix: &'static str) -> Self {
+        Self {
+            prefix,
+            routes: Vec::new(),
+            group_middlewares: Vec::new(),
+        }
+    }
+
+    /// Add a route to this group
+    pub fn route<H, Fut>(mut self, route: RouteDefBuilder<H>) -> Self
+    where
+        H: Fn(Request) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Response> + Send + 'static,
+    {
+        self.routes.push(route.into_group_route());
+        self
+    }
+
+    /// Add middleware to all routes in this group
+    ///
+    /// Middleware is applied in the order it's added.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// group!("/api", {
+    ///     get("/users", handler),
+    /// }).middleware(AuthMiddleware).middleware(RateLimitMiddleware)
+    /// ```
+    pub fn middleware<M: Middleware + 'static>(mut self, middleware: M) -> Self {
+        self.group_middlewares.push(into_boxed(middleware));
+        self
+    }
+
+    /// Register all routes in this group with the router
+    ///
+    /// This prepends the group prefix to each route path and applies
+    /// group middleware to all routes.
+    pub fn register(self, mut router: Router) -> Router {
+        for route in self.routes {
+            // Build full path with prefix
+            let full_path = format!("{}{}", self.prefix, route.path);
+            // We need to leak the string to get a 'static str for the router
+            let full_path: &'static str = Box::leak(full_path.into_boxed_str());
+
+            // Register the route with the router
+            match route.method {
+                HttpMethod::Get => {
+                    router.insert_get(full_path, route.handler);
+                }
+                HttpMethod::Post => {
+                    router.insert_post(full_path, route.handler);
+                }
+                HttpMethod::Put => {
+                    router.insert_put(full_path, route.handler);
+                }
+                HttpMethod::Delete => {
+                    router.insert_delete(full_path, route.handler);
+                }
+            }
+
+            // Register route name if present
+            if let Some(name) = route.name {
+                register_route_name(name, full_path);
+            }
+
+            // Apply group middleware first (outer), then route-specific middleware (inner)
+            for mw in &self.group_middlewares {
+                router.add_middleware(full_path, mw.clone());
+            }
+            for mw in route.middlewares {
+                router.add_middleware(full_path, mw);
+            }
+        }
+
+        router
+    }
+}
+
+impl<H, Fut> RouteDefBuilder<H>
+where
+    H: Fn(Request) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Response> + Send + 'static,
+{
+    /// Convert this route definition to a type-erased GroupRoute
+    ///
+    /// This is used internally when adding routes to a group.
+    pub fn into_group_route(self) -> GroupRoute {
+        let handler = self.handler;
+        let boxed: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
+        GroupRoute {
+            method: self.method,
+            path: self.path,
+            handler: Arc::new(boxed),
+            name: self.name,
+            middlewares: self.middlewares,
+        }
+    }
+}
+
+/// Define a route group with a shared prefix
+///
+/// Routes within a group will have the prefix prepended to their paths.
+/// Middleware can be applied to the entire group using `.middleware()`.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use kit::{routes, get, post, group};
+///
+/// routes! {
+///     get("/", controllers::home::index),
+///
+///     // All routes in this group start with /api
+///     group!("/api", {
+///         get("/users", controllers::user::index),      // -> GET /api/users
+///         post("/users", controllers::user::store),     // -> POST /api/users
+///     }).middleware(AuthMiddleware),
+/// }
+/// ```
+#[macro_export]
+macro_rules! group {
+    ($prefix:expr, { $( $route:expr ),* $(,)? }) => {{
+        let mut group = $crate::GroupDef::new($prefix);
+        $(
+            group = group.route($route);
+        )*
+        group
+    }};
 }
 
 /// Define routes with a clean, Laravel-like syntax
