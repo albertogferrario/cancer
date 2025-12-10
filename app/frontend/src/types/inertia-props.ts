@@ -3,17 +3,18 @@
 
 export interface HomeProps {
   title: string;
+  message: string;
   user: User;
   stats: Stats;
-}
-
-export interface User {
-  name: string;
-  email: string;
 }
 
 export interface Stats {
   visits: number;
   likes: number;
+}
+
+export interface User {
+  name: string;
+  email: string;
 }
 

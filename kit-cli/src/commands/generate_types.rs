@@ -354,11 +354,48 @@ pub fn run(output: Option<String>, watch: bool) {
         }
     }
 
+    // Also generate route types
+    generate_route_types(project_path);
+
     if watch {
         println!("{}", style("Watching for changes...").dim());
         if let Err(e) = start_watcher(project_path, &output_path) {
             eprintln!("{} Failed to start watcher: {}", style("Error:").red().bold(), e);
             std::process::exit(1);
+        }
+    }
+}
+
+/// Generate route types
+fn generate_route_types(project_path: &Path) {
+    let routes_output = project_path.join("frontend/src/types/routes.ts");
+
+    println!(
+        "{}",
+        style("Scanning routes for type-safe generation...").cyan()
+    );
+
+    match super::generate_routes::generate_routes_to_file(project_path, &routes_output) {
+        Ok(0) => {
+            println!(
+                "{}",
+                style("No routes found in src/routes.rs").yellow()
+            );
+        }
+        Ok(count) => {
+            println!(
+                "{} Found {} route(s)",
+                style("->").green(),
+                count
+            );
+            println!(
+                "{} Generated {}",
+                style("✓").green(),
+                routes_output.display()
+            );
+        }
+        Err(e) => {
+            eprintln!("{} Route generation error: {}", style("Warning:").yellow(), e);
         }
     }
 }

@@ -1317,6 +1317,7 @@ dependencies = [
  "dotenvy",
  "notify",
  "notify-debouncer-mini",
+ "regex",
  "sea-orm",
  "sea-orm-migration",
  "syn 2.0.111",
