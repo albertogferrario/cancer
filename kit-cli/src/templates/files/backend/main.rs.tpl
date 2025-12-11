@@ -3,6 +3,7 @@ mod bootstrap;
 mod config;
 mod controllers;
 mod middleware;
+mod migrations;
 mod models;
 mod routes;
 
