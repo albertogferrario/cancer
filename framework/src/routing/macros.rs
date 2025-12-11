@@ -360,21 +360,38 @@ pub struct GroupRoute {
     middlewares: Vec<BoxedMiddleware>,
 }
 
+/// An item that can be added to a route group - either a route or a nested group
+pub enum GroupItem {
+    /// A single route
+    Route(GroupRoute),
+    /// A nested group with its own prefix and middleware
+    NestedGroup(Box<GroupDef>),
+}
+
+/// Trait for types that can be converted into a GroupItem
+pub trait IntoGroupItem {
+    fn into_group_item(self) -> GroupItem;
+}
+
 /// Group definition that collects routes and applies prefix/middleware
 ///
-/// # Example
+/// Supports nested groups for arbitrary route organization:
 ///
 /// ```rust,ignore
 /// routes! {
 ///     group!("/api", {
 ///         get!("/users", controllers::user::index).name("api.users"),
 ///         post!("/users", controllers::user::store),
+///         // Nested groups are supported
+///         group!("/admin", {
+///             get!("/dashboard", controllers::admin::dashboard),
+///         }),
 ///     }).middleware(AuthMiddleware),
 /// }
 /// ```
 pub struct GroupDef {
     prefix: &'static str,
-    routes: Vec<GroupRoute>,
+    items: Vec<GroupItem>,
     group_middlewares: Vec<BoxedMiddleware>,
 }
 
@@ -386,19 +403,30 @@ impl GroupDef {
     pub fn __new_unchecked(prefix: &'static str) -> Self {
         Self {
             prefix,
-            routes: Vec::new(),
+            items: Vec::new(),
             group_middlewares: Vec::new(),
         }
     }
 
-    /// Add a route to this group
-    pub fn route<H, Fut>(mut self, route: RouteDefBuilder<H>) -> Self
+    /// Add an item (route or nested group) to this group
+    ///
+    /// This is the primary method for adding items to a group. It accepts
+    /// anything that implements `IntoGroupItem`, including routes created
+    /// with `get!`, `post!`, etc., and nested groups created with `group!`.
+    pub fn add<I: IntoGroupItem>(mut self, item: I) -> Self {
+        self.items.push(item.into_group_item());
+        self
+    }
+
+    /// Add a route to this group (backward compatibility)
+    ///
+    /// Prefer using `.add()` which accepts both routes and nested groups.
+    pub fn route<H, Fut>(self, route: RouteDefBuilder<H>) -> Self
     where
         H: Fn(Request) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Response> + Send + 'static,
     {
-        self.routes.push(route.into_group_route());
-        self
+        self.add(route)
     }
 
     /// Add middleware to all routes in this group
@@ -420,58 +448,96 @@ impl GroupDef {
     /// Register all routes in this group with the router
     ///
     /// This prepends the group prefix to each route path and applies
-    /// group middleware to all routes.
+    /// group middleware to all routes. Nested groups are flattened recursively,
+    /// with prefixes concatenated and middleware inherited from parent groups.
     ///
     /// # Path Combination
     ///
     /// - If route path is "/" (root), the full path is just the group prefix
     /// - Otherwise, prefix and route path are concatenated
+    ///
+    /// # Middleware Inheritance
+    ///
+    /// Parent group middleware is applied before child group middleware,
+    /// which is applied before route-specific middleware.
     pub fn register(self, mut router: Router) -> Router {
-        for route in self.routes {
-            // Convert :param to {param} for matchit compatibility
-            let converted_route_path = convert_route_params(route.path);
+        self.register_with_inherited(&mut router, "", &[]);
+        router
+    }
 
-            // Build full path with prefix
-            // If route path is "/" (root), just use the prefix without trailing slash
-            let full_path = if converted_route_path == "/" {
-                self.prefix.to_string()
-            } else {
-                format!("{}{}", self.prefix, converted_route_path)
-            };
-            // We need to leak the string to get a 'static str for the router
-            let full_path: &'static str = Box::leak(full_path.into_boxed_str());
+    /// Internal recursive registration with inherited prefix and middleware
+    fn register_with_inherited(
+        self,
+        router: &mut Router,
+        parent_prefix: &str,
+        inherited_middleware: &[BoxedMiddleware],
+    ) {
+        // Build the full prefix for this group
+        let full_prefix = if parent_prefix.is_empty() {
+            self.prefix.to_string()
+        } else {
+            format!("{}{}", parent_prefix, self.prefix)
+        };
 
-            // Register the route with the router
-            match route.method {
-                HttpMethod::Get => {
-                    router.insert_get(full_path, route.handler);
-                }
-                HttpMethod::Post => {
-                    router.insert_post(full_path, route.handler);
-                }
-                HttpMethod::Put => {
-                    router.insert_put(full_path, route.handler);
-                }
-                HttpMethod::Delete => {
-                    router.insert_delete(full_path, route.handler);
-                }
-            }
+        // Combine inherited middleware with this group's middleware
+        // Parent middleware runs first (outer), then this group's middleware
+        let combined_middleware: Vec<BoxedMiddleware> = inherited_middleware
+            .iter()
+            .cloned()
+            .chain(self.group_middlewares.iter().cloned())
+            .collect();
 
-            // Register route name if present
-            if let Some(name) = route.name {
-                register_route_name(name, full_path);
-            }
+        for item in self.items {
+            match item {
+                GroupItem::Route(route) => {
+                    // Convert :param to {param} for matchit compatibility
+                    let converted_route_path = convert_route_params(route.path);
 
-            // Apply group middleware first (outer), then route-specific middleware (inner)
-            for mw in &self.group_middlewares {
-                router.add_middleware(full_path, mw.clone());
-            }
-            for mw in route.middlewares {
-                router.add_middleware(full_path, mw);
+                    // Build full path with prefix
+                    // If route path is "/" (root), just use the prefix without trailing slash
+                    let full_path = if converted_route_path == "/" {
+                        full_prefix.clone()
+                    } else {
+                        format!("{}{}", full_prefix, converted_route_path)
+                    };
+                    // We need to leak the string to get a 'static str for the router
+                    let full_path: &'static str = Box::leak(full_path.into_boxed_str());
+
+                    // Register the route with the router
+                    match route.method {
+                        HttpMethod::Get => {
+                            router.insert_get(full_path, route.handler);
+                        }
+                        HttpMethod::Post => {
+                            router.insert_post(full_path, route.handler);
+                        }
+                        HttpMethod::Put => {
+                            router.insert_put(full_path, route.handler);
+                        }
+                        HttpMethod::Delete => {
+                            router.insert_delete(full_path, route.handler);
+                        }
+                    }
+
+                    // Register route name if present
+                    if let Some(name) = route.name {
+                        register_route_name(name, full_path);
+                    }
+
+                    // Apply combined middleware (inherited + group), then route-specific
+                    for mw in &combined_middleware {
+                        router.add_middleware(full_path, mw.clone());
+                    }
+                    for mw in route.middlewares {
+                        router.add_middleware(full_path, mw);
+                    }
+                }
+                GroupItem::NestedGroup(nested) => {
+                    // Recursively register the nested group with accumulated prefix and middleware
+                    nested.register_with_inherited(router, &full_prefix, &combined_middleware);
+                }
             }
         }
-
-        router
     }
 }
 
@@ -496,10 +562,31 @@ where
     }
 }
 
+// ============================================================================
+// IntoGroupItem implementations
+// ============================================================================
+
+impl<H, Fut> IntoGroupItem for RouteDefBuilder<H>
+where
+    H: Fn(Request) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Response> + Send + 'static,
+{
+    fn into_group_item(self) -> GroupItem {
+        GroupItem::Route(self.into_group_route())
+    }
+}
+
+impl IntoGroupItem for GroupDef {
+    fn into_group_item(self) -> GroupItem {
+        GroupItem::NestedGroup(Box::new(self))
+    }
+}
+
 /// Define a route group with a shared prefix
 ///
 /// Routes within a group will have the prefix prepended to their paths.
 /// Middleware can be applied to the entire group using `.middleware()`.
+/// Groups can be nested arbitrarily deep.
 ///
 /// # Example
 ///
@@ -513,24 +600,30 @@ where
 ///     group!("/api", {
 ///         get!("/users", controllers::user::index),      // -> GET /api/users
 ///         post!("/users", controllers::user::store),     // -> POST /api/users
-///     }).middleware(AuthMiddleware),
+///
+///         // Nested groups are supported
+///         group!("/admin", {
+///             get!("/dashboard", controllers::admin::dashboard), // -> GET /api/admin/dashboard
+///         }),
+///     }).middleware(AuthMiddleware),  // Applies to ALL routes including nested
 /// }
 /// ```
-/// Define a route group with a shared prefix and compile-time validation
 ///
-/// Routes within a group will have the prefix prepended to their paths.
-/// Middleware can be applied to the entire group using `.middleware()`.
+/// # Middleware Inheritance
+///
+/// Middleware applied to a parent group is automatically inherited by all nested groups.
+/// The execution order is: parent middleware -> child middleware -> route middleware.
 ///
 /// # Compile Error
 ///
 /// Fails to compile if prefix doesn't start with '/'.
 #[macro_export]
 macro_rules! group {
-    ($prefix:expr, { $( $route:expr ),* $(,)? }) => {{
+    ($prefix:expr, { $( $item:expr ),* $(,)? }) => {{
         const _: &str = $crate::validate_route_path($prefix);
         let mut group = $crate::GroupDef::__new_unchecked($prefix);
         $(
-            group = group.route($route);
+            group = group.add($item);
         )*
         group
     }};
@@ -600,5 +693,94 @@ mod tests {
 
         // Parameter at the end
         assert_eq!(convert_route_params("/api/v1/:version"), "/api/v1/{version}");
+    }
+
+    // Helper for creating test handlers
+    async fn test_handler(_req: Request) -> Response {
+        crate::http::text("ok")
+    }
+
+    #[test]
+    fn test_group_item_route() {
+        // Test that RouteDefBuilder can be converted to GroupItem
+        let route_builder = RouteDefBuilder::new(HttpMethod::Get, "/test", test_handler);
+        let item = route_builder.into_group_item();
+        matches!(item, GroupItem::Route(_));
+    }
+
+    #[test]
+    fn test_group_item_nested_group() {
+        // Test that GroupDef can be converted to GroupItem
+        let group_def = GroupDef::__new_unchecked("/nested");
+        let item = group_def.into_group_item();
+        matches!(item, GroupItem::NestedGroup(_));
+    }
+
+    #[test]
+    fn test_group_add_route() {
+        // Test adding a route to a group
+        let group = GroupDef::__new_unchecked("/api")
+            .add(RouteDefBuilder::new(HttpMethod::Get, "/users", test_handler));
+
+        assert_eq!(group.items.len(), 1);
+        matches!(&group.items[0], GroupItem::Route(_));
+    }
+
+    #[test]
+    fn test_group_add_nested_group() {
+        // Test adding a nested group to a group
+        let nested = GroupDef::__new_unchecked("/users");
+        let group = GroupDef::__new_unchecked("/api").add(nested);
+
+        assert_eq!(group.items.len(), 1);
+        matches!(&group.items[0], GroupItem::NestedGroup(_));
+    }
+
+    #[test]
+    fn test_group_mixed_items() {
+        // Test adding both routes and nested groups
+        let nested = GroupDef::__new_unchecked("/admin");
+        let group = GroupDef::__new_unchecked("/api")
+            .add(RouteDefBuilder::new(HttpMethod::Get, "/users", test_handler))
+            .add(nested)
+            .add(RouteDefBuilder::new(HttpMethod::Post, "/users", test_handler));
+
+        assert_eq!(group.items.len(), 3);
+        matches!(&group.items[0], GroupItem::Route(_));
+        matches!(&group.items[1], GroupItem::NestedGroup(_));
+        matches!(&group.items[2], GroupItem::Route(_));
+    }
+
+    #[test]
+    fn test_deep_nesting() {
+        // Test deeply nested groups (3 levels)
+        let level3 = GroupDef::__new_unchecked("/level3")
+            .add(RouteDefBuilder::new(HttpMethod::Get, "/", test_handler));
+
+        let level2 = GroupDef::__new_unchecked("/level2").add(level3);
+
+        let level1 = GroupDef::__new_unchecked("/level1").add(level2);
+
+        assert_eq!(level1.items.len(), 1);
+        if let GroupItem::NestedGroup(l2) = &level1.items[0] {
+            assert_eq!(l2.items.len(), 1);
+            if let GroupItem::NestedGroup(l3) = &l2.items[0] {
+                assert_eq!(l3.items.len(), 1);
+            } else {
+                panic!("Expected nested group at level 2");
+            }
+        } else {
+            panic!("Expected nested group at level 1");
+        }
+    }
+
+    #[test]
+    fn test_backward_compatibility_route_method() {
+        // Test that the old .route() method still works
+        let group = GroupDef::__new_unchecked("/api")
+            .route(RouteDefBuilder::new(HttpMethod::Get, "/users", test_handler));
+
+        assert_eq!(group.items.len(), 1);
+        matches!(&group.items[0], GroupItem::Route(_));
     }
 }
