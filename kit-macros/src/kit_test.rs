@@ -80,6 +80,9 @@ pub fn kit_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     let setup_and_body = if let Some(param_name) = db_param_name {
         // Function has TestDatabase parameter - bind it
         quote! {
+            // Bootstrap services so #[injectable] types are available
+            ::kit::App::init();
+            ::kit::App::boot_services();
             let #param_name = ::kit::testing::TestDatabase::fresh::<#migrator_type>()
                 .await
                 .expect("Failed to set up test database");
@@ -88,6 +91,9 @@ pub fn kit_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     } else {
         // No TestDatabase parameter - still set up but don't bind
         quote! {
+            // Bootstrap services so #[injectable] types are available
+            ::kit::App::init();
+            ::kit::App::boot_services();
             let _db = ::kit::testing::TestDatabase::fresh::<#migrator_type>()
                 .await
                 .expect("Failed to set up test database");
