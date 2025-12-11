@@ -25,6 +25,7 @@ kit-macros = { path = "../kit-macros", version = "0.1" }
 dotenvy = "0.15"
 inventory = "0.3"
 sea-orm = { version = "1.0", features = ["sqlx-postgres", "sqlx-sqlite", "runtime-tokio-native-tls", "macros"] }
+sea-orm-migration = "1.0"
 thiserror = "1.0"
 validator = { version = "0.18", features = ["derive"] }
 serde_urlencoded = "0.7"

@@ -60,6 +60,7 @@ pub use kit_macros::request;
 pub use kit_macros::service;
 pub use kit_macros::FormRequest as FormRequestDerive;
 pub use kit_macros::InertiaProps;
+pub use kit_macros::kit_test;
 
 #[macro_export]
 macro_rules! json_response {
@@ -99,10 +100,12 @@ macro_rules! global_middleware {
     };
 }
 
-/// Testing utilities for the application container
+/// Testing utilities for the application container and database
 ///
 /// Provides `TestContainer` for setting up isolated test environments with
-/// fake implementations.
+/// fake implementations, and `TestDatabase` for database testing with
+/// in-memory SQLite.
 pub mod testing {
     pub use crate::container::testing::{TestContainer, TestContainerGuard};
+    pub use crate::database::testing::TestDatabase;
 }

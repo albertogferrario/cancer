@@ -13,6 +13,7 @@ mod domain_error;
 mod handler;
 mod inertia;
 mod injectable;
+mod kit_test;
 mod redirect;
 mod request;
 mod service;
@@ -282,4 +283,52 @@ pub fn derive_form_request(input: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn request(attr: TokenStream, input: TokenStream) -> TokenStream {
     request::request_attr_impl(attr, input)
+}
+
+/// Attribute macro for database-enabled tests
+///
+/// This macro simplifies writing tests that need database access by automatically
+/// setting up an in-memory SQLite database with migrations applied.
+///
+/// By default, it uses `crate::migrations::Migrator` as the migrator type,
+/// following Kit's convention for migration location.
+///
+/// # Examples
+///
+/// ## Basic usage (recommended):
+/// ```rust,ignore
+/// use kit::kit_test;
+/// use kit::testing::TestDatabase;
+///
+/// #[kit_test]
+/// async fn test_user_creation(db: TestDatabase) {
+///     // db is an in-memory SQLite database with all migrations applied
+///     // Any code using DB::connection() will use this test database
+///     let action = CreateUserAction::new();
+///     let user = action.execute("test@example.com").await.unwrap();
+///     assert!(user.id > 0);
+/// }
+/// ```
+///
+/// ## Without TestDatabase parameter:
+/// ```rust,ignore
+/// #[kit_test]
+/// async fn test_action_without_direct_db_access() {
+///     // Database is set up but not directly accessed
+///     // Actions using DB::connection() still work
+///     let action = MyAction::new();
+///     action.execute().await.unwrap();
+/// }
+/// ```
+///
+/// ## With custom migrator:
+/// ```rust,ignore
+/// #[kit_test(migrator = my_crate::CustomMigrator)]
+/// async fn test_with_custom_migrator(db: TestDatabase) {
+///     // Uses custom migrator instead of default
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn kit_test(attr: TokenStream, input: TokenStream) -> TokenStream {
+    kit_test::kit_test_impl(attr, input)
 }
