@@ -115,6 +115,9 @@ enum Commands {
         /// Skip running migrations before sync
         #[arg(long)]
         skip_migrations: bool,
+        /// Regenerate model files (overwrites existing custom models with new Eloquent-like API)
+        #[arg(long)]
+        regenerate_models: bool,
     },
 }
 
@@ -171,8 +174,11 @@ fn main() {
         Commands::MigrateFresh => {
             commands::migrate_fresh::run();
         }
-        Commands::DbSync { skip_migrations } => {
-            commands::db_sync::run(skip_migrations);
+        Commands::DbSync {
+            skip_migrations,
+            regenerate_models,
+        } => {
+            commands::db_sync::run(skip_migrations, regenerate_models);
         }
     }
 }

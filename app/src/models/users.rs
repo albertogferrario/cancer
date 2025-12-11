@@ -1,18 +1,18 @@
-//! Todo model
+//! User model
 //!
-//! This file contains custom implementations for the Todo model.
-//! The base entity is auto-generated in src/models/entities/todos.rs
+//! This file contains custom implementations for the User model.
+//! The base entity is auto-generated in src/models/entities/users.rs
 //!
 //! This file is NEVER overwritten by `kit db:sync` - your custom code is safe here.
 
 // Re-export the auto-generated entity
-pub use super::entities::todos::*;
+pub use super::entities::users::*;
 
 use kit::database::{ModelMut, QueryBuilder};
 use sea_orm::{entity::prelude::*, Set};
 
 /// Type alias for convenient access
-pub type Todo = Model;
+pub type User = Model;
 
 // ============================================================================
 // ENTITY CONFIGURATION
@@ -25,7 +25,7 @@ impl kit::database::ModelMut for Entity {}
 
 // ============================================================================
 // ELOQUENT-LIKE API
-// Fluent query builder and setter methods for Todo
+// Fluent query builder and setter methods for User
 // ============================================================================
 
 impl Model {
@@ -33,8 +33,8 @@ impl Model {
     ///
     /// # Example
     /// ```rust,ignore
-    /// let records = Todo::query().all().await?;
-    /// let record = Todo::query().filter(Column::Id.eq(1)).first().await?;
+    /// let records = User::query().all().await?;
+    /// let record = User::query().filter(Column::Id.eq(1)).first().await?;
     /// ```
     pub fn query() -> QueryBuilder<Entity> {
         QueryBuilder::new()
@@ -44,25 +44,13 @@ impl Model {
     ///
     /// # Example
     /// ```rust,ignore
-    /// let record = Todo::create()
+    /// let record = User::create()
     ///     .set_field("value")
     ///     .insert()
     ///     .await?;
     /// ```
-    pub fn create() -> TodoBuilder {
-        TodoBuilder::default()
-    }
-
-    /// Set the title field
-    pub fn set_title(mut self, value: impl Into<String>) -> Self {
-        self.title = value.into();
-        self
-    }
-
-    /// Set the description field
-    pub fn set_description(mut self, value: Option<impl Into<String>>) -> Self {
-        self.description = value.map(|v| v.into());
-        self
+    pub fn create() -> UserBuilder {
+        UserBuilder::default()
     }
 
 
@@ -90,8 +78,6 @@ impl Model {
     fn to_active_model(&self) -> ActiveModel {
         ActiveModel {
             id: Set(self.id),
-            title: Set(self.title.clone()),
-            description: Set(self.description.clone()),
             created_at: Set(self.created_at.clone()),
             updated_at: Set(self.updated_at.clone()),
         }
@@ -103,34 +89,20 @@ impl Model {
 // For creating new records with fluent setter pattern
 // ============================================================================
 
-/// Builder for creating new Todo records
+/// Builder for creating new User records
 #[derive(Default)]
-pub struct TodoBuilder {
-    title: Option<String>,
-    description: Option<Option<String>>,
+pub struct UserBuilder {
     created_at: Option<String>,
     updated_at: Option<String>,
 }
 
-impl TodoBuilder {
-    /// Set the title field
-    pub fn set_title(mut self, value: impl Into<String>) -> Self {
-        self.title = Some(value.into());
-        self
-    }
-
-    /// Set the description field
-    pub fn set_description(mut self, value: impl Into<String>) -> Self {
-        self.description = Some(Some(value.into()));
-        self
-    }
-
+impl UserBuilder {
 
     /// Insert the record into the database
     ///
     /// # Example
     /// ```rust,ignore
-    /// let record = Todo::create()
+    /// let record = User::create()
     ///     .set_field("value")
     ///     .insert()
     ///     .await?;
@@ -143,8 +115,6 @@ impl TodoBuilder {
     fn build(self) -> ActiveModel {
         ActiveModel {
             id: sea_orm::ActiveValue::NotSet,
-            title: self.title.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
-            description: self.description.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
             created_at: self.created_at.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
             updated_at: self.updated_at.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
         }

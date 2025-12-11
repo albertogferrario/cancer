@@ -37,12 +37,14 @@
 pub mod config;
 pub mod connection;
 pub mod model;
+pub mod query_builder;
 pub mod route_binding;
 pub mod testing;
 
 pub use config::{DatabaseConfig, DatabaseConfigBuilder, DatabaseType};
 pub use connection::DbConnection;
 pub use model::{Model, ModelMut};
+pub use query_builder::QueryBuilder;
 pub use route_binding::{AutoRouteBinding, RouteBinding};
 pub use testing::TestDatabase;
 

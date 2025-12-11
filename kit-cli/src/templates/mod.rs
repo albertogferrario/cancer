@@ -307,8 +307,19 @@ pub enum Relation {{}}
     )
 }
 
-/// Generate user model file (created only once, never overwritten)
-pub fn user_model_template(table_name: &str, struct_name: &str) -> String {
+/// Generate user model file with Eloquent-like API (created only once, never overwritten)
+pub fn user_model_template(table_name: &str, struct_name: &str, columns: &[ColumnInfo]) -> String {
+    let model_setters = generate_model_setters(columns);
+    let builder_fields = generate_builder_fields(columns);
+    let builder_setters = generate_builder_setters(columns);
+    let builder_to_active = generate_builder_to_active(columns);
+    let model_to_active = generate_model_to_active(columns);
+    let pk_field = columns
+        .iter()
+        .find(|c| c.is_primary_key)
+        .map(|c| c.name.as_str())
+        .unwrap_or("id");
+
     format!(
         r#"//! {struct_name} model
 //!
@@ -320,94 +331,135 @@ pub fn user_model_template(table_name: &str, struct_name: &str) -> String {
 // Re-export the auto-generated entity
 pub use super::entities::{table_name}::*;
 
-use sea_orm::entity::prelude::*;
+use kit::database::{{ModelMut, QueryBuilder}};
+use sea_orm::{{entity::prelude::*, Set}};
+
+/// Type alias for convenient access
+pub type {struct_name} = Model;
 
 // ============================================================================
 // ENTITY CONFIGURATION
-// Customize model behavior on insert/update/delete.
-// Override methods like before_save, after_save, before_delete, etc.
 // ============================================================================
 
 impl ActiveModelBehavior for ActiveModel {{}}
 
-// Implement Kit's Model traits for convenient querying
 impl kit::database::Model for Entity {{}}
 impl kit::database::ModelMut for Entity {{}}
 
 // ============================================================================
-// READ OPERATIONS
-// Add custom query methods for reading/fetching data from the database.
-// These methods typically return Model or Vec<Model>.
+// ELOQUENT-LIKE API
+// Fluent query builder and setter methods for {struct_name}
 // ============================================================================
 
 impl Model {{
-    // Example: Find by a specific field
-    // pub async fn find_by_email(db: &DatabaseConnection, email: &str) -> Result<Option<Self>, DbErr> {{
-    //     Entity::find()
-    //         .filter(Column::Email.eq(email))
-    //         .one(db)
-    //         .await
-    // }}
+    /// Start a new query builder
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let records = {struct_name}::query().all().await?;
+    /// let record = {struct_name}::query().filter(Column::Id.eq(1)).first().await?;
+    /// ```
+    pub fn query() -> QueryBuilder<Entity> {{
+        QueryBuilder::new()
+    }}
 
-    // Example: Find all with a condition
-    // pub async fn find_active(db: &DatabaseConnection) -> Result<Vec<Self>, DbErr> {{
-    //     Entity::find()
-    //         .filter(Column::IsActive.eq(true))
-    //         .all(db)
-    //         .await
-    // }}
+    /// Create a new record builder
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let record = {struct_name}::create()
+    ///     .set_field("value")
+    ///     .insert()
+    ///     .await?;
+    /// ```
+    pub fn create() -> {struct_name}Builder {{
+        {struct_name}Builder::default()
+    }}
 
-    // Example: Custom computed property
-    // pub fn display_name(&self) -> String {{
-    //     format!("{{}} {{}}", self.first_name, self.last_name)
-    // }}
+{model_setters}
+    /// Save changes to the database
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let updated = record.set_field("new_value").update().await?;
+    /// ```
+    pub async fn update(self) -> Result<Self, kit::FrameworkError> {{
+        let active = self.to_active_model();
+        Entity::update_one(active).await
+    }}
+
+    /// Delete this record from the database
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// record.delete().await?;
+    /// ```
+    pub async fn delete(self) -> Result<u64, kit::FrameworkError> {{
+        Entity::delete_by_pk(self.{pk_field}).await
+    }}
+
+    fn to_active_model(&self) -> ActiveModel {{
+{model_to_active}
+    }}
 }}
 
 // ============================================================================
-// WRITE OPERATIONS
-// Add custom methods for creating, updating, and deleting records.
-// These methods work with ActiveModel for database mutations.
+// BUILDER
+// For creating new records with fluent setter pattern
 // ============================================================================
 
-impl ActiveModel {{
-    // Example: Create a new record with defaults
-    // pub fn new_with_defaults(name: String) -> Self {{
-    //     Self {{
-    //         name: Set(name),
-    //         created_at: Set(chrono::Utc::now()),
-    //         updated_at: Set(chrono::Utc::now()),
-    //         ..Default::default()
-    //     }}
-    // }}
-
-    // Example: Update timestamps before save
-    // pub fn touch(&mut self) {{
-    //     self.updated_at = Set(chrono::Utc::now());
-    // }}
+/// Builder for creating new {struct_name} records
+#[derive(Default)]
+pub struct {struct_name}Builder {{
+{builder_fields}
 }}
+
+impl {struct_name}Builder {{
+{builder_setters}
+    /// Insert the record into the database
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let record = {struct_name}::create()
+    ///     .set_field("value")
+    ///     .insert()
+    ///     .await?;
+    /// ```
+    pub async fn insert(self) -> Result<Model, kit::FrameworkError> {{
+        let active = self.build();
+        Entity::insert_one(active).await
+    }}
+
+    fn build(self) -> ActiveModel {{
+{builder_to_active}
+    }}
+}}
+
+// ============================================================================
+// CUSTOM METHODS
+// Add your custom query and mutation methods below
+// ============================================================================
+
+// Example custom finder:
+// impl Model {{
+//     pub async fn find_by_email(email: &str) -> Result<Option<Self>, kit::FrameworkError> {{
+//         Self::query().filter(Column::Email.eq(email)).first().await
+//     }}
+// }}
 
 // ============================================================================
 // RELATIONS
-// Define relationships to other entities here.
-//
-// Note: The Relation enum is in the auto-generated entities file and will be
-// overwritten by `kit db:sync`. Define your relations using the patterns below.
+// Define relationships to other entities here
 // ============================================================================
 
-// ----------------------------------------------------------------------------
-// DEFINING RELATIONS
-// Use Entity's relation builder methods to define RelationDef manually.
-// This approach doesn't require modifying the auto-generated Relation enum.
-// ----------------------------------------------------------------------------
-
-// Example: One-to-Many relation (e.g., User has many Posts)
+// Example: One-to-Many relation
 // impl Entity {{
 //     pub fn has_many_posts() -> RelationDef {{
 //         Entity::has_many(super::posts::Entity).into()
 //     }}
 // }}
 
-// Example: Many-to-One / Belongs-To relation (e.g., Post belongs to User)
+// Example: Belongs-To relation
 // impl Entity {{
 //     pub fn belongs_to_user() -> RelationDef {{
 //         Entity::belongs_to(super::users::Entity)
@@ -416,43 +468,15 @@ impl ActiveModel {{
 //             .into()
 //     }}
 // }}
-
-// Example: Many-to-Many through a junction table (e.g., Post has many Tags)
-// impl Entity {{
-//     pub fn has_many_tags() -> RelationDef {{
-//         Entity::has_many(super::post_tags::Entity).into()
-//     }}
-// }}
-
-// ----------------------------------------------------------------------------
-// IMPLEMENTING Related<T>
-// Implement the Related trait to enable .find_related() queries.
-// ----------------------------------------------------------------------------
-
-// impl Related<super::posts::Entity> for Entity {{
-//     fn to() -> RelationDef {{
-//         Self::has_many_posts()
-//     }}
-// }}
-
-// impl Related<super::users::Entity> for Entity {{
-//     fn to() -> RelationDef {{
-//         Self::belongs_to_user()
-//     }}
-// }}
-
-// ----------------------------------------------------------------------------
-// USAGE EXAMPLE
-// Once relations are defined, you can use them in queries:
-//
-// let user_with_posts = users::Entity::find_by_id(1)
-//     .find_with_related(posts::Entity)
-//     .all(db)
-//     .await?;
-// ----------------------------------------------------------------------------
 "#,
-        table_name = table_name,
         struct_name = struct_name,
+        table_name = table_name,
+        model_setters = model_setters,
+        builder_fields = builder_fields,
+        builder_setters = builder_setters,
+        builder_to_active = builder_to_active,
+        model_to_active = model_to_active,
+        pk_field = pk_field,
     )
 }
 
@@ -544,4 +568,216 @@ fn singularize(word: &str) -> String {
     } else {
         word.to_string()
     }
+}
+
+// ============================================================================
+// Eloquent-like API Code Generation Helpers
+// ============================================================================
+
+/// Generate setter methods for the Model (used for updates)
+fn generate_model_setters(columns: &[ColumnInfo]) -> String {
+    columns
+        .iter()
+        .filter(|c| !c.is_primary_key && !is_timestamp_field(&c.name))
+        .map(|col| {
+            let rust_type = sql_type_to_rust_type(col);
+            let setter_input_type = get_setter_input_type(&rust_type, col.is_nullable);
+
+            format!(
+                r#"    /// Set the {} field
+    pub fn set_{field}(mut self, value: {input_type}) -> Self {{
+        self.{field} = {assignment};
+        self
+    }}
+
+"#,
+                col.name,
+                field = col.name,
+                input_type = setter_input_type,
+                assignment = get_setter_assignment(&rust_type, col.is_nullable),
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("")
+}
+
+/// Generate builder struct fields
+fn generate_builder_fields(columns: &[ColumnInfo]) -> String {
+    columns
+        .iter()
+        .filter(|c| !c.is_primary_key)
+        .map(|col| {
+            let rust_type = sql_type_to_rust_type(col);
+            format!("    {}: Option<{}>,", col.name, rust_type)
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+/// Generate setter methods for the Builder (used for creates)
+fn generate_builder_setters(columns: &[ColumnInfo]) -> String {
+    columns
+        .iter()
+        .filter(|c| !c.is_primary_key && !is_timestamp_field(&c.name))
+        .map(|col| {
+            let rust_type = sql_type_to_rust_type(col);
+            let setter_input_type = get_builder_setter_input_type(&rust_type, col.is_nullable);
+
+            format!(
+                r#"    /// Set the {} field
+    pub fn set_{field}(mut self, value: {input_type}) -> Self {{
+        self.{field} = Some({builder_assignment});
+        self
+    }}
+
+"#,
+                col.name,
+                field = col.name,
+                input_type = setter_input_type,
+                builder_assignment = get_builder_setter_assignment(&rust_type, col.is_nullable),
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("")
+}
+
+/// Generate code to convert Builder to ActiveModel
+fn generate_builder_to_active(columns: &[ColumnInfo]) -> String {
+    let mut lines = vec!["        ActiveModel {".to_string()];
+
+    for col in columns {
+        if col.is_primary_key {
+            lines.push(format!(
+                "            {}: sea_orm::ActiveValue::NotSet,",
+                col.name
+            ));
+        } else {
+            lines.push(format!(
+                "            {field}: self.{field}.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),",
+                field = col.name
+            ));
+        }
+    }
+
+    lines.push("        }".to_string());
+    lines.join("\n")
+}
+
+/// Generate code to convert Model to ActiveModel for updates
+fn generate_model_to_active(columns: &[ColumnInfo]) -> String {
+    let mut lines = vec!["        ActiveModel {".to_string()];
+
+    for col in columns {
+        let rust_type = sql_type_to_rust_type(col);
+        let needs_clone = needs_clone_for_type(&rust_type);
+
+        if needs_clone {
+            lines.push(format!(
+                "            {field}: Set(self.{field}.clone()),",
+                field = col.name
+            ));
+        } else {
+            lines.push(format!(
+                "            {field}: Set(self.{field}),",
+                field = col.name
+            ));
+        }
+    }
+
+    lines.push("        }".to_string());
+    lines.join("\n")
+}
+
+/// Check if field is a timestamp field (auto-managed)
+fn is_timestamp_field(name: &str) -> bool {
+    matches!(name, "created_at" | "updated_at" | "deleted_at")
+}
+
+/// Get the input type for a setter method on Model
+fn get_setter_input_type(rust_type: &str, is_nullable: bool) -> String {
+    if is_nullable {
+        // For Option<String>, accept Option<impl Into<String>>
+        if rust_type == "Option<String>" {
+            "Option<impl Into<String>>".to_string()
+        } else {
+            rust_type.to_string()
+        }
+    } else if rust_type == "String" {
+        "impl Into<String>".to_string()
+    } else {
+        rust_type.to_string()
+    }
+}
+
+/// Get the assignment expression for a setter on Model
+fn get_setter_assignment(rust_type: &str, is_nullable: bool) -> String {
+    if is_nullable {
+        if rust_type == "Option<String>" {
+            "value.map(|v| v.into())".to_string()
+        } else {
+            "value".to_string()
+        }
+    } else if rust_type == "String" {
+        "value.into()".to_string()
+    } else {
+        "value".to_string()
+    }
+}
+
+/// Get the input type for a builder setter method
+fn get_builder_setter_input_type(rust_type: &str, is_nullable: bool) -> String {
+    if is_nullable {
+        // For nullable fields in builder, accept the inner type (not Option)
+        if rust_type == "Option<String>" {
+            "impl Into<String>".to_string()
+        } else if rust_type.starts_with("Option<") && rust_type.ends_with(">") {
+            // Extract inner type from Option<T>
+            rust_type[7..rust_type.len() - 1].to_string()
+        } else {
+            rust_type.to_string()
+        }
+    } else if rust_type == "String" {
+        "impl Into<String>".to_string()
+    } else {
+        rust_type.to_string()
+    }
+}
+
+/// Get the assignment expression for a builder setter
+fn get_builder_setter_assignment(rust_type: &str, is_nullable: bool) -> String {
+    if is_nullable {
+        // Wrap in Some for nullable fields
+        if rust_type == "Option<String>" {
+            "Some(value.into())".to_string()
+        } else {
+            "Some(value)".to_string()
+        }
+    } else if rust_type == "String" {
+        "value.into()".to_string()
+    } else {
+        "value".to_string()
+    }
+}
+
+/// Check if a type needs .clone() when converting
+fn needs_clone_for_type(rust_type: &str) -> bool {
+    // Types that implement Copy don't need clone
+    let copy_types = [
+        "i8", "i16", "i32", "i64", "i128", "u8", "u16", "u32", "u64", "u128", "f32", "f64", "bool",
+    ];
+
+    // Check if it's a Copy type
+    if copy_types.contains(&rust_type) {
+        return false;
+    }
+
+    // Option<Copy> types also don't need clone
+    for copy_type in &copy_types {
+        if rust_type == format!("Option<{}>", copy_type) {
+            return false;
+        }
+    }
+
+    // Everything else needs clone (String, Option<String>, DateTimeUtc, etc.)
+    true
 }

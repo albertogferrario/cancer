@@ -10,7 +10,7 @@ use std::process::Command;
 use crate::templates;
 use crate::templates::{ColumnInfo, TableInfo};
 
-pub fn run(skip_migrations: bool) {
+pub fn run(skip_migrations: bool, regenerate_models: bool) {
     // Check we're in a Kit project
     if !Path::new("src/models").exists() && !Path::new("src/migrations").exists() {
         eprintln!(
@@ -26,7 +26,7 @@ pub fn run(skip_migrations: bool) {
     }
 
     // Generate entities from database
-    generate_entities();
+    generate_entities(regenerate_models);
 }
 
 fn run_migrations() {
@@ -60,7 +60,7 @@ fn run_migrations() {
     println!("{} Migrations complete", style("✓").green());
 }
 
-fn generate_entities() {
+fn generate_entities(regenerate_models: bool) {
     // Load DATABASE_URL from .env
     dotenvy::dotenv().ok();
 
@@ -80,11 +80,11 @@ fn generate_entities() {
     // Use tokio runtime for async schema discovery
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
-        discover_and_generate(&database_url).await;
+        discover_and_generate(&database_url, regenerate_models).await;
     });
 }
 
-async fn discover_and_generate(database_url: &str) {
+async fn discover_and_generate(database_url: &str, regenerate_models: bool) {
     let is_sqlite = database_url.starts_with("sqlite");
 
     // Connect to database
@@ -149,7 +149,11 @@ async fn discover_and_generate(database_url: &str) {
     // Generate entity files
     for table in &tables {
         generate_entity_file(table, &entities_dir);
-        generate_user_file_if_not_exists(table, models_dir);
+        if regenerate_models {
+            generate_user_file(table, models_dir);
+        } else {
+            generate_user_file_if_not_exists(table, models_dir);
+        }
     }
 
     // Update mod.rs files
@@ -330,11 +334,24 @@ fn generate_user_file_if_not_exists(table: &TableInfo, models_dir: &Path) {
     }
 
     let struct_name = to_pascal_case(&singularize(&table.name));
-    let content = templates::user_model_template(&table.name, &struct_name);
+    let content = templates::user_model_template(&table.name, &struct_name, &table.columns);
 
     fs::write(&user_file, content).expect("Failed to write user model file");
     println!(
         "{} Created src/models/{}.rs",
+        style("✓").green(),
+        table.name
+    );
+}
+
+fn generate_user_file(table: &TableInfo, models_dir: &Path) {
+    let user_file = models_dir.join(format!("{}.rs", table.name));
+    let struct_name = to_pascal_case(&singularize(&table.name));
+    let content = templates::user_model_template(&table.name, &struct_name, &table.columns);
+
+    fs::write(&user_file, content).expect("Failed to write user model file");
+    println!(
+        "{} Regenerated src/models/{}.rs",
         style("✓").green(),
         table.name
     );
