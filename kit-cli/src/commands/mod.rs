@@ -1,4 +1,6 @@
 pub mod db_sync;
+pub mod docker_compose;
+pub mod docker_init;
 pub mod generate_routes;
 pub mod generate_types;
 pub mod make_action;

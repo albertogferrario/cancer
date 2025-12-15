@@ -119,6 +119,19 @@ enum Commands {
         #[arg(long)]
         regenerate_models: bool,
     },
+    /// Generate a production-ready Dockerfile
+    #[command(name = "docker:init")]
+    DockerInit,
+    /// Generate docker-compose.yml for local development
+    #[command(name = "docker:compose")]
+    DockerCompose {
+        /// Include Mailpit email testing service
+        #[arg(long)]
+        with_mailpit: bool,
+        /// Include MinIO S3-compatible storage service
+        #[arg(long)]
+        with_minio: bool,
+    },
 }
 
 fn main() {
@@ -179,6 +192,15 @@ fn main() {
             regenerate_models,
         } => {
             commands::db_sync::run(skip_migrations, regenerate_models);
+        }
+        Commands::DockerInit => {
+            commands::docker_init::run();
+        }
+        Commands::DockerCompose {
+            with_mailpit,
+            with_minio,
+        } => {
+            commands::docker_compose::run(with_mailpit, with_minio);
         }
     }
 }
