@@ -1,3 +1,4 @@
+pub mod cache;
 pub mod config;
 pub mod container;
 pub mod database;
@@ -9,6 +10,7 @@ pub mod routing;
 pub mod server;
 pub mod testing;
 
+pub use cache::{Cache, CacheConfig, CacheStore, InMemoryCache, RedisCache};
 pub use config::{env, env_optional, env_required, AppConfig, Config, Environment, ServerConfig};
 pub use container::{App, Container};
 pub use database::{

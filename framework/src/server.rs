@@ -1,3 +1,4 @@
+use crate::cache::Cache;
 use crate::config::{Config, ServerConfig};
 use crate::container::App;
 use crate::http::{HttpResponse, Request};
@@ -81,6 +82,9 @@ impl Server {
     }
 
     pub async fn run(self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        // Bootstrap cache (Redis with in-memory fallback)
+        Cache::bootstrap().await;
+
         let addr: SocketAddr = self.get_addr();
         let listener = TcpListener::bind(addr).await?;
 
