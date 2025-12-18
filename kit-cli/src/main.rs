@@ -94,6 +94,12 @@ enum Commands {
         /// Name of the migration (e.g., create_users_table, add_email_to_users)
         name: String,
     },
+    /// Generate a new scheduled task
+    #[command(name = "make:task")]
+    MakeTask {
+        /// Name of the task (e.g., CleanupLogs, SendReminders)
+        name: String,
+    },
     /// Run all pending database migrations
     Migrate,
     /// Rollback the last database migration(s)
@@ -132,6 +138,15 @@ enum Commands {
         #[arg(long)]
         with_minio: bool,
     },
+    /// Run all due scheduled tasks once (typically called by cron every minute)
+    #[command(name = "schedule:run")]
+    ScheduleRun,
+    /// Start the scheduler daemon (runs continuously, checks every minute)
+    #[command(name = "schedule:work")]
+    ScheduleWork,
+    /// List all registered scheduled tasks
+    #[command(name = "schedule:list")]
+    ScheduleList,
 }
 
 fn main() {
@@ -175,6 +190,9 @@ fn main() {
         Commands::MakeMigration { name } => {
             commands::make_migration::run(name);
         }
+        Commands::MakeTask { name } => {
+            commands::make_task::run(name);
+        }
         Commands::Migrate => {
             commands::migrate::run();
         }
@@ -201,6 +219,15 @@ fn main() {
             with_minio,
         } => {
             commands::docker_compose::run(with_mailpit, with_minio);
+        }
+        Commands::ScheduleRun => {
+            commands::schedule_run::run();
+        }
+        Commands::ScheduleWork => {
+            commands::schedule_work::run();
+        }
+        Commands::ScheduleList => {
+            commands::schedule_list::run();
         }
     }
 }

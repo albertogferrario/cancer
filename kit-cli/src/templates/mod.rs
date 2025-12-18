@@ -826,3 +826,97 @@ pub fn docker_compose_template(
         .replace("{minio_service}", &minio_service)
         .replace("{additional_volumes}", &additional_volumes)
 }
+
+// ============================================================================
+// Schedule Templates
+// ============================================================================
+
+/// Template for schedule.rs registration file
+pub fn schedule_rs() -> &'static str {
+    include_str!("files/backend/schedule.rs.tpl")
+}
+
+/// Template for tasks/mod.rs
+pub fn tasks_mod() -> &'static str {
+    include_str!("files/backend/tasks/mod.rs.tpl")
+}
+
+/// Template for bin/schedule.rs binary
+pub fn schedule_bin() -> &'static str {
+    include_str!("files/backend/bin/schedule.rs.tpl")
+}
+
+/// Template for generating new scheduled task with make:task command
+pub fn task_template(file_name: &str, struct_name: &str) -> String {
+    format!(
+        r#"//! {struct_name} scheduled task
+//!
+//! Created with `kit make:task {file_name}`
+
+use async_trait::async_trait;
+use kit::{{CronExpression, FrameworkError, ScheduledTask}};
+
+/// {struct_name} - A scheduled task
+///
+/// Configure the schedule in the `schedule()` method.
+/// Implement your task logic in the `handle()` method.
+pub struct {struct_name};
+
+impl {struct_name} {{
+    /// Create a new instance of this task
+    pub fn new() -> Self {{
+        Self
+    }}
+}}
+
+impl Default for {struct_name} {{
+    fn default() -> Self {{
+        Self::new()
+    }}
+}}
+
+#[async_trait]
+impl ScheduledTask for {struct_name} {{
+    fn name(&self) -> &str {{
+        "{file_name}"
+    }}
+
+    fn schedule(&self) -> CronExpression {{
+        // Configure when this task should run
+        //
+        // Examples:
+        //   CronExpression::every_minute()
+        //   CronExpression::every_n_minutes(5)
+        //   CronExpression::hourly()
+        //   CronExpression::hourly_at(30)        // At XX:30
+        //   CronExpression::daily()
+        //   CronExpression::daily_at("03:00")
+        //   CronExpression::weekly()
+        //   CronExpression::weekly_on(DayOfWeek::Monday)
+        //   CronExpression::monthly()
+        //   CronExpression::monthly_on(15)       // 15th of each month
+        //   CronExpression::parse("0 */2 * * *") // Every 2 hours
+        CronExpression::daily()
+    }}
+
+    async fn handle(&self) -> Result<(), FrameworkError> {{
+        // TODO: Implement your task logic here
+        println!("Running {struct_name}...");
+        Ok(())
+    }}
+
+    fn description(&self) -> Option<&str> {{
+        Some("TODO: Add task description")
+    }}
+
+    // Uncomment to prevent overlapping runs:
+    // fn without_overlapping(&self) -> bool {{ true }}
+
+    // Uncomment to run in background (non-blocking):
+    // fn run_in_background(&self) -> bool {{ true }}
+}}
+"#,
+        file_name = file_name,
+        struct_name = struct_name
+    )
+}
