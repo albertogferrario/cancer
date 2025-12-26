@@ -9,6 +9,8 @@
 //! - `Auth` facade for login/logout operations
 //! - `AuthMiddleware` for protecting routes
 //! - `GuestMiddleware` for guest-only routes
+//! - `Authenticatable` trait for user models
+//! - `UserProvider` trait for user retrieval
 //!
 //! # Example
 //!
@@ -18,6 +20,16 @@
 //! // In a controller
 //! if Auth::check() {
 //!     let user_id = Auth::id().unwrap();
+//! }
+//!
+//! // Get the currently authenticated user
+//! if let Some(user) = Auth::user().await? {
+//!     println!("User ID: {}", user.auth_identifier());
+//! }
+//!
+//! // Get as concrete User type
+//! if let Some(user) = Auth::user_as::<User>().await? {
+//!     println!("Welcome, user #{}!", user.id);
 //! }
 //!
 //! // Login
@@ -38,8 +50,12 @@
 //!     ]);
 //! ```
 
+pub mod authenticatable;
 pub mod guard;
 pub mod middleware;
+pub mod provider;
 
+pub use authenticatable::Authenticatable;
 pub use guard::Auth;
 pub use middleware::{AuthMiddleware, GuestMiddleware};
+pub use provider::UserProvider;

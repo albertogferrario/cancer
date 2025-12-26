@@ -9,7 +9,9 @@
 pub use super::entities::users::*;
 
 use kit::database::{ModelMut, QueryBuilder};
+use kit::Authenticatable;
 use sea_orm::{entity::prelude::*, Set};
+use std::any::Any;
 
 /// Type alias for convenient access
 pub type User = Model;
@@ -154,3 +156,22 @@ impl UserBuilder {
 //             .into()
 //     }
 // }
+
+// ============================================================================
+// AUTHENTICATION
+// Implements the Authenticatable trait for Auth::user() support
+// ============================================================================
+
+impl Authenticatable for Model {
+    fn auth_identifier(&self) -> i64 {
+        self.id as i64
+    }
+
+    fn auth_identifier_name(&self) -> &'static str {
+        "id"
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+}

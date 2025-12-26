@@ -6,6 +6,7 @@ mod config;
 mod controllers;
 mod middleware;
 mod models;
+mod providers;
 mod routes;
 
 #[tokio::main]

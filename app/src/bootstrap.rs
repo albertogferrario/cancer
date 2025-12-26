@@ -24,9 +24,10 @@
 //! ```
 
 #[allow(unused_imports)]
-use kit::{bind, global_middleware, singleton, App, DB};
+use kit::{bind, global_middleware, singleton, App, UserProvider, DB};
 
 use crate::middleware;
+use crate::providers::DatabaseUserProvider;
 
 /// Register global middleware and services
 ///
@@ -38,6 +39,9 @@ pub async fn register() {
 
     // Global middleware (runs on every request in registration order)
     global_middleware!(middleware::LoggingMiddleware);
+
+    // Register the user provider for Auth::user()
+    bind!(dyn UserProvider, DatabaseUserProvider);
 
     // Example: Register a trait binding with runtime config
     // bind!(dyn Database, PostgresDB::new());

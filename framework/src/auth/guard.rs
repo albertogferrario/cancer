@@ -1,9 +1,15 @@
 //! Authentication guard (facade)
 
+use std::sync::Arc;
+
+use crate::container::App;
 use crate::session::{
     auth_user_id, clear_auth_user, generate_csrf_token, regenerate_session_id, session_mut,
     set_auth_user,
 };
+
+use super::authenticatable::Authenticatable;
+use super::provider::UserProvider;
 
 /// Authentication facade
 ///
@@ -148,5 +154,69 @@ impl Auth {
         Fut: std::future::Future<Output = Result<bool, crate::error::FrameworkError>>,
     {
         validator().await
+    }
+
+    /// Get the currently authenticated user
+    ///
+    /// Returns `None` if not authenticated or if no `UserProvider` is registered.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use kit::Auth;
+    ///
+    /// if let Some(user) = Auth::user().await? {
+    ///     println!("Logged in as user {}", user.auth_identifier());
+    /// }
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if no `UserProvider` is registered in the container.
+    /// Make sure to register a `UserProvider` in your `bootstrap.rs`:
+    ///
+    /// ```rust,ignore
+    /// bind!(dyn UserProvider, DatabaseUserProvider);
+    /// ```
+    pub async fn user() -> Result<Option<Arc<dyn Authenticatable>>, crate::error::FrameworkError> {
+        let user_id = match Self::id() {
+            Some(id) => id,
+            None => return Ok(None),
+        };
+
+        let provider = App::make::<dyn UserProvider>().ok_or_else(|| {
+            crate::error::FrameworkError::internal(
+                "No UserProvider registered. Register one in bootstrap.rs with: \
+                 bind!(dyn UserProvider, YourUserProvider)"
+                    .to_string(),
+            )
+        })?;
+
+        provider.retrieve_by_id(user_id).await
+    }
+
+    /// Get the authenticated user, cast to a concrete type
+    ///
+    /// This is a convenience method that retrieves the user and downcasts
+    /// it to your concrete User type.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use kit::Auth;
+    /// use crate::models::users::User;
+    ///
+    /// if let Some(user) = Auth::user_as::<User>().await? {
+    ///     println!("Welcome, user #{}!", user.id);
+    /// }
+    /// ```
+    ///
+    /// # Type Parameters
+    ///
+    /// * `T` - The concrete user type that implements `Authenticatable` and `Clone`
+    pub async fn user_as<T: Authenticatable + Clone>(
+    ) -> Result<Option<T>, crate::error::FrameworkError> {
+        let user = Self::user().await?;
+        Ok(user.and_then(|u| u.as_any().downcast_ref::<T>().cloned()))
     }
 }
