@@ -1,4 +1,5 @@
 use super::body::{collect_body, parse_form, parse_json};
+use super::cookie::parse_cookies;
 use super::ParamError;
 use crate::error::FrameworkError;
 use bytes::Bytes;
@@ -70,6 +71,37 @@ impl Request {
         self.header("X-Inertia")
             .map(|v| v == "true")
             .unwrap_or(false)
+    }
+
+    /// Get all cookies from the request
+    ///
+    /// Parses the Cookie header and returns a HashMap of cookie names to values.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let cookies = req.cookies();
+    /// if let Some(session) = cookies.get("session") {
+    ///     println!("Session: {}", session);
+    /// }
+    /// ```
+    pub fn cookies(&self) -> HashMap<String, String> {
+        self.header("Cookie")
+            .map(parse_cookies)
+            .unwrap_or_default()
+    }
+
+    /// Get a specific cookie value by name
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Some(session_id) = req.cookie("session") {
+    ///     // Use session_id
+    /// }
+    /// ```
+    pub fn cookie(&self, name: &str) -> Option<String> {
+        self.cookies().get(name).cloned()
     }
 
     /// Get the Inertia version from request headers

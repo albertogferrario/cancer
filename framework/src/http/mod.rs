@@ -1,10 +1,12 @@
 mod body;
+pub mod cookie;
 mod extract;
 mod form_request;
 mod request;
 mod response;
 
 pub use body::{collect_body, parse_form, parse_json};
+pub use cookie::{parse_cookies, Cookie, CookieOptions, SameSite};
 pub use extract::{FromParam, FromRequest};
 pub use form_request::FormRequest;
 pub use request::{Request, RequestParts};

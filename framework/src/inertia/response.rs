@@ -1,4 +1,5 @@
 use super::config::InertiaConfig;
+use crate::csrf::csrf_token;
 use crate::http::HttpResponse;
 
 /// Builds Inertia responses based on request type
@@ -56,6 +57,9 @@ impl InertiaResponse {
             .replace('"', "&quot;")
             .replace('\'', "&#x27;");
 
+        // Get CSRF token for meta tag (empty string if no session)
+        let csrf = csrf_token().unwrap_or_default();
+
         let html = if self.config.development {
             format!(
                 r#"<!DOCTYPE html>
@@ -63,6 +67,7 @@ impl InertiaResponse {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{}">
     <title>Kit App</title>
     <script type="module">
         import RefreshRuntime from '{}/@react-refresh'
@@ -78,6 +83,7 @@ impl InertiaResponse {
     <div id="app" data-page="{}"></div>
 </body>
 </html>"#,
+                csrf,
                 self.config.vite_dev_server,
                 self.config.vite_dev_server,
                 self.config.vite_dev_server,
@@ -91,6 +97,7 @@ impl InertiaResponse {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{}">
     <title>Kit App</title>
     <script type="module" src="/assets/main.js"></script>
     <link rel="stylesheet" href="/assets/main.css">
@@ -99,6 +106,7 @@ impl InertiaResponse {
     <div id="app" data-page="{}"></div>
 </body>
 </html>"#,
+                csrf,
                 page_json
             )
         };

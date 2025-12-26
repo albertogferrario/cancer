@@ -32,3 +32,5 @@ validator = { version = "0.18", features = ["derive"] }
 serde_urlencoded = "0.7"
 pretty_assertions = "1.4"
 chrono = { version = "0.4", features = ["serde"] }
+bcrypt = "0.15"
+rand = "0.8"

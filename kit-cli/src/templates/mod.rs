@@ -240,6 +240,48 @@ pub fn inertia_props_types() -> &'static str {
     include_str!("files/frontend/src/types/inertia-props.ts.tpl")
 }
 
+// Auth frontend templates
+
+pub fn login_page() -> &'static str {
+    include_str!("files/frontend/src/pages/auth/Login.tsx.tpl")
+}
+
+pub fn register_page() -> &'static str {
+    include_str!("files/frontend/src/pages/auth/Register.tsx.tpl")
+}
+
+pub fn dashboard_page() -> &'static str {
+    include_str!("files/frontend/src/pages/Dashboard.tsx.tpl")
+}
+
+// Auth backend templates
+
+pub fn auth_controller() -> &'static str {
+    include_str!("files/backend/controllers/auth.rs.tpl")
+}
+
+pub fn dashboard_controller() -> &'static str {
+    include_str!("files/backend/controllers/dashboard.rs.tpl")
+}
+
+pub fn authenticate_middleware() -> &'static str {
+    include_str!("files/backend/middleware/authenticate.rs.tpl")
+}
+
+pub fn user_model() -> &'static str {
+    include_str!("files/backend/models/user.rs.tpl")
+}
+
+// Auth migration templates
+
+pub fn create_users_migration() -> &'static str {
+    include_str!("files/backend/migrations/create_users_table.rs.tpl")
+}
+
+pub fn create_sessions_migration() -> &'static str {
+    include_str!("files/backend/migrations/create_sessions_table.rs.tpl")
+}
+
 // Root templates
 
 pub fn gitignore() -> &'static str {

@@ -166,6 +166,8 @@ fn create_project(
     // Frontend directories
     fs::create_dir_all(project_path.join("frontend/src/pages"))
         .map_err(|e| format!("Failed to create directories: {}", e))?;
+    fs::create_dir_all(project_path.join("frontend/src/pages/auth"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
     fs::create_dir_all(project_path.join("frontend/src/types"))
         .map_err(|e| format!("Failed to create directories: {}", e))?;
 
@@ -214,6 +216,20 @@ fn create_project(
     )
     .map_err(|e| format!("Failed to write src/controllers/home.rs: {}", e))?;
 
+    // Write src/controllers/auth.rs
+    fs::write(
+        project_path.join("src/controllers/auth.rs"),
+        templates::auth_controller(),
+    )
+    .map_err(|e| format!("Failed to write src/controllers/auth.rs: {}", e))?;
+
+    // Write src/controllers/dashboard.rs
+    fs::write(
+        project_path.join("src/controllers/dashboard.rs"),
+        templates::dashboard_controller(),
+    )
+    .map_err(|e| format!("Failed to write src/controllers/dashboard.rs: {}", e))?;
+
     // Write src/config/mod.rs
     fs::write(
         project_path.join("src/config/mod.rs"),
@@ -249,6 +265,13 @@ fn create_project(
     )
     .map_err(|e| format!("Failed to write src/middleware/logging.rs: {}", e))?;
 
+    // Write src/middleware/authenticate.rs
+    fs::write(
+        project_path.join("src/middleware/authenticate.rs"),
+        templates::authenticate_middleware(),
+    )
+    .map_err(|e| format!("Failed to write src/middleware/authenticate.rs: {}", e))?;
+
     // Write src/bootstrap.rs
     fs::write(
         project_path.join("src/bootstrap.rs"),
@@ -277,12 +300,32 @@ fn create_project(
     )
     .map_err(|e| format!("Failed to write src/models/mod.rs: {}", e))?;
 
+    // Write src/models/user.rs
+    fs::write(
+        project_path.join("src/models/user.rs"),
+        templates::user_model(),
+    )
+    .map_err(|e| format!("Failed to write src/models/user.rs: {}", e))?;
+
     // Write src/migrations/mod.rs
     fs::write(
         project_path.join("src/migrations/mod.rs"),
         templates::migrations_mod(),
     )
     .map_err(|e| format!("Failed to write src/migrations/mod.rs: {}", e))?;
+
+    // Write auth migration files
+    fs::write(
+        project_path.join("src/migrations/m20240101_000001_create_users_table.rs"),
+        templates::create_users_migration(),
+    )
+    .map_err(|e| format!("Failed to write create_users_table migration: {}", e))?;
+
+    fs::write(
+        project_path.join("src/migrations/m20240101_000002_create_sessions_table.rs"),
+        templates::create_sessions_migration(),
+    )
+    .map_err(|e| format!("Failed to write create_sessions_table migration: {}", e))?;
 
     // Write src/bin/migrate.rs
     fs::write(
@@ -331,6 +374,27 @@ fn create_project(
         templates::home_page(),
     )
     .map_err(|e| format!("Failed to write frontend/src/pages/Home.tsx: {}", e))?;
+
+    // Write frontend/src/pages/auth/Login.tsx
+    fs::write(
+        project_path.join("frontend/src/pages/auth/Login.tsx"),
+        templates::login_page(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/pages/auth/Login.tsx: {}", e))?;
+
+    // Write frontend/src/pages/auth/Register.tsx
+    fs::write(
+        project_path.join("frontend/src/pages/auth/Register.tsx"),
+        templates::register_page(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/pages/auth/Register.tsx: {}", e))?;
+
+    // Write frontend/src/pages/Dashboard.tsx
+    fs::write(
+        project_path.join("frontend/src/pages/Dashboard.tsx"),
+        templates::dashboard_page(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/pages/Dashboard.tsx: {}", e))?;
 
     // Write frontend/src/types/inertia-props.ts
     fs::write(

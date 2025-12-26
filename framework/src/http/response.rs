@@ -1,3 +1,4 @@
+use super::cookie::Cookie;
 use bytes::Bytes;
 use http_body_util::Full;
 
@@ -48,6 +49,21 @@ impl HttpResponse {
     pub fn header(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
         self.headers.push((name.into(), value.into()));
         self
+    }
+
+    /// Add a Set-Cookie header to the response
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use kit::{Cookie, HttpResponse};
+    ///
+    /// let response = HttpResponse::text("OK")
+    ///     .cookie(Cookie::new("session", "abc123"))
+    ///     .cookie(Cookie::new("user_id", "42"));
+    /// ```
+    pub fn cookie(self, cookie: Cookie) -> Self {
+        self.header("Set-Cookie", cookie.to_header_value())
     }
 
     /// Wrap this response in Ok() for use as Response type

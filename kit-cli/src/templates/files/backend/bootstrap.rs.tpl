@@ -24,7 +24,7 @@
 //! ```
 
 #[allow(unused_imports)]
-use kit::{bind, global_middleware, singleton, App, DB};
+use kit::{bind, global_middleware, singleton, App, CsrfMiddleware, SessionConfig, SessionMiddleware, DB};
 
 use crate::middleware;
 
@@ -38,6 +38,13 @@ pub async fn register() {
 
     // Global middleware (runs on every request in registration order)
     global_middleware!(middleware::LoggingMiddleware);
+
+    // Session middleware (required for authentication)
+    let session_config = SessionConfig::from_env();
+    global_middleware!(SessionMiddleware::new(session_config));
+
+    // CSRF protection (validates tokens on POST/PUT/PATCH/DELETE)
+    global_middleware!(CsrfMiddleware::new());
 
     // Example: Register a trait binding with runtime config
     // bind!(dyn Database, PostgresDB::new());

@@ -1,27 +1,37 @@
+pub mod auth;
 pub mod cache;
 pub mod config;
 pub mod container;
+pub mod csrf;
 pub mod database;
 pub mod error;
+pub mod hashing;
 pub mod http;
 pub mod inertia;
 pub mod middleware;
 pub mod routing;
 pub mod schedule;
 pub mod server;
+pub mod session;
 pub mod testing;
 
+pub use auth::{Auth, AuthMiddleware, GuestMiddleware};
 pub use cache::{Cache, CacheConfig, CacheStore, InMemoryCache, RedisCache};
 pub use config::{env, env_optional, env_required, AppConfig, Config, Environment, ServerConfig};
 pub use container::{App, Container};
+pub use csrf::{csrf_field, csrf_meta_tag, csrf_token, CsrfMiddleware};
 pub use database::{
     AutoRouteBinding, Database, DatabaseConfig, DatabaseType, DbConnection, Model, ModelMut,
     RouteBinding, DB,
 };
 pub use error::{AppError, FrameworkError, HttpError, ValidationErrors};
+pub use hashing::{hash, needs_rehash, verify, DEFAULT_COST as HASH_DEFAULT_COST};
 pub use http::{
-    json, text, FormRequest, FromParam, FromRequest, HttpResponse, Redirect, Request, Response,
-    ResponseExt,
+    json, text, Cookie, CookieOptions, FormRequest, FromParam, FromRequest, HttpResponse, Redirect,
+    Request, Response, ResponseExt, SameSite,
+};
+pub use session::{
+    session, session_mut, SessionConfig, SessionData, SessionMiddleware, SessionStore,
 };
 pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
 pub use middleware::{
