@@ -1,6 +1,6 @@
 //! User model
 
-use kit::database::{Model, ModelMut, QueryBuilder};
+use kit::database::{Model as DatabaseModel, ModelMut, QueryBuilder};
 use sea_orm::entity::prelude::*;
 use sea_orm::Set;
 use serde::Serialize;
@@ -25,8 +25,8 @@ pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
 
-impl kit::database::Model for Entity {}
-impl kit::database::ModelMut for Entity {}
+impl DatabaseModel for Entity {}
+impl ModelMut for Entity {}
 
 /// Type alias for convenient access
 pub type User = Model;

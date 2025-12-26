@@ -1,8 +1,8 @@
 //! Authentication controller
 
 use kit::{
-    handler, inertia_response, redirect, Auth, FormRequest as FormRequestDerive, InertiaProps,
-    Redirect, Request, Response, Validate,
+    handler, inertia_response, redirect, serde_json, validator, Auth,
+    FormRequest as FormRequestDerive, InertiaProps, Redirect, Request, Response, Validate,
 };
 use serde::Deserialize;
 
