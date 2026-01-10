@@ -88,6 +88,33 @@ enum Commands {
         /// Name of the page (e.g., About, UserProfile)
         name: String,
     },
+    /// Generate a new domain event
+    #[command(name = "make:event")]
+    MakeEvent {
+        /// Name of the event (e.g., UserRegistered, OrderPlaced)
+        name: String,
+    },
+    /// Generate a new event listener
+    #[command(name = "make:listener")]
+    MakeListener {
+        /// Name of the listener (e.g., SendWelcomeEmail, NotifyAdmin)
+        name: String,
+        /// Event type to listen to (optional)
+        #[arg(long, short = 'e')]
+        event: Option<String>,
+    },
+    /// Generate a new background job
+    #[command(name = "make:job")]
+    MakeJob {
+        /// Name of the job (e.g., ProcessPayment, SendEmail)
+        name: String,
+    },
+    /// Generate a new notification
+    #[command(name = "make:notification")]
+    MakeNotification {
+        /// Name of the notification (e.g., OrderShipped, WelcomeUser)
+        name: String,
+    },
     /// Generate a new database migration
     #[command(name = "make:migration")]
     MakeMigration {
@@ -147,6 +174,13 @@ enum Commands {
     /// List all registered scheduled tasks
     #[command(name = "schedule:list")]
     ScheduleList,
+    /// Create a symbolic link from public/storage to storage/app/public
+    #[command(name = "storage:link")]
+    StorageLink {
+        /// Create a relative symlink
+        #[arg(long)]
+        relative: bool,
+    },
 }
 
 fn main() {
@@ -186,6 +220,18 @@ fn main() {
         }
         Commands::MakeInertia { name } => {
             commands::make_inertia::run(name);
+        }
+        Commands::MakeEvent { name } => {
+            commands::make_event::run(name);
+        }
+        Commands::MakeListener { name, event } => {
+            commands::make_listener::run(name, event);
+        }
+        Commands::MakeJob { name } => {
+            commands::make_job::run(name);
+        }
+        Commands::MakeNotification { name } => {
+            commands::make_notification::run(name);
         }
         Commands::MakeMigration { name } => {
             commands::make_migration::run(name);
@@ -228,6 +274,9 @@ fn main() {
         }
         Commands::ScheduleList => {
             commands::schedule_list::run();
+        }
+        Commands::StorageLink { relative } => {
+            commands::storage_link::run(relative);
         }
     }
 }

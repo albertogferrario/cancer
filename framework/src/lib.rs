@@ -38,6 +38,7 @@ pub use session::{
 pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
 pub use middleware::{
     register_global_middleware, Middleware, MiddlewareFuture, MiddlewareRegistry, Next,
+    RateLimitConfig, RateLimiter, RateLimiters, Throttle,
 };
 pub use routing::{
     route, validate_route_path,
@@ -48,6 +49,49 @@ pub use routing::{
 };
 pub use schedule::{CronExpression, DayOfWeek, Schedule, Task, TaskBuilder, TaskEntry, TaskResult};
 pub use server::Server;
+
+// Re-export kit-events for event-driven architecture
+pub use kit_events::{
+    dispatch as dispatch_event, dispatch_sync, Event, EventDispatcher, Listener, ShouldQueue,
+    Error as EventError,
+};
+
+// Re-export kit-queue for background job processing
+pub use kit_queue::{
+    dispatch as queue_dispatch, dispatch_later, dispatch_to, Job, JobPayload, PendingDispatch,
+    Queue, QueueConfig, QueueConnection, Queueable, Worker, WorkerConfig,
+    Error as QueueError,
+};
+
+// Re-export kit-notifications for multi-channel notifications
+pub use kit_notifications::{
+    Channel as NotificationChannel, ChannelResult, DatabaseMessage, DatabaseNotificationStore,
+    MailConfig, MailMessage, Notifiable, Notification, NotificationConfig, NotificationDispatcher,
+    SlackAttachment, SlackField, SlackMessage, StoredNotification,
+    Error as NotificationError,
+};
+
+// Re-export kit-broadcast for real-time WebSocket channels
+pub use kit_broadcast::{
+    AuthData, Broadcast, BroadcastBuilder, BroadcastMessage, Broadcaster, ChannelAuthorizer,
+    ChannelInfo, ChannelType, Client as BroadcastClient, ClientMessage, PresenceMember, ServerMessage,
+    Error as BroadcastError,
+};
+
+// Re-export kit-storage for file storage abstraction
+pub use kit_storage::{
+    Disk, DiskConfig, DiskDriver, FileMetadata, LocalDriver, MemoryDriver as StorageMemoryDriver,
+    PutOptions, Storage, StorageDriver, Visibility,
+    Error as StorageError,
+};
+
+// Re-export kit-cache for caching with tags
+pub use kit_cache::{
+    Cache as TaggableCache, CacheConfig as TaggableCacheConfig,
+    CacheStore as TaggableCacheStore, MemoryStore as TaggableCacheMemoryStore,
+    TaggedCache,
+    Error as TaggableCacheError,
+};
 
 // Re-export async_trait for middleware implementations
 pub use async_trait::async_trait;
@@ -82,6 +126,13 @@ pub use kit_macros::kit_test;
 // Re-export Jest-like testing macros
 pub use kit_macros::describe;
 pub use kit_macros::test;
+
+// Re-export testing utilities
+pub use testing::{
+    Factory, FactoryBuilder, Fake, Sequence,
+    TestClient, TestRequestBuilder, TestResponse,
+    TestContainer, TestContainerGuard, TestDatabase,
+};
 
 #[macro_export]
 macro_rules! json_response {

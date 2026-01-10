@@ -1,0 +1,59 @@
+//! Error types for storage operations.
+
+use std::io;
+use thiserror::Error;
+
+/// Storage error types.
+#[derive(Error, Debug)]
+pub enum Error {
+    /// File not found.
+    #[error("File not found: {0}")]
+    NotFound(String),
+
+    /// Permission denied.
+    #[error("Permission denied: {0}")]
+    PermissionDenied(String),
+
+    /// IO error.
+    #[error("IO error: {0}")]
+    Io(#[from] io::Error),
+
+    /// Invalid path.
+    #[error("Invalid path: {0}")]
+    InvalidPath(String),
+
+    /// Disk not configured.
+    #[error("Disk not configured: {0}")]
+    DiskNotConfigured(String),
+
+    /// S3 error.
+    #[cfg(feature = "s3")]
+    #[error("S3 error: {0}")]
+    S3(String),
+
+    /// Serialization error.
+    #[error("Serialization error: {0}")]
+    Serialization(String),
+}
+
+impl Error {
+    /// Create a not found error.
+    pub fn not_found(path: impl Into<String>) -> Self {
+        Self::NotFound(path.into())
+    }
+
+    /// Create a permission denied error.
+    pub fn permission_denied(msg: impl Into<String>) -> Self {
+        Self::PermissionDenied(msg.into())
+    }
+
+    /// Create an invalid path error.
+    pub fn invalid_path(path: impl Into<String>) -> Self {
+        Self::InvalidPath(path.into())
+    }
+
+    /// Create a disk not configured error.
+    pub fn disk_not_configured(disk: impl Into<String>) -> Self {
+        Self::DiskNotConfigured(disk.into())
+    }
+}

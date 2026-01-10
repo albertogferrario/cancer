@@ -5,6 +5,12 @@ members = [
     "app",
     "kit-cli",
     "kit-macros",
+    "kit-events",
+    "kit-queue",
+    "kit-notifications",
+    "kit-broadcast",
+    "kit-storage",
+    "kit-cache",
 ]
 
 [workspace.package]

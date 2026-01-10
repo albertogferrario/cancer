@@ -4,6 +4,7 @@
 //! - Global middleware (runs on all routes)
 //! - Route group middleware (shared for a group of routes)
 //! - Per-route middleware (applied to individual routes)
+//! - Rate limiting middleware for API protection
 //!
 //! # Example
 //!
@@ -22,11 +23,26 @@
 //!     }
 //! }
 //! ```
+//!
+//! # Rate Limiting
+//!
+//! ```rust,ignore
+//! use kit::middleware::RateLimiter;
+//!
+//! // 60 requests per minute
+//! let limiter = RateLimiter::per_minute(60);
+//!
+//! // Or use the Throttle builder
+//! use kit::middleware::Throttle;
+//! let throttle = Throttle::requests(100).per_hour();
+//! ```
 
 mod chain;
+mod rate_limit;
 mod registry;
 
 pub use chain::MiddlewareChain;
+pub use rate_limit::{RateLimitConfig, RateLimiter, RateLimiters, RateLimitStore, Throttle, ThrottleBuilder};
 pub use registry::register_global_middleware;
 pub use registry::MiddlewareRegistry;
 

@@ -940,3 +940,250 @@ impl Task for {struct_name} {{
         struct_name = struct_name
     )
 }
+
+// Event templates
+
+/// Template for generating new events with make:event command
+pub fn event_template(file_name: &str, struct_name: &str) -> String {
+    format!(
+        r#"//! {struct_name} event
+//!
+//! Created with `kit make:event {file_name}`
+
+use kit_events::Event;
+use serde::{{Deserialize, Serialize}};
+
+/// {struct_name} - A domain event
+///
+/// Events represent something that has happened in your application.
+/// Listeners can react to these events asynchronously.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use crate::events::{file_name}::{struct_name};
+///
+/// // Dispatch the event
+/// {struct_name} {{ /* fields */ }}.dispatch().await?;
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct {struct_name} {{
+    // TODO: Add event data fields
+    // pub user_id: i64,
+    // pub created_at: chrono::DateTime<chrono::Utc>,
+}}
+
+impl Event for {struct_name} {{}}
+"#,
+        file_name = file_name,
+        struct_name = struct_name
+    )
+}
+
+/// Template for events/mod.rs
+pub fn events_mod() -> &'static str {
+    r#"//! Application events
+//!
+//! This module contains domain events that can be dispatched
+//! and handled by listeners.
+
+"#
+}
+
+// Listener templates
+
+/// Template for generating new listeners with make:listener command
+pub fn listener_template(file_name: &str, struct_name: &str, event_type: &str) -> String {
+    format!(
+        r#"//! {struct_name} listener
+//!
+//! Created with `kit make:listener {file_name}`
+
+use kit_events::{{async_trait, Error, Listener}};
+// TODO: Import the event type
+// use crate::events::your_event::YourEvent;
+
+/// {struct_name} - An event listener
+///
+/// Listeners react to events and perform side effects.
+/// They can be synchronous or queued for background processing.
+///
+/// # Example Registration
+///
+/// ```rust,ignore
+/// // In your app initialization
+/// use kit_events::EventDispatcher;
+/// use crate::listeners::{file_name}::{struct_name};
+///
+/// let mut dispatcher = EventDispatcher::new();
+/// dispatcher.listen::<{event_type}, _>({struct_name});
+/// ```
+pub struct {struct_name};
+
+#[async_trait]
+impl Listener<{event_type}> for {struct_name} {{
+    async fn handle(&self, event: &{event_type}) -> Result<(), Error> {{
+        // TODO: Implement listener logic
+        tracing::info!("{struct_name} handling event: {{:?}}", event);
+        Ok(())
+    }}
+}}
+"#,
+        file_name = file_name,
+        struct_name = struct_name,
+        event_type = event_type
+    )
+}
+
+/// Template for listeners/mod.rs
+pub fn listeners_mod() -> &'static str {
+    r#"//! Application event listeners
+//!
+//! This module contains listeners that react to domain events.
+
+"#
+}
+
+// Job templates
+
+/// Template for generating new jobs with make:job command
+pub fn job_template(file_name: &str, struct_name: &str) -> String {
+    format!(
+        r#"//! {struct_name} background job
+//!
+//! Created with `kit make:job {file_name}`
+
+use kit_queue::{{async_trait, Error, Job, Queueable}};
+use serde::{{Deserialize, Serialize}};
+
+/// {struct_name} - A background job
+///
+/// Jobs are queued for background processing by workers.
+/// They support retries, delays, and queue prioritization.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use crate::jobs::{file_name}::{struct_name};
+///
+/// // Dispatch immediately
+/// {struct_name} {{ /* fields */ }}.dispatch().await?;
+///
+/// // Dispatch with delay
+/// {struct_name} {{ /* fields */ }}
+///     .delay(std::time::Duration::from_secs(60))
+///     .dispatch()
+///     .await?;
+///
+/// // Dispatch to specific queue
+/// {struct_name} {{ /* fields */ }}
+///     .on_queue("high-priority")
+///     .dispatch()
+///     .await?;
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct {struct_name} {{
+    // TODO: Add job data fields
+    // pub user_id: i64,
+    // pub payload: String,
+}}
+
+#[async_trait]
+impl Job for {struct_name} {{
+    async fn handle(&self) -> Result<(), Error> {{
+        // TODO: Implement job logic
+        tracing::info!("Processing {struct_name}: {{:?}}", self);
+        Ok(())
+    }}
+
+    fn max_retries(&self) -> u32 {{
+        3
+    }}
+
+    fn retry_delay(&self, attempt: u32) -> std::time::Duration {{
+        // Exponential backoff
+        std::time::Duration::from_secs(2u64.pow(attempt))
+    }}
+}}
+"#,
+        file_name = file_name,
+        struct_name = struct_name
+    )
+}
+
+/// Template for jobs/mod.rs
+pub fn jobs_mod() -> &'static str {
+    r#"//! Application background jobs
+//!
+//! This module contains jobs that are processed asynchronously
+//! by queue workers.
+
+"#
+}
+
+// Notification templates
+
+/// Template for generating new notifications with make:notification command
+pub fn notification_template(file_name: &str, struct_name: &str) -> String {
+    format!(
+        r#"//! {struct_name} notification
+//!
+//! Created with `kit make:notification {file_name}`
+
+use kit_notifications::{{Channel, DatabaseMessage, MailMessage, Notification}};
+
+/// {struct_name} - A multi-channel notification
+///
+/// Notifications can be sent through multiple channels:
+/// - Mail: Email via SMTP
+/// - Database: In-app notifications
+/// - Slack: Webhook messages
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use crate::notifications::{file_name}::{struct_name};
+///
+/// // Send notification to a user
+/// user.notify({struct_name} {{ /* fields */ }}).await?;
+/// ```
+pub struct {struct_name} {{
+    // TODO: Add notification data fields
+    // pub order_id: i64,
+    // pub tracking_number: String,
+}}
+
+impl Notification for {struct_name} {{
+    fn via(&self) -> Vec<Channel> {{
+        // TODO: Choose notification channels
+        vec![Channel::Mail, Channel::Database]
+    }}
+
+    fn to_mail(&self) -> Option<MailMessage> {{
+        Some(MailMessage::new()
+            .subject("{struct_name}")
+            .body("TODO: Add notification message"))
+    }}
+
+    fn to_database(&self) -> Option<DatabaseMessage> {{
+        Some(DatabaseMessage::new("{file_name}")
+            // TODO: Add notification data
+            // .data("order_id", self.order_id)
+        )
+    }}
+}}
+"#,
+        file_name = file_name,
+        struct_name = struct_name
+    )
+}
+
+/// Template for notifications/mod.rs
+pub fn notifications_mod() -> &'static str {
+    r#"//! Application notifications
+//!
+//! This module contains notifications that can be sent
+//! through multiple channels (mail, database, slack, etc.).
+
+"#
+}

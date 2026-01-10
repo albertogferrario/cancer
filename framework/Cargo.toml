@@ -22,6 +22,12 @@ bytes = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 kit-macros = { path = "../kit-macros", version = "0.1" }
+kit-events = { path = "../kit-events", version = "0.1" }
+kit-queue = { path = "../kit-queue", version = "0.1" }
+kit-notifications = { path = "../kit-notifications", version = "0.1" }
+kit-broadcast = { path = "../kit-broadcast", version = "0.1" }
+kit-storage = { path = "../kit-storage", version = "0.1" }
+kit-cache = { path = "../kit-cache", version = "0.1" }
 dotenvy = "0.15"
 inventory = "0.3"
 sea-orm = { version = "1.0", features = ["sqlx-postgres", "sqlx-sqlite", "runtime-tokio-native-tls", "macros"] }
@@ -34,4 +40,6 @@ pretty_assertions = "1.4"
 chrono = { version = "0.4", features = ["serde"] }
 bcrypt = "0.15"
 rand = "0.8"
+base64 = "0.22"
+dashmap = "6"
 clap = { version = "4", features = ["derive"] }

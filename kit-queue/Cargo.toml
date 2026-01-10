@@ -1,0 +1,25 @@
+[package]
+name = "kit-queue"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Background job queue system for Kit framework"
+repository = "https://github.com/albertogferrario/cancer"
+keywords = ["queue", "jobs", "background", "redis", "kit"]
+categories = ["web-programming", "asynchronous"]
+readme = "README.md"
+
+[dependencies]
+async-trait = "0.1"
+tokio = { version = "1", features = ["sync", "rt", "time", "macros"] }
+tracing = "0.1"
+parking_lot = "0.12"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+redis = { version = "0.25", features = ["tokio-comp", "connection-manager"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full", "test-util"] }
