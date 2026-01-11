@@ -1,3 +1,4 @@
+pub mod boost_install;
 pub mod db_sync;
 pub mod docker_compose;
 pub mod docker_init;
@@ -12,9 +13,9 @@ pub mod make_job;
 pub mod make_listener;
 pub mod make_middleware;
 pub mod make_migration;
-pub mod mcp;
 pub mod make_notification;
 pub mod make_task;
+pub mod mcp;
 pub mod migrate;
 pub mod migrate_fresh;
 pub mod migrate_rollback;

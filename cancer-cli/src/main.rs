@@ -183,6 +183,13 @@ enum Commands {
     },
     /// Start the MCP server for AI-assisted development
     Mcp,
+    /// Install AI development boost (MCP config + guidelines)
+    #[command(name = "boost:install")]
+    BoostInstall {
+        /// Target editor: cursor, vscode, claude (auto-detected if omitted)
+        #[arg(long)]
+        editor: Option<String>,
+    },
 }
 
 fn main() {
@@ -282,6 +289,9 @@ fn main() {
         }
         Commands::Mcp => {
             commands::mcp::run();
+        }
+        Commands::BoostInstall { editor } => {
+            commands::boost_install::run(editor);
         }
     }
 }

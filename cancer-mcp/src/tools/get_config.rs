@@ -45,26 +45,23 @@ pub fn execute(project_root: &Path, key: Option<&str>) -> Result<ConfigInfo> {
     // Read config files from config/ directory
     let config_dir = project_root.join("config");
     if config_dir.exists() {
-        for entry in fs::read_dir(&config_dir).into_iter().flatten() {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if path.extension().map(|e| e == "toml").unwrap_or(false) {
-                    if let Ok(content) = fs::read_to_string(&path) {
-                        if let Ok(parsed) = content.parse::<toml::Table>() {
-                            let config_name = path
-                                .file_stem()
-                                .map(|s| s.to_string_lossy().to_string())
-                                .unwrap_or_default();
+        for entry in fs::read_dir(&config_dir).into_iter().flatten().flatten() {
+            let path = entry.path();
+            if path.extension().map(|e| e == "toml").unwrap_or(false) {
+                if let Ok(content) = fs::read_to_string(&path) {
+                    if let Ok(parsed) = content.parse::<toml::Table>() {
+                        let config_name = path
+                            .file_stem()
+                            .map(|s| s.to_string_lossy().to_string())
+                            .unwrap_or_default();
 
-                            // If key filter is specified, only include matching config files
-                            if let Some(filter) = key {
-                                if config_name.to_lowercase().contains(&filter.to_lowercase()) {
-                                    config_values
-                                        .insert(config_name, toml::Value::Table(parsed));
-                                }
-                            } else {
+                        // If key filter is specified, only include matching config files
+                        if let Some(filter) = key {
+                            if config_name.to_lowercase().contains(&filter.to_lowercase()) {
                                 config_values.insert(config_name, toml::Value::Table(parsed));
                             }
+                        } else {
+                            config_values.insert(config_name, toml::Value::Table(parsed));
                         }
                     }
                 }

@@ -29,4 +29,7 @@ pub enum McpError {
 
     #[error("Tool error: {0}")]
     ToolError(String),
+
+    #[error("Execution error: {0}")]
+    ExecutionError(String),
 }

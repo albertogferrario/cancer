@@ -41,7 +41,11 @@ pub fn execute(project_root: &Path, query: &str) -> Result<SearchDocsResult> {
     }
 
     // Sort by relevance
-    matches.sort_by(|a, b| b.relevance.partial_cmp(&a.relevance).unwrap_or(std::cmp::Ordering::Equal));
+    matches.sort_by(|a, b| {
+        b.relevance
+            .partial_cmp(&a.relevance)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 
     // Limit results
     let total_matches = matches.len();
@@ -54,7 +58,12 @@ pub fn execute(project_root: &Path, query: &str) -> Result<SearchDocsResult> {
     })
 }
 
-fn search_directory(dir: &Path, project_root: &Path, query_words: &[&str], matches: &mut Vec<DocMatch>) {
+fn search_directory(
+    dir: &Path,
+    project_root: &Path,
+    query_words: &[&str],
+    matches: &mut Vec<DocMatch>,
+) {
     for entry in WalkDir::new(dir)
         .into_iter()
         .filter_map(|e| e.ok())
@@ -69,7 +78,12 @@ fn search_directory(dir: &Path, project_root: &Path, query_words: &[&str], match
     }
 }
 
-fn search_file(path: &Path, project_root: &Path, query_words: &[&str], matches: &mut Vec<DocMatch>) {
+fn search_file(
+    path: &Path,
+    project_root: &Path,
+    query_words: &[&str],
+    matches: &mut Vec<DocMatch>,
+) {
     let Ok(content) = fs::read_to_string(path) else {
         return;
     };
@@ -115,8 +129,8 @@ fn search_file(path: &Path, project_root: &Path, query_words: &[&str], matches: 
 fn extract_title(content: &str) -> Option<String> {
     for line in content.lines() {
         let trimmed = line.trim();
-        if trimmed.starts_with("# ") {
-            return Some(trimmed[2..].trim().to_string());
+        if let Some(stripped) = trimmed.strip_prefix("# ") {
+            return Some(stripped.trim().to_string());
         }
     }
     None

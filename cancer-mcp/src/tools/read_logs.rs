@@ -33,11 +33,11 @@ pub fn execute(project_root: &Path, lines: usize, level_filter: Option<&str>) ->
         .find(|p| p.exists())
         .ok_or_else(|| McpError::FileNotFound("No log file found".to_string()))?;
 
-    let file = fs::File::open(log_file).map_err(|e| McpError::IoError(e))?;
+    let file = fs::File::open(log_file).map_err(McpError::IoError)?;
     let reader = BufReader::new(file);
 
     // Read all lines and keep only the last N
-    let all_lines: Vec<String> = reader.lines().filter_map(|l| l.ok()).collect();
+    let all_lines: Vec<String> = reader.lines().map_while(|l| l.ok()).collect();
 
     let start_idx = if all_lines.len() > lines {
         all_lines.len() - lines

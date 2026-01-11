@@ -119,8 +119,7 @@ fn to_snake_case(s: &str) -> String {
 }
 
 fn to_title_case(s: &str) -> String {
-    s.replace('-', " ")
-        .replace('_', " ")
+    s.replace(['-', '_'], " ")
         .split_whitespace()
         .map(|word| {
             let mut chars = word.chars();
@@ -361,11 +360,8 @@ fn create_project(
     .map_err(|e| format!("Failed to write src/listeners/mod.rs: {}", e))?;
 
     // Write src/jobs/mod.rs
-    fs::write(
-        project_path.join("src/jobs/mod.rs"),
-        templates::jobs_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/jobs/mod.rs: {}", e))?;
+    fs::write(project_path.join("src/jobs/mod.rs"), templates::jobs_mod())
+        .map_err(|e| format!("Failed to write src/jobs/mod.rs: {}", e))?;
 
     // Write src/notifications/mod.rs
     fs::write(
@@ -389,17 +385,11 @@ fn create_project(
     .map_err(|e| format!("Failed to write src/schedule.rs: {}", e))?;
 
     // Write storage/.gitkeep files
-    fs::write(
-        project_path.join("storage/app/.gitkeep"),
-        "",
-    )
-    .map_err(|e| format!("Failed to write storage/app/.gitkeep: {}", e))?;
+    fs::write(project_path.join("storage/app/.gitkeep"), "")
+        .map_err(|e| format!("Failed to write storage/app/.gitkeep: {}", e))?;
 
-    fs::write(
-        project_path.join("storage/logs/.gitkeep"),
-        "",
-    )
-    .map_err(|e| format!("Failed to write storage/logs/.gitkeep: {}", e))?;
+    fs::write(project_path.join("storage/logs/.gitkeep"), "")
+        .map_err(|e| format!("Failed to write storage/logs/.gitkeep: {}", e))?;
 
     // === Frontend files ===
 
@@ -454,7 +444,12 @@ fn create_project(
         project_path.join("frontend/src/pages/auth/Register.tsx"),
         templates::register_page(),
     )
-    .map_err(|e| format!("Failed to write frontend/src/pages/auth/Register.tsx: {}", e))?;
+    .map_err(|e| {
+        format!(
+            "Failed to write frontend/src/pages/auth/Register.tsx: {}",
+            e
+        )
+    })?;
 
     // Write frontend/src/pages/Dashboard.tsx
     fs::write(

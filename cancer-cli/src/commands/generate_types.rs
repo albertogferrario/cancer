@@ -67,7 +67,7 @@ impl InertiaPropsVisitor {
         false
     }
 
-    fn parse_type(&self, ty: &Type) -> RustType {
+    fn parse_type(ty: &Type) -> RustType {
         match ty {
             Type::Path(type_path) => {
                 let segment = type_path.path.segments.last().unwrap();
@@ -81,7 +81,7 @@ impl InertiaPropsVisitor {
                     "Option" => {
                         if let PathArguments::AngleBracketed(args) = &segment.arguments {
                             if let Some(GenericArgument::Type(inner_ty)) = args.args.first() {
-                                return RustType::Option(Box::new(self.parse_type(inner_ty)));
+                                return RustType::Option(Box::new(Self::parse_type(inner_ty)));
                             }
                         }
                         RustType::Option(Box::new(RustType::Custom("unknown".to_string())))
@@ -89,7 +89,7 @@ impl InertiaPropsVisitor {
                     "Vec" => {
                         if let PathArguments::AngleBracketed(args) = &segment.arguments {
                             if let Some(GenericArgument::Type(inner_ty)) = args.args.first() {
-                                return RustType::Vec(Box::new(self.parse_type(inner_ty)));
+                                return RustType::Vec(Box::new(Self::parse_type(inner_ty)));
                             }
                         }
                         RustType::Vec(Box::new(RustType::Custom("unknown".to_string())))
@@ -103,8 +103,8 @@ impl InertiaPropsVisitor {
                             ) = (iter.next(), iter.next())
                             {
                                 return RustType::HashMap(
-                                    Box::new(self.parse_type(key_ty)),
-                                    Box::new(self.parse_type(val_ty)),
+                                    Box::new(Self::parse_type(key_ty)),
+                                    Box::new(Self::parse_type(val_ty)),
                                 );
                             }
                         }
@@ -129,7 +129,7 @@ impl InertiaPropsVisitor {
                         return RustType::String;
                     }
                 }
-                self.parse_type(&type_ref.elem)
+                Self::parse_type(&type_ref.elem)
             }
             _ => RustType::Custom("unknown".to_string()),
         }
@@ -148,7 +148,7 @@ impl<'ast> Visit<'ast> for InertiaPropsVisitor {
                     .filter_map(|f| {
                         f.ident.as_ref().map(|ident| StructField {
                             name: ident.to_string(),
-                            ty: self.parse_type(&f.ty),
+                            ty: Self::parse_type(&f.ty),
                         })
                     })
                     .collect(),
@@ -324,7 +324,7 @@ pub fn run(output: Option<String>, watch: bool) {
     }
 
     let output_path = output
-        .map(|s| std::path::PathBuf::from(s))
+        .map(std::path::PathBuf::from)
         .unwrap_or_else(|| project_path.join("frontend/src/types/inertia-props.ts"));
 
     println!("{}", style("Scanning for InertiaProps structs...").cyan());

@@ -66,6 +66,20 @@ pub struct SearchDocsParams {
     pub query: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct TinkerParams {
+    /// Rust code to execute
+    pub code: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct BrowserLogsParams {
+    /// Number of lines to read (default: 50)
+    pub lines: Option<usize>,
+    /// Log level filter: error, warn, info
+    pub level: Option<String>,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -99,7 +113,9 @@ impl CancerMcpService {
     )]
     pub async fn db_schema(&self, params: Parameters<DbSchemaParams>) -> String {
         match tools::database_schema::execute(&self.project_root, params.0.table.as_deref()).await {
-            Ok(schema) => serde_json::to_string_pretty(&schema).unwrap_or_else(|_| "{}".to_string()),
+            Ok(schema) => {
+                serde_json::to_string_pretty(&schema).unwrap_or_else(|_| "{}".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
@@ -111,7 +127,9 @@ impl CancerMcpService {
     )]
     pub async fn list_routes(&self) -> String {
         match tools::list_routes::execute(&self.project_root) {
-            Ok(routes) => serde_json::to_string_pretty(&routes).unwrap_or_else(|_| "[]".to_string()),
+            Ok(routes) => {
+                serde_json::to_string_pretty(&routes).unwrap_or_else(|_| "[]".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
@@ -133,7 +151,9 @@ impl CancerMcpService {
     )]
     pub async fn list_migrations(&self) -> String {
         match tools::list_migrations::execute(&self.project_root).await {
-            Ok(migrations) => serde_json::to_string_pretty(&migrations).unwrap_or_else(|_| "[]".to_string()),
+            Ok(migrations) => {
+                serde_json::to_string_pretty(&migrations).unwrap_or_else(|_| "[]".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
@@ -145,16 +165,15 @@ impl CancerMcpService {
     )]
     pub async fn list_events(&self) -> String {
         match tools::list_events::execute(&self.project_root) {
-            Ok(events) => serde_json::to_string_pretty(&events).unwrap_or_else(|_| "[]".to_string()),
+            Ok(events) => {
+                serde_json::to_string_pretty(&events).unwrap_or_else(|_| "[]".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
 
     /// List all defined background jobs
-    #[tool(
-        name = "list_jobs",
-        description = "List all defined background jobs"
-    )]
+    #[tool(name = "list_jobs", description = "List all defined background jobs")]
     pub async fn list_jobs(&self) -> String {
         match tools::list_jobs::execute(&self.project_root) {
             Ok(jobs) => serde_json::to_string_pretty(&jobs).unwrap_or_else(|_| "[]".to_string()),
@@ -169,7 +188,9 @@ impl CancerMcpService {
     )]
     pub async fn list_middleware(&self) -> String {
         match tools::list_middleware::execute(&self.project_root) {
-            Ok(middleware) => serde_json::to_string_pretty(&middleware).unwrap_or_else(|_| "[]".to_string()),
+            Ok(middleware) => {
+                serde_json::to_string_pretty(&middleware).unwrap_or_else(|_| "[]".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
@@ -194,7 +215,9 @@ impl CancerMcpService {
     )]
     pub async fn last_error(&self) -> String {
         match tools::last_error::execute(&self.project_root) {
-            Ok(error) => serde_json::to_string_pretty(&error).unwrap_or_else(|_| "null".to_string()),
+            Ok(error) => {
+                serde_json::to_string_pretty(&error).unwrap_or_else(|_| "null".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
@@ -203,7 +226,9 @@ impl CancerMcpService {
     #[tool(name = "get_config", description = "Read configuration values")]
     pub async fn get_config(&self, params: Parameters<GetConfigParams>) -> String {
         match tools::get_config::execute(&self.project_root, params.0.key.as_deref()) {
-            Ok(config) => serde_json::to_string_pretty(&config).unwrap_or_else(|_| "{}".to_string()),
+            Ok(config) => {
+                serde_json::to_string_pretty(&config).unwrap_or_else(|_| "{}".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
@@ -221,13 +246,42 @@ impl CancerMcpService {
     }
 
     /// Search framework documentation
-    #[tool(
-        name = "search_docs",
-        description = "Search framework documentation"
-    )]
+    #[tool(name = "search_docs", description = "Search framework documentation")]
     pub async fn search_docs(&self, params: Parameters<SearchDocsParams>) -> String {
         match tools::search_docs::execute(&self.project_root, &params.0.query) {
-            Ok(results) => serde_json::to_string_pretty(&results).unwrap_or_else(|_| "[]".to_string()),
+            Ok(results) => {
+                serde_json::to_string_pretty(&results).unwrap_or_else(|_| "[]".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Execute Rust code within the application context (like Laravel Tinker)
+    #[tool(
+        name = "tinker",
+        description = "Execute Rust code within the application context (like Laravel Tinker)"
+    )]
+    pub async fn tinker(&self, params: Parameters<TinkerParams>) -> String {
+        match tools::tinker::execute(&self.project_root, &params.0.code) {
+            Ok(result) => {
+                serde_json::to_string_pretty(&result).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Read browser/frontend error logs
+    #[tool(
+        name = "browser_logs",
+        description = "Read browser/frontend error logs from the application"
+    )]
+    pub async fn browser_logs(&self, params: Parameters<BrowserLogsParams>) -> String {
+        match tools::browser_logs::execute(
+            &self.project_root,
+            params.0.lines.unwrap_or(50),
+            params.0.level.as_deref(),
+        ) {
+            Ok(logs) => serde_json::to_string_pretty(&logs).unwrap_or_else(|_| "[]".to_string()),
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }

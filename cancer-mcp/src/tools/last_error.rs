@@ -39,17 +39,20 @@ pub fn execute(project_root: &Path) -> Result<LastErrorInfo> {
         });
     };
 
-    let file = fs::File::open(log_file).map_err(|e| McpError::IoError(e))?;
+    let file = fs::File::open(log_file).map_err(McpError::IoError)?;
     let reader = BufReader::new(file);
 
     // Read all lines and find the last error
-    let all_lines: Vec<String> = reader.lines().filter_map(|l| l.ok()).collect();
+    let all_lines: Vec<String> = reader.lines().map_while(|l| l.ok()).collect();
 
     // Search from end to find last error
     let mut last_error_idx: Option<usize> = None;
     for (idx, line) in all_lines.iter().enumerate().rev() {
         let line_upper = line.to_uppercase();
-        if line_upper.contains("ERROR") || line_upper.contains("PANIC") || line_upper.contains("FATAL") {
+        if line_upper.contains("ERROR")
+            || line_upper.contains("PANIC")
+            || line_upper.contains("FATAL")
+        {
             last_error_idx = Some(idx);
             break;
         }

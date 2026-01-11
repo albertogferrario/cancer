@@ -27,8 +27,7 @@ pub fn execute(project_root: &Path) -> Result<RoutesInfo> {
         return Err(McpError::FileNotFound("src/routes.rs".to_string()));
     }
 
-    let content = fs::read_to_string(&routes_file)
-        .map_err(|e| McpError::IoError(e))?;
+    let content = fs::read_to_string(&routes_file).map_err(McpError::IoError)?;
 
     let routes = parse_routes(&content);
 
@@ -46,9 +45,18 @@ fn parse_routes(content: &str) -> Vec<RouteInfo> {
     ).unwrap();
 
     for cap in route_pattern.captures_iter(content) {
-        let method = cap.get(1).map(|m| m.as_str().to_uppercase()).unwrap_or_default();
-        let path = cap.get(2).map(|m| m.as_str().to_string()).unwrap_or_default();
-        let handler = cap.get(3).map(|m| m.as_str().to_string()).unwrap_or_default();
+        let method = cap
+            .get(1)
+            .map(|m| m.as_str().to_uppercase())
+            .unwrap_or_default();
+        let path = cap
+            .get(2)
+            .map(|m| m.as_str().to_string())
+            .unwrap_or_default();
+        let handler = cap
+            .get(3)
+            .map(|m| m.as_str().to_string())
+            .unwrap_or_default();
         let name = cap.get(4).map(|m| m.as_str().to_string());
         let middleware_str = cap.get(5).map(|m| m.as_str()).unwrap_or("");
 
@@ -58,7 +66,11 @@ fn parse_routes(content: &str) -> Vec<RouteInfo> {
         } else {
             middleware_str
                 .split(',')
-                .map(|s| s.trim().trim_matches(|c| c == '[' || c == ']' || c == '"').to_string())
+                .map(|s| {
+                    s.trim()
+                        .trim_matches(|c| c == '[' || c == ']' || c == '"')
+                        .to_string()
+                })
                 .filter(|s| !s.is_empty())
                 .collect()
         };
@@ -73,9 +85,9 @@ fn parse_routes(content: &str) -> Vec<RouteInfo> {
     }
 
     // Also try to parse route groups
-    let group_pattern = Regex::new(
-        r#"group!\s*\(\s*"([^"]+)"\s*,\s*\[([^\]]+)\]\s*(?:,\s*\[([^\]]+)\])?\s*\)"#
-    ).unwrap();
+    let group_pattern =
+        Regex::new(r#"group!\s*\(\s*"([^"]+)"\s*,\s*\[([^\]]+)\]\s*(?:,\s*\[([^\]]+)\])?\s*\)"#)
+            .unwrap();
 
     for cap in group_pattern.captures_iter(content) {
         let prefix = cap.get(1).map(|m| m.as_str()).unwrap_or("");
@@ -95,9 +107,18 @@ fn parse_routes(content: &str) -> Vec<RouteInfo> {
 
         // Parse nested routes in group
         for nested_cap in route_pattern.captures_iter(group_routes) {
-            let method = nested_cap.get(1).map(|m| m.as_str().to_uppercase()).unwrap_or_default();
-            let path = nested_cap.get(2).map(|m| m.as_str().to_string()).unwrap_or_default();
-            let handler = nested_cap.get(3).map(|m| m.as_str().to_string()).unwrap_or_default();
+            let method = nested_cap
+                .get(1)
+                .map(|m| m.as_str().to_uppercase())
+                .unwrap_or_default();
+            let path = nested_cap
+                .get(2)
+                .map(|m| m.as_str().to_string())
+                .unwrap_or_default();
+            let handler = nested_cap
+                .get(3)
+                .map(|m| m.as_str().to_string())
+                .unwrap_or_default();
             let name = nested_cap.get(4).map(|m| m.as_str().to_string());
 
             let full_path = format!("{}{}", prefix, path);
