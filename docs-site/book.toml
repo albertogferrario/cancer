@@ -1,0 +1,27 @@
+[book]
+title = "Cancer Framework"
+description = "A Laravel-inspired web framework for Rust"
+authors = ["Alberto G. Ferrario"]
+language = "en"
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+default-theme = "rust"
+preferred-dark-theme = "coal"
+git-repository-url = "https://github.com/albertogferrario/cancer"
+edit-url-template = "https://github.com/albertogferrario/cancer/edit/main/docs-site/{path}"
+site-url = "https://cancer-rs.dev/"
+cname = "cancer-rs.dev"
+no-section-label = false
+
+[output.html.search]
+enable = true
+limit-results = 30
+
+[output.html.fold]
+enable = true
+level = 1

@@ -13,3 +13,6 @@ Thumbs.db
 # Backup files
 *.bak
 *~
+
+# mdBook output
+docs-site/book/
