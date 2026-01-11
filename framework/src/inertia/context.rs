@@ -1,65 +1,43 @@
-//! Inertia.js integration - async-safe implementation
+//! Inertia.js integration - async-safe implementation.
 //!
 //! This module provides the main `Inertia` struct for rendering Inertia responses.
-//! Unlike the previous thread-local implementation, this is safe for async Rust.
+//! It wraps the framework-agnostic `inertia-rs` crate with Cancer-specific features.
 
-use super::config::InertiaConfig;
-use super::response::InertiaResponse;
+use crate::csrf::csrf_token;
 use crate::http::{HttpResponse, Request};
 use crate::Response;
+use inertia_rs::{InertiaConfig, InertiaRequest as InertiaRequestTrait};
 use serde::Serialize;
 
-/// Shared props that are merged into every Inertia response
-///
-/// Set via middleware and automatically included in all responses.
-#[derive(Clone, Default, Serialize)]
-pub struct InertiaShared {
-    /// Authenticated user data (if any)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub auth: Option<serde_json::Value>,
-    /// Flash messages from the session
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub flash: Option<serde_json::Value>,
-    /// CSRF token
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub csrf: Option<String>,
-}
+// Re-export InertiaShared from inertia-rs
+pub use inertia_rs::InertiaShared;
 
-impl InertiaShared {
-    pub fn new() -> Self {
-        Self::default()
+/// Implement the framework-agnostic InertiaRequest trait for Cancer's Request type.
+impl InertiaRequestTrait for Request {
+    fn inertia_header(&self, name: &str) -> Option<&str> {
+        self.header(name)
     }
 
-    pub fn auth(mut self, auth: impl Serialize) -> Self {
-        self.auth = Some(serde_json::to_value(auth).unwrap_or_default());
-        self
-    }
-
-    pub fn flash(mut self, flash: impl Serialize) -> Self {
-        self.flash = Some(serde_json::to_value(flash).unwrap_or_default());
-        self
-    }
-
-    pub fn csrf(mut self, token: impl Into<String>) -> Self {
-        self.csrf = Some(token.into());
-        self
+    fn path(&self) -> &str {
+        Request::path(self)
     }
 }
 
-/// Main Inertia integration struct
+/// Main Inertia integration struct for Cancer framework.
 ///
 /// Provides methods for rendering Inertia responses in an async-safe manner.
 /// All state is derived from the Request, not thread-local storage.
 pub struct Inertia;
 
 impl Inertia {
-    /// Render an Inertia response
+    /// Render an Inertia response.
     ///
     /// This is the primary method for returning Inertia responses from controllers.
     /// It automatically:
     /// - Detects XHR vs initial page load
     /// - Merges shared props from middleware
     /// - Filters props for partial reloads
+    /// - Includes CSRF token in HTML responses
     ///
     /// # Example
     ///
@@ -76,91 +54,90 @@ impl Inertia {
         Self::render_with_config(req, component, props, InertiaConfig::default())
     }
 
-    /// Render an Inertia response with custom configuration
+    /// Render an Inertia response with custom configuration.
     pub fn render_with_config<P: Serialize>(
         req: &Request,
         component: &str,
         props: P,
         config: InertiaConfig,
     ) -> Response {
-        let url = req.path().to_string();
-        let is_inertia = req.is_inertia();
-        let partial_data = req.inertia_partial_data();
-        let partial_component = req.inertia_partial_component();
+        // Get shared props from middleware (if set)
+        let shared = req.get::<InertiaShared>();
 
-        // Serialize props
-        let mut props_value = serde_json::to_value(&props)
-            .map_err(|e| HttpResponse::text(format!("Failed to serialize props: {}", e)).status(500))?;
+        // Get CSRF token for HTML responses
+        let csrf = csrf_token().unwrap_or_default();
 
-        // Merge shared props from middleware (if set)
-        if let Some(shared) = req.get::<InertiaShared>() {
-            if let serde_json::Value::Object(ref mut map) = props_value {
-                if let Some(auth) = &shared.auth {
-                    map.insert("auth".to_string(), auth.clone());
-                }
-                if let Some(flash) = &shared.flash {
-                    map.insert("flash".to_string(), flash.clone());
-                }
-                if let Some(csrf) = &shared.csrf {
-                    map.insert("csrf".to_string(), serde_json::Value::String(csrf.clone()));
-                }
+        // Build shared props with CSRF included
+        let effective_shared = if let Some(existing) = shared {
+            // Clone and add CSRF if not already set
+            let mut shared_clone = existing.clone();
+            if shared_clone.csrf.is_none() {
+                shared_clone.csrf = Some(csrf.clone());
             }
-        }
-
-        // Filter props for partial reloads
-        if is_inertia {
-            if let Some(partial_keys) = partial_data {
-                // Only filter if this is the same component
-                let should_filter = partial_component
-                    .map(|pc| pc == component)
-                    .unwrap_or(false);
-
-                if should_filter {
-                    props_value = Self::filter_partial_props(props_value, &partial_keys);
-                }
-            }
-        }
-
-        let response = InertiaResponse::new(component, props_value, url)
-            .with_config(config);
-
-        if is_inertia {
-            Ok(response.to_json_response())
+            Some(shared_clone)
         } else {
-            Ok(response.to_html_response())
-        }
+            Some(InertiaShared::new().csrf(csrf.clone()))
+        };
+
+        // Use inertia-rs for the core rendering logic
+        let http_response = inertia_rs::Inertia::render_with_options(
+            req,
+            component,
+            props,
+            effective_shared.as_ref(),
+            config,
+        );
+
+        // Convert InertiaHttpResponse to Cancer's Response
+        Ok(Self::convert_response(http_response))
     }
 
-    /// Filter props to only include those requested in partial reload
-    fn filter_partial_props(
-        props: serde_json::Value,
-        partial_keys: &[&str],
-    ) -> serde_json::Value {
-        match props {
-            serde_json::Value::Object(map) => {
-                let filtered: serde_json::Map<String, serde_json::Value> = map
-                    .into_iter()
-                    .filter(|(k, _)| partial_keys.contains(&k.as_str()))
-                    .collect();
-                serde_json::Value::Object(filtered)
-            }
-            other => other,
+    /// Convert an InertiaHttpResponse to Cancer's HttpResponse.
+    fn convert_response(inertia_response: inertia_rs::InertiaHttpResponse) -> HttpResponse {
+        let mut response = match inertia_response.content_type {
+            "application/json" => HttpResponse::text(inertia_response.body),
+            "text/html; charset=utf-8" => HttpResponse::text(inertia_response.body),
+            _ => HttpResponse::text(inertia_response.body),
+        };
+
+        response = response.status(inertia_response.status);
+        response = response.header("Content-Type", inertia_response.content_type);
+
+        for (name, value) in inertia_response.headers {
+            response = response.header(name, value);
         }
+
+        response
     }
 
-    /// Check if the current request is an Inertia XHR request
+    /// Check if the current request is an Inertia XHR request.
     pub fn is_inertia_request(req: &Request) -> bool {
         req.is_inertia()
     }
 
-    /// Get the current URL from the request
+    /// Get the current URL from the request.
     pub fn current_url(req: &Request) -> String {
         req.path().to_string()
+    }
+
+    /// Check for version mismatch and return 409 Conflict if needed.
+    ///
+    /// Call this in middleware to handle asset version changes.
+    pub fn check_version(
+        req: &Request,
+        current_version: &str,
+        redirect_url: &str,
+    ) -> Option<Response> {
+        inertia_rs::Inertia::check_version(req, current_version, redirect_url)
+            .map(|http_response| Ok(Self::convert_response(http_response)))
     }
 }
 
 // Keep deprecated InertiaContext for backward compatibility during migration
-#[deprecated(since = "0.2.0", note = "Use Inertia::render() instead - thread-local storage is async-unsafe")]
+#[deprecated(
+    since = "0.2.0",
+    note = "Use Inertia::render() instead - thread-local storage is async-unsafe"
+)]
 pub struct InertiaContext;
 
 #[allow(deprecated)]
@@ -191,7 +168,7 @@ impl InertiaContext {
     }
 }
 
-/// Legacy context data - kept for migration compatibility
+/// Legacy context data - kept for migration compatibility.
 #[deprecated(since = "0.2.0", note = "Use Request methods instead")]
 #[derive(Clone, Default)]
 pub struct InertiaContextData {

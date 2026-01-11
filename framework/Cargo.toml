@@ -28,6 +28,7 @@ cancer-notifications = { path = "../cancer-notifications", version = "0.1" }
 cancer-broadcast = { path = "../cancer-broadcast", version = "0.1" }
 cancer-storage = { path = "../cancer-storage", version = "0.1" }
 cancer-cache = { path = "../cancer-cache", version = "0.1" }
+inertia-rs = { path = "../inertia-rs", version = "0.1" }
 dotenvy = "0.15"
 inventory = "0.3"
 sea-orm = { version = "1.0", features = ["sqlx-postgres", "sqlx-sqlite", "runtime-tokio-native-tls", "macros"] }

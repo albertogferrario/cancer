@@ -1,10 +1,7 @@
-//! Inertia.js integration for Cancer framework
+//! Inertia.js integration for Cancer framework.
 //!
-//! This module provides async-safe Inertia.js integration with:
-//! - `Inertia::render()` - Main response rendering
-//! - `InertiaShared` - Shared props via middleware
-//! - `InertiaConfig` - Configuration options
-//! - Automatic partial reload filtering
+//! This module provides the integration between the framework-agnostic
+//! `inertia-rs` crate and the Cancer framework's HTTP types.
 //!
 //! # Example
 //!
@@ -30,6 +27,9 @@ mod response;
 pub use config::InertiaConfig;
 pub use context::{Inertia, InertiaShared};
 pub use response::InertiaResponse;
+
+// Re-export core types from inertia-rs for advanced usage
+pub use inertia_rs::{InertiaHttpResponse, InertiaRequest as InertiaRequestTrait};
 
 // Deprecated exports for backward compatibility
 #[allow(deprecated)]

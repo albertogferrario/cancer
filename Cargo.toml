@@ -11,6 +11,8 @@ members = [
     "cancer-broadcast",
     "cancer-storage",
     "cancer-cache",
+    "cancer-mcp",
+    "inertia-rs",
 ]
 
 [workspace.package]
