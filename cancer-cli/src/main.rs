@@ -182,7 +182,11 @@ enum Commands {
         relative: bool,
     },
     /// Start the MCP server for AI-assisted development
-    Mcp,
+    Mcp {
+        /// Working directory for the project to introspect
+        #[arg(long)]
+        cwd: Option<String>,
+    },
     /// Install AI development boost (MCP config + guidelines)
     #[command(name = "boost:install")]
     BoostInstall {
@@ -287,8 +291,8 @@ fn main() {
         Commands::StorageLink { relative } => {
             commands::storage_link::run(relative);
         }
-        Commands::Mcp => {
-            commands::mcp::run();
+        Commands::Mcp { cwd } => {
+            commands::mcp::run(cwd);
         }
         Commands::BoostInstall { editor } => {
             commands::boost_install::run(editor);

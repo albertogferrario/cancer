@@ -12,6 +12,12 @@ pub enum McpError {
     #[error("File not found: {0}")]
     FileNotFound(String),
 
+    #[error("File read error: {0}")]
+    FileReadError(String),
+
+    #[error("Not found: {0}")]
+    NotFound(String),
+
     #[error("Parse error: {0}")]
     ParseError(String),
 

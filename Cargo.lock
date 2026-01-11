@@ -911,6 +911,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "dotenvy",
+ "quote",
  "regex",
  "rmcp",
  "schemars",

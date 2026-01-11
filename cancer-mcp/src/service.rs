@@ -67,6 +67,12 @@ pub struct SearchDocsParams {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct GetHandlerParams {
+    /// Route path to get handler for (e.g., "/animali/{id}")
+    pub route: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
 pub struct TinkerParams {
     /// Rust code to execute
     pub code: String,
@@ -190,6 +196,34 @@ impl CancerMcpService {
         match tools::list_middleware::execute(&self.project_root) {
             Ok(middleware) => {
                 serde_json::to_string_pretty(&middleware).unwrap_or_else(|_| "[]".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// List all database models with their fields and types
+    #[tool(
+        name = "list_models",
+        description = "List all database models with their fields, types, and relationships"
+    )]
+    pub async fn list_models(&self) -> String {
+        match tools::list_models::execute(&self.project_root) {
+            Ok(models) => {
+                serde_json::to_string_pretty(&models).unwrap_or_else(|_| "[]".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Get handler source code for a specific route
+    #[tool(
+        name = "get_handler",
+        description = "Get the source code of a handler function for a given route path"
+    )]
+    pub async fn get_handler(&self, params: Parameters<GetHandlerParams>) -> String {
+        match tools::get_handler::execute(&self.project_root, &params.0.route) {
+            Ok(handler) => {
+                serde_json::to_string_pretty(&handler).unwrap_or_else(|_| "{}".to_string())
             }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
