@@ -15,7 +15,7 @@ fi
 
 # Generate TypeScript types from InertiaProps
 echo "Generating TypeScript types..."
-(cd app && ../target/debug/kit generate-types 2>/dev/null || true)
+(cd app && ../target/debug/cancer generate-types 2>/dev/null || true)
 
 # Start Vite dev server in background
 echo "Starting Vite dev server on http://localhost:5173..."

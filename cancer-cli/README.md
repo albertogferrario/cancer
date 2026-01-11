@@ -5,7 +5,7 @@ A CLI tool for scaffolding Kit web applications.
 ## Installation
 
 ```bash
-cargo install kit-cli
+cargo install cancer-cli
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ cargo install kit-cli
 ### Create a new project
 
 ```bash
-kit new myapp
+cancer new myapp
 ```
 
 This will interactively prompt you for:
@@ -24,13 +24,13 @@ This will interactively prompt you for:
 ### Non-interactive mode
 
 ```bash
-kit new myapp --no-interaction
+cancer new myapp --no-interaction
 ```
 
 ### Skip git initialization
 
 ```bash
-kit new myapp --no-git
+cancer new myapp --no-git
 ```
 
 ## Generated Project Structure

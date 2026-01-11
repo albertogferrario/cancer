@@ -2,20 +2,20 @@
 
 **A Laravel-inspired web framework for Rust**
 
-[![Crates.io](https://img.shields.io/crates/v/kit.svg)](https://crates.io/crates/kit)
+[![Crates.io](https://img.shields.io/crates/v/cancer-rs.svg)](https://crates.io/crates/cancer-rs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Build web applications in Rust with the developer experience you love from Laravel and Rails. Kit gives you expressive routing, powerful tooling, and batteries-included features—without sacrificing Rust's performance.
 
-[Website](https://kit-rs.dev/) | [Documentation](https://kit-rs.dev/)
+[Website](https://cancer-rs.dev/) | [Documentation](https://cancer-rs.dev/)
 
 ## Quick Start
 
 ```bash
-cargo install kit-cli
-kit new myapp
+cargo install cancer-cli
+cancer new myapp
 cd myapp
-kit serve
+cancer serve
 ```
 
 Your app is now running at `http://localhost:8000`
@@ -25,7 +25,7 @@ Your app is now running at `http://localhost:8000`
 If you've used Laravel or Rails, this will feel familiar:
 
 ```rust
-use kit::{get, post, routes, json_response, Request, Response};
+use cancer::{get, post, routes, json_response, Request, Response};
 
 routes! {
     get("/", index),
@@ -51,7 +51,7 @@ async fn store(_req: Request) -> Response {
 ## Why Kit?
 
 - **Familiar patterns** — Routes, controllers, middleware, service container
-- **CLI generators** — `kit make:controller`, `kit make:model`, `kit migrate`
+- **CLI generators** — `cancer make:controller`, `cancer make:model`, `cancer migrate`
 - **Database built-in** — Migrations, ORM, query builder
 - **Modern frontend** — First-class Inertia.js + React with automatic TypeScript types
 - **Rust performance** — All the safety and speed, none of the ceremony
@@ -63,7 +63,7 @@ Kit provides automatic TypeScript type generation from your Rust structs. Define
 **Define props in Rust:**
 
 ```rust
-use kit::{InertiaProps, inertia_response, Request, Response};
+use cancer::{InertiaProps, inertia_response, Request, Response};
 
 #[derive(InertiaProps)]
 pub struct User {
@@ -91,7 +91,7 @@ pub async fn index(_req: Request) -> Response {
 **Run type generation:**
 
 ```bash
-kit generate-types
+cancer generate-types
 ```
 
 **TypeScript types are auto-generated:**
@@ -129,7 +129,7 @@ Change a field in Rust, regenerate types, and TypeScript will catch any mismatch
 
 ## Documentation
 
-Ready to build something? Check out the [full documentation](https://kit-rs.dev/) to get started.
+Ready to build something? Check out the [full documentation](https://cancer-rs.dev/) to get started.
 
 ## License
 

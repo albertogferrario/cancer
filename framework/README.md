@@ -8,14 +8,14 @@ Add Kit to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-kit = { package = "kit-rs", version = "0.1" }
+cancer = { package = "cancer-rs", version = "0.1" }
 tokio = { version = "1", features = ["full"] }
 ```
 
 ## Quick Start
 
 ```rust
-use kit::{json_response, text, Router, Server, Request, Response};
+use cancer::{json_response, text, Router, Server, Request, Response};
 
 #[tokio::main]
 async fn main() {
@@ -56,8 +56,8 @@ async fn show_user(req: Request) -> Response {
 Use the Kit CLI to scaffold new projects:
 
 ```bash
-cargo install kit-cli
-kit new myapp
+cargo install cancer-cli
+cancer new myapp
 ```
 
 ## License
