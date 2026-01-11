@@ -15,7 +15,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use kit::{Auth, AuthMiddleware, GuestMiddleware};
+//! use cancer_rs::{Auth, AuthMiddleware, GuestMiddleware};
 //!
 //! // In a controller
 //! if Auth::check() {

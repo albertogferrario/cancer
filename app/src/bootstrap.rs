@@ -24,7 +24,7 @@
 //! ```
 
 #[allow(unused_imports)]
-use kit::{bind, global_middleware, singleton, App, UserProvider, DB};
+use cancer::{bind, global_middleware, singleton, App, UserProvider, DB};
 
 use crate::middleware;
 use crate::providers::DatabaseUserProvider;

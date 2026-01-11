@@ -19,7 +19,7 @@
 //! ```
 
 use clap::{Parser, Subcommand};
-use kit::{Config, Server};
+use cancer::{Config, Server};
 use sea_orm_migration::prelude::*;
 use std::env;
 use std::path::Path;
@@ -204,7 +204,7 @@ async fn fresh_migrations() {
     println!("Database refreshed successfully!");
 }
 
-// Schedule functionality - these will work once the user creates tasks with `kit make:task`
+// Schedule functionality - these will work once the user creates tasks with `cancer make:task`
 async fn run_scheduler_daemon() {
     // Bootstrap the application for scheduler context
     bootstrap::register().await;
@@ -213,7 +213,7 @@ async fn run_scheduler_daemon() {
     println!("  Kit Scheduler Daemon");
     println!("==============================================");
     println!();
-    println!("  Note: Create tasks with `kit make:task <name>`");
+    println!("  Note: Create tasks with `cancer make:task <name>`");
     println!("  Press Ctrl+C to stop");
     println!();
     println!("==============================================");
@@ -221,7 +221,7 @@ async fn run_scheduler_daemon() {
     // For now, this is a placeholder that will be enhanced when schedule module exists
     // In a full implementation, this would load src/schedule.rs and run tasks
     eprintln!("Scheduler daemon is not yet configured.");
-    eprintln!("Create a scheduled task with: kit make:task <name>");
+    eprintln!("Create a scheduled task with: cancer make:task <name>");
     eprintln!("Then register it in src/schedule.rs");
 }
 
@@ -231,12 +231,12 @@ async fn run_scheduled_tasks() {
 
     println!("Running scheduled tasks...");
     eprintln!("Scheduler is not yet configured.");
-    eprintln!("Create a scheduled task with: kit make:task <name>");
+    eprintln!("Create a scheduled task with: cancer make:task <name>");
 }
 
 async fn list_scheduled_tasks() {
     println!("Registered scheduled tasks:");
     println!();
     eprintln!("No scheduled tasks registered.");
-    eprintln!("Create a scheduled task with: kit make:task <name>");
+    eprintln!("Create a scheduled task with: cancer make:task <name>");
 }

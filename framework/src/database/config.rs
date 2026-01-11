@@ -23,7 +23,7 @@ pub enum DatabaseType {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::{Config, DatabaseConfig};
+/// use cancer_rs::{Config, DatabaseConfig};
 ///
 /// // Register from environment
 /// Config::register(DatabaseConfig::from_env());

@@ -11,8 +11,8 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use kit::{describe, test, expect};
-//! use kit::testing::{TestDatabase, TestClient, Fake, Factory};
+//! use crate::{describe, test, expect};
+//! use crate::testing::{TestDatabase, TestClient, Fake, Factory};
 //!
 //! describe!("UserService", {
 //!     test!("creates a user", async fn(db: TestDatabase) {

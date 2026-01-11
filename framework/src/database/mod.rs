@@ -5,7 +5,7 @@
 //! # Quick Start
 //!
 //! ```rust,ignore
-//! use kit::{Config, DB, DatabaseConfig};
+//! use cancer_rs::{Config, DB, DatabaseConfig};
 //!
 //! // 1. Register database config (in config/mod.rs)
 //! Config::register(DatabaseConfig::from_env());
@@ -56,7 +56,7 @@ pub use testing::TestDatabase;
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::{injectable, Database};
+/// use cancer_rs::{injectable, Database};
 ///
 /// #[injectable]
 /// pub struct CreateUserAction {
@@ -83,7 +83,7 @@ use crate::{App, Config};
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::{DB, DatabaseConfig, Config};
+/// use cancer_rs::{DB, DatabaseConfig, Config};
 ///
 /// // Initialize (usually in bootstrap.rs)
 /// Config::register(DatabaseConfig::from_env());
@@ -191,7 +191,7 @@ impl DB {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use kit::database::DB;
+    /// use cancer_rs::database::DB;
     /// use sea_orm::{Set, ActiveModelTrait};
     ///
     /// let new_todo = todos::ActiveModel {

@@ -1,4 +1,4 @@
-use kit::{json_response, Config, Request, Response};
+use cancer::{json_response, Config, Request, Response};
 
 use crate::config::{DatabaseConfig, MailConfig};
 

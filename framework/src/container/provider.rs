@@ -7,7 +7,7 @@
 //! # Example - Trait binding
 //!
 //! ```rust,ignore
-//! use kit::service;
+//! use cancer_rs::service;
 //!
 //! // Auto-register: dyn CacheStore → RedisCache
 //! #[service(RedisCache)]
@@ -26,7 +26,7 @@
 //! # Example - Concrete singleton
 //!
 //! ```rust,ignore
-//! use kit::injectable;
+//! use cancer_rs::injectable;
 //!
 //! #[injectable]
 //! pub struct AppState {

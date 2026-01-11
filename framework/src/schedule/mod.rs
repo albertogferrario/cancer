@@ -10,7 +10,7 @@
 //! ## Using Trait-Based Tasks
 //!
 //! ```rust,ignore
-//! use kit::{Task, TaskResult};
+//! use cancer_rs::{Task, TaskResult};
 //! use async_trait::async_trait;
 //!
 //! pub struct CleanupLogsTask;
@@ -37,7 +37,7 @@
 //! ## Using Closure-Based Tasks
 //!
 //! ```rust,ignore
-//! use kit::Schedule;
+//! use cancer_rs::Schedule;
 //!
 //! pub fn register(schedule: &mut Schedule) {
 //!     // Simple closure task
@@ -68,13 +68,13 @@
 //!
 //! ```bash
 //! # Run due tasks once (for cron)
-//! kit schedule:run
+//! cancer schedule:run
 //!
 //! # Run as daemon (continuous)
-//! kit schedule:work
+//! cancer schedule:work
 //!
 //! # List all scheduled tasks
-//! kit schedule:list
+//! cancer schedule:list
 //! ```
 
 pub mod builder;
@@ -95,7 +95,7 @@ use crate::error::FrameworkError;
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::Schedule;
+/// use cancer_rs::Schedule;
 ///
 /// pub fn register(schedule: &mut Schedule) {
 ///     // Register a struct implementing Task trait
@@ -254,7 +254,7 @@ impl Default for Schedule {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::{schedule_task, Schedule};
+/// use cancer_rs::{schedule_task, Schedule};
 ///
 /// pub fn register(schedule: &mut Schedule) {
 ///     schedule.add(

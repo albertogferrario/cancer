@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use kit::middleware::{RateLimiter, RateLimitConfig};
+//! use cancer_rs::middleware::{RateLimiter, RateLimitConfig};
 //!
 //! // Simple rate limiter: 60 requests per minute
 //! let limiter = RateLimiter::per_minute(60);
@@ -173,7 +173,7 @@ impl RateLimitStore {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::middleware::RateLimiter;
+/// use cancer_rs::middleware::RateLimiter;
 ///
 /// // 60 requests per minute
 /// let limiter = RateLimiter::per_minute(60);
@@ -390,7 +390,7 @@ impl Default for RateLimiters {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::middleware::Throttle;
+/// use cancer_rs::middleware::Throttle;
 ///
 /// // Simple throttle: 60 requests per minute
 /// let throttle = Throttle::requests(60).per_minute();

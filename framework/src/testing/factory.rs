@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use kit::testing::{Factory, Fake};
+//! use cancer_rs::testing::{Factory, Fake};
 //!
 //! // Define a factory for your model
 //! impl Factory for User {
@@ -106,7 +106,7 @@ impl<T: Factory> Default for FactoryBuilder<T> {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::testing::Fake;
+/// use cancer_rs::testing::Fake;
 ///
 /// let name = Fake::name();
 /// let email = Fake::email();

@@ -34,7 +34,7 @@ impl CacheEntry {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::cache::InMemoryCache;
+/// use cancer_rs::cache::InMemoryCache;
 ///
 /// let cache = InMemoryCache::new();
 /// ```
@@ -48,7 +48,7 @@ impl InMemoryCache {
     pub fn new() -> Self {
         Self {
             store: RwLock::new(HashMap::new()),
-            prefix: "kit_cache:".to_string(),
+            prefix: "cancer_cache:".to_string(),
         }
     }
 

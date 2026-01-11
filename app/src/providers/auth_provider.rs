@@ -3,8 +3,8 @@
 //! This provider implements the `UserProvider` trait to fetch users from the database.
 
 use async_trait::async_trait;
-use kit::auth::{Authenticatable, UserProvider};
-use kit::FrameworkError;
+use cancer::auth::{Authenticatable, UserProvider};
+use cancer::FrameworkError;
 use sea_orm::ColumnTrait;
 use std::sync::Arc;
 
@@ -16,8 +16,8 @@ use crate::models::users::{Column, Model as User};
 /// Register it in `bootstrap.rs` to enable `Auth::user()`:
 ///
 /// ```rust,ignore
-/// use kit::bind;
-/// use kit::UserProvider;
+/// use cancer::bind;
+/// use cancer::UserProvider;
 /// use crate::providers::DatabaseUserProvider;
 ///
 /// bind!(dyn UserProvider, DatabaseUserProvider);

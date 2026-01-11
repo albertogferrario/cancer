@@ -110,10 +110,10 @@ name = "app"
 version = "0.1.67"
 dependencies = [
  "async-trait",
+ "cancer-rs",
  "chrono",
  "clap",
  "dotenvy",
- "kit-rs",
  "sea-orm",
  "sea-orm-migration",
  "serde",
@@ -817,6 +817,169 @@ checksum = "7dafe3a8757b027e2be6e4e5601ed563c55989fcf1546e933c66c8eb3a058d35"
 dependencies = [
  "bytes",
  "either",
+]
+
+[[package]]
+name = "cancer-broadcast"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "dashmap",
+ "futures-util",
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "tokio-tungstenite",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "cancer-cache"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "dashmap",
+ "moka",
+ "redis",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "cancer-cli"
+version = "0.1.67"
+dependencies = [
+ "chrono",
+ "clap",
+ "console",
+ "ctrlc",
+ "dialoguer",
+ "dotenvy",
+ "notify",
+ "notify-debouncer-mini",
+ "regex",
+ "sea-orm",
+ "sea-orm-migration",
+ "syn 2.0.111",
+ "tokio",
+ "toml",
+ "walkdir",
+]
+
+[[package]]
+name = "cancer-events"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "inventory",
+ "parking_lot",
+ "thiserror 2.0.17",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "cancer-macros"
+version = "0.1.67"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "regex",
+ "serde",
+ "serde_derive_internals",
+ "syn 2.0.111",
+]
+
+[[package]]
+name = "cancer-notifications"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "lettre",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "cancer-queue"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "parking_lot",
+ "redis",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "cancer-rs"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "base64",
+ "bcrypt",
+ "bytes",
+ "cancer-broadcast",
+ "cancer-cache",
+ "cancer-events",
+ "cancer-macros",
+ "cancer-notifications",
+ "cancer-queue",
+ "cancer-storage",
+ "chrono",
+ "clap",
+ "dashmap",
+ "dotenvy",
+ "http 1.4.0",
+ "http-body-util",
+ "hyper 1.8.1",
+ "hyper-util",
+ "inventory",
+ "matchit",
+ "pretty_assertions",
+ "rand 0.8.5",
+ "redis",
+ "sea-orm",
+ "sea-orm-migration",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "thiserror 1.0.69",
+ "tokio",
+ "validator",
+]
+
+[[package]]
+name = "cancer-storage"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "aws-config",
+ "aws-sdk-s3",
+ "bytes",
+ "dashmap",
+ "mime_guess",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -2243,169 +2406,6 @@ checksum = "464a3709c7f55f1f721e5389aa6ea4e3bc6aba669353300af094b29ffbdde1d8"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "kit-broadcast"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "dashmap",
- "futures-util",
- "parking_lot",
- "serde",
- "serde_json",
- "thiserror 2.0.17",
- "tokio",
- "tokio-tungstenite",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "kit-cache"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "dashmap",
- "moka",
- "redis",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kit-cli"
-version = "0.1.67"
-dependencies = [
- "chrono",
- "clap",
- "console",
- "ctrlc",
- "dialoguer",
- "dotenvy",
- "notify",
- "notify-debouncer-mini",
- "regex",
- "sea-orm",
- "sea-orm-migration",
- "syn 2.0.111",
- "tokio",
- "toml",
- "walkdir",
-]
-
-[[package]]
-name = "kit-events"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "inventory",
- "parking_lot",
- "thiserror 2.0.17",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kit-macros"
-version = "0.1.67"
-dependencies = [
- "proc-macro2",
- "quote",
- "regex",
- "serde",
- "serde_derive_internals",
- "syn 2.0.111",
-]
-
-[[package]]
-name = "kit-notifications"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "lettre",
- "reqwest",
- "serde",
- "serde_json",
- "thiserror 2.0.17",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kit-queue"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "chrono",
- "parking_lot",
- "redis",
- "serde",
- "serde_json",
- "thiserror 2.0.17",
- "tokio",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "kit-rs"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "base64",
- "bcrypt",
- "bytes",
- "chrono",
- "clap",
- "dashmap",
- "dotenvy",
- "http 1.4.0",
- "http-body-util",
- "hyper 1.8.1",
- "hyper-util",
- "inventory",
- "kit-broadcast",
- "kit-cache",
- "kit-events",
- "kit-macros",
- "kit-notifications",
- "kit-queue",
- "kit-storage",
- "matchit",
- "pretty_assertions",
- "rand 0.8.5",
- "redis",
- "sea-orm",
- "sea-orm-migration",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "thiserror 1.0.69",
- "tokio",
- "validator",
-]
-
-[[package]]
-name = "kit-storage"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "aws-config",
- "aws-sdk-s3",
- "bytes",
- "dashmap",
- "mime_guess",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
 ]
 
 [[package]]

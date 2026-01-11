@@ -56,7 +56,7 @@ impl HttpResponse {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use kit::{Cookie, HttpResponse};
+    /// use crate::{Cookie, HttpResponse};
     ///
     /// let response = HttpResponse::text("OK")
     ///     .cookie(Cookie::new("session", "abc123"))

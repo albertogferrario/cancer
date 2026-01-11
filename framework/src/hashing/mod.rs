@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use kit::hashing;
+//! use cancer_rs::hashing;
 //!
 //! // Hash a password
 //! let hash = hashing::hash("my_password")?;
@@ -25,7 +25,7 @@ pub const DEFAULT_COST: u32 = 12;
 /// # Example
 ///
 /// ```rust,ignore
-/// let hash = kit::hashing::hash("my_password")?;
+/// let hash = cancer::hashing::hash("my_password")?;
 /// ```
 pub fn hash(password: &str) -> Result<String, FrameworkError> {
     hash_with_cost(password, DEFAULT_COST)
@@ -38,7 +38,7 @@ pub fn hash(password: &str) -> Result<String, FrameworkError> {
 /// # Example
 ///
 /// ```rust,ignore
-/// let hash = kit::hashing::hash_with_cost("my_password", 14)?;
+/// let hash = cancer::hashing::hash_with_cost("my_password", 14)?;
 /// ```
 pub fn hash_with_cost(password: &str, cost: u32) -> Result<String, FrameworkError> {
     bcrypt::hash(password, cost)
@@ -52,7 +52,7 @@ pub fn hash_with_cost(password: &str, cost: u32) -> Result<String, FrameworkErro
 /// # Example
 ///
 /// ```rust,ignore
-/// let valid = kit::hashing::verify("my_password", &stored_hash)?;
+/// let valid = cancer::hashing::verify("my_password", &stored_hash)?;
 /// if valid {
 ///     // Password is correct
 /// }
@@ -67,8 +67,8 @@ pub fn verify(password: &str, hash: &str) -> Result<bool, FrameworkError> {
 /// # Example
 ///
 /// ```rust,ignore
-/// if kit::hashing::needs_rehash(&stored_hash) {
-///     let new_hash = kit::hashing::hash("password")?;
+/// if cancer::hashing::needs_rehash(&stored_hash) {
+///     let new_hash = cancer::hashing::hash("password")?;
 ///     // Store new_hash
 /// }
 /// ```

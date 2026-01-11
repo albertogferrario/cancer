@@ -1,11 +1,11 @@
 [package]
-name = "kit-rs"
+name = "cancer-rs"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "A Laravel-inspired web framework for Rust"
-repository = "https://github.com/dayemsiddiqui/kit"
-homepage = "https://github.com/dayemsiddiqui/kit"
+repository = "https://github.com/albertogferrario/cancer"
+homepage = "https://github.com/albertogferrario/cancer"
 keywords = ["web", "framework", "async", "http", "server"]
 categories = ["web-programming::http-server", "asynchronous"]
 readme = "README.md"
@@ -21,13 +21,13 @@ async-trait = "0.1"
 bytes = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-kit-macros = { path = "../kit-macros", version = "0.1" }
-kit-events = { path = "../kit-events", version = "0.1" }
-kit-queue = { path = "../kit-queue", version = "0.1" }
-kit-notifications = { path = "../kit-notifications", version = "0.1" }
-kit-broadcast = { path = "../kit-broadcast", version = "0.1" }
-kit-storage = { path = "../kit-storage", version = "0.1" }
-kit-cache = { path = "../kit-cache", version = "0.1" }
+cancer-macros = { path = "../cancer-macros", version = "0.1" }
+cancer-events = { path = "../cancer-events", version = "0.1" }
+cancer-queue = { path = "../cancer-queue", version = "0.1" }
+cancer-notifications = { path = "../cancer-notifications", version = "0.1" }
+cancer-broadcast = { path = "../cancer-broadcast", version = "0.1" }
+cancer-storage = { path = "../cancer-storage", version = "0.1" }
+cancer-cache = { path = "../cancer-cache", version = "0.1" }
 dotenvy = "0.15"
 inventory = "0.3"
 sea-orm = { version = "1.0", features = ["sqlx-postgres", "sqlx-sqlite", "runtime-tokio-native-tls", "macros"] }

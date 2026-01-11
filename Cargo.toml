@@ -3,14 +3,14 @@ resolver = "2"
 members = [
     "framework",
     "app",
-    "kit-cli",
-    "kit-macros",
-    "kit-events",
-    "kit-queue",
-    "kit-notifications",
-    "kit-broadcast",
-    "kit-storage",
-    "kit-cache",
+    "cancer-cli",
+    "cancer-macros",
+    "cancer-events",
+    "cancer-queue",
+    "cancer-notifications",
+    "cancer-broadcast",
+    "cancer-storage",
+    "cancer-cache",
 ]
 
 [workspace.package]

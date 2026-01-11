@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use kit::Application;
+//! use cancer_rs::Application;
 //!
 //! #[tokio::main]
 //! async fn main() {
@@ -358,13 +358,13 @@ where
         println!("  Kit Scheduler Daemon");
         println!("==============================================");
         println!();
-        println!("  Note: Create tasks with `kit make:task <name>`");
+        println!("  Note: Create tasks with `cancer make:task <name>`");
         println!("  Press Ctrl+C to stop");
         println!();
         println!("==============================================");
 
         eprintln!("Scheduler daemon is not yet configured.");
-        eprintln!("Create a scheduled task with: kit make:task <name>");
+        eprintln!("Create a scheduled task with: cancer make:task <name>");
         eprintln!("Then register it in src/schedule.rs");
     }
 
@@ -378,13 +378,13 @@ where
 
         println!("Running scheduled tasks...");
         eprintln!("Scheduler is not yet configured.");
-        eprintln!("Create a scheduled task with: kit make:task <name>");
+        eprintln!("Create a scheduled task with: cancer make:task <name>");
     }
 
     async fn list_scheduled_tasks() {
         println!("Registered scheduled tasks:");
         println!();
         eprintln!("No scheduled tasks registered.");
-        eprintln!("Create a scheduled task with: kit make:task <name>");
+        eprintln!("Create a scheduled task with: cancer make:task <name>");
     }
 }

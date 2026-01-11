@@ -1,4 +1,4 @@
-use kit::{inertia_response, App, InertiaProps, Request, Response};
+use cancer::{inertia_response, App, InertiaProps, Request, Response};
 
 use crate::actions::example_action::ExampleAction;
 

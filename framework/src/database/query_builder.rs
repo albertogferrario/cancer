@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use crate::models::todos::{Todo, Column};
+//! use cancer_rs::models::todos::{Todo, Column};
 //!
 //! // Simple query
 //! let todos = Todo::query().all().await?;

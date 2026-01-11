@@ -123,9 +123,9 @@ async fn handle_request(
     let path = req.uri().path().to_string();
     let query = req.uri().query().unwrap_or("");
 
-    // Built-in health check endpoint at /_kit/health
+    // Built-in health check endpoint at /_cancer/health
     // Uses framework prefix to avoid conflicts with user-defined routes
-    if path == "/_kit/health" && method == hyper::Method::GET {
+    if path == "/_cancer/health" && method == hyper::Method::GET {
         return health_response(query).await;
     }
 
@@ -203,9 +203,9 @@ async fn handle_request(
     response
 }
 
-/// Built-in health check endpoint at /_kit/health
+/// Built-in health check endpoint at /_cancer/health
 /// Returns {"status": "ok", "timestamp": "..."} by default
-/// Add ?db=true to also check database connectivity (/_kit/health?db=true)
+/// Add ?db=true to also check database connectivity (/_cancer/health?db=true)
 async fn health_response(query: &str) -> hyper::Response<Full<Bytes>> {
     use chrono::Utc;
     use serde_json::json;

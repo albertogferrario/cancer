@@ -25,7 +25,7 @@ thread_local! {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::session::session;
+/// use cancer_rs::session::session;
 ///
 /// if let Some(session) = session() {
 ///     let name: Option<String> = session.get("name");
@@ -40,7 +40,7 @@ pub fn session() -> Option<SessionData> {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::session::session_mut;
+/// use cancer_rs::session::session_mut;
 ///
 /// session_mut(|session| {
 ///     session.put("name", "John");

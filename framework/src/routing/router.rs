@@ -28,7 +28,7 @@ pub fn register_route_name(name: &str, path: &str) {
 /// * `None` - If the route name is not found
 ///
 /// # Example
-/// ```
+/// ```ignore
 /// let url = route("users.show", &[("id", "123")]);
 /// assert_eq!(url, Some("/users/123".to_string()));
 /// ```

@@ -15,7 +15,7 @@ use super::guard::Auth;
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::{AuthMiddleware, group, get};
+/// use cancer_rs::{AuthMiddleware, group, get};
 ///
 /// // API routes - return 401 for unauthenticated
 /// group!("/api")
@@ -105,7 +105,7 @@ impl Middleware for AuthMiddleware {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::{GuestMiddleware, group, get};
+/// use cancer_rs::{GuestMiddleware, group, get};
 ///
 /// group!("/")
 ///     .middleware(GuestMiddleware::redirect_to("/dashboard"))

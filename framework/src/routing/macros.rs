@@ -3,7 +3,7 @@
 //! This module provides a clean, declarative way to define routes:
 //!
 //! ```rust,ignore
-//! use kit::{routes, get, post, put, delete, group};
+//! use cancer_rs::{routes, get, post, put, delete, group};
 //!
 //! routes! {
 //!     get!("/", controllers::home::index).name("home"),
@@ -591,7 +591,7 @@ impl IntoGroupItem for GroupDef {
 /// # Example
 ///
 /// ```rust,ignore
-/// use kit::{routes, get, post, group};
+/// use cancer_rs::{routes, get, post, group};
 ///
 /// routes! {
 ///     get!("/", controllers::home::index),
@@ -636,9 +636,9 @@ macro_rules! group {
 ///
 /// # Example
 /// ```rust,ignore
-/// use kit::{routes, get, post, put, delete};
-/// use crate::controllers;
-/// use crate::middleware::AuthMiddleware;
+/// use cancer_rs::{routes, get, post, put, delete};
+/// use cancer_rs::controllers;
+/// use cancer_rs::middleware::AuthMiddleware;
 ///
 /// routes! {
 ///     get!("/", controllers::home::index).name("home"),
