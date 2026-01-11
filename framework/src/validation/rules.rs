@@ -1,0 +1,863 @@
+//! Built-in validation rules.
+
+use crate::validation::Rule;
+use regex::Regex;
+use serde_json::Value;
+use std::sync::LazyLock;
+
+// ============================================================================
+// Required Rules
+// ============================================================================
+
+/// Field must be present and not empty.
+pub struct Required;
+
+pub const fn required() -> Required {
+    Required
+}
+
+impl Rule for Required {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        let is_empty = match value {
+            Value::Null => true,
+            Value::String(s) => s.trim().is_empty(),
+            Value::Array(a) => a.is_empty(),
+            Value::Object(o) => o.is_empty(),
+            _ => false,
+        };
+
+        if is_empty {
+            Err(format!("The {} field is required.", field))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "required"
+    }
+}
+
+/// Field is required if another field equals a value.
+pub struct RequiredIf {
+    other: String,
+    value: Value,
+}
+
+pub fn required_if(other: impl Into<String>, value: impl Into<Value>) -> RequiredIf {
+    RequiredIf {
+        other: other.into(),
+        value: value.into(),
+    }
+}
+
+impl Rule for RequiredIf {
+    fn validate(&self, field: &str, value: &Value, data: &Value) -> Result<(), String> {
+        let other_value = data.get(&self.other);
+        if other_value == Some(&self.value) {
+            Required.validate(field, value, data)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "required_if"
+    }
+}
+
+// ============================================================================
+// Type Rules
+// ============================================================================
+
+/// Field must be a string.
+pub struct IsString;
+
+pub const fn string() -> IsString {
+    IsString
+}
+
+impl Rule for IsString {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() || value.is_string() {
+            Ok(())
+        } else {
+            Err(format!("The {} field must be a string.", field))
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "string"
+    }
+}
+
+/// Field must be an integer.
+pub struct IsInteger;
+
+pub const fn integer() -> IsInteger {
+    IsInteger
+}
+
+impl Rule for IsInteger {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() || value.is_i64() || value.is_u64() {
+            Ok(())
+        } else if let Some(s) = value.as_str() {
+            if s.parse::<i64>().is_ok() {
+                Ok(())
+            } else {
+                Err(format!("The {} field must be an integer.", field))
+            }
+        } else {
+            Err(format!("The {} field must be an integer.", field))
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "integer"
+    }
+}
+
+/// Field must be numeric.
+pub struct Numeric;
+
+pub const fn numeric() -> Numeric {
+    Numeric
+}
+
+impl Rule for Numeric {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() || value.is_number() {
+            Ok(())
+        } else if let Some(s) = value.as_str() {
+            if s.parse::<f64>().is_ok() {
+                Ok(())
+            } else {
+                Err(format!("The {} field must be a number.", field))
+            }
+        } else {
+            Err(format!("The {} field must be a number.", field))
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "numeric"
+    }
+}
+
+/// Field must be a boolean.
+pub struct IsBoolean;
+
+pub const fn boolean() -> IsBoolean {
+    IsBoolean
+}
+
+impl Rule for IsBoolean {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() || value.is_boolean() {
+            Ok(())
+        } else if let Some(s) = value.as_str() {
+            match s.to_lowercase().as_str() {
+                "true" | "false" | "1" | "0" | "yes" | "no" => Ok(()),
+                _ => Err(format!("The {} field must be true or false.", field)),
+            }
+        } else if let Some(n) = value.as_i64() {
+            if n == 0 || n == 1 {
+                Ok(())
+            } else {
+                Err(format!("The {} field must be true or false.", field))
+            }
+        } else {
+            Err(format!("The {} field must be true or false.", field))
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "boolean"
+    }
+}
+
+/// Field must be an array.
+pub struct IsArray;
+
+pub const fn array() -> IsArray {
+    IsArray
+}
+
+impl Rule for IsArray {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() || value.is_array() {
+            Ok(())
+        } else {
+            Err(format!("The {} field must be an array.", field))
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "array"
+    }
+}
+
+// ============================================================================
+// Size Rules
+// ============================================================================
+
+/// Field must have a minimum size/length/value.
+pub struct Min {
+    min: f64,
+}
+
+pub fn min(min: impl Into<f64>) -> Min {
+    Min { min: min.into() }
+}
+
+impl Rule for Min {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        let size = get_size(value);
+        if size < self.min {
+            let unit = get_size_unit(value);
+            Err(format!(
+                "The {} field must be at least {} {}.",
+                field, self.min as i64, unit
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "min"
+    }
+}
+
+/// Field must have a maximum size/length/value.
+pub struct Max {
+    max: f64,
+}
+
+pub fn max(max: impl Into<f64>) -> Max {
+    Max { max: max.into() }
+}
+
+impl Rule for Max {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        let size = get_size(value);
+        if size > self.max {
+            let unit = get_size_unit(value);
+            Err(format!(
+                "The {} field must not be greater than {} {}.",
+                field, self.max as i64, unit
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "max"
+    }
+}
+
+/// Field must be between min and max size.
+pub struct Between {
+    min: f64,
+    max: f64,
+}
+
+pub fn between(min: impl Into<f64>, max: impl Into<f64>) -> Between {
+    Between {
+        min: min.into(),
+        max: max.into(),
+    }
+}
+
+impl Rule for Between {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        let size = get_size(value);
+        if size < self.min || size > self.max {
+            let unit = get_size_unit(value);
+            Err(format!(
+                "The {} field must be between {} and {} {}.",
+                field, self.min as i64, self.max as i64, unit
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "between"
+    }
+}
+
+// ============================================================================
+// Format Rules
+// ============================================================================
+
+static EMAIL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap());
+
+/// Field must be a valid email address.
+pub struct Email;
+
+pub const fn email() -> Email {
+    Email
+}
+
+impl Rule for Email {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        match value.as_str() {
+            Some(s) if EMAIL_REGEX.is_match(s) => Ok(()),
+            _ => Err(format!(
+                "The {} field must be a valid email address.",
+                field
+            )),
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "email"
+    }
+}
+
+static URL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^https?://[^\s/$.?#].[^\s]*$").unwrap());
+
+/// Field must be a valid URL.
+pub struct Url;
+
+pub const fn url() -> Url {
+    Url
+}
+
+impl Rule for Url {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        match value.as_str() {
+            Some(s) if URL_REGEX.is_match(s) => Ok(()),
+            _ => Err(format!("The {} field must be a valid URL.", field)),
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "url"
+    }
+}
+
+/// Field must match a regex pattern.
+pub struct Regex_ {
+    pattern: Regex,
+}
+
+pub fn regex(pattern: &str) -> Regex_ {
+    Regex_ {
+        pattern: Regex::new(pattern).expect("Invalid regex pattern"),
+    }
+}
+
+impl Rule for Regex_ {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        match value.as_str() {
+            Some(s) if self.pattern.is_match(s) => Ok(()),
+            _ => Err(format!("The {} field format is invalid.", field)),
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "regex"
+    }
+}
+
+static ALPHA_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[a-zA-Z]+$").unwrap());
+
+/// Field must contain only alphabetic characters.
+pub struct Alpha;
+
+pub const fn alpha() -> Alpha {
+    Alpha
+}
+
+impl Rule for Alpha {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        match value.as_str() {
+            Some(s) if ALPHA_REGEX.is_match(s) => Ok(()),
+            _ => Err(format!("The {} field must only contain letters.", field)),
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "alpha"
+    }
+}
+
+static ALPHA_NUM_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[a-zA-Z0-9]+$").unwrap());
+
+/// Field must contain only alphanumeric characters.
+pub struct AlphaNum;
+
+pub const fn alpha_num() -> AlphaNum {
+    AlphaNum
+}
+
+impl Rule for AlphaNum {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        match value.as_str() {
+            Some(s) if ALPHA_NUM_REGEX.is_match(s) => Ok(()),
+            _ => Err(format!(
+                "The {} field must only contain letters and numbers.",
+                field
+            )),
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "alpha_num"
+    }
+}
+
+static ALPHA_DASH_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^[a-zA-Z0-9_-]+$").unwrap());
+
+/// Field must contain only alphanumeric characters, dashes, and underscores.
+pub struct AlphaDash;
+
+pub const fn alpha_dash() -> AlphaDash {
+    AlphaDash
+}
+
+impl Rule for AlphaDash {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        match value.as_str() {
+            Some(s) if ALPHA_DASH_REGEX.is_match(s) => Ok(()),
+            _ => Err(format!(
+                "The {} field must only contain letters, numbers, dashes, and underscores.",
+                field
+            )),
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "alpha_dash"
+    }
+}
+
+// ============================================================================
+// Comparison Rules
+// ============================================================================
+
+/// Field must match another field.
+pub struct Confirmed {
+    confirmation_field: String,
+}
+
+pub fn confirmed() -> Confirmed {
+    Confirmed {
+        confirmation_field: String::new(), // Will be set based on field name
+    }
+}
+
+impl Rule for Confirmed {
+    fn validate(&self, field: &str, value: &Value, data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        let confirmation_field = if self.confirmation_field.is_empty() {
+            format!("{}_confirmation", field)
+        } else {
+            self.confirmation_field.clone()
+        };
+
+        let confirmation_value = data.get(&confirmation_field);
+        if confirmation_value == Some(value) {
+            Ok(())
+        } else {
+            Err(format!("The {} confirmation does not match.", field))
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "confirmed"
+    }
+}
+
+/// Field must be in a list of values.
+pub struct In {
+    values: Vec<Value>,
+}
+
+pub fn in_array<I, V>(values: I) -> In
+where
+    I: IntoIterator<Item = V>,
+    V: Into<Value>,
+{
+    In {
+        values: values.into_iter().map(|v| v.into()).collect(),
+    }
+}
+
+impl Rule for In {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        if self.values.contains(value) {
+            Ok(())
+        } else {
+            Err(format!("The selected {} is invalid.", field))
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "in"
+    }
+}
+
+/// Field must not be in a list of values.
+pub struct NotIn {
+    values: Vec<Value>,
+}
+
+pub fn not_in<I, V>(values: I) -> NotIn
+where
+    I: IntoIterator<Item = V>,
+    V: Into<Value>,
+{
+    NotIn {
+        values: values.into_iter().map(|v| v.into()).collect(),
+    }
+}
+
+impl Rule for NotIn {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        if self.values.contains(value) {
+            Err(format!("The selected {} is invalid.", field))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "not_in"
+    }
+}
+
+/// Field must be different from another field.
+pub struct Different {
+    other: String,
+}
+
+pub fn different(other: impl Into<String>) -> Different {
+    Different {
+        other: other.into(),
+    }
+}
+
+impl Rule for Different {
+    fn validate(&self, field: &str, value: &Value, data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        let other_value = data.get(&self.other);
+        if other_value == Some(value) {
+            Err(format!(
+                "The {} and {} fields must be different.",
+                field, self.other
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "different"
+    }
+}
+
+/// Field must be the same as another field.
+pub struct Same {
+    other: String,
+}
+
+pub fn same(other: impl Into<String>) -> Same {
+    Same {
+        other: other.into(),
+    }
+}
+
+impl Rule for Same {
+    fn validate(&self, field: &str, value: &Value, data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        let other_value = data.get(&self.other);
+        if other_value != Some(value) {
+            Err(format!(
+                "The {} and {} fields must match.",
+                field, self.other
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "same"
+    }
+}
+
+// ============================================================================
+// Date Rules
+// ============================================================================
+
+/// Field must be a valid date.
+pub struct Date;
+
+pub const fn date() -> Date {
+    Date
+}
+
+impl Rule for Date {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        if value.is_null() {
+            return Ok(());
+        }
+
+        if let Some(s) = value.as_str() {
+            // Try common date formats
+            if chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d").is_ok()
+                || chrono::NaiveDate::parse_from_str(s, "%d/%m/%Y").is_ok()
+                || chrono::NaiveDate::parse_from_str(s, "%m/%d/%Y").is_ok()
+                || chrono::DateTime::parse_from_rfc3339(s).is_ok()
+            {
+                return Ok(());
+            }
+        }
+
+        Err(format!("The {} field must be a valid date.", field))
+    }
+
+    fn name(&self) -> &'static str {
+        "date"
+    }
+}
+
+// ============================================================================
+// Special Rules
+// ============================================================================
+
+/// Field is optional - only validate if present.
+pub struct Nullable;
+
+pub const fn nullable() -> Nullable {
+    Nullable
+}
+
+impl Rule for Nullable {
+    fn validate(&self, _field: &str, _value: &Value, _data: &Value) -> Result<(), String> {
+        // This is a marker rule - validator handles it specially
+        Ok(())
+    }
+
+    fn name(&self) -> &'static str {
+        "nullable"
+    }
+}
+
+/// Field must be accepted (yes, on, 1, true).
+pub struct Accepted;
+
+pub const fn accepted() -> Accepted {
+    Accepted
+}
+
+impl Rule for Accepted {
+    fn validate(&self, field: &str, value: &Value, _data: &Value) -> Result<(), String> {
+        let accepted = match value {
+            Value::Bool(true) => true,
+            Value::Number(n) => n.as_i64() == Some(1),
+            Value::String(s) => {
+                matches!(s.to_lowercase().as_str(), "yes" | "on" | "1" | "true")
+            }
+            _ => false,
+        };
+
+        if accepted {
+            Ok(())
+        } else {
+            Err(format!("The {} field must be accepted.", field))
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        "accepted"
+    }
+}
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/// Get the size of a value (length for strings/arrays, value for numbers).
+fn get_size(value: &Value) -> f64 {
+    match value {
+        Value::String(s) => s.chars().count() as f64,
+        Value::Array(a) => a.len() as f64,
+        Value::Object(o) => o.len() as f64,
+        Value::Number(n) => n.as_f64().unwrap_or(0.0),
+        _ => 0.0,
+    }
+}
+
+/// Get the appropriate unit for size validation messages.
+fn get_size_unit(value: &Value) -> &'static str {
+    match value {
+        Value::String(_) => "characters",
+        Value::Array(_) => "items",
+        Value::Object(_) => "items",
+        _ => "",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn test_required() {
+        let rule = required();
+        let data = json!({});
+
+        assert!(rule.validate("name", &json!("John"), &data).is_ok());
+        assert!(rule.validate("name", &json!(null), &data).is_err());
+        assert!(rule.validate("name", &json!(""), &data).is_err());
+        assert!(rule.validate("name", &json!("  "), &data).is_err());
+    }
+
+    #[test]
+    fn test_email() {
+        let rule = email();
+        let data = json!({});
+
+        assert!(rule
+            .validate("email", &json!("test@example.com"), &data)
+            .is_ok());
+        assert!(rule.validate("email", &json!("invalid"), &data).is_err());
+        assert!(rule.validate("email", &json!(null), &data).is_ok());
+    }
+
+    #[test]
+    fn test_min_max() {
+        let data = json!({});
+
+        // String length
+        assert!(min(3).validate("name", &json!("John"), &data).is_ok());
+        assert!(min(5).validate("name", &json!("John"), &data).is_err());
+
+        assert!(max(5).validate("name", &json!("John"), &data).is_ok());
+        assert!(max(2).validate("name", &json!("John"), &data).is_err());
+
+        // Numeric value
+        assert!(min(18).validate("age", &json!(25), &data).is_ok());
+        assert!(min(18).validate("age", &json!(15), &data).is_err());
+    }
+
+    #[test]
+    fn test_between() {
+        let rule = between(1, 10);
+        let data = json!({});
+
+        assert!(rule.validate("count", &json!(5), &data).is_ok());
+        assert!(rule.validate("count", &json!(0), &data).is_err());
+        assert!(rule.validate("count", &json!(11), &data).is_err());
+    }
+
+    #[test]
+    fn test_in_array() {
+        let rule = in_array(["active", "inactive", "pending"]);
+        let data = json!({});
+
+        assert!(rule.validate("status", &json!("active"), &data).is_ok());
+        assert!(rule.validate("status", &json!("unknown"), &data).is_err());
+    }
+
+    #[test]
+    fn test_confirmed() {
+        let rule = confirmed();
+        let data = json!({
+            "password": "secret123",
+            "password_confirmation": "secret123"
+        });
+
+        assert!(rule
+            .validate("password", &json!("secret123"), &data)
+            .is_ok());
+
+        let bad_data = json!({
+            "password": "secret123",
+            "password_confirmation": "different"
+        });
+        assert!(rule
+            .validate("password", &json!("secret123"), &bad_data)
+            .is_err());
+    }
+
+    #[test]
+    fn test_url() {
+        let rule = url();
+        let data = json!({});
+
+        assert!(rule
+            .validate("website", &json!("https://example.com"), &data)
+            .is_ok());
+        assert!(rule
+            .validate("website", &json!("http://example.com/path"), &data)
+            .is_ok());
+        assert!(rule
+            .validate("website", &json!("not-a-url"), &data)
+            .is_err());
+    }
+}
