@@ -181,6 +181,8 @@ enum Commands {
         #[arg(long)]
         relative: bool,
     },
+    /// Start the MCP server for AI-assisted development
+    Mcp,
 }
 
 fn main() {
@@ -277,6 +279,9 @@ fn main() {
         }
         Commands::StorageLink { relative } => {
             commands::storage_link::run(relative);
+        }
+        Commands::Mcp => {
+            commands::mcp::run();
         }
     }
 }

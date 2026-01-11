@@ -12,6 +12,7 @@ pub mod make_job;
 pub mod make_listener;
 pub mod make_middleware;
 pub mod make_migration;
+pub mod mcp;
 pub mod make_notification;
 pub mod make_task;
 pub mod migrate;
