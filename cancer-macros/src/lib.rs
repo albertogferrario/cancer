@@ -33,7 +33,7 @@ mod utils;
 ///     user: User,
 /// }
 /// ```
-#[proc_macro_derive(InertiaProps)]
+#[proc_macro_derive(InertiaProps, attributes(inertia))]
 pub fn derive_inertia_props(input: TokenStream) -> TokenStream {
     inertia::derive_inertia_props_impl(input)
 }

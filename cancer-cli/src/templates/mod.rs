@@ -1261,20 +1261,6 @@ pub fn notifications_mod() -> &'static str {
 // AI Development Boost Templates
 // ============================================================================
 
-/// MCP server configuration for AI editors
-pub fn mcp_config_template() -> &'static str {
-    r#"{
-  "mcpServers": {
-    "cancer": {
-      "command": "cancer",
-      "args": ["mcp"],
-      "env": {}
-    }
-  }
-}
-"#
-}
-
 /// Cancer framework guidelines for AI assistants
 pub fn cancer_guidelines_template() -> &'static str {
     r#"# Cancer Framework Guidelines

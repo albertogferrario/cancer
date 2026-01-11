@@ -65,7 +65,7 @@ Component paths validated at compile-time.
 1. Implement in appropriate crate
 2. Export from `lib.rs`
 3. Add to `framework/src/lib.rs` re-exports if user-facing
-4. Document in docs-site/
+4. Document in docs/
 
 ### Testing
 ```bash
@@ -75,7 +75,7 @@ cargo clippy
 ```
 
 ### Documentation
-- User docs: `docs-site/src/`
+- User docs: `docs/src/`
 - API docs: `cargo doc --no-deps`
 
 ## File Locations

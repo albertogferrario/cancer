@@ -68,12 +68,66 @@ impl Parse for InertiaResponseInput {
     }
 }
 
+/// Supported rename strategies for InertiaProps
+#[derive(Clone, Copy, PartialEq)]
+enum RenameAll {
+    None,
+    CamelCase,
+    // Can add more: PascalCase, SCREAMING_SNAKE_CASE, etc.
+}
+
+/// Convert snake_case to camelCase
+fn to_camel_case(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut capitalize_next = false;
+
+    for c in s.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.extend(c.to_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}
+
+/// Parse #[serde(rename_all = "...")] or #[inertia(rename_all = "...")] from struct attributes
+fn parse_rename_all(attrs: &[syn::Attribute]) -> RenameAll {
+    for attr in attrs {
+        // Check for #[serde(...)] or #[inertia(...)]
+        if attr.path().is_ident("serde") || attr.path().is_ident("inertia") {
+            if let Ok(nested) = attr.parse_args::<syn::MetaNameValue>() {
+                if nested.path.is_ident("rename_all") {
+                    if let syn::Expr::Lit(syn::ExprLit {
+                        lit: syn::Lit::Str(lit_str),
+                        ..
+                    }) = &nested.value
+                    {
+                        match lit_str.value().as_str() {
+                            "camelCase" => return RenameAll::CamelCase,
+                            _ => {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+    RenameAll::None
+}
+
 /// Implementation for the InertiaProps derive macro
 pub fn derive_inertia_props_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
     let generics = &input.generics;
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
+    // Check for rename_all attribute
+    let rename_all = parse_rename_all(&input.attrs);
 
     // Extract field information for generating Serialize impl
     let fields = match &input.data {
@@ -99,7 +153,13 @@ pub fn derive_inertia_props_impl(input: TokenStream) -> TokenStream {
     let field_names: Vec<_> = fields.iter().map(|f| &f.ident).collect();
     let field_name_strings: Vec<_> = fields
         .iter()
-        .map(|f| f.ident.as_ref().unwrap().to_string())
+        .map(|f| {
+            let name = f.ident.as_ref().unwrap().to_string();
+            match rename_all {
+                RenameAll::CamelCase => to_camel_case(&name),
+                RenameAll::None => name,
+            }
+        })
         .collect();
 
     let expanded = quote! {

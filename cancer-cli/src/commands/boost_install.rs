@@ -103,7 +103,21 @@ fn generate_mcp_config(editor: &str) {
         }
     };
 
-    let config_content = templates::mcp_config_template();
+    // Try to find the cancer binary path
+    let cancer_command = find_cancer_binary();
+    let config_content = format!(
+        r#"{{
+  "mcpServers": {{
+    "cancer": {{
+      "command": "{}",
+      "args": ["mcp"],
+      "env": {{}}
+    }}
+  }}
+}}
+"#,
+        cancer_command.replace('\\', "\\\\").replace('"', "\\\"")
+    );
 
     if Path::new(config_path).exists() {
         println!(
@@ -112,7 +126,7 @@ fn generate_mcp_config(editor: &str) {
             config_path
         );
     } else {
-        if let Err(e) = fs::write(config_path, config_content) {
+        if let Err(e) = fs::write(config_path, &config_content) {
             eprintln!(
                 "{} Failed to write {}: {}",
                 style("Error:").red().bold(),
@@ -123,6 +137,49 @@ fn generate_mcp_config(editor: &str) {
         }
         println!("{} Created {}", style("✓").green(), config_path);
     }
+}
+
+fn find_cancer_binary() -> String {
+    // First, check if cancer is in PATH
+    if let Ok(output) = std::process::Command::new("which").arg("cancer").output() {
+        if output.status.success() {
+            if let Ok(path) = String::from_utf8(output.stdout) {
+                let path = path.trim();
+                if !path.is_empty() {
+                    return path.to_string();
+                }
+            }
+        }
+    }
+
+    // On Windows, try where instead
+    #[cfg(windows)]
+    if let Ok(output) = std::process::Command::new("where").arg("cancer").output() {
+        if output.status.success() {
+            if let Ok(path) = String::from_utf8(output.stdout) {
+                if let Some(first_line) = path.lines().next() {
+                    return first_line.to_string();
+                }
+            }
+        }
+    }
+
+    // Try to get the current executable's directory
+    if let Ok(current_exe) = std::env::current_exe() {
+        if let Some(exe_dir) = current_exe.parent() {
+            let cancer_in_same_dir = exe_dir.join("cancer");
+            if cancer_in_same_dir.exists() {
+                return cancer_in_same_dir.to_string_lossy().to_string();
+            }
+        }
+        // If this IS the cancer binary, use its path
+        if current_exe.file_name().map(|n| n == "cancer").unwrap_or(false) {
+            return current_exe.to_string_lossy().to_string();
+        }
+    }
+
+    // Fall back to just "cancer" and hope it's in PATH
+    "cancer".to_string()
 }
 
 fn generate_ai_guidelines(editor: &str) {
