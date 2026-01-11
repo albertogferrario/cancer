@@ -496,7 +496,14 @@ impl GroupDef {
                     // Build full path with prefix
                     // If route path is "/" (root), just use the prefix without trailing slash
                     let full_path = if converted_route_path == "/" {
-                        full_prefix.clone()
+                        if full_prefix.is_empty() {
+                            "/".to_string()
+                        } else {
+                            full_prefix.clone()
+                        }
+                    } else if full_prefix == "/" {
+                        // Prefix is just "/", use route path directly
+                        converted_route_path.to_string()
                     } else {
                         format!("{}{}", full_prefix, converted_route_path)
                     };
