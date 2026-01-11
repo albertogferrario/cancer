@@ -143,6 +143,20 @@ pub async fn index(req: Request) -> Response {
 
 Component paths are validated at compile-time against `frontend/src/pages/`.
 
+**Form handling pattern**: When you need to read the request body AND render Inertia responses (e.g., for validation errors), save the context first since `req.input()` consumes the request:
+
+```rust
+pub async fn login(req: Request) -> Response {
+    let ctx = SavedInertiaContext::from(&req);  // Save before consuming
+    let form: LoginRequest = req.input().await?;  // Consumes req
+
+    if let Err(errors) = form.validate() {
+        return Inertia::render_ctx(&ctx, "auth/Login", LoginProps { errors });
+    }
+    // ...
+}
+```
+
 ## Code Conventions
 
 ### File Organization

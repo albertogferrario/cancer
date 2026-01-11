@@ -55,7 +55,13 @@ Validator::new(&data)
 
 ### Inertia
 ```rust
+// Basic render
 Inertia::render(&req, "Component", Props { ... })
+
+// Form handlers: save context before consuming request
+let ctx = SavedInertiaContext::from(&req);
+let form = req.input().await?;  // Consumes req
+Inertia::render_ctx(&ctx, "Component", Props { ... })  // Use saved ctx
 ```
 Component paths validated at compile-time.
 

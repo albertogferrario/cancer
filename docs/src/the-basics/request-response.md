@@ -143,8 +143,16 @@ Ok(HttpResponse::text("Hello, World!"))
 ### Inertia Responses
 
 ```rust
+// Basic Inertia response
 Inertia::render(&req, "Users/Index", props)
+
+// With saved context (for form handlers)
+let ctx = SavedInertiaContext::from(&req);
+let form = req.input().await?;  // Consumes request
+Inertia::render_ctx(&ctx, "Users/Form", props)
 ```
+
+See [Controllers - Form Handling](controllers.md#form-handling-with-savedinertiacontext) for complete examples.
 
 ### Redirects
 

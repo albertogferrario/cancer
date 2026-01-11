@@ -86,7 +86,7 @@ pub fn routes() -> Router {
 For Inertia.js responses:
 
 ```rust
-use cancer_rs::*;
+use cancer::{Inertia, InertiaProps, Request, Response};
 use crate::models::users::Entity as User;
 
 #[handler]
@@ -102,6 +102,55 @@ pub struct UsersIndexProps {
     pub users: Vec<crate::models::users::Model>,
 }
 ```
+
+### Form Handling with SavedInertiaContext
+
+When handling forms, you need to call `req.input()` which consumes the request. To render validation errors with Inertia, save the context first:
+
+```rust
+use cancer::{
+    Inertia, InertiaProps, Request, Response, SavedInertiaContext, Validate, serde_json,
+};
+
+#[derive(InertiaProps)]
+pub struct LoginProps {
+    pub errors: Option<serde_json::Value>,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct LoginRequest {
+    #[validate(email(message = "Please enter a valid email"))]
+    pub email: String,
+    #[validate(length(min = 1, message = "Password is required"))]
+    pub password: String,
+}
+
+#[handler]
+pub async fn login(req: Request) -> Response {
+    // Save Inertia context BEFORE consuming request
+    let ctx = SavedInertiaContext::from(&req);
+
+    // This consumes the request
+    let form: LoginRequest = req.input().await?;
+
+    // Validate - use saved context for error responses
+    if let Err(errors) = form.validate() {
+        return Inertia::render_ctx(
+            &ctx,
+            "auth/Login",
+            LoginProps { errors: Some(serde_json::json!(errors)) },
+        ).map(|r| r.status(422));
+    }
+
+    // Process login...
+    redirect!("/dashboard").into()
+}
+```
+
+Key points:
+- `SavedInertiaContext::from(&req)` captures path and Inertia headers
+- `Inertia::render_ctx(&ctx, ...)` renders using saved context
+- Use this pattern when you need to both read the body AND render Inertia responses
 
 ## Form Validation
 
