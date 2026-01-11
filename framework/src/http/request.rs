@@ -4,12 +4,14 @@ use super::ParamError;
 use crate::error::FrameworkError;
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
+use std::any::{Any, TypeId};
 use std::collections::HashMap;
 
 /// HTTP Request wrapper providing Laravel-like access to request data
 pub struct Request {
     inner: hyper::Request<hyper::body::Incoming>,
     params: HashMap<String, String>,
+    extensions: HashMap<TypeId, Box<dyn Any + Send + Sync>>,
 }
 
 impl Request {
@@ -17,12 +19,34 @@ impl Request {
         Self {
             inner,
             params: HashMap::new(),
+            extensions: HashMap::new(),
         }
     }
 
     pub fn with_params(mut self, params: HashMap<String, String>) -> Self {
         self.params = params;
         self
+    }
+
+    /// Insert a value into the request extensions (type-map pattern)
+    ///
+    /// This is async-safe unlike thread-local storage.
+    pub fn insert<T: Send + Sync + 'static>(&mut self, value: T) {
+        self.extensions.insert(TypeId::of::<T>(), Box::new(value));
+    }
+
+    /// Get a reference to a value from the request extensions
+    pub fn get<T: Send + Sync + 'static>(&self) -> Option<&T> {
+        self.extensions
+            .get(&TypeId::of::<T>())
+            .and_then(|boxed| boxed.downcast_ref::<T>())
+    }
+
+    /// Get a mutable reference to a value from the request extensions
+    pub fn get_mut<T: Send + Sync + 'static>(&mut self) -> Option<&mut T> {
+        self.extensions
+            .get_mut(&TypeId::of::<T>())
+            .and_then(|boxed| boxed.downcast_mut::<T>())
     }
 
     /// Get the request method

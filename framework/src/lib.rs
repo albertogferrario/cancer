@@ -35,7 +35,10 @@ pub use http::{
 pub use session::{
     session, session_mut, SessionConfig, SessionData, SessionMiddleware, SessionStore,
 };
-pub use inertia::{InertiaConfig, InertiaContext, InertiaResponse};
+pub use inertia::{Inertia, InertiaConfig, InertiaResponse, InertiaShared};
+// Deprecated - kept for backward compatibility
+#[allow(deprecated)]
+pub use inertia::InertiaContext;
 pub use middleware::{
     register_global_middleware, Middleware, MiddlewareFuture, MiddlewareRegistry, Next,
     RateLimitConfig, RateLimiter, RateLimiters, Throttle,

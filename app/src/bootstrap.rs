@@ -39,6 +39,7 @@ pub async fn register() {
 
     // Global middleware (runs on every request in registration order)
     global_middleware!(middleware::LoggingMiddleware);
+    global_middleware!(middleware::ShareInertiaData);
 
     // Register the user provider for Auth::user()
     bind!(dyn UserProvider, DatabaseUserProvider);

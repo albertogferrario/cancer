@@ -2,7 +2,6 @@ use crate::cache::Cache;
 use crate::config::{Config, ServerConfig};
 use crate::container::App;
 use crate::http::{HttpResponse, Request};
-use crate::inertia::InertiaContext;
 use crate::middleware::{Middleware, MiddlewareChain, MiddlewareRegistry};
 use crate::routing::Router;
 use bytes::Bytes;
@@ -129,25 +128,9 @@ async fn handle_request(
         return health_response(query).await;
     }
 
-    // Set up Inertia context from request headers
-    let is_inertia = req
-        .headers()
-        .get("X-Inertia")
-        .and_then(|v| v.to_str().ok())
-        .map(|v| v == "true")
-        .unwrap_or(false);
-
-    let inertia_version = req
-        .headers()
-        .get("X-Inertia-Version")
-        .and_then(|v| v.to_str().ok())
-        .map(|v| v.to_string());
-
-    InertiaContext::set(InertiaContext {
-        path: path.clone(),
-        is_inertia,
-        version: inertia_version,
-    });
+    // Note: Inertia context is now read directly from Request headers
+    // via req.is_inertia(), req.inertia_version(), etc.
+    // No thread-local storage needed - this is async-safe.
 
     let response = match router.match_route(&method, &path) {
         Some((handler, params)) => {
@@ -196,9 +179,6 @@ async fn handle_request(
             }
         }
     };
-
-    // Clear context after request
-    InertiaContext::clear();
 
     response
 }
