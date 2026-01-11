@@ -31,8 +31,8 @@ pub fn cargo_toml(package_name: &str, description: &str, author: &str) -> String
     )
 }
 
-pub fn main_rs() -> &'static str {
-    include_str!("files/backend/main.rs.tpl")
+pub fn main_rs(package_name: &str) -> String {
+    include_str!("files/backend/main.rs.tpl").replace("{package_name}", package_name)
 }
 
 pub fn routes_rs() -> &'static str {
@@ -296,12 +296,11 @@ pub fn env_example() -> &'static str {
 
 /// Rust reserved keywords that need escaping with r# prefix
 const RUST_RESERVED_KEYWORDS: &[&str] = &[
-    "as", "break", "const", "continue", "crate", "else", "enum", "extern",
-    "false", "fn", "for", "if", "impl", "in", "let", "loop", "match", "mod",
-    "move", "mut", "pub", "ref", "return", "self", "Self", "static", "struct",
-    "super", "trait", "true", "type", "unsafe", "use", "where", "while",
-    "async", "await", "dyn", "abstract", "become", "box", "do", "final",
-    "macro", "override", "priv", "typeof", "unsized", "virtual", "yield", "try",
+    "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for",
+    "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref", "return",
+    "self", "Self", "static", "struct", "super", "trait", "true", "type", "unsafe", "use", "where",
+    "while", "async", "await", "dyn", "abstract", "become", "box", "do", "final", "macro",
+    "override", "priv", "typeof", "unsized", "virtual", "yield", "try",
 ];
 
 /// Check if a name is a Rust reserved keyword

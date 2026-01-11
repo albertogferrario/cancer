@@ -25,7 +25,7 @@ mod context;
 mod response;
 
 pub use config::InertiaConfig;
-pub use context::{Inertia, InertiaShared};
+pub use context::{Inertia, InertiaShared, SavedInertiaContext};
 pub use response::InertiaResponse;
 
 // Re-export core types from inertia-rs for advanced usage

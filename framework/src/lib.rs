@@ -30,17 +30,17 @@ pub use database::{
 
 // Re-export commonly used SeaORM traits for convenience
 // This saves users from having to add `use sea_orm::*` imports
-pub use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, ModelTrait, PaginatorTrait,
-    QueryFilter, QueryOrder, QuerySelect,
-};
 pub use error::{AppError, FrameworkError, HttpError, ValidationErrors};
 pub use hashing::{hash, needs_rehash, verify, DEFAULT_COST as HASH_DEFAULT_COST};
 pub use http::{
     json, text, Cookie, CookieOptions, FormRequest, FromParam, FromRequest, HttpResponse, Redirect,
     Request, Response, ResponseExt, SameSite,
 };
-pub use inertia::{Inertia, InertiaConfig, InertiaResponse, InertiaShared};
+pub use inertia::{Inertia, InertiaConfig, InertiaResponse, InertiaShared, SavedInertiaContext};
+pub use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, ModelTrait, PaginatorTrait,
+    QueryFilter, QueryOrder, QuerySelect,
+};
 pub use session::{
     session, session_mut, SessionConfig, SessionData, SessionMiddleware, SessionStore,
 };

@@ -173,7 +173,11 @@ fn find_cancer_binary() -> String {
             }
         }
         // If this IS the cancer binary, use its path
-        if current_exe.file_name().map(|n| n == "cancer").unwrap_or(false) {
+        if current_exe
+            .file_name()
+            .map(|n| n == "cancer")
+            .unwrap_or(false)
+        {
             return current_exe.to_string_lossy().to_string();
         }
     }

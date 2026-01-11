@@ -208,7 +208,7 @@ fn create_project(
         .map_err(|e| format!("Failed to write .env.example: {}", e))?;
 
     // Write src/main.rs
-    fs::write(project_path.join("src/main.rs"), templates::main_rs())
+    fs::write(project_path.join("src/main.rs"), templates::main_rs(package_name))
         .map_err(|e| format!("Failed to write src/main.rs: {}", e))?;
 
     // Write src/routes.rs

@@ -8,6 +8,7 @@ use crate::http::{HttpResponse, Request};
 use crate::Response;
 use inertia_rs::{InertiaConfig, InertiaRequest as InertiaRequestTrait};
 use serde::Serialize;
+use std::collections::HashMap;
 
 // Re-export InertiaShared from inertia-rs
 pub use inertia_rs::InertiaShared;
@@ -20,6 +21,77 @@ impl InertiaRequestTrait for Request {
 
     fn path(&self) -> &str {
         Request::path(self)
+    }
+}
+
+/// Saved Inertia context for use after consuming the Request.
+///
+/// Use this when you need to call `req.input()` (which consumes the request)
+/// but still need to render Inertia error responses.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use cancer::{Inertia, Request, Response, SavedInertiaContext};
+///
+/// pub async fn login(req: Request) -> Response {
+///     // Save Inertia context before consuming request
+///     let ctx = SavedInertiaContext::from(&req);
+///
+///     // This consumes the request
+///     let form: LoginForm = req.input().await?;
+///
+///     // Use saved context for error responses
+///     if let Err(errors) = form.validate() {
+///         return Inertia::render(&ctx, "auth/Login", LoginProps { errors });
+///     }
+///
+///     // ...
+/// }
+/// ```
+#[derive(Clone, Debug)]
+pub struct SavedInertiaContext {
+    path: String,
+    headers: HashMap<String, String>,
+}
+
+impl SavedInertiaContext {
+    /// Create a new SavedInertiaContext by capturing data from a Request.
+    pub fn new(req: &Request) -> Self {
+        let mut headers = HashMap::new();
+
+        // Capture Inertia-relevant headers
+        for name in &[
+            "X-Inertia",
+            "X-Inertia-Version",
+            "X-Inertia-Partial-Data",
+            "X-Inertia-Partial-Component",
+        ] {
+            if let Some(value) = req.header(name) {
+                headers.insert(name.to_string(), value.to_string());
+            }
+        }
+
+        Self {
+            path: req.path().to_string(),
+            headers,
+        }
+    }
+}
+
+impl From<&Request> for SavedInertiaContext {
+    fn from(req: &Request) -> Self {
+        Self::new(req)
+    }
+}
+
+impl InertiaRequestTrait for SavedInertiaContext {
+    fn inertia_header(&self, name: &str) -> Option<&str> {
+        self.headers.get(name).map(|s| s.as_str())
+    }
+
+    fn path(&self) -> &str {
+        &self.path
     }
 }
 
@@ -89,6 +161,45 @@ impl Inertia {
         );
 
         // Convert InertiaHttpResponse to Cancer's Response
+        Ok(Self::convert_response(http_response))
+    }
+
+    /// Render an Inertia response using a saved context.
+    ///
+    /// Use this when you've already consumed the Request (e.g., via `req.input()`)
+    /// but still need to render an Inertia response (typically for validation errors).
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer::{Inertia, Request, Response, SavedInertiaContext};
+    ///
+    /// pub async fn login(req: Request) -> Response {
+    ///     let ctx = SavedInertiaContext::from(&req);
+    ///     let form: LoginForm = req.input().await?;
+    ///
+    ///     if let Err(errors) = form.validate() {
+    ///         return Inertia::render_ctx(&ctx, "auth/Login", LoginProps { errors });
+    ///     }
+    ///     // ...
+    /// }
+    /// ```
+    pub fn render_ctx<P: Serialize>(
+        ctx: &SavedInertiaContext,
+        component: &str,
+        props: P,
+    ) -> Response {
+        let csrf = csrf_token().unwrap_or_default();
+        let shared = InertiaShared::new().csrf(csrf);
+
+        let http_response = inertia_rs::Inertia::render_with_options(
+            ctx,
+            component,
+            props,
+            Some(&shared),
+            InertiaConfig::default(),
+        );
+
         Ok(Self::convert_response(http_response))
     }
 

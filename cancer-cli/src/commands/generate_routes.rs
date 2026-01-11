@@ -549,7 +549,10 @@ pub fn generate_typescript(routes: &[GeneratedRoute]) -> String {
                 // Use route name or path segment to make unique
                 if let Some(name) = &route.definition.name {
                     // Use the last part of the route name: "home" from "home", "protected" from name
-                    name.split('.').next_back().unwrap_or(base_fn_name).to_string()
+                    name.split('.')
+                        .next_back()
+                        .unwrap_or(base_fn_name)
+                        .to_string()
                 } else {
                     // Use path to create unique name
                     let path_name = route

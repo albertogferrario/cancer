@@ -9,7 +9,7 @@ name = "{package_name}"
 path = "src/main.rs"
 
 [dependencies]
-cancer = {{ package = "cancer-rs", version = "0.1" }}
+cancer = {{ package = "cancer-rs", git = "https://github.com/albertogferrario/cancer.git" }}
 tokio = {{ version = "1", features = ["full"] }}
 sea-orm-migration = {{ version = "1.0", features = ["sqlx-sqlite", "sqlx-postgres", "runtime-tokio-native-tls"] }}
 sea-orm = {{ version = "1.0", features = ["sqlx-sqlite", "sqlx-postgres", "runtime-tokio-native-tls", "macros"] }}

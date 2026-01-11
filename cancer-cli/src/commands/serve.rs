@@ -212,7 +212,9 @@ pub fn run(
     println!();
     println!(
         "{}",
-        style("Starting Cancer development servers...").cyan().bold()
+        style("Starting Cancer development servers...")
+            .cyan()
+            .bold()
     );
     println!();
 

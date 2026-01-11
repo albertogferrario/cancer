@@ -1,9 +1,9 @@
 //! Dashboard controller
 
-use cancer::{handler, inertia_response, Auth, InertiaProps, Model, Request, Response};
+use cancer::{Auth, Inertia, InertiaProps, Model, Request, Response};
 use serde::Serialize;
 
-use crate::models::user::{Entity as UserEntity, User};
+use crate::models::user::Entity as UserEntity;
 
 #[derive(Serialize)]
 pub struct UserInfo {
@@ -17,8 +17,7 @@ pub struct DashboardProps {
     pub user: UserInfo,
 }
 
-#[handler]
-pub async fn index(_req: Request) -> Response {
+pub async fn index(req: Request) -> Response {
     // Get the authenticated user
     let user_id = Auth::id().expect("User must be authenticated");
 
@@ -26,14 +25,15 @@ pub async fn index(_req: Request) -> Response {
         .await?
         .expect("User must exist");
 
-    inertia_response!(
+    Inertia::render(
+        &req,
         "Dashboard",
         DashboardProps {
             user: UserInfo {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-            }
-        }
+            },
+        },
     )
 }
