@@ -37,6 +37,7 @@ thiserror = "1.0"
 redis = { version = "0.25", features = ["tokio-comp", "connection-manager"] }
 validator = { version = "0.18", features = ["derive"] }
 serde_urlencoded = "0.7"
+form_urlencoded = "1"
 pretty_assertions = "1.4"
 chrono = { version = "0.4", features = ["serde"] }
 bcrypt = "0.15"

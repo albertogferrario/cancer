@@ -65,7 +65,6 @@ impl Model {
         self
     }
 
-
     /// Save changes to the database
     ///
     /// # Example
@@ -125,7 +124,6 @@ impl TodoBuilder {
         self
     }
 
-
     /// Insert the record into the database
     ///
     /// # Example
@@ -144,9 +142,18 @@ impl TodoBuilder {
         ActiveModel {
             id: sea_orm::ActiveValue::NotSet,
             title: self.title.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
-            description: self.description.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
-            created_at: self.created_at.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
-            updated_at: self.updated_at.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
+            description: self
+                .description
+                .map(Set)
+                .unwrap_or(sea_orm::ActiveValue::NotSet),
+            created_at: self
+                .created_at
+                .map(Set)
+                .unwrap_or(sea_orm::ActiveValue::NotSet),
+            updated_at: self
+                .updated_at
+                .map(Set)
+                .unwrap_or(sea_orm::ActiveValue::NotSet),
         }
     }
 }

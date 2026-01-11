@@ -1,10 +1,10 @@
 # Middleware
 
-Kit provides a powerful middleware system for intercepting and processing HTTP requests before they reach your route handlers. Middleware can inspect, modify, or short-circuit requests, and also post-process responses.
+Cancer provides a powerful middleware system for intercepting and processing HTTP requests before they reach your route handlers. Middleware can inspect, modify, or short-circuit requests, and also post-process responses.
 
 ## Generating Middleware
 
-The fastest way to create a new middleware is using the Kit CLI:
+The fastest way to create a new middleware is using the Cancer CLI:
 
 ```bash
 cancer make:middleware Auth
@@ -121,7 +121,7 @@ impl Middleware for AuthMiddleware {
 
 ## Registering Middleware
 
-Kit supports three levels of middleware:
+Cancer supports three levels of middleware:
 
 ### 1. Global Middleware
 

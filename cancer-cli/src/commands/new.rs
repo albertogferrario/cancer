@@ -8,7 +8,7 @@ use crate::templates;
 
 pub fn run(name: Option<String>, no_interaction: bool, no_git: bool) {
     println!();
-    println!("{}", style("Welcome to Kit!").cyan().bold());
+    println!("{}", style("Welcome to Cancer!").cyan().bold());
     println!();
 
     let project_name = get_project_name(name, no_interaction);
@@ -69,12 +69,12 @@ fn get_project_name(name: Option<String>, no_interaction: bool) -> String {
 
 fn get_description(no_interaction: bool) -> String {
     if no_interaction {
-        return "A web application built with Kit".to_string();
+        return "A web application built with Cancer".to_string();
     }
 
     Input::with_theme(&ColorfulTheme::default())
         .with_prompt("Description")
-        .default("A web application built with Kit".to_string())
+        .default("A web application built with Cancer".to_string())
         .interact_text()
         .unwrap()
 }

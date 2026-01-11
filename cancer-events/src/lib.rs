@@ -1,6 +1,6 @@
-//! # Kit Events
+//! # Cancer Events
 //!
-//! Event dispatcher and listener system for the Kit framework.
+//! Event dispatcher and listener system for the Cancer framework.
 //!
 //! Provides a Laravel-inspired event system with support for:
 //! - Synchronous listeners

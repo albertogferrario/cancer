@@ -193,7 +193,8 @@ impl StorageDriver for LocalDriver {
             return Ok(files);
         }
 
-        self.collect_files_recursive(&full_path, &full_path, &mut files).await?;
+        self.collect_files_recursive(&full_path, &full_path, &mut files)
+            .await?;
         Ok(files)
     }
 
@@ -313,7 +314,11 @@ mod tests {
         let driver = LocalDriver::new(temp_dir.path());
 
         driver
-            .put("original.txt", Bytes::from("original content"), PutOptions::new())
+            .put(
+                "original.txt",
+                Bytes::from("original content"),
+                PutOptions::new(),
+            )
             .await
             .unwrap();
 
@@ -329,7 +334,11 @@ mod tests {
         let driver = LocalDriver::new(temp_dir.path());
 
         driver
-            .put("a/b/c/deep.txt", Bytes::from("deep content"), PutOptions::new())
+            .put(
+                "a/b/c/deep.txt",
+                Bytes::from("deep content"),
+                PutOptions::new(),
+            )
             .await
             .unwrap();
 
@@ -340,8 +349,7 @@ mod tests {
     #[tokio::test]
     async fn test_local_driver_url() {
         let temp_dir = tempfile::tempdir().unwrap();
-        let driver = LocalDriver::new(temp_dir.path())
-            .with_url_base("https://example.com/storage");
+        let driver = LocalDriver::new(temp_dir.path()).with_url_base("https://example.com/storage");
 
         let url = driver.url("images/photo.jpg").await.unwrap();
         assert_eq!(url, "https://example.com/storage/images/photo.jpg");

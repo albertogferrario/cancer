@@ -1,4 +1,4 @@
-//! Configuration module for Kit framework
+//! Configuration module for Cancer framework
 //!
 //! This module provides Laravel-like configuration management including:
 //! - Automatic `.env` file loading with environment-based precedence

@@ -1,4 +1,4 @@
-//! Database configuration for Kit framework
+//! Database configuration for Cancer framework
 
 use crate::config::{env, env_optional};
 

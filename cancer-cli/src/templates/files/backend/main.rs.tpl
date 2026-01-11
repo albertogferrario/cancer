@@ -1,4 +1,4 @@
-//! Kit Application Entry Point
+//! Cancer Application Entry Point
 
 use cancer::Application;
 use sea_orm_migration::prelude::MigratorTrait;

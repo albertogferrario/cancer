@@ -1,4 +1,4 @@
-//! Middleware system for Kit framework
+//! Middleware system for Cancer framework
 //!
 //! This module provides Laravel 12.x-style middleware support with:
 //! - Global middleware (runs on all routes)
@@ -42,7 +42,9 @@ mod rate_limit;
 mod registry;
 
 pub use chain::MiddlewareChain;
-pub use rate_limit::{RateLimitConfig, RateLimiter, RateLimiters, RateLimitStore, Throttle, ThrottleBuilder};
+pub use rate_limit::{
+    RateLimitConfig, RateLimitStore, RateLimiter, RateLimiters, Throttle, ThrottleBuilder,
+};
 pub use registry::register_global_middleware;
 pub use registry::MiddlewareRegistry;
 

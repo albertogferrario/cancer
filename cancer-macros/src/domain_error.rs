@@ -1,4 +1,4 @@
-//! Domain error attribute macro for the Kit framework
+//! Domain error attribute macro for the Cancer framework
 //!
 //! Provides the `#[domain_error]` attribute macro that generates
 //! error types with automatic HTTP response conversion.

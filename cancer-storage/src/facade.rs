@@ -116,7 +116,10 @@ impl Storage {
 
         // Add default local disk
         let local = LocalDriver::new("storage");
-        storage.inner.disks.insert("local".to_string(), Arc::new(local));
+        storage
+            .inner
+            .disks
+            .insert("local".to_string(), Arc::new(local));
 
         storage
     }
@@ -213,7 +216,9 @@ impl Storage {
         contents: impl Into<Bytes>,
         options: PutOptions,
     ) -> Result<(), Error> {
-        self.default_disk()?.put_with_options(path, contents, options).await
+        self.default_disk()?
+            .put_with_options(path, contents, options)
+            .await
     }
 
     /// Delete a file.
@@ -266,7 +271,9 @@ impl Disk {
 
     /// Put file contents.
     pub async fn put(&self, path: &str, contents: impl Into<Bytes>) -> Result<(), Error> {
-        self.driver.put(path, contents.into(), PutOptions::new()).await
+        self.driver
+            .put(path, contents.into(), PutOptions::new())
+            .await
     }
 
     /// Put with options.
@@ -346,10 +353,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_storage_default_disk() {
-        let storage = Storage::with_config(
-            "memory",
-            vec![("memory", DiskConfig::memory())],
-        );
+        let storage = Storage::with_config("memory", vec![("memory", DiskConfig::memory())]);
 
         storage.put("test.txt", "hello world").await.unwrap();
         let contents = storage.get_string("test.txt").await.unwrap();
@@ -367,23 +371,31 @@ mod tests {
         );
 
         // Write to primary
-        storage.disk("primary").unwrap()
+        storage
+            .disk("primary")
+            .unwrap()
             .put("data.txt", "primary data")
             .await
             .unwrap();
 
         // Write to backup
-        storage.disk("backup").unwrap()
+        storage
+            .disk("backup")
+            .unwrap()
             .put("data.txt", "backup data")
             .await
             .unwrap();
 
         // Verify they're independent
-        let primary = storage.disk("primary").unwrap()
+        let primary = storage
+            .disk("primary")
+            .unwrap()
             .get_string("data.txt")
             .await
             .unwrap();
-        let backup = storage.disk("backup").unwrap()
+        let backup = storage
+            .disk("backup")
+            .unwrap()
             .get_string("data.txt")
             .await
             .unwrap();
@@ -405,11 +417,18 @@ mod tests {
         let memory_driver = Arc::new(MemoryDriver::new());
         storage.register_disk("test", memory_driver);
 
-        storage.disk("test").unwrap()
+        storage
+            .disk("test")
+            .unwrap()
             .put("file.txt", "content")
             .await
             .unwrap();
 
-        assert!(storage.disk("test").unwrap().exists("file.txt").await.unwrap());
+        assert!(storage
+            .disk("test")
+            .unwrap()
+            .exists("file.txt")
+            .await
+            .unwrap());
     }
 }

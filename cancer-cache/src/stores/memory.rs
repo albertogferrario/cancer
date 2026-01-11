@@ -25,9 +25,7 @@ impl MemoryStore {
     /// Create a new memory store.
     pub fn new() -> Self {
         Self {
-            cache: MokaCache::builder()
-                .max_capacity(10_000)
-                .build(),
+            cache: MokaCache::builder().max_capacity(10_000).build(),
             tags: Arc::new(DashMap::new()),
             counters: Arc::new(DashMap::new()),
         }
@@ -36,9 +34,7 @@ impl MemoryStore {
     /// Create with custom capacity.
     pub fn with_capacity(capacity: u64) -> Self {
         Self {
-            cache: MokaCache::builder()
-                .max_capacity(capacity)
-                .build(),
+            cache: MokaCache::builder().max_capacity(capacity).build(),
             tags: Arc::new(DashMap::new()),
             counters: Arc::new(DashMap::new()),
         }
@@ -52,9 +48,7 @@ impl CacheStore for MemoryStore {
     }
 
     async fn put_raw(&self, key: &str, value: Vec<u8>, ttl: Duration) -> Result<(), Error> {
-        self.cache
-            .insert(key.to_string(), value)
-            .await;
+        self.cache.insert(key.to_string(), value).await;
 
         // Moka handles TTL through expiration, but we need to set it per-entry
         // For simplicity, we'll use the builder-level TTL
@@ -103,11 +97,7 @@ impl CacheStore for MemoryStore {
     }
 
     async fn tag_members(&self, tag: &str) -> Result<Vec<String>, Error> {
-        Ok(self
-            .tags
-            .get(tag)
-            .map(|v| v.clone())
-            .unwrap_or_default())
+        Ok(self.tags.get(tag).map(|v| v.clone()).unwrap_or_default())
     }
 
     async fn tag_flush(&self, tag: &str) -> Result<(), Error> {

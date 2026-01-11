@@ -2,7 +2,7 @@
 //!
 //! Adds shared props (auth, flash, csrf) to every Inertia response.
 
-use cancer::{async_trait, csrf_token, Middleware, Next, Request, Response, InertiaShared};
+use cancer::{async_trait, csrf_token, InertiaShared, Middleware, Next, Request, Response};
 
 /// Middleware that shares common data with all Inertia responses
 ///

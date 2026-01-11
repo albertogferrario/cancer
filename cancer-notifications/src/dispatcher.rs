@@ -226,13 +226,12 @@ impl NotificationDispatcher {
 
         let transport = transport.port(config.port);
 
-        let transport = if let (Some(ref user), Some(ref pass)) =
-            (&config.username, &config.password)
-        {
-            transport.credentials(Credentials::new(user.clone(), pass.clone()))
-        } else {
-            transport
-        };
+        let transport =
+            if let (Some(ref user), Some(ref pass)) = (&config.username, &config.password) {
+                transport.credentials(Credentials::new(user.clone(), pass.clone()))
+            } else {
+                transport
+            };
 
         let mailer = transport.build();
 

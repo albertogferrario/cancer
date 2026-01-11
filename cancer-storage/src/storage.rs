@@ -113,16 +113,21 @@ pub trait StorageDriver: Send + Sync {
     /// Get file contents as string.
     async fn get_string(&self, path: &str) -> Result<String, Error> {
         let bytes = self.get(path).await?;
-        String::from_utf8(bytes.to_vec())
-            .map_err(|e| Error::Serialization(e.to_string()))
+        String::from_utf8(bytes.to_vec()).map_err(|e| Error::Serialization(e.to_string()))
     }
 
     /// Put file contents.
     async fn put(&self, path: &str, contents: Bytes, options: PutOptions) -> Result<(), Error>;
 
     /// Put string contents.
-    async fn put_string(&self, path: &str, contents: &str, options: PutOptions) -> Result<(), Error> {
-        self.put(path, Bytes::from(contents.to_string()), options).await
+    async fn put_string(
+        &self,
+        path: &str,
+        contents: &str,
+        options: PutOptions,
+    ) -> Result<(), Error> {
+        self.put(path, Bytes::from(contents.to_string()), options)
+            .await
     }
 
     /// Delete a file.
@@ -175,8 +180,7 @@ mod tests {
 
     #[test]
     fn test_file_metadata() {
-        let meta = FileMetadata::new("test.txt", 100)
-            .with_mime_type("text/plain");
+        let meta = FileMetadata::new("test.txt", 100).with_mime_type("text/plain");
 
         assert_eq!(meta.path, "test.txt");
         assert_eq!(meta.size, 100);
@@ -185,9 +189,7 @@ mod tests {
 
     #[test]
     fn test_put_options() {
-        let opts = PutOptions::new()
-            .public()
-            .content_type("image/png");
+        let opts = PutOptions::new().public().content_type("image/png");
 
         assert_eq!(opts.visibility, Visibility::Public);
         assert_eq!(opts.content_type, Some("image/png".to_string()));

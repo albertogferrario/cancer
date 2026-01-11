@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "cancer")]
-#[command(about = "A CLI for scaffolding Kit web applications", long_about = None)]
+#[command(about = "A CLI for scaffolding Cancer web applications", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -13,7 +13,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Create a new Kit project
+    /// Create a new Cancer project
     New {
         /// The name of the project to create
         name: Option<String>,

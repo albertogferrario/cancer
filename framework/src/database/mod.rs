@@ -1,4 +1,4 @@
-//! Database module for Kit framework
+//! Database module for Cancer framework
 //!
 //! Provides a SeaORM-based ORM with Laravel-like API.
 //!

@@ -70,9 +70,86 @@ impl Request {
             })
     }
 
+    /// Get a route parameter parsed as a specific type
+    ///
+    /// Combines `param()` with parsing, returning a typed value.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// pub async fn show(req: Request) -> Response {
+    ///     let id: i32 = req.param_as("id")?;
+    ///     // ...
+    /// }
+    /// ```
+    pub fn param_as<T: std::str::FromStr>(&self, name: &str) -> Result<T, ParamError>
+    where
+        T::Err: std::fmt::Display,
+    {
+        let value = self.param(name)?;
+        value.parse::<T>().map_err(|e| ParamError {
+            param_name: format!("{} (parse error: {})", name, e),
+        })
+    }
+
     /// Get all route parameters
     pub fn params(&self) -> &HashMap<String, String> {
         &self.params
+    }
+
+    /// Get a query string parameter by name
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // URL: /users?page=2&limit=10
+    /// let page = req.query("page"); // Some("2")
+    /// let sort = req.query("sort"); // None
+    /// ```
+    pub fn query(&self, name: &str) -> Option<String> {
+        self.inner.uri().query().and_then(|q| {
+            form_urlencoded::parse(q.as_bytes())
+                .find(|(key, _)| key == name)
+                .map(|(_, value)| value.into_owned())
+        })
+    }
+
+    /// Get a query string parameter or a default value
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // URL: /users?page=2
+    /// let page = req.query_or("page", "1"); // "2"
+    /// let limit = req.query_or("limit", "10"); // "10"
+    /// ```
+    pub fn query_or(&self, name: &str, default: &str) -> String {
+        self.query(name).unwrap_or_else(|| default.to_string())
+    }
+
+    /// Get a query string parameter parsed as a specific type
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // URL: /users?page=2&limit=10
+    /// let page: Option<i32> = req.query_as("page"); // Some(2)
+    /// ```
+    pub fn query_as<T: std::str::FromStr>(&self, name: &str) -> Option<T> {
+        self.query(name).and_then(|v| v.parse().ok())
+    }
+
+    /// Get a query string parameter parsed as a specific type, or a default
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // URL: /users?page=2
+    /// let page: i32 = req.query_as_or("page", 1); // 2
+    /// let limit: i32 = req.query_as_or("limit", 10); // 10
+    /// ```
+    pub fn query_as_or<T: std::str::FromStr>(&self, name: &str, default: T) -> T {
+        self.query_as(name).unwrap_or(default)
     }
 
     /// Get the inner hyper request
@@ -110,9 +187,7 @@ impl Request {
     /// }
     /// ```
     pub fn cookies(&self) -> HashMap<String, String> {
-        self.header("Cookie")
-            .map(parse_cookies)
-            .unwrap_or_default()
+        self.header("Cookie").map(parse_cookies).unwrap_or_default()
     }
 
     /// Get a specific cookie value by name

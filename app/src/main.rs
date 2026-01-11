@@ -1,6 +1,6 @@
-//! Kit Application Entry Point
+//! Cancer Application Entry Point
 //!
-//! This is the unified entry point for the Kit application.
+//! This is the unified entry point for the Cancer application.
 //! It provides subcommands for running the web server, migrations, and scheduler.
 //!
 //! # Usage
@@ -18,8 +18,8 @@
 //! ./app schedule:list      # List registered tasks
 //! ```
 
-use clap::{Parser, Subcommand};
 use cancer::{Config, Server};
+use clap::{Parser, Subcommand};
 use sea_orm_migration::prelude::*;
 use std::env;
 use std::path::Path;
@@ -38,7 +38,7 @@ use migrations::Migrator;
 
 #[derive(Parser)]
 #[command(name = "app")]
-#[command(about = "Kit application server and utilities")]
+#[command(about = "Cancer application server and utilities")]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -210,7 +210,7 @@ async fn run_scheduler_daemon() {
     bootstrap::register().await;
 
     println!("==============================================");
-    println!("  Kit Scheduler Daemon");
+    println!("  Cancer Scheduler Daemon");
     println!("==============================================");
     println!();
     println!("  Note: Create tasks with `cancer make:task <name>`");

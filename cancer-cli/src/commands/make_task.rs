@@ -35,15 +35,15 @@ pub fn run(name: String) {
     let mod_file = tasks_dir.join("mod.rs");
     let schedule_file = Path::new("src/schedule.rs");
 
-    // Ensure we're in a Kit project (check for src directory)
+    // Ensure we're in a Cancer project (check for src directory)
     if !Path::new("src").exists() {
         eprintln!(
-            "{} Not in a Kit project root directory",
+            "{} Not in a Cancer project root directory",
             style("Error:").red().bold()
         );
         eprintln!(
             "{}",
-            style("Make sure you're in a Kit project directory with a src/ folder.").dim()
+            style("Make sure you're in a Cancer project directory with a src/ folder.").dim()
         );
         std::process::exit(1);
     }
@@ -167,11 +167,11 @@ pub fn run(name: String) {
         style(format!("schedule.task({}::new());", struct_name)).cyan()
     );
     println!();
+    println!("  {} Run the scheduler:", style("3.").dim());
     println!(
-        "  {} Run the scheduler:",
-        style("3.").dim()
+        "     cancer schedule:work  {} Daemon mode",
+        style("#").dim()
     );
-    println!("     cancer schedule:work  {} Daemon mode", style("#").dim());
     println!("     cancer schedule:run   {} Run once", style("#").dim());
     println!("     cancer schedule:list  {} List tasks", style("#").dim());
     println!();

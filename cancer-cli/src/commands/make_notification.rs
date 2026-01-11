@@ -34,15 +34,15 @@ pub fn run(name: String) {
     let notification_file = notifications_dir.join(format!("{}.rs", file_name));
     let mod_file = notifications_dir.join("mod.rs");
 
-    // Ensure we're in a Kit project (check for src directory)
+    // Ensure we're in a Cancer project (check for src directory)
     if !Path::new("src").exists() {
         eprintln!(
-            "{} Not in a Kit project root directory",
+            "{} Not in a Cancer project root directory",
             style("Error:").red().bold()
         );
         eprintln!(
             "{}",
-            style("Make sure you're in a Kit project directory with a src/ folder.").dim()
+            style("Make sure you're in a Cancer project directory with a src/ folder.").dim()
         );
         std::process::exit(1);
     }

@@ -17,7 +17,11 @@ pub struct TaggedCache {
 impl TaggedCache {
     /// Create a new tagged cache.
     pub(crate) fn new(store: Arc<dyn CacheStore>, tags: Vec<String>, config: CacheConfig) -> Self {
-        Self { store, tags, config }
+        Self {
+            store,
+            tags,
+            config,
+        }
     }
 
     /// Generate a tag namespace prefix for keys.
@@ -44,10 +48,14 @@ impl TaggedCache {
     }
 
     /// Put a value in the cache with tags.
-    pub async fn put<T: Serialize>(&self, key: &str, value: &T, ttl: Duration) -> Result<(), Error> {
+    pub async fn put<T: Serialize>(
+        &self,
+        key: &str,
+        value: &T,
+        ttl: Duration,
+    ) -> Result<(), Error> {
         let tagged_key = self.tagged_key(key);
-        let bytes = serde_json::to_vec(value)
-            .map_err(|e| Error::serialization(e.to_string()))?;
+        let bytes = serde_json::to_vec(value).map_err(|e| Error::serialization(e.to_string()))?;
 
         // Store the value
         self.store.put_raw(&tagged_key, bytes, ttl).await?;
@@ -115,7 +123,8 @@ impl TaggedCache {
         F: FnOnce() -> Fut,
         Fut: Future<Output = T>,
     {
-        self.remember(key, Duration::from_secs(315_360_000), f).await
+        self.remember(key, Duration::from_secs(315_360_000), f)
+            .await
     }
 }
 
@@ -127,11 +136,7 @@ mod tests {
     #[tokio::test]
     async fn test_tagged_cache_put_get() {
         let store = Arc::new(MemoryStore::new());
-        let cache = TaggedCache::new(
-            store,
-            vec!["users".to_string()],
-            CacheConfig::default(),
-        );
+        let cache = TaggedCache::new(store, vec!["users".to_string()], CacheConfig::default());
 
         cache
             .put("user:1", &"Alice", Duration::from_secs(60))
@@ -172,11 +177,7 @@ mod tests {
     #[tokio::test]
     async fn test_tagged_cache_remember() {
         let store = Arc::new(MemoryStore::new());
-        let cache = TaggedCache::new(
-            store,
-            vec!["data".to_string()],
-            CacheConfig::default(),
-        );
+        let cache = TaggedCache::new(store, vec!["data".to_string()], CacheConfig::default());
 
         let mut call_count = 0;
 

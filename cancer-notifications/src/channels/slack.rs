@@ -128,7 +128,12 @@ impl SlackAttachment {
     }
 
     /// Add a field.
-    pub fn field(mut self, title: impl Into<String>, value: impl Into<String>, short: bool) -> Self {
+    pub fn field(
+        mut self,
+        title: impl Into<String>,
+        value: impl Into<String>,
+        short: bool,
+    ) -> Self {
         self.fields.push(SlackField {
             title: title.into(),
             value: value.into(),
@@ -185,12 +190,11 @@ mod tests {
 
     #[test]
     fn test_slack_message_with_attachment() {
-        let msg = SlackMessage::new("New order received")
-            .attachment(
-                SlackAttachment::new()
-                    .color("#36a64f")
-                    .title("Order Details"),
-            );
+        let msg = SlackMessage::new("New order received").attachment(
+            SlackAttachment::new()
+                .color("#36a64f")
+                .title("Order Details"),
+        );
 
         assert_eq!(msg.attachments.len(), 1);
     }

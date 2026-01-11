@@ -1,6 +1,6 @@
-//! Application builder for Kit framework
+//! Application builder for Cancer framework
 //!
-//! Provides a fluent builder API to configure and run a Kit application.
+//! Provides a fluent builder API to configure and run a Cancer application.
 //!
 //! # Example
 //!
@@ -27,10 +27,10 @@ use std::future::Future;
 use std::path::Path;
 use std::pin::Pin;
 
-/// CLI structure for Kit applications
+/// CLI structure for Cancer applications
 #[derive(Parser)]
 #[command(name = "app")]
-#[command(about = "Kit application server and utilities")]
+#[command(about = "Cancer application server and utilities")]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -70,9 +70,9 @@ enum Commands {
     ScheduleList,
 }
 
-/// Application builder for Kit framework
+/// Application builder for Cancer framework
 ///
-/// Use this to configure and run your Kit application with a fluent API.
+/// Use this to configure and run your Cancer application with a fluent API.
 pub struct Application<M = NoMigrator>
 where
     M: MigratorTrait,
@@ -355,7 +355,7 @@ where
         }
 
         println!("==============================================");
-        println!("  Kit Scheduler Daemon");
+        println!("  Cancer Scheduler Daemon");
         println!("==============================================");
         println!();
         println!("  Note: Create tasks with `cancer make:task <name>`");

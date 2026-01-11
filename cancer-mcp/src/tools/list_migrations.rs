@@ -124,7 +124,10 @@ async fn get_applied_migrations(project_root: &Path) -> Vec<(String, Option<Stri
     };
 
     let result = db
-        .query_all(Statement::from_string(db.get_database_backend(), query.to_string()))
+        .query_all(Statement::from_string(
+            db.get_database_backend(),
+            query.to_string(),
+        ))
         .await;
 
     match result {

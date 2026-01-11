@@ -11,10 +11,10 @@ use crate::templates;
 use crate::templates::{ColumnInfo, TableInfo};
 
 pub fn run(skip_migrations: bool, regenerate_models: bool) {
-    // Check we're in a Kit project
+    // Check we're in a Cancer project
     if !Path::new("src/models").exists() && !Path::new("src/migrations").exists() {
         eprintln!(
-            "{} Not in a Kit project directory",
+            "{} Not in a Cancer project directory",
             style("Error:").red().bold()
         );
         std::process::exit(1);

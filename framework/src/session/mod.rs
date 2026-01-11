@@ -1,4 +1,4 @@
-//! Session management for Kit framework
+//! Session management for Cancer framework
 //!
 //! Provides Laravel-like session handling with database storage.
 //!

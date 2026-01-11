@@ -1,4 +1,4 @@
-//! Model traits for Kit ORM
+//! Model traits for Cancer ORM
 //!
 //! Provides Laravel-like active record pattern over SeaORM entities.
 
@@ -36,7 +36,7 @@ use crate::error::FrameworkError;
 ///
 /// impl ActiveModelBehavior for ActiveModel {}
 ///
-/// // Add Kit's Model trait
+/// // Add Cancer's Model trait
 /// impl cancer::database::Model for Entity {}
 ///
 /// // Now you can use:

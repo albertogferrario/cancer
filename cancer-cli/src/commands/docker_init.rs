@@ -8,15 +8,12 @@ use toml::Value;
 use crate::templates;
 
 pub fn run() {
-    // Verify we're in a Kit project directory
+    // Verify we're in a Cancer project directory
     if !Path::new("Cargo.toml").exists() {
-        eprintln!(
-            "{} Cargo.toml not found",
-            style("Error:").red().bold()
-        );
+        eprintln!("{} Cargo.toml not found", style("Error:").red().bold());
         eprintln!(
             "{}",
-            style("Make sure you're in a Kit project root directory.").dim()
+            style("Make sure you're in a Cancer project root directory.").dim()
         );
         std::process::exit(1);
     }
@@ -74,7 +71,10 @@ pub fn run() {
     );
     println!();
     println!("Build your image:");
-    println!("  {}", style(format!("docker build -t {} .", package_name)).cyan());
+    println!(
+        "  {}",
+        style(format!("docker build -t {} .", package_name)).cyan()
+    );
     println!();
     println!("Run your container:");
     println!(
@@ -88,7 +88,8 @@ pub fn run() {
     println!();
     println!(
         "{}",
-        style("Tip: Create a .env.production file with your production environment variables.").dim()
+        style("Tip: Create a .env.production file with your production environment variables.")
+            .dim()
     );
     println!();
 }

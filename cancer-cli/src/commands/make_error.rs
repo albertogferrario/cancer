@@ -25,12 +25,12 @@ pub fn run(name: String) {
     let error_file = errors_dir.join(format!("{}.rs", file_name));
     let mod_file = errors_dir.join("mod.rs");
 
-    // Check if we're in a Kit project (src directory should exist)
+    // Check if we're in a Cancer project (src directory should exist)
     if !Path::new("src").exists() {
         eprintln!("{} src directory not found", style("Error:").red().bold());
         eprintln!(
             "{}",
-            style("Make sure you're in a Kit project root directory.").dim()
+            style("Make sure you're in a Cancer project root directory.").dim()
         );
         std::process::exit(1);
     }

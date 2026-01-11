@@ -1,4 +1,4 @@
-//! Testing utilities for Kit framework
+//! Testing utilities for Cancer framework
 //!
 //! Provides Jest-like testing helpers including:
 //! - `expect!` macro for fluent assertions with clear expected/received output

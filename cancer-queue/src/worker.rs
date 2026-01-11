@@ -50,9 +50,8 @@ impl WorkerConfig {
 }
 
 /// Type alias for job handler functions.
-type JobHandler = Arc<
-    dyn Fn(String) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send>> + Send + Sync,
->;
+type JobHandler =
+    Arc<dyn Fn(String) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send>> + Send + Sync>;
 
 /// Queue worker that processes jobs.
 pub struct Worker {

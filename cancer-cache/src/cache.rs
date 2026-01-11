@@ -136,10 +136,14 @@ impl Cache {
     }
 
     /// Put a value in the cache.
-    pub async fn put<T: Serialize>(&self, key: &str, value: &T, ttl: Duration) -> Result<(), Error> {
+    pub async fn put<T: Serialize>(
+        &self,
+        key: &str,
+        value: &T,
+        ttl: Duration,
+    ) -> Result<(), Error> {
         let key = self.prefixed_key(key);
-        let bytes = serde_json::to_vec(value)
-            .map_err(|e| Error::serialization(e.to_string()))?;
+        let bytes = serde_json::to_vec(value).map_err(|e| Error::serialization(e.to_string()))?;
         self.store.put_raw(&key, bytes, ttl).await
     }
 
@@ -193,7 +197,8 @@ impl Cache {
         F: FnOnce() -> Fut,
         Fut: Future<Output = T>,
     {
-        self.remember(key, Duration::from_secs(315_360_000), f).await
+        self.remember(key, Duration::from_secs(315_360_000), f)
+            .await
     }
 
     /// Pull a value from cache and remove it.
@@ -244,10 +249,7 @@ mod tests {
     #[test]
     fn test_prefixed_key() {
         let config = CacheConfig::new().with_prefix("test");
-        let cache = Cache::with_config(
-            Arc::new(crate::stores::MemoryStore::new()),
-            config,
-        );
+        let cache = Cache::with_config(Arc::new(crate::stores::MemoryStore::new()), config);
 
         assert_eq!(cache.prefixed_key("key"), "test:key");
     }

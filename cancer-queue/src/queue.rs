@@ -99,7 +99,12 @@ impl QueueConnection {
     pub async fn pop_nowait(&self, queue: &str) -> Result<Option<JobPayload>, Error> {
         let key = self.config.queue_key(queue);
 
-        let result: Option<String> = self.conn.clone().rpop(&key, None).await.map_err(Error::Redis)?;
+        let result: Option<String> = self
+            .conn
+            .clone()
+            .rpop(&key, None)
+            .await
+            .map_err(Error::Redis)?;
 
         match result {
             Some(json) => {
@@ -151,7 +156,11 @@ impl QueueConnection {
     }
 
     /// Release a job back to the queue (for retry).
-    pub async fn release(&self, mut payload: JobPayload, delay: std::time::Duration) -> Result<(), Error> {
+    pub async fn release(
+        &self,
+        mut payload: JobPayload,
+        delay: std::time::Duration,
+    ) -> Result<(), Error> {
         payload.increment_attempts();
         payload.reserved_at = None;
 
@@ -182,7 +191,8 @@ impl QueueConnection {
             failed_at: chrono::Utc::now(),
         };
 
-        let json = serde_json::to_string(&failed).map_err(|e| Error::SerializationFailed(e.to_string()))?;
+        let json = serde_json::to_string(&failed)
+            .map_err(|e| Error::SerializationFailed(e.to_string()))?;
 
         self.conn
             .clone()
@@ -212,8 +222,16 @@ impl QueueConnection {
         let queue_key = self.config.queue_key(queue);
         let delayed_key = self.config.delayed_key(queue);
 
-        self.conn.clone().del::<_, ()>(&queue_key).await.map_err(Error::Redis)?;
-        self.conn.clone().del::<_, ()>(&delayed_key).await.map_err(Error::Redis)?;
+        self.conn
+            .clone()
+            .del::<_, ()>(&queue_key)
+            .await
+            .map_err(Error::Redis)?;
+        self.conn
+            .clone()
+            .del::<_, ()>(&delayed_key)
+            .await
+            .map_err(Error::Redis)?;
 
         Ok(())
     }

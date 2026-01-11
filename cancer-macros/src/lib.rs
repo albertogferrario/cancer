@@ -10,12 +10,12 @@
 
 use proc_macro::TokenStream;
 
+mod cancer_test;
 mod describe;
 mod domain_error;
 mod handler;
 mod inertia;
 mod injectable;
-mod cancer_test;
 mod redirect;
 mod request;
 mod service;

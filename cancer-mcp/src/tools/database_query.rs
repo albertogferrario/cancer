@@ -53,12 +53,7 @@ pub async fn execute(project_root: &Path, query: &str) -> Result<QueryResult> {
     // Extract column names from first row
     let columns: Vec<String> = result
         .first()
-        .map(|row| {
-            row.column_names()
-                .iter()
-                .map(|s| s.to_string())
-                .collect()
-        })
+        .map(|row| row.column_names().iter().map(|s| s.to_string()).collect())
         .unwrap_or_default();
 
     // Extract row values
@@ -75,12 +70,11 @@ pub async fn execute(project_root: &Path, query: &str) -> Result<QueryResult> {
                                 .map(|v| serde_json::Value::Number(v.into()))
                         })
                         .or_else(|_| {
-                            row.try_get_by::<f64, _>(col.as_str())
-                                .map(|v| {
-                                    serde_json::Number::from_f64(v)
-                                        .map(serde_json::Value::Number)
-                                        .unwrap_or(serde_json::Value::Null)
-                                })
+                            row.try_get_by::<f64, _>(col.as_str()).map(|v| {
+                                serde_json::Number::from_f64(v)
+                                    .map(serde_json::Value::Number)
+                                    .unwrap_or(serde_json::Value::Null)
+                            })
                         })
                         .or_else(|_| {
                             row.try_get_by::<bool, _>(col.as_str())

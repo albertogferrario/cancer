@@ -1,6 +1,6 @@
-//! # Kit Storage
+//! # Cancer Storage
 //!
-//! File storage abstraction for the Kit framework.
+//! File storage abstraction for the Cancer framework.
 //!
 //! Provides a unified API for working with different storage backends:
 //! - Local filesystem
@@ -51,9 +51,9 @@ mod error;
 mod facade;
 mod storage;
 
-pub use drivers::{LocalDriver, MemoryDriver};
 #[cfg(feature = "s3")]
 pub use drivers::S3Driver;
+pub use drivers::{LocalDriver, MemoryDriver};
 
 pub use error::Error;
 pub use facade::{Disk, DiskConfig, DiskDriver, Storage};
@@ -73,7 +73,10 @@ mod tests {
     async fn test_full_workflow() {
         let storage = Storage::with_config(
             "memory",
-            vec![("memory", DiskConfig::memory().with_url("https://cdn.example.com"))],
+            vec![(
+                "memory",
+                DiskConfig::memory().with_url("https://cdn.example.com"),
+            )],
         );
 
         // Put file

@@ -29,16 +29,20 @@ pub async fn index(req: Request) -> Response {
     let message = action.execute();
 
     // Use the new async-safe Inertia::render API
-    Inertia::render(&req, "Home", HomeProps {
-        title: "Welcome to Cancer!".to_string(),
-        message,
-        user: User {
-            name: "John Doe".to_string(),
-            email: "john@example.com".to_string(),
+    Inertia::render(
+        &req,
+        "Home",
+        HomeProps {
+            title: "Welcome to Cancer!".to_string(),
+            message,
+            user: User {
+                name: "John Doe".to_string(),
+                email: "john@example.com".to_string(),
+            },
+            stats: Stats {
+                visits: 1234,
+                likes: 567,
+            },
         },
-        stats: Stats {
-            visits: 1234,
-            likes: 567,
-        },
-    })
+    )
 }

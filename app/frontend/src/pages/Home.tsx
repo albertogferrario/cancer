@@ -19,7 +19,7 @@ export default function Home({ title, user, stats }: HomeProps) {
       </section>
 
       <p style={{ marginTop: '2rem', color: '#666' }}>
-        This page is rendered with Inertia.js + React, served by Kit (Rust)
+        This page is rendered with Inertia.js + React, served by Cancer (Rust)
       </p>
     </div>
   )

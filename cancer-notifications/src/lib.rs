@@ -1,6 +1,6 @@
-//! # Kit Notifications
+//! # Cancer Notifications
 //!
-//! Multi-channel notification system for the Kit framework.
+//! Multi-channel notification system for the Cancer framework.
 //!
 //! Provides a Laravel-inspired notification system with support for:
 //! - Mail notifications via SMTP
@@ -63,9 +63,7 @@ pub use channel::Channel;
 pub use channels::{DatabaseMessage, MailMessage, SlackAttachment, SlackField, SlackMessage};
 pub use dispatcher::{MailConfig, NotificationConfig, NotificationDispatcher};
 pub use error::Error;
-pub use notifiable::{
-    ChannelResult, DatabaseNotificationStore, Notifiable, StoredNotification,
-};
+pub use notifiable::{ChannelResult, DatabaseNotificationStore, Notifiable, StoredNotification};
 pub use notification::Notification;
 
 /// Re-export async_trait for convenience.

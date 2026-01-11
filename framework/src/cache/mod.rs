@@ -1,4 +1,4 @@
-//! Cache module for Kit framework
+//! Cache module for Cancer framework
 //!
 //! Provides a Redis-backed cache with automatic in-memory fallback.
 //!
@@ -148,9 +148,8 @@ impl Cache {
         ttl: Option<Duration>,
     ) -> Result<(), FrameworkError> {
         let store = Self::store()?;
-        let json = serde_json::to_string(value).map_err(|e| {
-            FrameworkError::internal(format!("Cache serialize error: {}", e))
-        })?;
+        let json = serde_json::to_string(value)
+            .map_err(|e| FrameworkError::internal(format!("Cache serialize error: {}", e)))?;
         store.put_raw(key, &json, ttl).await
     }
 

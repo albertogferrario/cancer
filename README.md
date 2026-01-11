@@ -1,11 +1,11 @@
-# Kit
+# Cancer
 
 **A Laravel-inspired web framework for Rust**
 
 [![Crates.io](https://img.shields.io/crates/v/cancer-rs.svg)](https://crates.io/crates/cancer-rs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Build web applications in Rust with the developer experience you love from Laravel and Rails. Kit gives you expressive routing, powerful tooling, and batteries-included features—without sacrificing Rust's performance.
+Build web applications in Rust with the developer experience you love from Laravel and Rails. Cancer gives you expressive routing, powerful tooling, and batteries-included features—without sacrificing Rust's performance.
 
 [Website](https://cancer-rs.dev/) | [Documentation](https://cancer-rs.dev/)
 
@@ -34,7 +34,7 @@ routes! {
 }
 
 async fn index(_req: Request) -> Response {
-    json_response!({ "message": "Welcome to Kit!" })
+    json_response!({ "message": "Welcome to Cancer!" })
 }
 
 async fn show(req: Request) -> Response {
@@ -48,7 +48,7 @@ async fn store(_req: Request) -> Response {
 }
 ```
 
-## Why Kit?
+## Why Cancer?
 
 - **Familiar patterns** — Routes, controllers, middleware, service container
 - **CLI generators** — `cancer make:controller`, `cancer make:model`, `cancer migrate`
@@ -58,7 +58,7 @@ async fn store(_req: Request) -> Response {
 
 ## End-to-End Type Safety
 
-Kit provides automatic TypeScript type generation from your Rust structs. Define your props once in Rust, and use them with full type safety in React.
+Cancer provides automatic TypeScript type generation from your Rust structs. Define your props once in Rust, and use them with full type safety in React.
 
 **Define props in Rust:**
 

@@ -1,10 +1,10 @@
-//! Authentication module for Kit framework
+//! Authentication module for Cancer framework
 //!
 //! Provides Laravel-like authentication with guards and middleware.
 //!
 //! # Overview
 //!
-//! Kit provides a simple, session-based authentication system:
+//! Cancer provides a simple, session-based authentication system:
 //!
 //! - `Auth` facade for login/logout operations
 //! - `AuthMiddleware` for protecting routes

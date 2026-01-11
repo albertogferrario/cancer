@@ -59,10 +59,7 @@ impl TestClient {
 
     /// Add a default header to all requests
     pub fn with_header(mut self, name: &str, value: &str) -> Self {
-        if let (Ok(name), Ok(value)) = (
-            HeaderName::try_from(name),
-            HeaderValue::try_from(value),
-        ) {
+        if let (Ok(name), Ok(value)) = (HeaderName::try_from(name), HeaderValue::try_from(value)) {
             self.default_headers.insert(name, value);
         }
         self
@@ -134,10 +131,7 @@ impl<'a> TestRequestBuilder<'a> {
 
     /// Add a header to the request
     pub fn header(mut self, name: &str, value: &str) -> Self {
-        if let (Ok(name), Ok(value)) = (
-            HeaderName::try_from(name),
-            HeaderValue::try_from(value),
-        ) {
+        if let (Ok(name), Ok(value)) = (HeaderName::try_from(name), HeaderValue::try_from(value)) {
             self.headers.insert(name, value);
         }
         self
@@ -151,8 +145,8 @@ impl<'a> TestRequestBuilder<'a> {
     /// Add basic auth header
     pub fn basic_auth(self, username: &str, password: &str) -> Self {
         use base64::Engine;
-        let credentials = base64::engine::general_purpose::STANDARD
-            .encode(format!("{}:{}", username, password));
+        let credentials =
+            base64::engine::general_purpose::STANDARD.encode(format!("{}:{}", username, password));
         self.header("Authorization", &format!("Basic {}", credentials))
     }
 
@@ -199,7 +193,8 @@ impl<'a> TestRequestBuilder<'a> {
         if self.query_params.is_empty() {
             self.path.clone()
         } else {
-            let query = self.query_params
+            let query = self
+                .query_params
                 .iter()
                 .map(|(k, v)| format!("{}={}", k, v))
                 .collect::<Vec<_>>()
@@ -527,23 +522,21 @@ impl TestResponse {
         F: FnOnce(&Value) -> bool,
     {
         match self.json_value() {
-            Ok(json) => {
-                match json.get(key) {
-                    Some(value) if predicate(value) => self,
-                    Some(value) => {
-                        panic!(
+            Ok(json) => match json.get(key) {
+                Some(value) if predicate(value) => self,
+                Some(value) => {
+                    panic!(
                             "\nJSON Predicate Assertion Failed\n\n  Key: {}\n  Value: {:?}\n  The predicate returned false\n",
                             key, value
                         );
-                    }
-                    None => {
-                        panic!(
-                            "\nJSON Assertion Failed\n\n  Key '{}' not found in JSON\n",
-                            key
-                        );
-                    }
                 }
-            }
+                None => {
+                    panic!(
+                        "\nJSON Assertion Failed\n\n  Key '{}' not found in JSON\n",
+                        key
+                    );
+                }
+            },
             Err(e) => {
                 panic!(
                     "\nJSON Parse Error\n\n  Error: {}\n  Body: {}\n",
@@ -584,8 +577,7 @@ impl TestResponse {
         if !body.contains(needle) {
             panic!(
                 "\nBody Assertion Failed\n\n  Expected to see: {}\n  Body:\n{}\n",
-                needle,
-                body
+                needle, body
             );
         }
         self
@@ -597,8 +589,7 @@ impl TestResponse {
         if body.contains(needle) {
             panic!(
                 "\nBody Assertion Failed\n\n  Expected NOT to see: {}\n  Body:\n{}\n",
-                needle,
-                body
+                needle, body
             );
         }
         self
@@ -609,11 +600,13 @@ impl TestResponse {
         match self.json_value() {
             Ok(json) => {
                 // Check for common validation error structures
-                let errors = json.get("errors")
+                let errors = json
+                    .get("errors")
                     .or_else(|| json.get("validation_errors"))
-                    .or_else(|| json.get("message").and_then(|m| {
-                        if m.is_object() { Some(m) } else { None }
-                    }));
+                    .or_else(|| {
+                        json.get("message")
+                            .and_then(|m| if m.is_object() { Some(m) } else { None })
+                    });
 
                 match errors {
                     Some(errors_obj) => {
@@ -649,37 +642,35 @@ impl TestResponse {
     /// Assert the JSON array has the expected count
     pub fn assert_json_count(self, key: &str, expected: usize) -> Self {
         match self.json_value() {
-            Ok(json) => {
-                match json.get(key) {
-                    Some(Value::Array(arr)) if arr.len() == expected => self,
-                    Some(Value::Array(arr)) => {
-                        panic!(
+            Ok(json) => match json.get(key) {
+                Some(Value::Array(arr)) if arr.len() == expected => self,
+                Some(Value::Array(arr)) => {
+                    panic!(
                             "\nJSON Count Assertion Failed\n\n  Key: {}\n  Expected: {} items\n  Received: {} items\n",
                             key, expected, arr.len()
                         );
-                    }
-                    Some(other) => {
-                        panic!(
-                            "\nJSON Count Assertion Failed\n\n  Key '{}' is not an array\n  Type: {}\n",
-                            key,
-                            match other {
-                                Value::Null => "null",
-                                Value::Bool(_) => "boolean",
-                                Value::Number(_) => "number",
-                                Value::String(_) => "string",
-                                Value::Object(_) => "object",
-                                Value::Array(_) => "array",
-                            }
-                        );
-                    }
-                    None => {
-                        panic!(
-                            "\nJSON Count Assertion Failed\n\n  Key '{}' not found\n",
-                            key
-                        );
-                    }
                 }
-            }
+                Some(other) => {
+                    panic!(
+                        "\nJSON Count Assertion Failed\n\n  Key '{}' is not an array\n  Type: {}\n",
+                        key,
+                        match other {
+                            Value::Null => "null",
+                            Value::Bool(_) => "boolean",
+                            Value::Number(_) => "number",
+                            Value::String(_) => "string",
+                            Value::Object(_) => "object",
+                            Value::Array(_) => "array",
+                        }
+                    );
+                }
+                None => {
+                    panic!(
+                        "\nJSON Count Assertion Failed\n\n  Key '{}' not found\n",
+                        key
+                    );
+                }
+            },
             Err(e) => {
                 panic!(
                     "\nJSON Parse Error\n\n  Error: {}\n  Body: {}\n",
@@ -710,22 +701,16 @@ mod tests {
     #[test]
     fn test_response_assert_json_has() {
         let body = r#"{"name": "test", "email": "test@example.com"}"#;
-        let response = TestResponse::from_parts(
-            200,
-            vec![("content-type", "application/json")],
-            body,
-        );
+        let response =
+            TestResponse::from_parts(200, vec![("content-type", "application/json")], body);
         response.assert_json_has("name").assert_json_has("email");
     }
 
     #[test]
     fn test_response_assert_json_is() {
         let body = r#"{"count": 5, "name": "test"}"#;
-        let response = TestResponse::from_parts(
-            200,
-            vec![("content-type", "application/json")],
-            body,
-        );
+        let response =
+            TestResponse::from_parts(200, vec![("content-type", "application/json")], body);
         response
             .assert_json_is("count", 5)
             .assert_json_is("name", "test");
@@ -740,22 +725,15 @@ mod tests {
 
     #[test]
     fn test_response_assert_redirect() {
-        let response = TestResponse::from_parts(
-            302,
-            vec![("location", "/dashboard")],
-            "",
-        );
+        let response = TestResponse::from_parts(302, vec![("location", "/dashboard")], "");
         response.assert_redirect().assert_redirect_to("/dashboard");
     }
 
     #[test]
     fn test_response_assert_json_count() {
         let body = r#"{"items": [1, 2, 3]}"#;
-        let response = TestResponse::from_parts(
-            200,
-            vec![("content-type", "application/json")],
-            body,
-        );
+        let response =
+            TestResponse::from_parts(200, vec![("content-type", "application/json")], body);
         response.assert_json_count("items", 3);
     }
 }

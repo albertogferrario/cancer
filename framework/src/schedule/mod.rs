@@ -1,4 +1,4 @@
-//! Task Scheduler module for Kit framework
+//! Task Scheduler module for Cancer framework
 //!
 //! Provides a Laravel-like task scheduling system with support for:
 //! - Trait-based tasks (implement `Task`)

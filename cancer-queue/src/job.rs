@@ -97,7 +97,8 @@ pub struct JobPayload {
 impl JobPayload {
     /// Create a new job payload.
     pub fn new<J: Job + Serialize>(job: &J, queue: &str) -> Result<Self, Error> {
-        let data = serde_json::to_string(job).map_err(|e| Error::SerializationFailed(e.to_string()))?;
+        let data =
+            serde_json::to_string(job).map_err(|e| Error::SerializationFailed(e.to_string()))?;
 
         Ok(Self {
             id: Uuid::new_v4(),
@@ -183,11 +184,8 @@ mod tests {
     #[test]
     fn test_job_payload_with_delay() {
         let job = TestJob { value: 42 };
-        let payload = JobPayload::with_delay(
-            &job,
-            "default",
-            std::time::Duration::from_secs(60),
-        ).unwrap();
+        let payload =
+            JobPayload::with_delay(&job, "default", std::time::Duration::from_secs(60)).unwrap();
 
         assert!(!payload.is_available());
     }

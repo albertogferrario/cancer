@@ -1,4 +1,4 @@
-//! Service trait macro for the Kit framework
+//! Service trait macro for the Cancer framework
 //!
 //! Provides the `#[service]` attribute macro that:
 //! 1. Adds `Send + Sync + 'static` bounds to trait definitions

@@ -1,6 +1,6 @@
-//! # Kit Broadcast
+//! # Cancer Broadcast
 //!
-//! WebSocket broadcasting and real-time channels for the Kit framework.
+//! WebSocket broadcasting and real-time channels for the Cancer framework.
 //!
 //! Provides a Laravel Echo-inspired broadcasting system with support for:
 //! - Public channels (anyone can subscribe)

@@ -41,6 +41,23 @@ impl Auth {
         auth_user_id()
     }
 
+    /// Get the authenticated user's ID as a specific type
+    ///
+    /// Useful when your database uses i32 primary keys but Auth stores i64.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // SeaORM entities typically use i32 for primary keys
+    /// let user_id: i32 = Auth::id_as().expect("User must be authenticated");
+    /// ```
+    pub fn id_as<T>() -> Option<T>
+    where
+        T: TryFrom<i64>,
+    {
+        Self::id().and_then(|id| T::try_from(id).ok())
+    }
+
     /// Check if a user is currently authenticated
     pub fn check() -> bool {
         Self::id().is_some()

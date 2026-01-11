@@ -1,10 +1,10 @@
-# Kit-RS
+# Cancer-RS
 
 A Laravel-inspired web framework for Rust.
 
 ## Installation
 
-Add Kit to your `Cargo.toml`:
+Add Cancer to your `Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -31,7 +31,7 @@ async fn main() {
 }
 
 async fn index(_req: Request) -> Response {
-    text("Welcome to Kit!")
+    text("Welcome to Cancer!")
 }
 
 async fn show_user(req: Request) -> Response {
@@ -53,7 +53,7 @@ async fn show_user(req: Request) -> Response {
 
 ## CLI Tool
 
-Use the Kit CLI to scaffold new projects:
+Use the Cancer CLI to scaffold new projects:
 
 ```bash
 cargo install cancer-cli

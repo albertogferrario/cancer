@@ -16,8 +16,7 @@ pub struct RedisStore {
 impl RedisStore {
     /// Create a new Redis store.
     pub async fn new(url: &str) -> Result<Self, Error> {
-        let client = redis::Client::open(url)
-            .map_err(|e| Error::connection(e.to_string()))?;
+        let client = redis::Client::open(url).map_err(|e| Error::connection(e.to_string()))?;
 
         let manager = ConnectionManager::new(client)
             .await
@@ -64,9 +63,7 @@ impl CacheStore for RedisStore {
 
     async fn flush(&self) -> Result<(), Error> {
         let mut conn = self.client.clone();
-        redis::cmd("FLUSHDB")
-            .query_async(&mut conn)
-            .await?;
+        redis::cmd("FLUSHDB").query_async(&mut conn).await?;
         Ok(())
     }
 

@@ -25,5 +25,7 @@ pub struct ListenerInfo {
 
 pub fn execute(project_root: &Path) -> Result<EventsInfo> {
     let events_info = events::scan_events(project_root);
-    Ok(EventsInfo { events: events_info })
+    Ok(EventsInfo {
+        events: events_info,
+    })
 }

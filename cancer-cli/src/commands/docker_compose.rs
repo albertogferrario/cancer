@@ -9,12 +9,12 @@ use toml::Value;
 use crate::templates;
 
 pub fn run(with_mailpit: bool, with_minio: bool) {
-    // Verify we're in a Kit project directory
+    // Verify we're in a Cancer project directory
     if !Path::new("Cargo.toml").exists() {
         eprintln!("{} Cargo.toml not found", style("Error:").red().bold());
         eprintln!(
             "{}",
-            style("Make sure you're in a Kit project root directory.").dim()
+            style("Make sure you're in a Cancer project root directory.").dim()
         );
         std::process::exit(1);
     }
@@ -41,7 +41,8 @@ pub fn run(with_mailpit: bool, with_minio: bool) {
     let (include_mailpit, include_minio) = prompt_for_services(with_mailpit, with_minio);
 
     // Generate docker-compose.yml
-    let compose_content = templates::docker_compose_template(&project_name, include_mailpit, include_minio);
+    let compose_content =
+        templates::docker_compose_template(&project_name, include_mailpit, include_minio);
     if let Err(e) = fs::write(compose_path, compose_content) {
         eprintln!(
             "{} Failed to write docker-compose.yml: {}",
@@ -211,11 +212,7 @@ fn print_instructions(project_name: &str, has_mailpit: bool, has_minio: bool) {
     println!();
     println!(
         "{}",
-        style(format!(
-            "Network: {}_network",
-            project_name
-        ))
-        .dim()
+        style(format!("Network: {}_network", project_name)).dim()
     );
     println!();
 }

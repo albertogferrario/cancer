@@ -8,7 +8,7 @@ use cancer::{Config, DatabaseConfig as KitDatabaseConfig};
 
 /// Register all application configs
 pub fn register_all() {
-    // Use Kit's built-in DatabaseConfig
+    // Use Cancer's built-in DatabaseConfig
     Config::register(KitDatabaseConfig::from_env());
     Config::register(MailConfig::from_env());
 }

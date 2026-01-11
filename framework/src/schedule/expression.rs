@@ -68,11 +68,11 @@ pub struct CronExpression {
 
 #[derive(Debug, Clone)]
 enum CronField {
-    Any,               // *
-    Value(u32),        // 5
-    Range(u32, u32),   // 1-5
-    Step(u32),         // */5
-    List(Vec<u32>),    // 1,3,5
+    Any,                // *
+    Value(u32),         // 5
+    Range(u32, u32),    // 1-5
+    Step(u32),          // */5
+    List(Vec<u32>),     // 1,3,5
     StepFrom(u32, u32), // 5/10 (start at 5, every 10)
 }
 
@@ -138,9 +138,7 @@ impl CronField {
         }
 
         // Handle single value
-        let value: u32 = s
-            .parse()
-            .map_err(|_| format!("Invalid value in '{}'", s))?;
+        let value: u32 = s.parse().map_err(|_| format!("Invalid value in '{}'", s))?;
         Ok(CronField::Value(value))
     }
 
@@ -200,7 +198,9 @@ impl CronExpression {
             && self.hour.matches(now.hour())
             && self.day_of_month.matches(now.day())
             && self.month.matches(now.month())
-            && self.day_of_week.matches(now.weekday().num_days_from_sunday())
+            && self
+                .day_of_week
+                .matches(now.weekday().num_days_from_sunday())
     }
 
     /// Get the raw cron expression string

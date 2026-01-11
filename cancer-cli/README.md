@@ -1,6 +1,6 @@
-# Kit CLI
+# Cancer CLI
 
-A CLI tool for scaffolding Kit web applications.
+A CLI tool for scaffolding Cancer web applications.
 
 ## Installation
 

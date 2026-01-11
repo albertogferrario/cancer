@@ -1,6 +1,6 @@
-//! # Kit Cache
+//! # Cancer Cache
 //!
-//! Caching with tags for the Kit framework.
+//! Caching with tags for the Cancer framework.
 //!
 //! Provides a unified caching API with support for:
 //! - Multiple backends (Redis, in-memory)
@@ -43,13 +43,13 @@
 //! cache.tags(&["users"]).flush().await?;
 //! ```
 
+mod cache;
 mod error;
 mod stores;
-mod cache;
 mod tagged;
 
-pub use error::Error;
 pub use cache::{Cache, CacheConfig, CacheStore};
+pub use error::Error;
 pub use tagged::TaggedCache;
 
 #[cfg(feature = "memory")]

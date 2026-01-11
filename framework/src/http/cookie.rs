@@ -1,4 +1,4 @@
-//! Cookie handling for Kit framework
+//! Cookie handling for Cancer framework
 //!
 //! Provides Laravel-like cookie API with secure defaults.
 
@@ -208,10 +208,7 @@ pub fn parse_cookies(header: &str) -> HashMap<String, String> {
             let mut parts = part.splitn(2, '=');
             let name = parts.next()?.trim();
             let value = parts.next().unwrap_or("").trim();
-            Some((
-                url_decode(name),
-                url_decode(value),
-            ))
+            Some((url_decode(name), url_decode(value)))
         })
         .collect()
 }

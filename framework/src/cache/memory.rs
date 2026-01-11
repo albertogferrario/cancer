@@ -20,9 +20,7 @@ struct CacheEntry {
 
 impl CacheEntry {
     fn is_expired(&self) -> bool {
-        self.expires_at
-            .map(|t| Instant::now() > t)
-            .unwrap_or(false)
+        self.expires_at.map(|t| Instant::now() > t).unwrap_or(false)
     }
 }
 
@@ -76,9 +74,10 @@ impl CacheStore for InMemoryCache {
     async fn get_raw(&self, key: &str) -> Result<Option<String>, FrameworkError> {
         let key = self.prefixed_key(key);
 
-        let store = self.store.read().map_err(|_| {
-            FrameworkError::internal("Cache lock poisoned")
-        })?;
+        let store = self
+            .store
+            .read()
+            .map_err(|_| FrameworkError::internal("Cache lock poisoned"))?;
 
         match store.get(&key) {
             Some(entry) if !entry.is_expired() => Ok(Some(entry.value.clone())),
@@ -99,9 +98,10 @@ impl CacheStore for InMemoryCache {
             expires_at: ttl.map(|d| Instant::now() + d),
         };
 
-        let mut store = self.store.write().map_err(|_| {
-            FrameworkError::internal("Cache lock poisoned")
-        })?;
+        let mut store = self
+            .store
+            .write()
+            .map_err(|_| FrameworkError::internal("Cache lock poisoned"))?;
 
         store.insert(key, entry);
         Ok(())
@@ -110,9 +110,10 @@ impl CacheStore for InMemoryCache {
     async fn has(&self, key: &str) -> Result<bool, FrameworkError> {
         let key = self.prefixed_key(key);
 
-        let store = self.store.read().map_err(|_| {
-            FrameworkError::internal("Cache lock poisoned")
-        })?;
+        let store = self
+            .store
+            .read()
+            .map_err(|_| FrameworkError::internal("Cache lock poisoned"))?;
 
         Ok(store.get(&key).map(|e| !e.is_expired()).unwrap_or(false))
     }
@@ -120,17 +121,19 @@ impl CacheStore for InMemoryCache {
     async fn forget(&self, key: &str) -> Result<bool, FrameworkError> {
         let key = self.prefixed_key(key);
 
-        let mut store = self.store.write().map_err(|_| {
-            FrameworkError::internal("Cache lock poisoned")
-        })?;
+        let mut store = self
+            .store
+            .write()
+            .map_err(|_| FrameworkError::internal("Cache lock poisoned"))?;
 
         Ok(store.remove(&key).is_some())
     }
 
     async fn flush(&self) -> Result<(), FrameworkError> {
-        let mut store = self.store.write().map_err(|_| {
-            FrameworkError::internal("Cache lock poisoned")
-        })?;
+        let mut store = self
+            .store
+            .write()
+            .map_err(|_| FrameworkError::internal("Cache lock poisoned"))?;
 
         store.clear();
         Ok(())
@@ -139,9 +142,10 @@ impl CacheStore for InMemoryCache {
     async fn increment(&self, key: &str, amount: i64) -> Result<i64, FrameworkError> {
         let key = self.prefixed_key(key);
 
-        let mut store = self.store.write().map_err(|_| {
-            FrameworkError::internal("Cache lock poisoned")
-        })?;
+        let mut store = self
+            .store
+            .write()
+            .map_err(|_| FrameworkError::internal("Cache lock poisoned"))?;
 
         let current: i64 = store
             .get(&key)

@@ -29,7 +29,7 @@ pub fn run(name: String) {
         );
         eprintln!(
             "{}",
-            style("Make sure you're in a Kit project root directory.").dim()
+            style("Make sure you're in a Cancer project root directory.").dim()
         );
         std::process::exit(1);
     }

@@ -24,6 +24,6 @@ echo "Starting Vite dev server on http://localhost:5173..."
 # Give Vite a moment to start
 sleep 2
 
-# Start Kit server
-echo "Starting Kit server on http://localhost:8080..."
+# Start Cancer server
+echo "Starting Cancer server on http://localhost:8080..."
 cargo run -p app

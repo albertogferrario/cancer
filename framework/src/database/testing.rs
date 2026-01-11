@@ -115,7 +115,10 @@ impl TestDatabase {
         // will now get this test database
         TestContainer::singleton(conn.clone());
 
-        Ok(Self { conn, _guard: guard })
+        Ok(Self {
+            conn,
+            _guard: guard,
+        })
     }
 
     /// Get a reference to the underlying database connection
@@ -143,7 +146,7 @@ impl TestDatabase {
 /// Create a test database with default migrator
 ///
 /// This macro creates a `TestDatabase` using `crate::migrations::Migrator` as the
-/// default migrator. This follows the Kit convention where migrations are defined
+/// default migrator. This follows the Cancer convention where migrations are defined
 /// in `src/migrations/mod.rs`.
 ///
 /// # Example

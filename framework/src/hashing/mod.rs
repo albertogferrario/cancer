@@ -1,4 +1,4 @@
-//! Password hashing for Kit framework
+//! Password hashing for Cancer framework
 //!
 //! Provides secure password hashing using bcrypt, the same default as Laravel.
 //!

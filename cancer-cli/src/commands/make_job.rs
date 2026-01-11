@@ -34,15 +34,15 @@ pub fn run(name: String) {
     let job_file = jobs_dir.join(format!("{}.rs", file_name));
     let mod_file = jobs_dir.join("mod.rs");
 
-    // Ensure we're in a Kit project (check for src directory)
+    // Ensure we're in a Cancer project (check for src directory)
     if !Path::new("src").exists() {
         eprintln!(
-            "{} Not in a Kit project root directory",
+            "{} Not in a Cancer project root directory",
             style("Error:").red().bold()
         );
         eprintln!(
             "{}",
-            style("Make sure you're in a Kit project directory with a src/ folder.").dim()
+            style("Make sure you're in a Cancer project directory with a src/ folder.").dim()
         );
         std::process::exit(1);
     }
@@ -142,23 +142,21 @@ pub fn run(name: String) {
     );
     println!("     {}", style("mod jobs;").cyan());
     println!();
-    println!(
-        "  {} Dispatch the job in your code:",
-        style("3.").dim()
-    );
+    println!("  {} Dispatch the job in your code:", style("3.").dim());
     println!(
         "     {}",
         style(format!("use crate::jobs::{}::{};", file_name, struct_name)).cyan()
     );
     println!(
         "     {}",
-        style(format!("{} {{ /* fields */ }}.dispatch().await?;", struct_name)).cyan()
+        style(format!(
+            "{} {{ /* fields */ }}.dispatch().await?;",
+            struct_name
+        ))
+        .cyan()
     );
     println!();
-    println!(
-        "  {} Register the job with your worker:",
-        style("4.").dim()
-    );
+    println!("  {} Register the job with your worker:", style("4.").dim());
     println!(
         "     {}",
         style(format!("worker.register::<{}>();", struct_name)).cyan()

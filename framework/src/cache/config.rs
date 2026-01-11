@@ -1,4 +1,4 @@
-//! Cache configuration for Kit framework
+//! Cache configuration for Cancer framework
 
 use crate::config::{env, env_optional};
 

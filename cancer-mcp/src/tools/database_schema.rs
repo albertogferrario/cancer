@@ -60,10 +60,7 @@ async fn get_sqlite_schema(
     };
 
     let table_rows = db
-        .query_all(Statement::from_string(
-            DatabaseBackend::Sqlite,
-            table_query,
-        ))
+        .query_all(Statement::from_string(DatabaseBackend::Sqlite, table_query))
         .await
         .map_err(|e| McpError::DatabaseError(format!("Failed to get tables: {}", e)))?;
 
@@ -260,10 +257,7 @@ async fn get_mysql_schema(
         );
 
         let column_rows = db
-            .query_all(Statement::from_string(
-                DatabaseBackend::MySql,
-                column_query,
-            ))
+            .query_all(Statement::from_string(DatabaseBackend::MySql, column_query))
             .await
             .map_err(|e| McpError::DatabaseError(format!("Failed to get columns: {}", e)))?;
 

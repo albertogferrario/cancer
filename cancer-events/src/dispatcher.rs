@@ -10,7 +10,8 @@ use std::sync::Arc;
 use tracing::{debug, error, info};
 
 /// Type alias for async listener functions.
-type ListenerFn<E> = Arc<dyn Fn(&E) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send>> + Send + Sync>;
+type ListenerFn<E> =
+    Arc<dyn Fn(&E) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send>> + Send + Sync>;
 
 /// Type-erased listener storage.
 struct ListenerEntry {
@@ -161,12 +162,7 @@ impl EventDispatcher {
             match listeners.get(&type_id) {
                 Some(entries) => entries
                     .iter()
-                    .filter_map(|entry| {
-                        entry
-                            .handler
-                            .downcast_ref::<ListenerFn<E>>()
-                            .cloned()
-                    })
+                    .filter_map(|entry| entry.handler.downcast_ref::<ListenerFn<E>>().cloned())
                     .collect(),
                 None => {
                     debug!(event = event_name, "No listeners registered");
@@ -207,12 +203,7 @@ impl EventDispatcher {
             match listeners.get(&type_id) {
                 Some(entries) => entries
                     .iter()
-                    .filter_map(|entry| {
-                        entry
-                            .handler
-                            .downcast_ref::<ListenerFn<E>>()
-                            .cloned()
-                    })
+                    .filter_map(|entry| entry.handler.downcast_ref::<ListenerFn<E>>().cloned())
                     .collect(),
                 None => return,
             }

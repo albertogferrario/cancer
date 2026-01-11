@@ -87,7 +87,7 @@ impl Server {
         let addr: SocketAddr = self.get_addr();
         let listener = TcpListener::bind(addr).await?;
 
-        println!("Kit server running on http://{}", addr);
+        println!("Cancer server running on http://{}", addr);
 
         let router = self.router;
         let middleware = Arc::new(self.middleware);
@@ -211,7 +211,8 @@ async fn health_response(query: &str) -> hyper::Response<Full<Bytes>> {
         }
     }
 
-    let body = serde_json::to_string(&response).unwrap_or_else(|_| r#"{"status":"ok"}"#.to_string());
+    let body =
+        serde_json::to_string(&response).unwrap_or_else(|_| r#"{"status":"ok"}"#.to_string());
 
     hyper::Response::builder()
         .status(200)

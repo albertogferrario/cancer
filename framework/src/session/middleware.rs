@@ -1,4 +1,4 @@
-//! Session middleware for Kit framework
+//! Session middleware for Cancer framework
 
 use crate::http::cookie::{Cookie, SameSite};
 use crate::http::Response;

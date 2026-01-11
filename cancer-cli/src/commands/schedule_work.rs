@@ -5,10 +5,7 @@ use std::process::Command;
 
 pub fn run() {
     println!("{} Starting scheduler daemon...", style("->").cyan());
-    println!(
-        "{}",
-        style("Press Ctrl+C to stop").dim()
-    );
+    println!("{}", style("Press Ctrl+C to stop").dim());
     println!();
 
     // Run cargo run -- schedule:work (unified binary)

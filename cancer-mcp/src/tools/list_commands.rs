@@ -106,7 +106,8 @@ pub fn execute() -> CommandsInfo {
         },
         CommandInfo {
             name: "storage:link".to_string(),
-            description: "Create a symbolic link from public/storage to storage/app/public".to_string(),
+            description: "Create a symbolic link from public/storage to storage/app/public"
+                .to_string(),
         },
         CommandInfo {
             name: "docker:init".to_string(),

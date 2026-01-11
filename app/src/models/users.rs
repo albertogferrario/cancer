@@ -55,7 +55,6 @@ impl Model {
         UserBuilder::default()
     }
 
-
     /// Save changes to the database
     ///
     /// # Example
@@ -99,7 +98,6 @@ pub struct UserBuilder {
 }
 
 impl UserBuilder {
-
     /// Insert the record into the database
     ///
     /// # Example
@@ -117,8 +115,14 @@ impl UserBuilder {
     fn build(self) -> ActiveModel {
         ActiveModel {
             id: sea_orm::ActiveValue::NotSet,
-            created_at: self.created_at.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
-            updated_at: self.updated_at.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),
+            created_at: self
+                .created_at
+                .map(Set)
+                .unwrap_or(sea_orm::ActiveValue::NotSet),
+            updated_at: self
+                .updated_at
+                .map(Set)
+                .unwrap_or(sea_orm::ActiveValue::NotSet),
         }
     }
 }

@@ -3,7 +3,7 @@ use std::path::Path;
 use std::process::Command;
 
 pub fn run() {
-    // Check we're in a Kit project
+    // Check we're in a Cancer project
     if !Path::new("src/migrations").exists() {
         eprintln!(
             "{} No migrations directory found at src/migrations",

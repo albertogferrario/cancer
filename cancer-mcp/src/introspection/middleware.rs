@@ -147,7 +147,9 @@ fn extract_global_middleware(content: &str) -> Vec<String> {
                 if let Some(end) = line.find(']') {
                     let middleware_list = &line[start + 1..end];
                     for item in middleware_list.split(',') {
-                        let name = item.trim().trim_matches(|c| c == '"' || c == '\'' || c == '<' || c == '>');
+                        let name = item
+                            .trim()
+                            .trim_matches(|c| c == '"' || c == '\'' || c == '<' || c == '>');
                         if !name.is_empty() {
                             global.push(name.to_string());
                         }

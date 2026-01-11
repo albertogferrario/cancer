@@ -97,8 +97,7 @@ impl<'ast> Visit<'ast> for ListenerVisitor {
     fn visit_item_struct(&mut self, node: &'ast ItemStruct) {
         if self.has_listener_impl(&node.attrs) {
             let is_queued = self.is_queued(&node.attrs);
-            self.listeners
-                .push((node.ident.to_string(), is_queued));
+            self.listeners.push((node.ident.to_string(), is_queued));
         }
         syn::visit::visit_item_struct(self, node);
     }
@@ -130,10 +129,7 @@ pub fn scan_events(project_root: &Path) -> Vec<EventInfo> {
                         .to_string();
 
                     for event_name in visitor.events {
-                        events_map.insert(
-                            event_name.clone(),
-                            (relative_path.clone(), Vec::new()),
-                        );
+                        events_map.insert(event_name.clone(), (relative_path.clone(), Vec::new()));
                     }
                 }
             }

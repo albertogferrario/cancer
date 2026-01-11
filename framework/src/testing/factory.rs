@@ -118,11 +118,36 @@ impl Fake {
     /// Generate a random first name
     pub fn first_name() -> String {
         let names = [
-            "James", "Mary", "John", "Patricia", "Robert", "Jennifer",
-            "Michael", "Linda", "William", "Elizabeth", "David", "Barbara",
-            "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Sarah",
-            "Charles", "Karen", "Emma", "Olivia", "Ava", "Isabella",
-            "Sophia", "Mia", "Charlotte", "Amelia", "Harper", "Evelyn",
+            "James",
+            "Mary",
+            "John",
+            "Patricia",
+            "Robert",
+            "Jennifer",
+            "Michael",
+            "Linda",
+            "William",
+            "Elizabeth",
+            "David",
+            "Barbara",
+            "Richard",
+            "Susan",
+            "Joseph",
+            "Jessica",
+            "Thomas",
+            "Sarah",
+            "Charles",
+            "Karen",
+            "Emma",
+            "Olivia",
+            "Ava",
+            "Isabella",
+            "Sophia",
+            "Mia",
+            "Charlotte",
+            "Amelia",
+            "Harper",
+            "Evelyn",
         ];
         let mut rng = rand::thread_rng();
         names[rng.gen_range(0..names.len())].to_string()
@@ -131,11 +156,36 @@ impl Fake {
     /// Generate a random last name
     pub fn last_name() -> String {
         let names = [
-            "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia",
-            "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez",
-            "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore",
-            "Jackson", "Martin", "Lee", "Perez", "Thompson", "White",
-            "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson",
+            "Smith",
+            "Johnson",
+            "Williams",
+            "Brown",
+            "Jones",
+            "Garcia",
+            "Miller",
+            "Davis",
+            "Rodriguez",
+            "Martinez",
+            "Hernandez",
+            "Lopez",
+            "Gonzalez",
+            "Wilson",
+            "Anderson",
+            "Thomas",
+            "Taylor",
+            "Moore",
+            "Jackson",
+            "Martin",
+            "Lee",
+            "Perez",
+            "Thompson",
+            "White",
+            "Harris",
+            "Sanchez",
+            "Clark",
+            "Ramirez",
+            "Lewis",
+            "Robinson",
         ];
         let mut rng = rand::thread_rng();
         names[rng.gen_range(0..names.len())].to_string()
@@ -188,9 +238,10 @@ impl Fake {
     /// Generate a random password (for testing only)
     pub fn password() -> String {
         let mut rng = rand::thread_rng();
-        let chars: Vec<char> = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%"
-            .chars()
-            .collect();
+        let chars: Vec<char> =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%"
+                .chars()
+                .collect();
         (0..16)
             .map(|_| chars[rng.gen_range(0..chars.len())])
             .collect()
@@ -199,10 +250,37 @@ impl Fake {
     /// Generate a random sentence
     pub fn sentence() -> String {
         let words = [
-            "the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog",
-            "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing",
-            "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore",
-            "et", "dolore", "magna", "aliqua", "enim", "ad", "minim", "veniam",
+            "the",
+            "quick",
+            "brown",
+            "fox",
+            "jumps",
+            "over",
+            "lazy",
+            "dog",
+            "lorem",
+            "ipsum",
+            "dolor",
+            "sit",
+            "amet",
+            "consectetur",
+            "adipiscing",
+            "elit",
+            "sed",
+            "do",
+            "eiusmod",
+            "tempor",
+            "incididunt",
+            "ut",
+            "labore",
+            "et",
+            "dolore",
+            "magna",
+            "aliqua",
+            "enim",
+            "ad",
+            "minim",
+            "veniam",
         ];
         let mut rng = rand::thread_rng();
         let count = rng.gen_range(5..12);
@@ -299,8 +377,16 @@ impl Fake {
     pub fn address() -> String {
         let mut rng = rand::thread_rng();
         let streets = [
-            "Main St", "Oak Ave", "Maple Dr", "Cedar Ln", "Pine Rd",
-            "Elm St", "Washington Blvd", "Park Ave", "Lake Dr", "Hill Rd",
+            "Main St",
+            "Oak Ave",
+            "Maple Dr",
+            "Cedar Ln",
+            "Pine Rd",
+            "Elm St",
+            "Washington Blvd",
+            "Park Ave",
+            "Lake Dr",
+            "Hill Rd",
         ];
         format!(
             "{} {}",
@@ -312,9 +398,21 @@ impl Fake {
     /// Generate a random city name
     pub fn city() -> String {
         let cities = [
-            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
-            "Philadelphia", "San Antonio", "San Diego", "Dallas", "Austin",
-            "San Jose", "Seattle", "Denver", "Boston", "Portland",
+            "New York",
+            "Los Angeles",
+            "Chicago",
+            "Houston",
+            "Phoenix",
+            "Philadelphia",
+            "San Antonio",
+            "San Diego",
+            "Dallas",
+            "Austin",
+            "San Jose",
+            "Seattle",
+            "Denver",
+            "Boston",
+            "Portland",
         ];
         let mut rng = rand::thread_rng();
         cities[rng.gen_range(0..cities.len())].to_string()
@@ -323,9 +421,21 @@ impl Fake {
     /// Generate a random US state
     pub fn state() -> String {
         let states = [
-            "Alabama", "Alaska", "Arizona", "Arkansas", "California",
-            "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
-            "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+            "Alabama",
+            "Alaska",
+            "Arizona",
+            "Arkansas",
+            "California",
+            "Colorado",
+            "Connecticut",
+            "Delaware",
+            "Florida",
+            "Georgia",
+            "Hawaii",
+            "Idaho",
+            "Illinois",
+            "Indiana",
+            "Iowa",
         ];
         let mut rng = rand::thread_rng();
         states[rng.gen_range(0..states.len())].to_string()
@@ -340,8 +450,16 @@ impl Fake {
     /// Generate a random country
     pub fn country() -> String {
         let countries = [
-            "United States", "United Kingdom", "Canada", "Australia",
-            "Germany", "France", "Japan", "Brazil", "India", "Mexico",
+            "United States",
+            "United Kingdom",
+            "Canada",
+            "Australia",
+            "Germany",
+            "France",
+            "Japan",
+            "Brazil",
+            "India",
+            "Mexico",
         ];
         let mut rng = rand::thread_rng();
         countries[rng.gen_range(0..countries.len())].to_string()
@@ -489,10 +607,7 @@ impl Fake {
             indices.swap(i, j);
         }
 
-        indices[..count]
-            .iter()
-            .map(|&i| items[i].clone())
-            .collect()
+        indices[..count].iter().map(|&i| items[i].clone()).collect()
     }
 
     /// Generate a random credit card number (for testing only, not valid)
@@ -538,7 +653,9 @@ impl Sequence {
 
     /// Create a sequence starting at a specific value
     pub fn starting_at(value: usize) -> Self {
-        Self { current: value.saturating_sub(1) }
+        Self {
+            current: value.saturating_sub(1),
+        }
     }
 
     /// Get the next value in the sequence

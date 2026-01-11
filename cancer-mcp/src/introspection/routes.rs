@@ -30,9 +30,18 @@ fn parse_routes(content: &str) -> Vec<RouteInfo> {
     ).unwrap();
 
     for cap in route_pattern.captures_iter(content) {
-        let method = cap.get(1).map(|m| m.as_str().to_uppercase()).unwrap_or_default();
-        let path = cap.get(2).map(|m| m.as_str().to_string()).unwrap_or_default();
-        let handler = cap.get(3).map(|m| m.as_str().to_string()).unwrap_or_default();
+        let method = cap
+            .get(1)
+            .map(|m| m.as_str().to_uppercase())
+            .unwrap_or_default();
+        let path = cap
+            .get(2)
+            .map(|m| m.as_str().to_string())
+            .unwrap_or_default();
+        let handler = cap
+            .get(3)
+            .map(|m| m.as_str().to_string())
+            .unwrap_or_default();
         let name = cap.get(4).map(|m| m.as_str().to_string());
         let middleware_str = cap.get(5).map(|m| m.as_str()).unwrap_or("");
 
@@ -60,15 +69,19 @@ fn parse_middleware(middleware_str: &str) -> Vec<String> {
 
     middleware_str
         .split(',')
-        .map(|s| s.trim().trim_matches(|c| c == '[' || c == ']' || c == '"').to_string())
+        .map(|s| {
+            s.trim()
+                .trim_matches(|c| c == '[' || c == ']' || c == '"')
+                .to_string()
+        })
         .filter(|s| !s.is_empty())
         .collect()
 }
 
 fn parse_route_groups(content: &str, routes: &mut Vec<RouteInfo>) {
-    let group_pattern = Regex::new(
-        r#"group!\s*\(\s*"([^"]+)"\s*,\s*\[([^\]]+)\]\s*(?:,\s*\[([^\]]+)\])?\s*\)"#
-    ).unwrap();
+    let group_pattern =
+        Regex::new(r#"group!\s*\(\s*"([^"]+)"\s*,\s*\[([^\]]+)\]\s*(?:,\s*\[([^\]]+)\])?\s*\)"#)
+            .unwrap();
 
     let route_pattern = Regex::new(
         r#"(get|post|put|patch|delete)!\s*\(\s*"([^"]+)"\s*,\s*([a-zA-Z_][a-zA-Z0-9_:]*)\s*\)(?:\s*\.name\s*\(\s*"([^"]+)"\s*\))?"#
@@ -82,9 +95,18 @@ fn parse_route_groups(content: &str, routes: &mut Vec<RouteInfo>) {
         let middleware = parse_middleware(group_middleware);
 
         for nested_cap in route_pattern.captures_iter(group_routes) {
-            let method = nested_cap.get(1).map(|m| m.as_str().to_uppercase()).unwrap_or_default();
-            let path = nested_cap.get(2).map(|m| m.as_str().to_string()).unwrap_or_default();
-            let handler = nested_cap.get(3).map(|m| m.as_str().to_string()).unwrap_or_default();
+            let method = nested_cap
+                .get(1)
+                .map(|m| m.as_str().to_uppercase())
+                .unwrap_or_default();
+            let path = nested_cap
+                .get(2)
+                .map(|m| m.as_str().to_string())
+                .unwrap_or_default();
+            let handler = nested_cap
+                .get(3)
+                .map(|m| m.as_str().to_string())
+                .unwrap_or_default();
             let name = nested_cap.get(4).map(|m| m.as_str().to_string());
 
             let full_path = format!("{}{}", prefix, path);

@@ -294,6 +294,30 @@ pub fn env_example() -> &'static str {
 
 // Entity generation templates for db:sync command
 
+/// Rust reserved keywords that need escaping with r# prefix
+const RUST_RESERVED_KEYWORDS: &[&str] = &[
+    "as", "break", "const", "continue", "crate", "else", "enum", "extern",
+    "false", "fn", "for", "if", "impl", "in", "let", "loop", "match", "mod",
+    "move", "mut", "pub", "ref", "return", "self", "Self", "static", "struct",
+    "super", "trait", "true", "type", "unsafe", "use", "where", "while",
+    "async", "await", "dyn", "abstract", "become", "box", "do", "final",
+    "macro", "override", "priv", "typeof", "unsized", "virtual", "yield", "try",
+];
+
+/// Check if a name is a Rust reserved keyword
+fn is_reserved_keyword(name: &str) -> bool {
+    RUST_RESERVED_KEYWORDS.contains(&name)
+}
+
+/// Escape a column name if it's a reserved keyword
+fn escape_column_name(name: &str) -> String {
+    if is_reserved_keyword(name) {
+        format!("r#{}", name)
+    } else {
+        name.to_string()
+    }
+}
+
 /// Generate auto-generated entity file (regenerated on every sync)
 pub fn entity_template(table_name: &str, columns: &[ColumnInfo]) -> String {
     let _struct_name = to_pascal_case(&singularize(table_name));
@@ -309,7 +333,13 @@ pub fn entity_template(table_name: &str, columns: &[ColumnInfo]) -> String {
                 attrs.push("    #[sea_orm(primary_key)]".to_string());
             }
 
-            let field = format!("    pub {}: {},", col.name, rust_type);
+            // Handle reserved keywords
+            let field_name = escape_column_name(&col.name);
+            if is_reserved_keyword(&col.name) {
+                attrs.push(format!("    #[sea_orm(column_name = \"{}\")]", col.name));
+            }
+
+            let field = format!("    pub {}: {},", field_name, rust_type);
             if attrs.is_empty() {
                 field
             } else {
@@ -357,6 +387,31 @@ pub fn user_model_template(table_name: &str, struct_name: &str, columns: &[Colum
         .find(|c| c.is_primary_key)
         .map(|c| c.name.as_str())
         .unwrap_or("id");
+
+    // Auto-implement Authenticatable for users table
+    let authenticatable_impl = if table_name == "users" {
+        format!(
+            r#"
+// ============================================================================
+// AUTHENTICATION
+// Auto-implemented Authenticatable trait for users table
+// ============================================================================
+
+impl cancer::auth::Authenticatable for Model {{
+    fn auth_identifier(&self) -> i64 {{
+        self.{pk_field} as i64
+    }}
+
+    fn as_any(&self) -> &dyn std::any::Any {{
+        self
+    }}
+}}
+"#,
+            pk_field = pk_field
+        )
+    } else {
+        String::new()
+    };
 
     format!(
         r#"//! {struct_name} model
@@ -506,7 +561,7 @@ impl {struct_name}Builder {{
 //             .into()
 //     }}
 // }}
-"#,
+{authenticatable_impl}"#,
         struct_name = struct_name,
         table_name = table_name,
         model_setters = model_setters,
@@ -515,6 +570,7 @@ impl {struct_name}Builder {{
         builder_to_active = builder_to_active,
         model_to_active = model_to_active,
         pk_field = pk_field,
+        authenticatable_impl = authenticatable_impl,
     )
 }
 
@@ -628,17 +684,19 @@ fn generate_model_setters(columns: &[ColumnInfo]) -> String {
         .map(|col| {
             let rust_type = sql_type_to_rust_type(col);
             let setter_input_type = get_setter_input_type(&rust_type, col.is_nullable);
+            let field_name = escape_column_name(&col.name);
 
             format!(
                 r#"    /// Set the {} field
-    pub fn set_{field}(mut self, value: {input_type}) -> Self {{
+    pub fn set_{setter_name}(mut self, value: {input_type}) -> Self {{
         self.{field} = {assignment};
         self
     }}
 
 "#,
                 col.name,
-                field = col.name,
+                setter_name = col.name, // Setter uses original name (set_type not set_r#type)
+                field = field_name,     // Field access uses escaped name
                 input_type = setter_input_type,
                 assignment = get_setter_assignment(&rust_type, col.is_nullable),
             )
@@ -654,7 +712,8 @@ fn generate_builder_fields(columns: &[ColumnInfo]) -> String {
         .filter(|c| !c.is_primary_key)
         .map(|col| {
             let rust_type = sql_type_to_rust_type(col);
-            format!("    {}: Option<{}>,", col.name, rust_type)
+            let field_name = escape_column_name(&col.name);
+            format!("    {}: Option<{}>,", field_name, rust_type)
         })
         .collect::<Vec<_>>()
         .join("\n")
@@ -668,17 +727,19 @@ fn generate_builder_setters(columns: &[ColumnInfo]) -> String {
         .map(|col| {
             let rust_type = sql_type_to_rust_type(col);
             let setter_input_type = get_builder_setter_input_type(&rust_type, col.is_nullable);
+            let field_name = escape_column_name(&col.name);
 
             format!(
                 r#"    /// Set the {} field
-    pub fn set_{field}(mut self, value: {input_type}) -> Self {{
+    pub fn set_{setter_name}(mut self, value: {input_type}) -> Self {{
         self.{field} = Some({builder_assignment});
         self
     }}
 
 "#,
                 col.name,
-                field = col.name,
+                setter_name = col.name, // Setter uses original name
+                field = field_name,     // Field access uses escaped name
                 input_type = setter_input_type,
                 builder_assignment = get_builder_setter_assignment(&rust_type, col.is_nullable),
             )
@@ -692,15 +753,16 @@ fn generate_builder_to_active(columns: &[ColumnInfo]) -> String {
     let mut lines = vec!["        ActiveModel {".to_string()];
 
     for col in columns {
+        let field_name = escape_column_name(&col.name);
         if col.is_primary_key {
             lines.push(format!(
                 "            {}: sea_orm::ActiveValue::NotSet,",
-                col.name
+                field_name
             ));
         } else {
             lines.push(format!(
                 "            {field}: self.{field}.map(Set).unwrap_or(sea_orm::ActiveValue::NotSet),",
-                field = col.name
+                field = field_name
             ));
         }
     }
@@ -716,16 +778,17 @@ fn generate_model_to_active(columns: &[ColumnInfo]) -> String {
     for col in columns {
         let rust_type = sql_type_to_rust_type(col);
         let needs_clone = needs_clone_for_type(&rust_type);
+        let field_name = escape_column_name(&col.name);
 
         if needs_clone {
             lines.push(format!(
                 "            {field}: Set(self.{field}.clone()),",
-                field = col.name
+                field = field_name
             ));
         } else {
             lines.push(format!(
                 "            {field}: Set(self.{field}),",
-                field = col.name
+                field = field_name
             ));
         }
     }

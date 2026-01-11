@@ -1,4 +1,4 @@
-//! CSRF protection for Kit framework
+//! CSRF protection for Cancer framework
 //!
 //! Provides Laravel-like CSRF protection using per-session tokens.
 //!

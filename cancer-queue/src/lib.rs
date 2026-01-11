@@ -1,6 +1,6 @@
-//! # Kit Queue
+//! # Cancer Queue
 //!
-//! Background job queue system for the Kit framework.
+//! Background job queue system for the Cancer framework.
 //!
 //! Provides a Laravel-inspired queue system with support for:
 //! - Redis-backed job queues

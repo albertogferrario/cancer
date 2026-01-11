@@ -1,6 +1,6 @@
-# Kit Framework Documentation
+# Cancer Framework Documentation
 
-Welcome to the Kit framework documentation. Kit is a modern, Laravel-inspired web framework for Rust.
+Welcome to the Cancer framework documentation. Cancer is a modern, Laravel-inspired web framework for Rust.
 
 ## Table of Contents
 

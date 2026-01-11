@@ -9,7 +9,7 @@ pub struct HomeProps {
 #[handler]
 pub async fn index(_req: Request) -> Response {
     inertia_response!("Home", HomeProps {
-        title: "Welcome to Kit!".to_string(),
+        title: "Welcome to Cancer!".to_string(),
         message: "Your Inertia + React app is ready.".to_string(),
     })
 }

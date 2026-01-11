@@ -1,4 +1,4 @@
-//! Rate limiting middleware for Kit framework
+//! Rate limiting middleware for Cancer framework
 //!
 //! Provides flexible rate limiting with multiple strategies and configurable limits.
 //!
@@ -153,9 +153,8 @@ impl RateLimitStore {
 
     /// Clean up expired entries (call periodically)
     pub fn cleanup(&self) {
-        self.entries.retain(|_, entry| {
-            entry.window_start.elapsed() < entry.window_duration
-        });
+        self.entries
+            .retain(|_, entry| entry.window_start.elapsed() < entry.window_duration);
     }
 }
 
@@ -508,7 +507,9 @@ mod tests {
         // First 5 requests should be allowed
         for i in 0..5 {
             match store.check("test_key", 10) {
-                RateLimitResult::Allowed { remaining, limit, .. } => {
+                RateLimitResult::Allowed {
+                    remaining, limit, ..
+                } => {
                     assert_eq!(limit, 10);
                     assert_eq!(remaining, 10 - (i + 1));
                 }

@@ -1,4 +1,4 @@
-//! Injectable attribute macro for the Kit framework
+//! Injectable attribute macro for the Cancer framework
 //!
 //! Provides the `#[injectable]` attribute macro that auto-registers
 //! concrete types as singletons in the App container.

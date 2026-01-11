@@ -9,7 +9,8 @@ pub struct McpServer {
 
 impl McpServer {
     pub fn new() -> Self {
-        let project_root = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."));
+        let project_root =
+            std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."));
         Self { project_root }
     }
 

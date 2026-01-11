@@ -83,7 +83,9 @@ impl BroadcastBuilder {
                 .broadcast_except(&self.channel, &event, data, &except)
                 .await
         } else {
-            self.broadcaster.broadcast(&self.channel, &event, data).await
+            self.broadcaster
+                .broadcast(&self.channel, &event, data)
+                .await
         }
     }
 }

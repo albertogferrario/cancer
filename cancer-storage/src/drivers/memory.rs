@@ -134,8 +134,8 @@ impl StorageDriver for MemoryDriver {
             .get(&normalized)
             .ok_or_else(|| Error::not_found(&normalized))?;
 
-        let mut meta = FileMetadata::new(path, file.contents.len() as u64)
-            .with_last_modified(file.created_at);
+        let mut meta =
+            FileMetadata::new(path, file.contents.len() as u64).with_last_modified(file.created_at);
 
         if let Some(ref content_type) = file.content_type {
             meta = meta.with_mime_type(content_type);
@@ -306,7 +306,10 @@ mod tests {
 
         driver.copy("original.txt", "copy.txt").await.unwrap();
 
-        assert_eq!(driver.get("copy.txt").await.unwrap(), Bytes::from("content"));
+        assert_eq!(
+            driver.get("copy.txt").await.unwrap(),
+            Bytes::from("content")
+        );
     }
 
     #[tokio::test]
