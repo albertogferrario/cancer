@@ -18,6 +18,7 @@ mod migrations;
 mod models;
 mod notifications;
 mod routes;
+mod seeders;
 mod tasks;
 
 use migrations::Migrator;
@@ -53,6 +54,13 @@ enum Commands {
     /// Drop all tables and re-run all migrations
     #[command(name = "migrate:fresh")]
     MigrateFresh,
+    /// Run database seeders
+    #[command(name = "db:seed")]
+    DbSeed {
+        /// Run only a specific seeder
+        #[arg(long)]
+        class: Option<String>,
+    },
 }
 
 #[tokio::main]
@@ -84,6 +92,9 @@ async fn main() {
         }
         Some(Commands::MigrateFresh) => {
             fresh_migrations().await;
+        }
+        Some(Commands::DbSeed { class }) => {
+            run_seeders(class).await;
         }
     }
 }
@@ -164,4 +175,21 @@ async fn fresh_migrations() {
         .await
         .expect("Failed to refresh database");
     println!("Database refreshed successfully!");
+}
+
+async fn run_seeders(class: Option<String>) {
+    // Initialize database for seeders
+    cancer::database::DB::init().await.expect("Failed to connect to database");
+
+    let registry = seeders::register();
+
+    let result = match class {
+        Some(name) => registry.run_one(&name).await,
+        None => registry.run_all().await,
+    };
+
+    if let Err(e) = result {
+        eprintln!("Seeding failed: {}", e);
+        std::process::exit(1);
+    }
 }

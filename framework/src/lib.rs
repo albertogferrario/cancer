@@ -12,6 +12,7 @@ pub mod inertia;
 pub mod middleware;
 pub mod routing;
 pub mod schedule;
+pub mod seeder;
 pub mod server;
 pub mod session;
 pub mod testing;
@@ -72,6 +73,7 @@ pub use routing::{
     Router,
 };
 pub use schedule::{CronExpression, DayOfWeek, Schedule, Task, TaskBuilder, TaskEntry, TaskResult};
+pub use seeder::{DatabaseSeeder, Seeder, SeederRegistry};
 pub use server::Server;
 
 // Re-export cancer-events for event-driven architecture

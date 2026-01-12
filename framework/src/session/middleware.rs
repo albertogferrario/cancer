@@ -60,7 +60,9 @@ where
     SESSION_CONTEXT
         .try_with(|ctx| {
             // Use try_write to avoid blocking
-            ctx.try_write().ok().and_then(|mut guard| guard.as_mut().map(f))
+            ctx.try_write()
+                .ok()
+                .and_then(|mut guard| guard.as_mut().map(f))
         })
         .ok()
         .flatten()

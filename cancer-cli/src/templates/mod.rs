@@ -1521,6 +1521,88 @@ See `.ai/guidelines/cancer.md` for detailed framework conventions.
 "#
 }
 
+// ============================================================================
+// Seeder Templates
+// ============================================================================
+
+/// Template for generating new seeder with make:seeder command
+pub fn seeder_template(file_name: &str, struct_name: &str) -> String {
+    format!(
+        r#"//! {struct_name} database seeder
+//!
+//! Created with `cancer make:seeder {file_name}`
+
+use cancer::{{async_trait, FrameworkError, Seeder}};
+
+/// {struct_name} - A database seeder
+///
+/// Seeders populate the database with test or initial data.
+/// Implement the `run` method to insert records.
+///
+/// # Example Registration
+///
+/// ```rust,ignore
+/// // In src/seeders/mod.rs
+/// use cancer::SeederRegistry;
+/// use super::{file_name}::{struct_name};
+///
+/// pub fn register() -> SeederRegistry {{
+///     SeederRegistry::new()
+///         .add::<{struct_name}>()
+/// }}
+/// ```
+#[derive(Default)]
+pub struct {struct_name};
+
+#[async_trait]
+impl Seeder for {struct_name} {{
+    async fn run(&self) -> Result<(), FrameworkError> {{
+        // TODO: Implement seeder logic
+        // Example:
+        // User::create()
+        //     .set_name("Admin")
+        //     .set_email("admin@example.com")
+        //     .insert()
+        //     .await?;
+
+        Ok(())
+    }}
+}}
+"#,
+        file_name = file_name,
+        struct_name = struct_name
+    )
+}
+
+/// Template for seeders/mod.rs
+pub fn seeders_mod() -> &'static str {
+    r#"//! Database seeders
+//!
+//! This module contains seeders that populate the database with test
+//! or initial data.
+//!
+//! # Usage
+//!
+//! Register seeders in the `register()` function and run with:
+//! ```bash
+//! ./target/debug/app db:seed           # Run all seeders
+//! ./target/debug/app db:seed --class UsersSeeder  # Run specific seeder
+//! ```
+
+use cancer::SeederRegistry;
+
+/// Register all seeders
+///
+/// Add your seeders here in the order you want them to run.
+/// Seeders are executed in registration order.
+pub fn register() -> SeederRegistry {
+    SeederRegistry::new()
+        // .add::<UsersSeeder>()
+        // .add::<ProductsSeeder>()
+}
+"#
+}
+
 /// GitHub Copilot instructions
 pub fn copilot_instructions_template() -> &'static str {
     r#"# GitHub Copilot Instructions

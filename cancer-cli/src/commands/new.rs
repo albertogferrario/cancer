@@ -169,6 +169,8 @@ fn create_project(
         .map_err(|e| format!("Failed to create directories: {}", e))?;
     fs::create_dir_all(project_path.join("src/tasks"))
         .map_err(|e| format!("Failed to create directories: {}", e))?;
+    fs::create_dir_all(project_path.join("src/seeders"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
 
     // Storage directories
     fs::create_dir_all(project_path.join("storage/app/public"))
@@ -379,6 +381,13 @@ fn create_project(
         templates::tasks_mod(),
     )
     .map_err(|e| format!("Failed to write src/tasks/mod.rs: {}", e))?;
+
+    // Write src/seeders/mod.rs
+    fs::write(
+        project_path.join("src/seeders/mod.rs"),
+        templates::seeders_mod(),
+    )
+    .map_err(|e| format!("Failed to write src/seeders/mod.rs: {}", e))?;
 
     // Write src/schedule.rs
     fs::write(

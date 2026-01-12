@@ -45,10 +45,7 @@ pub async fn execute(project_root: &Path, session_id: Option<&str>) -> Result<Se
     };
 
     let result = db
-        .query_all(Statement::from_string(
-            db.get_database_backend(),
-            query,
-        ))
+        .query_all(Statement::from_string(db.get_database_backend(), query))
         .await
         .map_err(|e| McpError::DatabaseError(format!("Query failed: {}", e)))?;
 
@@ -60,7 +57,8 @@ pub async fn execute(project_root: &Path, session_id: Option<&str>) -> Result<Se
         let user_id: Option<i64> = row.try_get_by("user_id").ok();
         let ip_address: Option<String> = row.try_get_by("ip_address").ok();
         let user_agent: Option<String> = row.try_get_by("user_agent").ok();
-        let last_activity: String = row.try_get_by::<String, _>("last_activity")
+        let last_activity: String = row
+            .try_get_by::<String, _>("last_activity")
             .unwrap_or_else(|_| "unknown".to_string());
         let payload: String = row.try_get_by("payload").unwrap_or_default();
 

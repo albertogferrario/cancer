@@ -19,6 +19,7 @@
 //! }
 //! ```
 
+use crate::seeder::SeederRegistry;
 use crate::{Config, Router, Server};
 use clap::{Parser, Subcommand};
 use sea_orm_migration::prelude::*;
@@ -68,6 +69,13 @@ enum Commands {
     /// List all registered scheduled tasks
     #[command(name = "schedule:list")]
     ScheduleList,
+    /// Run database seeders
+    #[command(name = "db:seed")]
+    DbSeed {
+        /// Run only a specific seeder
+        #[arg(long)]
+        class: Option<String>,
+    },
 }
 
 /// Application builder for Cancer framework
@@ -80,6 +88,7 @@ where
     config_fn: Option<Box<dyn FnOnce()>>,
     bootstrap_fn: Option<Box<dyn FnOnce() -> Pin<Box<dyn Future<Output = ()> + Send>> + Send>>,
     routes_fn: Option<Box<dyn FnOnce() -> Router + Send>>,
+    seeders_fn: Option<Box<dyn FnOnce() -> SeederRegistry + Send>>,
     _migrator: std::marker::PhantomData<M>,
 }
 
@@ -99,6 +108,7 @@ impl Application<NoMigrator> {
             config_fn: None,
             bootstrap_fn: None,
             routes_fn: None,
+            seeders_fn: None,
             _migrator: std::marker::PhantomData,
         }
     }
@@ -187,8 +197,27 @@ where
             config_fn: self.config_fn,
             bootstrap_fn: self.bootstrap_fn,
             routes_fn: self.routes_fn,
+            seeders_fn: self.seeders_fn,
             _migrator: std::marker::PhantomData,
         }
+    }
+
+    /// Register a seeders function
+    ///
+    /// This function returns the application's seeder registry for database seeding.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// Application::new()
+    ///     .seeders(seeders::register)
+    /// ```
+    pub fn seeders<F>(mut self, f: F) -> Self
+    where
+        F: FnOnce() -> SeederRegistry + Send + 'static,
+    {
+        self.seeders_fn = Some(Box::new(f));
+        self
     }
 
     /// Run the application
@@ -211,6 +240,7 @@ where
             config_fn,
             bootstrap_fn,
             routes_fn,
+            seeders_fn,
             _migrator,
         } = self;
 
@@ -250,6 +280,40 @@ where
             Some(Commands::ScheduleList) => {
                 Self::list_scheduled_tasks().await;
             }
+            Some(Commands::DbSeed { class }) => {
+                Self::run_seeders(seeders_fn, class).await;
+            }
+        }
+    }
+
+    async fn run_seeders(
+        seeders_fn: Option<Box<dyn FnOnce() -> SeederRegistry + Send>>,
+        class: Option<String>,
+    ) {
+        // Initialize database connection for seeders
+        let config = crate::database::DatabaseConfig::from_env();
+        if let Err(e) = crate::database::DB::init_with(config).await {
+            eprintln!("Failed to connect to database: {}", e);
+            std::process::exit(1);
+        }
+
+        let registry = match seeders_fn {
+            Some(f) => f(),
+            None => {
+                eprintln!("No seeders registered.");
+                eprintln!("Register seeders with .seeders(seeders::register) in main.rs");
+                return;
+            }
+        };
+
+        let result = match class {
+            Some(name) => registry.run_one(&name).await,
+            None => registry.run_all().await,
+        };
+
+        if let Err(e) = result {
+            eprintln!("Seeding failed: {}", e);
+            std::process::exit(1);
         }
     }
 
