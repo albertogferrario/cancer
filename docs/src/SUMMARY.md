@@ -24,7 +24,8 @@
 - [Storage](features/storage.md)
 - [Caching](features/caching.md)
 - [Database](features/database.md)
+- [Validation](features/validation.md)
 
 ---
 
-*More documentation coming soon: Validation, Inertia.js, Testing, and CLI Reference.*
+*More documentation coming soon: Inertia.js, Testing, and CLI Reference.*
