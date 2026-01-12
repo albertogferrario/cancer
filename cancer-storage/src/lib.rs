@@ -46,6 +46,7 @@
 //! storage.put("temp/cache.txt", cache_data).await?;
 //! ```
 
+mod config;
 mod drivers;
 mod error;
 mod facade;
@@ -55,6 +56,7 @@ mod storage;
 pub use drivers::S3Driver;
 pub use drivers::{LocalDriver, MemoryDriver};
 
+pub use config::StorageConfig;
 pub use error::Error;
 pub use facade::{Disk, DiskConfig, DiskDriver, Storage};
 pub use storage::{FileMetadata, PutOptions, StorageDriver, Visibility};

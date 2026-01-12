@@ -21,7 +21,8 @@
 - [Queues & Background Jobs](features/queues.md)
 - [Notifications](features/notifications.md)
 - [Broadcasting](features/broadcasting.md)
+- [Storage](features/storage.md)
 
 ---
 
-*More documentation coming soon: Database, Validation, Storage, Caching, Inertia.js, Testing, and CLI Reference.*
+*More documentation coming soon: Database, Validation, Caching, Inertia.js, Testing, and CLI Reference.*

@@ -238,6 +238,7 @@ impl StorageDriver for LocalDriver {
 }
 
 impl LocalDriver {
+    #[allow(clippy::only_used_in_recursion)]
     fn collect_files_recursive<'a>(
         &'a self,
         base: &'a Path,

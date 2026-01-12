@@ -1,5 +1,6 @@
 //! Storage facade for managing multiple disks.
 
+use crate::config::StorageConfig;
 use crate::drivers::{LocalDriver, MemoryDriver};
 use crate::storage::{FileMetadata, PutOptions, StorageDriver};
 use crate::Error;
@@ -136,33 +137,72 @@ impl Storage {
         };
 
         for (name, config) in configs {
-            let driver: Arc<dyn StorageDriver> = match config.driver {
-                DiskDriver::Local => {
-                    let root = config.root.unwrap_or_else(|| "storage".to_string());
-                    let mut driver = LocalDriver::new(root);
-                    if let Some(url) = config.url {
-                        driver = driver.with_url_base(url);
-                    }
-                    Arc::new(driver)
-                }
-                DiskDriver::Memory => {
-                    let mut driver = MemoryDriver::new();
-                    if let Some(url) = config.url {
-                        driver = driver.with_url_base(url);
-                    }
-                    Arc::new(driver)
-                }
-                #[cfg(feature = "s3")]
-                DiskDriver::S3 => {
-                    // S3 driver initialization would go here
-                    unimplemented!("S3 driver requires async initialization")
-                }
-            };
-
+            let driver = Self::create_driver(&config);
             storage.inner.disks.insert(name.to_string(), driver);
         }
 
         storage
+    }
+
+    /// Create storage from a StorageConfig (typically loaded from environment).
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer_storage::{Storage, StorageConfig};
+    ///
+    /// // Load configuration from environment variables
+    /// let config = StorageConfig::from_env();
+    /// let storage = Storage::with_storage_config(config);
+    ///
+    /// // Or use the builder pattern
+    /// let config = StorageConfig::new("local")
+    ///     .disk("local", DiskConfig::local("./storage"))
+    ///     .disk("public", DiskConfig::local("./public").with_url("/storage"));
+    /// let storage = Storage::with_storage_config(config);
+    /// ```
+    pub fn with_storage_config(config: StorageConfig) -> Self {
+        let inner = StorageInner {
+            disks: DashMap::new(),
+            default_disk: config.default,
+        };
+
+        let storage = Self {
+            inner: Arc::new(inner),
+        };
+
+        for (name, disk_config) in config.disks {
+            let driver = Self::create_driver(&disk_config);
+            storage.inner.disks.insert(name, driver);
+        }
+
+        storage
+    }
+
+    /// Create a driver from disk configuration.
+    fn create_driver(config: &DiskConfig) -> Arc<dyn StorageDriver> {
+        match config.driver {
+            DiskDriver::Local => {
+                let root = config.root.clone().unwrap_or_else(|| "storage".to_string());
+                let mut driver = LocalDriver::new(root);
+                if let Some(url) = &config.url {
+                    driver = driver.with_url_base(url);
+                }
+                Arc::new(driver)
+            }
+            DiskDriver::Memory => {
+                let mut driver = MemoryDriver::new();
+                if let Some(url) = &config.url {
+                    driver = driver.with_url_base(url);
+                }
+                Arc::new(driver)
+            }
+            #[cfg(feature = "s3")]
+            DiskDriver::S3 => {
+                // S3 driver initialization would go here
+                unimplemented!("S3 driver requires async initialization")
+            }
+        }
     }
 
     /// Get a specific disk.
