@@ -162,6 +162,7 @@ impl QueueConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     #[test]
     fn test_default_config() {
@@ -191,6 +192,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_from_env_defaults() {
         // Clear any existing env vars
         env::remove_var("QUEUE_DEFAULT");
@@ -211,6 +213,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_from_env_with_redis_url() {
         env::set_var("REDIS_URL", "redis://custom:6380/5");
         let config = QueueConfig::from_env();
@@ -219,6 +222,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_build_redis_url_with_password() {
         env::remove_var("REDIS_URL");
         env::set_var("REDIS_HOST", "redis.example.com");
@@ -236,6 +240,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_is_sync_mode() {
         env::remove_var("QUEUE_CONNECTION");
         assert!(QueueConfig::is_sync_mode()); // default is sync

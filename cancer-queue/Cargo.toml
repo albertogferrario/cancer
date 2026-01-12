@@ -23,3 +23,4 @@ uuid = { version = "1", features = ["v4", "serde"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full", "test-util"] }
+serial_test = "3"
