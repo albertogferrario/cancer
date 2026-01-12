@@ -26,7 +26,8 @@
 - [Database](features/database.md)
 - [Validation](features/validation.md)
 - [Testing](features/testing.md)
+- [Inertia.js](features/inertia.md)
 
 ---
 
-*More documentation coming soon: Inertia.js and CLI Reference.*
+*More documentation coming soon: CLI Reference.*
