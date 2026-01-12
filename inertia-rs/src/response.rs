@@ -177,10 +177,13 @@ impl Inertia {
 
         let response = InertiaResponse::new(component, props_value, url).with_config(config);
 
+        // Extract CSRF token from shared props for HTML response
+        let csrf = shared.and_then(|s| s.csrf.as_deref());
+
         if is_inertia {
             response.to_json_response()
         } else {
-            response.to_html_response(None)
+            response.to_html_response(csrf)
         }
     }
 

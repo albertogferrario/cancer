@@ -48,8 +48,8 @@ pub mod store;
 pub use config::SessionConfig;
 pub use driver::DatabaseSessionDriver;
 pub use middleware::{
-    auth_user_id, clear_auth_user, clear_session, generate_csrf_token, generate_session_id,
-    get_csrf_token, invalidate_session, is_authenticated, regenerate_session_id, session,
-    session_mut, set_auth_user, set_session, take_session, SessionMiddleware,
+    auth_user_id, clear_auth_user, generate_csrf_token, generate_session_id, get_csrf_token,
+    invalidate_session, is_authenticated, regenerate_session_id, session, session_mut,
+    set_auth_user, SessionMiddleware,
 };
 pub use store::{SessionData, SessionStore};
