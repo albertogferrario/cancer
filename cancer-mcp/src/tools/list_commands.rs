@@ -26,7 +26,7 @@ pub fn execute() -> CommandsInfo {
         },
         CommandInfo {
             name: "generate-types".to_string(),
-            description: "Generate TypeScript types from Rust AdriaProps structs".to_string(),
+            description: "Generate TypeScript types from Rust InertiaProps structs".to_string(),
         },
         CommandInfo {
             name: "make:controller".to_string(),
@@ -134,6 +134,10 @@ pub fn execute() -> CommandsInfo {
         CommandInfo {
             name: "mcp".to_string(),
             description: "Start the MCP server for AI assistant integration".to_string(),
+        },
+        CommandInfo {
+            name: "boost:install".to_string(),
+            description: "Install AI development boost features".to_string(),
         },
     ];
 
