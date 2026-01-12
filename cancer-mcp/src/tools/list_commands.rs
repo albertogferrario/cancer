@@ -69,8 +69,18 @@ pub fn execute() -> CommandsInfo {
             description: "Generate a new domain error".to_string(),
         },
         CommandInfo {
-            name: "make:adria".to_string(),
-            description: "Generate a new Adria page".to_string(),
+            name: "make:inertia".to_string(),
+            description: "Generate a new Inertia page".to_string(),
+        },
+        CommandInfo {
+            name: "make:seeder".to_string(),
+            description: "Generate a new database seeder".to_string(),
+        },
+        CommandInfo {
+            name: "make:scaffold".to_string(),
+            description:
+                "Generate a complete scaffold (model, migration, controller, Inertia pages)"
+                    .to_string(),
         },
         CommandInfo {
             name: "migrate".to_string(),

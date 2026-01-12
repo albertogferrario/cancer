@@ -14,6 +14,8 @@ pub mod make_listener;
 pub mod make_middleware;
 pub mod make_migration;
 pub mod make_notification;
+pub mod make_scaffold;
+pub mod make_seeder;
 pub mod make_task;
 pub mod mcp;
 pub mod migrate;

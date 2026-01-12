@@ -63,16 +63,14 @@ impl ModelVisitor {
     fn extract_table_name(&self, attrs: &[Attribute]) -> Option<String> {
         for attr in attrs {
             if attr.path().is_ident("sea_orm") {
-                if let Ok(meta) = attr.parse_args::<syn::Meta>() {
-                    if let syn::Meta::NameValue(nv) = meta {
-                        if nv.path.is_ident("table_name") {
-                            if let syn::Expr::Lit(syn::ExprLit {
-                                lit: syn::Lit::Str(s),
-                                ..
-                            }) = nv.value
-                            {
-                                return Some(s.value());
-                            }
+                if let Ok(syn::Meta::NameValue(nv)) = attr.parse_args::<syn::Meta>() {
+                    if nv.path.is_ident("table_name") {
+                        if let syn::Expr::Lit(syn::ExprLit {
+                            lit: syn::Lit::Str(s),
+                            ..
+                        }) = nv.value
+                        {
+                            return Some(s.value());
                         }
                     }
                 }

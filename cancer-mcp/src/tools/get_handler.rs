@@ -91,8 +91,8 @@ fn extract_handler(
         // Look for #[handler] attribute followed by the function
         if trimmed.starts_with("#[handler") {
             // Check if next non-empty, non-attribute line is our function
-            for j in (i + 1)..lines.len() {
-                let next = lines[j].trim();
+            for next_line in lines.iter().skip(i + 1) {
+                let next = next_line.trim();
                 if next.is_empty() || next.starts_with("#[") {
                     continue;
                 }

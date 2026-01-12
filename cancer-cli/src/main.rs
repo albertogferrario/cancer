@@ -127,6 +127,21 @@ enum Commands {
         /// Name of the task (e.g., CleanupLogs, SendReminders)
         name: String,
     },
+    /// Generate a new database seeder
+    #[command(name = "make:seeder")]
+    MakeSeeder {
+        /// Name of the seeder (e.g., Users, Products)
+        name: String,
+    },
+    /// Generate a complete scaffold (model, migration, controller, views)
+    #[command(name = "make:scaffold")]
+    MakeScaffold {
+        /// Name of the resource (e.g., Post, User)
+        name: String,
+        /// Fields in format field:type (e.g., title:string body:text published:bool)
+        #[arg(trailing_var_arg = true)]
+        fields: Vec<String>,
+    },
     /// Run all pending database migrations
     Migrate,
     /// Rollback the last database migration(s)
@@ -251,6 +266,12 @@ fn main() {
         }
         Commands::MakeTask { name } => {
             commands::make_task::run(name);
+        }
+        Commands::MakeSeeder { name } => {
+            commands::make_seeder::run(name);
+        }
+        Commands::MakeScaffold { name, fields } => {
+            commands::make_scaffold::run(name, fields);
         }
         Commands::Migrate => {
             commands::migrate::run();
