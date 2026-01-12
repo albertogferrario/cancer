@@ -28,6 +28,6 @@
 - [Testing](features/testing.md)
 - [Inertia.js](features/inertia.md)
 
----
+# Reference
 
-*More documentation coming soon: CLI Reference.*
+- [CLI Reference](reference/cli.md)
