@@ -182,6 +182,12 @@ enum Commands {
         #[arg(long)]
         regenerate_models: bool,
     },
+    /// Execute a raw SQL query against the database
+    #[command(name = "db:query")]
+    DbQuery {
+        /// SQL query to execute
+        query: String,
+    },
     /// Generate a production-ready Dockerfile
     #[command(name = "docker:init")]
     DockerInit,
@@ -311,6 +317,9 @@ fn main() {
             regenerate_models,
         } => {
             commands::db_sync::run(skip_migrations, regenerate_models);
+        }
+        Commands::DbQuery { query } => {
+            commands::db_query::run(query);
         }
         Commands::DockerInit => {
             commands::docker_init::run();

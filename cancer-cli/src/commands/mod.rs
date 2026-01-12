@@ -1,4 +1,5 @@
 pub mod boost_install;
+pub mod db_query;
 pub mod db_sync;
 pub mod docker_compose;
 pub mod docker_init;
