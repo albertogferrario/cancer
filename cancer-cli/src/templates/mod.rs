@@ -1751,3 +1751,144 @@ pub fn factories_mod() -> &'static str {
 
 "#
 }
+
+// ============================================================================
+// Authorization Policy Templates
+// ============================================================================
+
+/// Template for generating new policy with make:policy command
+pub fn policy_template(file_name: &str, struct_name: &str, model_name: &str) -> String {
+    format!(
+        r#"//! {struct_name} authorization policy
+//!
+//! Created with `cancer make:policy {file_name}`
+
+use cancer::authorization::{{AuthResponse, Policy}};
+// TODO: Import your model and user types
+// use crate::models::{model_name}::{{self, Model as {model_name}}};
+// use crate::models::users::Model as User;
+
+/// {struct_name} - Authorization policy for {model_name}
+///
+/// This policy defines who can perform actions on {model_name} records.
+///
+/// # Example Usage
+///
+/// ```rust,ignore
+/// use crate::policies::{file_name}::{struct_name};
+///
+/// let policy = {struct_name};
+///
+/// // Check if user can update the model
+/// if policy.update(&user, &model).allowed() {{
+///     // Proceed with update
+/// }}
+///
+/// // Use the check method for string-based ability lookup
+/// let response = policy.check(&user, "update", Some(&model));
+/// ```
+pub struct {struct_name};
+
+impl Policy<{model_name}> for {struct_name} {{
+    type User = User;
+
+    /// Run before any other authorization checks.
+    ///
+    /// Return `Some(true)` to allow, `Some(false)` to deny,
+    /// or `None` to continue to the specific ability check.
+    fn before(&self, user: &Self::User, _ability: &str) -> Option<bool> {{
+        // Example: Admin bypass
+        // if user.is_admin {{
+        //     return Some(true);
+        // }}
+        None
+    }}
+
+    /// Determine whether the user can view any models.
+    fn view_any(&self, _user: &Self::User) -> AuthResponse {{
+        // TODO: Implement authorization logic
+        AuthResponse::allow()
+    }}
+
+    /// Determine whether the user can view the model.
+    fn view(&self, _user: &Self::User, _model: &{model_name}) -> AuthResponse {{
+        // TODO: Implement authorization logic
+        AuthResponse::allow()
+    }}
+
+    /// Determine whether the user can create models.
+    fn create(&self, _user: &Self::User) -> AuthResponse {{
+        // TODO: Implement authorization logic
+        AuthResponse::allow()
+    }}
+
+    /// Determine whether the user can update the model.
+    fn update(&self, user: &Self::User, model: &{model_name}) -> AuthResponse {{
+        // TODO: Implement authorization logic
+        // Example: Only owner can update
+        // if user.auth_identifier() == model.user_id as i64 {{
+        //     AuthResponse::allow()
+        // }} else {{
+        //     AuthResponse::deny("You do not own this resource.")
+        // }}
+        AuthResponse::deny_silent()
+    }}
+
+    /// Determine whether the user can delete the model.
+    fn delete(&self, user: &Self::User, model: &{model_name}) -> AuthResponse {{
+        // Same as update by default
+        self.update(user, model)
+    }}
+
+    /// Determine whether the user can restore the model.
+    fn restore(&self, user: &Self::User, model: &{model_name}) -> AuthResponse {{
+        self.update(user, model)
+    }}
+
+    /// Determine whether the user can permanently delete the model.
+    fn force_delete(&self, user: &Self::User, model: &{model_name}) -> AuthResponse {{
+        // Usually more restrictive than delete
+        self.delete(user, model)
+    }}
+}}
+
+// TODO: Uncomment and define placeholder types until you import the real ones
+// struct {model_name};
+// struct User;
+// impl cancer::auth::Authenticatable for User {{
+//     fn auth_identifier(&self) -> i64 {{ 0 }}
+//     fn as_any(&self) -> &dyn std::any::Any {{ self }}
+// }}
+"#,
+        file_name = file_name,
+        struct_name = struct_name,
+        model_name = model_name
+    )
+}
+
+/// Template for policies/mod.rs
+pub fn policies_mod() -> &'static str {
+    r#"//! Authorization policies
+//!
+//! This module contains policies that define who can perform actions
+//! on specific models or resources.
+//!
+//! # Usage
+//!
+//! ```rust,ignore
+//! use crate::policies::PostPolicy;
+//! use cancer::authorization::Policy;
+//!
+//! let policy = PostPolicy;
+//!
+//! // Check authorization
+//! if policy.update(&user, &post).allowed() {
+//!     // Proceed with update
+//! }
+//!
+//! // Or use the generic check method
+//! let response = policy.check(&user, "update", Some(&post));
+//! ```
+
+"#
+}

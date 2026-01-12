@@ -127,6 +127,15 @@ enum Commands {
         /// Name of the migration (e.g., create_users_table, add_email_to_users)
         name: String,
     },
+    /// Generate a new authorization policy
+    #[command(name = "make:policy")]
+    MakePolicy {
+        /// Name of the policy (e.g., Post, PostPolicy)
+        name: String,
+        /// Model name (defaults to name without "Policy" suffix)
+        #[arg(long, short = 'm')]
+        model: Option<String>,
+    },
     /// Generate a new scheduled task
     #[command(name = "make:task")]
     MakeTask {
@@ -272,6 +281,9 @@ fn main() {
         }
         Commands::MakeMigration { name } => {
             commands::make_migration::run(name);
+        }
+        Commands::MakePolicy { name, model } => {
+            commands::make_policy::run(name, model);
         }
         Commands::MakeTask { name } => {
             commands::make_task::run(name);

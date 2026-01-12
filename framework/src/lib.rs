@@ -1,5 +1,6 @@
 pub mod app;
 pub mod auth;
+pub mod authorization;
 pub mod cache;
 pub mod config;
 pub mod container;
@@ -20,6 +21,7 @@ pub mod validation;
 
 pub use app::Application;
 pub use auth::{Auth, AuthMiddleware, Authenticatable, GuestMiddleware, UserProvider};
+pub use authorization::{AuthResponse, Authorizable, AuthorizationError, Authorize, Gate, Policy};
 pub use cache::{Cache, CacheConfig, CacheStore, InMemoryCache, RedisCache};
 pub use config::{env, env_optional, env_required, AppConfig, Config, Environment, ServerConfig};
 pub use container::{App, Container};
