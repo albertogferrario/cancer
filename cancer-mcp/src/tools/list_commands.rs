@@ -65,6 +65,10 @@ pub fn execute() -> CommandsInfo {
             description: "Generate a new database migration".to_string(),
         },
         CommandInfo {
+            name: "make:policy".to_string(),
+            description: "Generate a new authorization policy".to_string(),
+        },
+        CommandInfo {
             name: "make:task".to_string(),
             description: "Generate a new scheduled task".to_string(),
         },
@@ -105,6 +109,10 @@ pub fn execute() -> CommandsInfo {
         CommandInfo {
             name: "db:sync".to_string(),
             description: "Sync database schema to entity files".to_string(),
+        },
+        CommandInfo {
+            name: "db:query".to_string(),
+            description: "Execute a raw SQL query against the database".to_string(),
         },
         CommandInfo {
             name: "schedule:run".to_string(),

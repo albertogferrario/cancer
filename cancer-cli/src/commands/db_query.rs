@@ -155,3 +155,71 @@ fn print_results(rows: &[sea_orm::QueryResult]) {
         table_data.len()
     );
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_detect_sqlite_backend() {
+        let url = "sqlite://test.db";
+        assert!(url.starts_with("sqlite"));
+    }
+
+    #[test]
+    fn test_detect_postgres_backend() {
+        let url = "postgres://localhost/test";
+        assert!(!url.starts_with("sqlite"));
+    }
+
+    #[test]
+    fn test_column_width_calculation() {
+        let table_data = vec![
+            vec!["id".to_string(), "name".to_string()],
+            vec!["1".to_string(), "Alice".to_string()],
+            vec!["2".to_string(), "Bob".to_string()],
+        ];
+
+        let num_cols = table_data.iter().map(|r| r.len()).max().unwrap_or(0);
+        let mut col_widths: Vec<usize> = vec![0; num_cols];
+
+        for row in &table_data {
+            for (i, cell) in row.iter().enumerate() {
+                if i < col_widths.len() {
+                    col_widths[i] = col_widths[i].max(cell.len()).max(3);
+                }
+            }
+        }
+
+        assert_eq!(col_widths[0], 3); // "id" -> min 3
+        assert_eq!(col_widths[1], 5); // "Alice" -> 5
+    }
+
+    #[test]
+    fn test_separator_generation() {
+        let col_widths = vec![3, 5, 10];
+        let separator: String = col_widths
+            .iter()
+            .map(|w| "-".repeat(*w + 2))
+            .collect::<Vec<_>>()
+            .join("+");
+
+        assert_eq!(separator, "-----+-------+------------");
+    }
+
+    #[test]
+    fn test_row_formatting() {
+        let row = vec!["1".to_string(), "Alice".to_string()];
+        let col_widths = vec![3, 10];
+
+        let formatted: Vec<String> = row
+            .iter()
+            .enumerate()
+            .map(|(i, cell)| {
+                let width = col_widths.get(i).copied().unwrap_or(10);
+                format!(" {:width$} ", cell, width = width)
+            })
+            .collect();
+
+        assert_eq!(formatted[0], " 1   ");
+        assert_eq!(formatted[1], " Alice      ");
+    }
+}

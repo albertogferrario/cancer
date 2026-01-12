@@ -347,10 +347,116 @@ impl CancerMcpService {
 impl ServerHandler for CancerMcpService {
     fn get_info(&self) -> ServerInfo {
         ServerInfo {
-            instructions: Some(
-                "Cancer Framework MCP server. Provides introspection tools for AI-assisted development of Cancer Rust web applications.".to_string()
-            ),
+            instructions: Some(CANCER_MCP_INSTRUCTIONS.to_string()),
             ..Default::default()
         }
     }
 }
+
+/// Detailed instructions for AI agents on how to use Cancer MCP tools effectively.
+const CANCER_MCP_INSTRUCTIONS: &str = r#"
+Cancer Framework MCP server. Provides introspection tools for AI-assisted development of Cancer Rust web applications.
+
+## About Cancer Framework
+
+Cancer is a Laravel-inspired web framework for Rust featuring:
+- SeaORM for database (models in src/models/, migrations in src/migrations/)
+- Inertia.js for full-stack React/TypeScript (frontend in frontend/src/pages/)
+- Background jobs via cancer-queue (jobs in src/jobs/)
+- Event system via cancer-events (events in src/events/, listeners in src/listeners/)
+- Multi-channel notifications (src/notifications/)
+- WebSocket broadcasting (cancer-broadcast)
+- File storage abstraction (cancer-storage)
+- Caching with tags (cancer-cache)
+
+## When to Use These Tools (PROACTIVELY)
+
+**USE application_info FIRST** when starting work on a Cancer project to understand:
+- Framework version and installed crates
+- Available models and their structure
+- Project configuration
+
+**USE list_routes** when:
+- User asks about API endpoints or URLs
+- You need to understand the application structure
+- Debugging routing issues
+- Before adding new routes (to check for conflicts)
+
+**USE list_models** when:
+- Working with database operations
+- User mentions a model name
+- Creating migrations or seeders
+- Understanding data relationships
+
+**USE db_schema** when:
+- You need exact column names and types
+- Debugging database queries
+- Planning migrations
+
+**USE db_query** when:
+- User asks to check data in the database
+- Debugging data issues
+- Verifying migration results
+
+**USE get_handler** when:
+- User asks how a specific endpoint works
+- Debugging controller logic
+- Understanding request/response flow
+
+**USE list_migrations** when:
+- User asks about database state
+- Before creating new migrations
+- Debugging migration order issues
+
+**USE list_events and list_jobs** when:
+- Understanding async workflows
+- Debugging event/listener connections
+- Planning new features
+
+**USE read_logs and last_error** when:
+- User reports an error
+- Debugging runtime issues
+- ALWAYS check logs when something isn't working
+
+**USE session_inspect** when:
+- Debugging authentication issues
+- Session not persisting after login
+- User reports being logged out unexpectedly
+
+**USE get_config** when:
+- Understanding environment configuration
+- Debugging connection issues (database, cache, queue)
+
+**USE search_docs** when:
+- User asks "how do I..." questions
+- Looking up Cancer-specific APIs
+- Finding examples
+
+## Tool Categories
+
+### Introspection (understand the app)
+- application_info: Start here - get overview
+- list_routes: All HTTP endpoints
+- list_models: Database models and fields
+- list_middleware: Request pipeline
+- list_events: Event/listener mappings
+- list_jobs: Background job definitions
+- list_migrations: Database migration status
+
+### Database (query and inspect)
+- db_schema: Table structures
+- db_query: Execute SELECT queries
+- session_inspect: Debug sessions
+
+### Debugging (find problems)
+- read_logs: Application logs
+- last_error: Most recent error
+- browser_logs: Frontend errors
+- get_handler: Handler source code
+
+### Development (generate and configure)
+- generate_types: Create TypeScript types
+- get_config: Read configuration
+- search_docs: Find documentation
+- list_commands: Available CLI commands
+"#;

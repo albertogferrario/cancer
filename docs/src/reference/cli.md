@@ -592,6 +592,47 @@ This command:
 2. Generates SeaORM entity files in `src/models/entities/`
 3. Creates user-friendly model wrappers with the Cancer Model API
 
+### `cancer db:query`
+
+Execute a raw SQL query against the database.
+
+```bash
+# Simple SELECT query
+cancer db:query "SELECT * FROM users LIMIT 5"
+
+# Query with conditions
+cancer db:query "SELECT id, name, email FROM users WHERE active = true"
+
+# Count query
+cancer db:query "SELECT COUNT(*) FROM posts"
+```
+
+**Features:**
+
+- Reads `DATABASE_URL` from `.env` file
+- Supports SQLite and PostgreSQL databases
+- Displays results in a formatted table
+- Handles NULL values gracefully
+- Shows row count after results
+
+**Example Output:**
+
+```
++-----+-------+-------------------+
+| 1   | Alice | alice@example.com |
+| 2   | Bob   | bob@example.com   |
++-----+-------+-------------------+
+
+→ 2 row(s)
+```
+
+**Use Cases:**
+
+- Quick data inspection during development
+- Debugging database state
+- Verifying migration results
+- Ad-hoc queries without external tools
+
 ## Docker Commands
 
 ### `cancer docker:init`
@@ -722,12 +763,14 @@ This sets up configuration for enhanced AI-assisted development workflows.
 | `make:seeder` | Create a database seeder |
 | `make:factory` | Create a model factory |
 | `make:error` | Create a custom error |
+| `make:policy` | Create an authorization policy |
 | `make:scaffold` | Create complete CRUD scaffold |
 | `migrate` | Run migrations |
 | `migrate:rollback` | Rollback migrations |
 | `migrate:status` | Show migration status |
 | `migrate:fresh` | Fresh migrate (drop all) |
 | `db:sync` | Sync database schema |
+| `db:query` | Execute raw SQL query |
 | `docker:init` | Initialize Docker files |
 | `docker:compose` | Manage Docker Compose |
 | `schedule:run` | Run due scheduled tasks |
