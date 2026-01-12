@@ -19,7 +19,8 @@
 
 - [Events & Listeners](features/events.md)
 - [Queues & Background Jobs](features/queues.md)
+- [Notifications](features/notifications.md)
 
 ---
 
-*More documentation coming soon: Database, Validation, Notifications, Broadcasting, Storage, Inertia.js, Testing, and CLI Reference.*
+*More documentation coming soon: Database, Validation, Broadcasting, Storage, Inertia.js, Testing, and CLI Reference.*

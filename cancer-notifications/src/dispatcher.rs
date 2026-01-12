@@ -5,6 +5,7 @@ use crate::channels::{MailMessage, SlackMessage};
 use crate::notifiable::Notifiable;
 use crate::notification::Notification;
 use crate::Error;
+use std::env;
 use std::sync::OnceLock;
 use tracing::{error, info};
 
@@ -12,7 +13,7 @@ use tracing::{error, info};
 static CONFIG: OnceLock<NotificationConfig> = OnceLock::new();
 
 /// Configuration for the notification dispatcher.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct NotificationConfig {
     /// SMTP configuration for mail notifications.
     pub mail: Option<MailConfig>,
@@ -39,12 +40,45 @@ pub struct MailConfig {
     pub tls: bool,
 }
 
-impl Default for NotificationConfig {
-    fn default() -> Self {
+impl NotificationConfig {
+    /// Create a new notification config.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Create configuration from environment variables.
+    ///
+    /// Reads the following environment variables:
+    /// - Mail: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`,
+    ///   `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`, `MAIL_ENCRYPTION`
+    /// - Slack: `SLACK_WEBHOOK_URL`
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer_notifications::NotificationConfig;
+    ///
+    /// // In bootstrap.rs
+    /// let config = NotificationConfig::from_env();
+    /// NotificationDispatcher::configure(config);
+    /// ```
+    pub fn from_env() -> Self {
         Self {
-            mail: None,
-            slack_webhook: None,
+            mail: MailConfig::from_env(),
+            slack_webhook: env::var("SLACK_WEBHOOK_URL").ok().filter(|s| !s.is_empty()),
         }
+    }
+
+    /// Set the mail configuration.
+    pub fn mail(mut self, config: MailConfig) -> Self {
+        self.mail = Some(config);
+        self
+    }
+
+    /// Set the Slack webhook URL.
+    pub fn slack_webhook(mut self, url: impl Into<String>) -> Self {
+        self.slack_webhook = Some(url.into());
+        self
     }
 }
 
@@ -60,6 +94,58 @@ impl MailConfig {
             from_name: None,
             tls: true,
         }
+    }
+
+    /// Create mail configuration from environment variables.
+    ///
+    /// Returns `None` if `MAIL_HOST` is not set.
+    ///
+    /// Reads the following environment variables:
+    /// - `MAIL_HOST`: SMTP server host (required)
+    /// - `MAIL_PORT`: SMTP server port (default: 587)
+    /// - `MAIL_USERNAME`: SMTP username (optional)
+    /// - `MAIL_PASSWORD`: SMTP password (optional)
+    /// - `MAIL_FROM_ADDRESS`: Default from email address (required)
+    /// - `MAIL_FROM_NAME`: Default from name (optional)
+    /// - `MAIL_ENCRYPTION`: "tls" or "none" (default: "tls")
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer_notifications::MailConfig;
+    ///
+    /// if let Some(config) = MailConfig::from_env() {
+    ///     // Mail is configured
+    /// }
+    /// ```
+    pub fn from_env() -> Option<Self> {
+        let host = env::var("MAIL_HOST").ok().filter(|s| !s.is_empty())?;
+        let from = env::var("MAIL_FROM_ADDRESS")
+            .ok()
+            .filter(|s| !s.is_empty())?;
+
+        let port = env::var("MAIL_PORT")
+            .ok()
+            .and_then(|p| p.parse().ok())
+            .unwrap_or(587);
+
+        let username = env::var("MAIL_USERNAME").ok().filter(|s| !s.is_empty());
+        let password = env::var("MAIL_PASSWORD").ok().filter(|s| !s.is_empty());
+        let from_name = env::var("MAIL_FROM_NAME").ok().filter(|s| !s.is_empty());
+
+        let tls = env::var("MAIL_ENCRYPTION")
+            .map(|v| v.to_lowercase() != "none")
+            .unwrap_or(true);
+
+        Some(Self {
+            host,
+            port,
+            username,
+            password,
+            from,
+            from_name,
+            tls,
+        })
     }
 
     /// Set SMTP credentials.
