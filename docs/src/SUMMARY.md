@@ -15,6 +15,11 @@
 - [Controllers](the-basics/controllers.md)
 - [Request & Response](the-basics/request-response.md)
 
+# Features
+
+- [Events & Listeners](features/events.md)
+- [Queues & Background Jobs](features/queues.md)
+
 ---
 
-*More documentation coming soon: Database, Validation, Events, Queues, Notifications, Broadcasting, Storage, Inertia.js, Testing, and CLI Reference.*
+*More documentation coming soon: Database, Validation, Notifications, Broadcasting, Storage, Inertia.js, Testing, and CLI Reference.*
