@@ -6,16 +6,17 @@ use crate::middleware::{Middleware, Next};
 use crate::Request;
 use async_trait::async_trait;
 use rand::Rng;
-use std::cell::RefCell;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
 use super::config::SessionConfig;
 use super::driver::DatabaseSessionDriver;
 use super::store::{SessionData, SessionStore};
 
-// Thread-local session context for storing the current request's session data
-thread_local! {
-    static SESSION_CONTEXT: RefCell<Option<SessionData>> = const { RefCell::new(None) };
+// Task-local session context using tokio's task_local macro
+// This is async-safe unlike thread_local which can lose data across await points
+tokio::task_local! {
+    static SESSION_CONTEXT: Arc<RwLock<Option<SessionData>>>;
 }
 
 /// Get the current session (read-only)
@@ -32,7 +33,13 @@ thread_local! {
 /// }
 /// ```
 pub fn session() -> Option<SessionData> {
-    SESSION_CONTEXT.with(|ctx| ctx.borrow().clone())
+    SESSION_CONTEXT
+        .try_with(|ctx| {
+            // Use try_read to avoid blocking - if locked, return None
+            ctx.try_read().ok().and_then(|guard| guard.clone())
+        })
+        .ok()
+        .flatten()
 }
 
 /// Get the current session and modify it
@@ -50,29 +57,18 @@ pub fn session_mut<F, R>(f: F) -> Option<R>
 where
     F: FnOnce(&mut SessionData) -> R,
 {
-    SESSION_CONTEXT.with(|ctx| {
-        let mut session_opt = ctx.borrow_mut();
-        session_opt.as_mut().map(f)
-    })
-}
-
-/// Set the session context for the current request
-pub fn set_session(session: SessionData) {
-    SESSION_CONTEXT.with(|ctx| {
-        *ctx.borrow_mut() = Some(session);
-    });
-}
-
-/// Clear the session context
-pub fn clear_session() {
-    SESSION_CONTEXT.with(|ctx| {
-        *ctx.borrow_mut() = None;
-    });
+    SESSION_CONTEXT
+        .try_with(|ctx| {
+            // Use try_write to avoid blocking
+            ctx.try_write().ok().and_then(|mut guard| guard.as_mut().map(f))
+        })
+        .ok()
+        .flatten()
 }
 
 /// Take the session out of the context (for saving)
-pub fn take_session() -> Option<SessionData> {
-    SESSION_CONTEXT.with(|ctx| ctx.borrow_mut().take())
+fn take_session_internal(ctx: &Arc<RwLock<Option<SessionData>>>) -> Option<SessionData> {
+    ctx.try_write().ok().and_then(|mut guard| guard.take())
 }
 
 /// Generate a cryptographically secure session ID
@@ -163,14 +159,17 @@ impl Middleware for SessionMiddleware {
         // Age flash data from previous request
         session.age_flash_data();
 
-        // Store session in thread-local context
-        set_session(session);
+        // Create task-local context and store session in it
+        let ctx = Arc::new(RwLock::new(Some(session)));
 
-        // Process the request
-        let response = next(request).await;
+        // Process the request within the task-local scope
+        // This makes session() and session_mut() work correctly across await points
+        let response = SESSION_CONTEXT
+            .scope(ctx.clone(), async { next(request).await })
+            .await;
 
-        // Get the potentially modified session
-        let session = take_session();
+        // Get the potentially modified session from the context
+        let session = take_session_internal(&ctx);
 
         // Save session and add cookie to response
         if let Some(session) = session {

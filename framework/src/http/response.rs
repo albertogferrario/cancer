@@ -63,7 +63,8 @@ impl HttpResponse {
     ///     .cookie(Cookie::new("user_id", "42"));
     /// ```
     pub fn cookie(self, cookie: Cookie) -> Self {
-        self.header("Set-Cookie", cookie.to_header_value())
+        let header_value = cookie.to_header_value();
+        self.header("Set-Cookie", header_value)
     }
 
     /// Wrap this response in Ok() for use as Response type
