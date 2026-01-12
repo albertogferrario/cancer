@@ -6,12 +6,12 @@
 //! - Synchronous listeners
 //! - Asynchronous listeners
 //! - Queued listeners (via `ShouldQueue` marker)
-//! - Automatic listener discovery via inventory
+//! - Ergonomic dispatch API (`.dispatch()` on events)
 //!
 //! ## Example
 //!
 //! ```rust,ignore
-//! use cancer_events::{Event, Listener, dispatch};
+//! use cancer_events::{Event, Listener, Error};
 //!
 //! #[derive(Clone)]
 //! struct UserRegistered {
@@ -29,21 +29,24 @@
 //!
 //! #[async_trait::async_trait]
 //! impl Listener<UserRegistered> for SendWelcomeEmail {
-//!     async fn handle(&self, event: &UserRegistered) -> Result<(), cancer_events::Error> {
+//!     async fn handle(&self, event: &UserRegistered) -> Result<(), Error> {
 //!         println!("Sending welcome email to {}", event.email);
 //!         Ok(())
 //!     }
 //! }
 //!
-//! // Dispatch an event
-//! dispatch(UserRegistered { user_id: 1, email: "test@example.com".into() }).await;
+//! // Dispatch an event (ergonomic Laravel-style API)
+//! UserRegistered { user_id: 1, email: "test@example.com".into() }.dispatch().await?;
+//!
+//! // Or fire and forget (spawns background task)
+//! UserRegistered { user_id: 1, email: "test@example.com".into() }.dispatch_sync();
 //! ```
 
 mod dispatcher;
 mod error;
 mod traits;
 
-pub use dispatcher::{dispatch, dispatch_sync, EventDispatcher};
+pub use dispatcher::{dispatch, dispatch_sync, global_dispatcher, EventDispatcher};
 pub use error::Error;
 pub use traits::{Event, Listener, ShouldQueue};
 

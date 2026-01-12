@@ -41,5 +41,5 @@ mod http;
 pub use crate::container::testing::{TestContainer, TestContainerGuard};
 pub use crate::database::testing::TestDatabase;
 pub use expect::{set_current_test_name, Expect};
-pub use factory::{Factory, FactoryBuilder, Fake, Sequence};
+pub use factory::{DatabaseFactory, Factory, FactoryBuilder, FactoryTraits, Fake, Sequence};
 pub use http::{TestClient, TestRequestBuilder, TestResponse};

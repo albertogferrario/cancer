@@ -27,6 +27,9 @@ use std::any::Any;
 ///         "OrderPlaced"
 ///     }
 /// }
+///
+/// // Dispatch the event (Laravel-style API):
+/// // OrderPlaced { order_id: 1, user_id: 2, total: 99.99 }.dispatch().await?;
 /// ```
 pub trait Event: Clone + Send + Sync + 'static {
     /// Returns the name of the event for logging and debugging.
@@ -38,6 +41,63 @@ pub trait Event: Clone + Send + Sync + 'static {
         Self: Sized,
     {
         self
+    }
+
+    /// Dispatch this event using the global dispatcher.
+    ///
+    /// This is the ergonomic Laravel-style API for dispatching events.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer_events::Event;
+    ///
+    /// #[derive(Clone)]
+    /// struct UserRegistered { user_id: i64 }
+    /// impl Event for UserRegistered {
+    ///     fn name(&self) -> &'static str { "UserRegistered" }
+    /// }
+    ///
+    /// async fn register_user() -> Result<(), cancer_events::Error> {
+    ///     // ... registration logic ...
+    ///     UserRegistered { user_id: 123 }.dispatch().await?;
+    ///     Ok(())
+    /// }
+    /// ```
+    fn dispatch(
+        self,
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), Error>> + Send>>
+    where
+        Self: Sized,
+    {
+        Box::pin(crate::dispatch(self))
+    }
+
+    /// Dispatch this event without waiting (fire and forget).
+    ///
+    /// This spawns the event handling as a background task and returns immediately.
+    /// Useful when you don't need to wait for listeners to complete.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer_events::Event;
+    ///
+    /// #[derive(Clone)]
+    /// struct PageViewed { page: String }
+    /// impl Event for PageViewed {
+    ///     fn name(&self) -> &'static str { "PageViewed" }
+    /// }
+    ///
+    /// fn track_page_view(page: &str) {
+    ///     PageViewed { page: page.to_string() }.dispatch_sync();
+    /// }
+    /// ```
+    fn dispatch_sync(self)
+    where
+        Self: Sized,
+    {
+        crate::dispatch_sync(self)
     }
 }
 
@@ -183,5 +243,82 @@ mod tests {
             message: "test".into(),
         };
         assert_eq!(event.name(), "TestEvent");
+    }
+
+    // Event type for dispatch method test (unique to avoid test interference)
+    #[derive(Clone)]
+    struct DispatchTestEvent {
+        value: u32,
+    }
+
+    impl Event for DispatchTestEvent {
+        fn name(&self) -> &'static str {
+            "DispatchTestEvent"
+        }
+    }
+
+    #[tokio::test]
+    async fn test_event_dispatch_method() {
+        use crate::global_dispatcher;
+        use std::sync::atomic::{AtomicU32, Ordering};
+        use std::sync::Arc;
+
+        let counter = Arc::new(AtomicU32::new(0));
+        let counter_clone = Arc::clone(&counter);
+
+        // Register a listener using the global dispatcher
+        global_dispatcher().on::<DispatchTestEvent, _, _>(move |event| {
+            let counter = Arc::clone(&counter_clone);
+            async move {
+                counter.fetch_add(event.value, Ordering::SeqCst);
+                Ok(())
+            }
+        });
+
+        // Use the new ergonomic dispatch method
+        let event = DispatchTestEvent { value: 42 };
+        let result = event.dispatch().await;
+        assert!(result.is_ok());
+        assert_eq!(counter.load(Ordering::SeqCst), 42);
+    }
+
+    // Event type for dispatch_sync test (unique to avoid test interference)
+    #[derive(Clone)]
+    struct SyncDispatchTestEvent {
+        value: u32,
+    }
+
+    impl Event for SyncDispatchTestEvent {
+        fn name(&self) -> &'static str {
+            "SyncDispatchTestEvent"
+        }
+    }
+
+    #[tokio::test]
+    async fn test_event_dispatch_sync_method() {
+        use crate::global_dispatcher;
+        use std::sync::atomic::{AtomicU32, Ordering};
+        use std::sync::Arc;
+        use tokio::time::{sleep, Duration};
+
+        let counter = Arc::new(AtomicU32::new(0));
+        let counter_clone = Arc::clone(&counter);
+
+        // Register a listener
+        global_dispatcher().on::<SyncDispatchTestEvent, _, _>(move |event| {
+            let counter = Arc::clone(&counter_clone);
+            async move {
+                counter.fetch_add(event.value, Ordering::SeqCst);
+                Ok(())
+            }
+        });
+
+        // Use dispatch_sync (fire and forget)
+        let event = SyncDispatchTestEvent { value: 99 };
+        event.dispatch_sync();
+
+        // Give the background task time to complete
+        sleep(Duration::from_millis(50)).await;
+        assert_eq!(counter.load(Ordering::SeqCst), 99);
     }
 }

@@ -1026,13 +1026,16 @@ use serde::{{Deserialize, Serialize}};
 /// Events represent something that has happened in your application.
 /// Listeners can react to these events asynchronously.
 ///
-/// # Example
+/// # Dispatching
 ///
 /// ```rust,ignore
 /// use crate::events::{file_name}::{struct_name};
 ///
-/// // Dispatch the event
+/// // Ergonomic dispatch (awaits all listeners)
 /// {struct_name} {{ /* fields */ }}.dispatch().await?;
+///
+/// // Fire and forget (spawns background task)
+/// {struct_name} {{ /* fields */ }}.dispatch_sync();
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct {struct_name} {{
@@ -1041,7 +1044,11 @@ pub struct {struct_name} {{
     // pub created_at: chrono::DateTime<chrono::Utc>,
 }}
 
-impl Event for {struct_name} {{}}
+impl Event for {struct_name} {{
+    fn name(&self) -> &'static str {{
+        "{struct_name}"
+    }}
+}}
 "#,
         file_name = file_name,
         struct_name = struct_name
@@ -1646,5 +1653,101 @@ inertia_response!("PageName", { "prop": value })
 - Models use SeaORM with Eloquent-like query builder
 - Frontend pages receive data as Inertia props
 - TypeScript types are auto-generated from Rust structs
+"#
+}
+
+/// Template for generating new factory with make:factory command
+pub fn factory_template(file_name: &str, struct_name: &str, model_name: &str) -> String {
+    format!(
+        r#"//! {struct_name} factory
+//!
+//! Created with `cancer make:factory {file_name}`
+
+use cancer::testing::{{Factory, FactoryTraits, Fake}};
+// use cancer::testing::DatabaseFactory;
+// use crate::models::{model_name};
+
+/// Factory for creating {model_name} instances in tests
+#[derive(Clone)]
+pub struct {struct_name} {{
+    // Add fields matching your model
+    pub id: i32,
+    pub name: String,
+    pub email: String,
+    pub created_at: String,
+}}
+
+impl Factory for {struct_name} {{
+    fn definition() -> Self {{
+        Self {{
+            id: 0, // Will be set by database
+            name: Fake::name(),
+            email: Fake::email(),
+            created_at: Fake::datetime(),
+        }}
+    }}
+
+    fn traits() -> FactoryTraits<Self> {{
+        FactoryTraits::new()
+            // .define("admin", |m: &mut Self| m.role = "admin".to_string())
+            // .define("verified", |m: &mut Self| m.verified = true)
+    }}
+}}
+
+// Uncomment to enable database persistence with create():
+//
+// #[cancer::async_trait]
+// impl DatabaseFactory for {struct_name} {{
+//     type Entity = {model_name}::Entity;
+//     type ActiveModel = {model_name}::ActiveModel;
+// }}
+
+// Usage in tests:
+//
+// // Make without persisting:
+// let model = {struct_name}::factory().make();
+//
+// // Apply named trait:
+// let admin = {struct_name}::factory().trait_("admin").make();
+//
+// // With inline state:
+// let model = {struct_name}::factory()
+//     .state(|m| m.name = "Custom".into())
+//     .make();
+//
+// // Create with database persistence:
+// let model = {struct_name}::factory().create().await?;
+//
+// // Create multiple:
+// let models = {struct_name}::factory().count(5).create_many().await?;
+"#,
+        file_name = file_name,
+        struct_name = struct_name,
+        model_name = model_name
+    )
+}
+
+/// Template for factories/mod.rs
+pub fn factories_mod() -> &'static str {
+    r#"//! Test factories
+//!
+//! This module contains factories for generating fake model data in tests.
+//!
+//! # Usage
+//!
+//! ```rust,ignore
+//! use crate::factories::UserFactory;
+//! use cancer::testing::Factory;
+//!
+//! // Make without persisting
+//! let user = UserFactory::factory().make();
+//!
+//! // Create with database persistence
+//! let user = UserFactory::factory().create().await?;
+//!
+//! // Create multiple
+//! let users = UserFactory::factory().count(5).create_many().await?;
+//! ```
+
 "#
 }

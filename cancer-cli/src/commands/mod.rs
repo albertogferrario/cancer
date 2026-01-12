@@ -8,6 +8,7 @@ pub mod make_action;
 pub mod make_controller;
 pub mod make_error;
 pub mod make_event;
+pub mod make_factory;
 pub mod make_inertia;
 pub mod make_job;
 pub mod make_listener;

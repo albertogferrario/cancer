@@ -45,6 +45,10 @@ pub fn execute() -> CommandsInfo {
             description: "Generate a new domain event".to_string(),
         },
         CommandInfo {
+            name: "make:factory".to_string(),
+            description: "Generate a new test factory".to_string(),
+        },
+        CommandInfo {
             name: "make:listener".to_string(),
             description: "Generate a new event listener".to_string(),
         },

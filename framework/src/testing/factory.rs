@@ -1,8 +1,8 @@
 //! Database factories for generating fake test data
 //!
-//! Provides Laravel-like model factories using the `fake` crate.
+//! Provides Rails/Laravel-like model factories with database persistence.
 //!
-//! # Example
+//! # Basic Usage
 //!
 //! ```rust,ignore
 //! use cancer_rs::testing::{Factory, Fake};
@@ -19,20 +19,111 @@
 //!     }
 //! }
 //!
-//! // Use in tests
+//! // Make without persisting
+//! let user = User::factory().make();
+//!
+//! // Create with database persistence
+//! let user = User::factory().create().await?;
+//!
+//! // Create multiple
+//! let users = User::factory().count(5).create_many().await?;
+//! ```
+//!
+//! # Factory Traits (Named States)
+//!
+//! ```rust,ignore
+//! impl Factory for User {
+//!     fn definition() -> Self { /* ... */ }
+//!
+//!     fn traits() -> FactoryTraits<Self> {
+//!         FactoryTraits::new()
+//!             .define("admin", |u| u.role = "admin".into())
+//!             .define("verified", |u| u.verified_at = Some(Fake::datetime()))
+//!             .define("unverified", |u| u.verified_at = None)
+//!     }
+//! }
+//!
+//! // Use traits
+//! let admin = User::factory().trait_("admin").create().await?;
+//! let verified_admin = User::factory()
+//!     .trait_("admin")
+//!     .trait_("verified")
+//!     .create()
+//!     .await?;
+//! ```
+//!
+//! # Callbacks
+//!
+//! ```rust,ignore
 //! let user = User::factory()
-//!     .state(|u| u.name = "Custom Name".to_string())
+//!     .after_make(|u| println!("Made user: {}", u.name))
+//!     .after_create(|u| {
+//!         // Create related records
+//!         Profile::factory()
+//!             .state(|p| p.user_id = u.id)
+//!             .create()
+//!             .await
+//!     })
+//!     .create()
+//!     .await?;
+//! ```
+//!
+//! # Associations
+//!
+//! Use `set()` for belongs_to relationships:
+//!
+//! ```rust,ignore
+//! // Create a user first, then a post belonging to that user
+//! let user = User::factory().create().await?;
+//!
+//! let post = Post::factory()
+//!     .set(user.id, |p, user_id| p.user_id = user_id)
+//!     .create()
+//!     .await?;
+//!
+//! // Create multiple posts for the same user (has_many)
+//! let posts = Post::factory()
+//!     .count(5)
+//!     .set(user.id, |p, user_id| p.user_id = user_id)
+//!     .create_many()
+//!     .await?;
+//! ```
+//!
+//! Use `after_create` for creating child records:
+//!
+//! ```rust,ignore
+//! let user = User::factory()
+//!     .after_create(|user| async move {
+//!         // Create related profile
+//!         Profile::factory()
+//!             .set(user.id, |p, id| p.user_id = id)
+//!             .create()
+//!             .await?;
+//!         Ok(())
+//!     })
 //!     .create()
 //!     .await?;
 //! ```
 
+use crate::database::DB;
+use crate::error::FrameworkError;
+use async_trait::async_trait;
 use rand::Rng;
-use std::marker::PhantomData;
+use sea_orm::{ActiveModelBehavior, ActiveModelTrait, EntityTrait, IntoActiveModel};
+use std::collections::HashMap;
+use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
 
 /// Trait for models that can be created via factories
-pub trait Factory: Sized {
+pub trait Factory: Sized + Clone + Send + 'static {
     /// Define the default state of the model
     fn definition() -> Self;
+
+    /// Define named traits (states) for this factory
+    fn traits() -> FactoryTraits<Self> {
+        FactoryTraits::new()
+    }
 
     /// Create a factory builder for this model
     fn factory() -> FactoryBuilder<Self> {
@@ -40,11 +131,109 @@ pub trait Factory: Sized {
     }
 }
 
+/// Trait for models that can be persisted to database via factories
+///
+/// Implement this trait for SeaORM entities to enable `create()` and `create_many()`.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use cancer_rs::testing::{Factory, DatabaseFactory, Fake};
+/// use sea_orm::ActiveValue::Set;
+///
+/// impl Factory for user::Model {
+///     fn definition() -> Self {
+///         Self {
+///             id: 0,
+///             name: Fake::name(),
+///             email: Fake::email(),
+///             created_at: chrono::Utc::now().naive_utc(),
+///         }
+///     }
+/// }
+///
+/// impl DatabaseFactory for user::Model {
+///     type Entity = user::Entity;
+///     type ActiveModel = user::ActiveModel;
+///
+///     fn to_active_model(model: Self) -> Self::ActiveModel {
+///         user::ActiveModel {
+///             name: Set(model.name),
+///             email: Set(model.email),
+///             ..Default::default()
+///         }
+///     }
+/// }
+/// ```
+/// Trait for models that can be persisted to database via factories
+///
+/// Implement this trait for SeaORM entities to enable `create()` and `create_many()`.
+#[async_trait]
+pub trait DatabaseFactory: Factory + IntoActiveModel<Self::ActiveModel> {
+    /// The SeaORM entity type
+    type Entity: EntityTrait<Model = Self>;
+    /// The SeaORM active model type
+    type ActiveModel: ActiveModelTrait<Entity = Self::Entity> + ActiveModelBehavior + Send;
+
+    /// Insert a model into the database
+    async fn insert(model: Self) -> Result<Self, FrameworkError>
+    where
+        Self: Sized,
+    {
+        let db = DB::get()?;
+        let active_model: Self::ActiveModel = model.into_active_model();
+        let result = active_model.insert(db.inner()).await.map_err(|e| {
+            FrameworkError::internal(format!("Failed to insert factory model: {}", e))
+        })?;
+        Ok(result)
+    }
+}
+
+/// Collection of named traits (states) for a factory
+pub struct FactoryTraits<T> {
+    traits: HashMap<&'static str, Arc<dyn Fn(&mut T) + Send + Sync>>,
+}
+
+impl<T> FactoryTraits<T> {
+    /// Create a new empty traits collection
+    pub fn new() -> Self {
+        Self {
+            traits: HashMap::new(),
+        }
+    }
+
+    /// Define a named trait
+    pub fn define<F>(mut self, name: &'static str, f: F) -> Self
+    where
+        F: Fn(&mut T) + Send + Sync + 'static,
+    {
+        self.traits.insert(name, Arc::new(f));
+        self
+    }
+
+    /// Get a trait by name
+    pub fn get(&self, name: &str) -> Option<Arc<dyn Fn(&mut T) + Send + Sync>> {
+        self.traits.get(name).cloned()
+    }
+}
+
+impl<T> Default for FactoryTraits<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Type alias for async after_create callbacks
+type AfterCreateCallback<T> =
+    Box<dyn Fn(T) -> Pin<Box<dyn Future<Output = Result<(), FrameworkError>> + Send>> + Send>;
+
 /// Builder for creating model instances with customizations
 pub struct FactoryBuilder<T: Factory> {
     count: usize,
-    states: Vec<Box<dyn FnOnce(&mut T)>>,
-    _marker: PhantomData<T>,
+    states: Vec<Arc<dyn Fn(&mut T) + Send + Sync>>,
+    trait_names: Vec<&'static str>,
+    after_make_callbacks: Vec<Arc<dyn Fn(&T) + Send + Sync>>,
+    after_create_callbacks: Vec<AfterCreateCallback<T>>,
 }
 
 impl<T: Factory> FactoryBuilder<T> {
@@ -53,7 +242,9 @@ impl<T: Factory> FactoryBuilder<T> {
         Self {
             count: 1,
             states: Vec::new(),
-            _marker: PhantomData,
+            trait_names: Vec::new(),
+            after_make_callbacks: Vec::new(),
+            after_create_callbacks: Vec::new(),
         }
     }
 
@@ -66,28 +257,159 @@ impl<T: Factory> FactoryBuilder<T> {
     /// Apply a state transformation to the model
     pub fn state<F>(mut self, f: F) -> Self
     where
-        F: FnOnce(&mut T) + 'static,
+        F: Fn(&mut T) + Send + Sync + 'static,
     {
-        self.states.push(Box::new(f));
+        self.states.push(Arc::new(f));
+        self
+    }
+
+    /// Set a field value using a setter function
+    ///
+    /// This is useful for setting foreign keys when creating associated models.
+    /// The value is cloned for each model when creating multiple instances.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // Create a user first, then create posts belonging to that user
+    /// let user = User::factory().create().await?;
+    ///
+    /// let post = Post::factory()
+    ///     .set(user.id, |p, user_id| p.user_id = user_id)
+    ///     .create()
+    ///     .await?;
+    ///
+    /// // Create multiple posts for the same user
+    /// let posts = Post::factory()
+    ///     .count(5)
+    ///     .set(user.id, |p, user_id| p.user_id = user_id)
+    ///     .create_many()
+    ///     .await?;
+    /// ```
+    pub fn set<V, F>(mut self, value: V, setter: F) -> Self
+    where
+        V: Clone + Send + Sync + 'static,
+        F: Fn(&mut T, V) + Send + Sync + 'static,
+    {
+        self.states
+            .push(Arc::new(move |m| setter(m, value.clone())));
+        self
+    }
+
+    /// Apply a named trait (state) defined in the Factory
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let admin = User::factory()
+    ///     .trait_("admin")
+    ///     .trait_("verified")
+    ///     .create()
+    ///     .await?;
+    /// ```
+    pub fn trait_(mut self, name: &'static str) -> Self {
+        self.trait_names.push(name);
+        self
+    }
+
+    /// Add a callback to run after making (but before persisting)
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let user = User::factory()
+    ///     .after_make(|u| println!("Made user: {}", u.name))
+    ///     .create()
+    ///     .await?;
+    /// ```
+    pub fn after_make<F>(mut self, f: F) -> Self
+    where
+        F: Fn(&T) + Send + Sync + 'static,
+    {
+        self.after_make_callbacks.push(Arc::new(f));
+        self
+    }
+
+    /// Add an async callback to run after creating (persisting to database)
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let user = User::factory()
+    ///     .after_create(|u| async move {
+    ///         // Create related records
+    ///         Profile::factory()
+    ///             .state(|p| p.user_id = u.id)
+    ///             .create()
+    ///             .await?;
+    ///         Ok(())
+    ///     })
+    ///     .create()
+    ///     .await?;
+    /// ```
+    pub fn after_create<F, Fut>(mut self, f: F) -> Self
+    where
+        F: Fn(T) -> Fut + Send + 'static,
+        Fut: Future<Output = Result<(), FrameworkError>> + Send + 'static,
+        T: Clone,
+    {
+        self.after_create_callbacks
+            .push(Box::new(move |model: T| Box::pin(f(model))));
         self
     }
 
     /// Build a single model instance without persisting
     pub fn make(self) -> T {
         let mut instance = T::definition();
-        for state in self.states {
+
+        // Apply named traits
+        let traits = T::traits();
+        for trait_name in &self.trait_names {
+            if let Some(trait_fn) = traits.get(trait_name) {
+                trait_fn(&mut instance);
+            }
+        }
+
+        // Apply inline states
+        for state in &self.states {
             state(&mut instance);
         }
+
+        // Run after_make callbacks
+        for callback in &self.after_make_callbacks {
+            callback(&instance);
+        }
+
         instance
     }
 
     /// Build multiple model instances without persisting
     pub fn make_many(self) -> Vec<T> {
         let count = self.count;
+        let traits = T::traits();
+
         (0..count)
             .map(|_| {
-                let builder = FactoryBuilder::<T>::new();
-                builder.make()
+                let mut instance = T::definition();
+
+                // Apply named traits
+                for trait_name in &self.trait_names {
+                    if let Some(trait_fn) = traits.get(trait_name) {
+                        trait_fn(&mut instance);
+                    }
+                }
+
+                // Apply inline states
+                for state in &self.states {
+                    state(&mut instance);
+                }
+
+                // Run after_make callbacks
+                for callback in &self.after_make_callbacks {
+                    callback(&instance);
+                }
+
+                instance
             })
             .collect()
     }
@@ -96,6 +418,102 @@ impl<T: Factory> FactoryBuilder<T> {
 impl<T: Factory> Default for FactoryBuilder<T> {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+// Database persistence methods (only available when T: DatabaseFactory)
+impl<T: DatabaseFactory> FactoryBuilder<T> {
+    /// Create a single model instance and persist to database
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let user = User::factory()
+    ///     .state(|u| u.name = "John".into())
+    ///     .create()
+    ///     .await?;
+    /// ```
+    pub async fn create(self) -> Result<T, FrameworkError> {
+        let mut instance = T::definition();
+        let traits = T::traits();
+
+        // Apply named traits
+        for trait_name in &self.trait_names {
+            if let Some(trait_fn) = traits.get(trait_name) {
+                trait_fn(&mut instance);
+            }
+        }
+
+        // Apply inline states
+        for state in &self.states {
+            state(&mut instance);
+        }
+
+        // Run after_make callbacks
+        for callback in &self.after_make_callbacks {
+            callback(&instance);
+        }
+
+        // Insert into database
+        let created = T::insert(instance).await?;
+
+        // Run after_create callbacks
+        for callback in &self.after_create_callbacks {
+            callback(created.clone()).await?;
+        }
+
+        Ok(created)
+    }
+
+    /// Create multiple model instances and persist to database
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let users = User::factory()
+    ///     .count(5)
+    ///     .create_many()
+    ///     .await?;
+    /// ```
+    pub async fn create_many(self) -> Result<Vec<T>, FrameworkError> {
+        let count = self.count;
+        let after_create_callbacks = self.after_create_callbacks;
+        let traits = T::traits();
+
+        let mut results = Vec::with_capacity(count);
+
+        for _ in 0..count {
+            let mut instance = T::definition();
+
+            // Apply named traits
+            for trait_name in &self.trait_names {
+                if let Some(trait_fn) = traits.get(trait_name) {
+                    trait_fn(&mut instance);
+                }
+            }
+
+            // Apply inline states
+            for state in &self.states {
+                state(&mut instance);
+            }
+
+            // Run after_make callbacks
+            for callback in &self.after_make_callbacks {
+                callback(&instance);
+            }
+
+            // Insert into database
+            let created = T::insert(instance).await?;
+
+            // Run after_create callbacks
+            for callback in &after_create_callbacks {
+                callback(created.clone()).await?;
+            }
+
+            results.push(created);
+        }
+
+        Ok(results)
     }
 }
 
@@ -739,10 +1157,13 @@ mod tests {
     }
 
     // Test factory pattern with a simple struct
+    #[derive(Clone)]
     struct TestModel {
         id: i32,
         name: String,
         email: String,
+        role: String,
+        verified: bool,
     }
 
     impl Factory for TestModel {
@@ -751,7 +1172,15 @@ mod tests {
                 id: Fake::number(1, 1000) as i32,
                 name: Fake::name(),
                 email: Fake::email(),
+                role: "user".to_string(),
+                verified: false,
             }
+        }
+
+        fn traits() -> FactoryTraits<Self> {
+            FactoryTraits::new()
+                .define("admin", |m: &mut Self| m.role = "admin".to_string())
+                .define("verified", |m: &mut Self| m.verified = true)
         }
     }
 
@@ -774,5 +1203,72 @@ mod tests {
     fn test_factory_make_many() {
         let models = TestModel::factory().count(5).make_many();
         assert_eq!(models.len(), 5);
+    }
+
+    #[test]
+    fn test_factory_with_trait() {
+        let admin = TestModel::factory().trait_("admin").make();
+        assert_eq!(admin.role, "admin");
+    }
+
+    #[test]
+    fn test_factory_with_multiple_traits() {
+        let verified_admin = TestModel::factory()
+            .trait_("admin")
+            .trait_("verified")
+            .make();
+        assert_eq!(verified_admin.role, "admin");
+        assert!(verified_admin.verified);
+    }
+
+    #[test]
+    fn test_factory_trait_with_state_override() {
+        let model = TestModel::factory()
+            .trait_("admin")
+            .state(|m| m.role = "superadmin".to_string())
+            .make();
+        // State should override trait
+        assert_eq!(model.role, "superadmin");
+    }
+
+    #[test]
+    fn test_factory_after_make_callback() {
+        use std::sync::atomic::{AtomicBool, Ordering};
+        use std::sync::Arc;
+
+        let callback_ran = Arc::new(AtomicBool::new(false));
+        let callback_ran_clone = callback_ran.clone();
+
+        let _model = TestModel::factory()
+            .after_make(move |_| {
+                callback_ran_clone.store(true, Ordering::SeqCst);
+            })
+            .make();
+
+        assert!(callback_ran.load(Ordering::SeqCst));
+    }
+
+    #[test]
+    fn test_factory_set_value() {
+        // Test set() for foreign key style associations
+        let parent_id = 42;
+
+        let model = TestModel::factory()
+            .set(parent_id, |m, id| m.id = id)
+            .make();
+
+        assert_eq!(model.id, 42);
+    }
+
+    #[test]
+    fn test_factory_set_multiple_values() {
+        // Test multiple set() calls
+        let model = TestModel::factory()
+            .set(99, |m, id| m.id = id)
+            .set("Manager".to_string(), |m, role| m.role = role)
+            .make();
+
+        assert_eq!(model.id, 99);
+        assert_eq!(model.role, "Manager");
     }
 }

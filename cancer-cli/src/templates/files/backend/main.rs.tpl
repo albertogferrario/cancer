@@ -11,6 +11,7 @@ mod bootstrap;
 mod config;
 mod controllers;
 mod events;
+mod factories;
 mod jobs;
 mod listeners;
 mod middleware;

@@ -19,7 +19,7 @@
 //!     global_middleware!(middleware::LoggingMiddleware);
 //!
 //!     // Event listeners
-//!     register_listeners(&mut App::event_dispatcher());
+//!     register_listeners(App::event_dispatcher());
 //!
 //!     // Services
 //!     bind!(dyn Database, PostgresDB::new());
@@ -114,9 +114,16 @@ pub async fn register() {
 ///
 /// Called during bootstrap to wire up event listeners.
 #[allow(dead_code)]
-fn register_listeners(_dispatcher: &mut EventDispatcher) {
+fn register_listeners(dispatcher: &EventDispatcher) {
     // Register your event listeners here
     // Example:
     // dispatcher.listen::<events::UserRegistered, _>(listeners::SendWelcomeEmail);
     // dispatcher.listen::<events::UserRegistered, _>(listeners::CreateUserProfile);
+    //
+    // You can also use closure listeners:
+    // dispatcher.on::<events::UserRegistered, _, _>(|event| async move {
+    //     println!("User {} registered!", event.user_id);
+    //     Ok(())
+    // });
+    let _ = dispatcher; // Silence unused warning
 }

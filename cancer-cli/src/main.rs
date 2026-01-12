@@ -94,6 +94,12 @@ enum Commands {
         /// Name of the event (e.g., UserRegistered, OrderPlaced)
         name: String,
     },
+    /// Generate a new test factory
+    #[command(name = "make:factory")]
+    MakeFactory {
+        /// Name of the factory (e.g., User, Post)
+        name: String,
+    },
     /// Generate a new event listener
     #[command(name = "make:listener")]
     MakeListener {
@@ -251,6 +257,9 @@ fn main() {
         }
         Commands::MakeEvent { name } => {
             commands::make_event::run(name);
+        }
+        Commands::MakeFactory { name } => {
+            commands::make_factory::run(name);
         }
         Commands::MakeListener { name, event } => {
             commands::make_listener::run(name, event);
