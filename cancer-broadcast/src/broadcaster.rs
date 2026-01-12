@@ -1,6 +1,7 @@
 //! The main broadcaster for managing channels and sending messages.
 
 use crate::channel::{ChannelInfo, ChannelType, PresenceMember};
+use crate::config::BroadcastConfig;
 use crate::message::{BroadcastMessage, ServerMessage};
 use crate::Error;
 use dashmap::DashMap;
@@ -27,6 +28,8 @@ struct BroadcasterInner {
     channels: DashMap<String, ChannelInfo>,
     /// Optional authorization callback.
     authorizer: Option<Arc<dyn ChannelAuthorizer>>,
+    /// Configuration.
+    config: BroadcastConfig,
 }
 
 /// The broadcaster manages channels and client connections.
@@ -36,13 +39,19 @@ pub struct Broadcaster {
 }
 
 impl Broadcaster {
-    /// Create a new broadcaster.
+    /// Create a new broadcaster with default configuration.
     pub fn new() -> Self {
+        Self::with_config(BroadcastConfig::default())
+    }
+
+    /// Create a new broadcaster with the given configuration.
+    pub fn with_config(config: BroadcastConfig) -> Self {
         Self {
             inner: Arc::new(BroadcasterInner {
                 clients: DashMap::new(),
                 channels: DashMap::new(),
                 authorizer: None,
+                config,
             }),
         }
     }
@@ -54,8 +63,14 @@ impl Broadcaster {
                 clients: DashMap::new(),
                 channels: DashMap::new(),
                 authorizer: Some(Arc::new(authorizer)),
+                config: self.inner.config.clone(),
             }),
         }
+    }
+
+    /// Get the configuration.
+    pub fn config(&self) -> &BroadcastConfig {
+        &self.inner.config
     }
 
     /// Register a new client connection.
@@ -92,6 +107,16 @@ impl Broadcaster {
         member_info: Option<PresenceMember>,
     ) -> Result<(), Error> {
         let channel_type = ChannelType::from_name(channel_name);
+        let config = &self.inner.config;
+
+        // Check max channels limit
+        if config.max_channels > 0
+            && !self.inner.channels.contains_key(channel_name)
+            && self.inner.channels.len() >= config.max_channels
+        {
+            warn!(channel = %channel_name, max = config.max_channels, "Max channels limit reached");
+            return Err(Error::ChannelFull);
+        }
 
         // Check authorization for private/presence channels
         if channel_type.requires_auth() {
@@ -116,6 +141,18 @@ impl Broadcaster {
             .channels
             .entry(channel_name.to_string())
             .or_insert_with(|| ChannelInfo::new(channel_name));
+
+        // Check max subscribers limit
+        if config.max_subscribers_per_channel > 0
+            && channel.subscriber_count() >= config.max_subscribers_per_channel
+        {
+            warn!(
+                channel = %channel_name,
+                max = config.max_subscribers_per_channel,
+                "Max subscribers per channel limit reached"
+            );
+            return Err(Error::ChannelFull);
+        }
 
         // Add subscriber
         channel.add_subscriber(socket_id.to_string());

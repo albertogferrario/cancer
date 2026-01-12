@@ -53,12 +53,14 @@
 mod broadcast;
 mod broadcaster;
 mod channel;
+mod config;
 mod error;
 mod message;
 
 pub use broadcast::{Broadcast, BroadcastBuilder};
 pub use broadcaster::{AuthData, Broadcaster, ChannelAuthorizer, Client};
 pub use channel::{ChannelInfo, ChannelType, PresenceMember};
+pub use config::BroadcastConfig;
 pub use error::Error;
 pub use message::{BroadcastMessage, ClientMessage, ServerMessage};
 
