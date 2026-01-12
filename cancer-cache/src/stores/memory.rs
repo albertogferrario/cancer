@@ -91,7 +91,7 @@ impl CacheStore for MemoryStore {
     async fn tag_add(&self, tag: &str, key: &str) -> Result<(), Error> {
         self.tags
             .entry(tag.to_string())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(key.to_string());
         Ok(())
     }

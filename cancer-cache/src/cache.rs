@@ -4,6 +4,7 @@ use crate::error::Error;
 use crate::tagged::TaggedCache;
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
+use std::env;
 use std::future::Future;
 use std::sync::Arc;
 use std::time::Duration;
@@ -30,6 +31,30 @@ impl CacheConfig {
     /// Create a new cache config.
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Create configuration from environment variables.
+    ///
+    /// Reads the following environment variables:
+    /// - `CACHE_PREFIX`: Key prefix for all cache entries (default: "")
+    /// - `CACHE_TTL`: Default TTL in seconds (default: 3600)
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer_cache::CacheConfig;
+    ///
+    /// let config = CacheConfig::from_env();
+    /// ```
+    pub fn from_env() -> Self {
+        let prefix = env::var("CACHE_PREFIX").unwrap_or_default();
+        let default_ttl = env::var("CACHE_TTL")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .map(Duration::from_secs)
+            .unwrap_or_else(|| Duration::from_secs(3600));
+
+        Self { default_ttl, prefix }
     }
 
     /// Set default TTL.
@@ -111,6 +136,47 @@ impl Cache {
     pub async fn redis(url: &str) -> Result<Self, Error> {
         let store = crate::stores::RedisStore::new(url).await?;
         Ok(Self::new(Arc::new(store)))
+    }
+
+    /// Create a cache from environment variables.
+    ///
+    /// Reads the following environment variables:
+    /// - `CACHE_DRIVER`: Cache driver ("memory" or "redis", default: "memory")
+    /// - `CACHE_PREFIX`: Key prefix for all cache entries (default: "")
+    /// - `CACHE_TTL`: Default TTL in seconds (default: 3600)
+    /// - `CACHE_MEMORY_CAPACITY`: Max entries for memory store (default: 10000)
+    /// - `REDIS_URL`: Redis connection URL (required if CACHE_DRIVER=redis)
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer_cache::Cache;
+    ///
+    /// let cache = Cache::from_env().await?;
+    /// ```
+    #[cfg(feature = "memory")]
+    pub async fn from_env() -> Result<Self, Error> {
+        let driver = env::var("CACHE_DRIVER").unwrap_or_else(|_| "memory".to_string());
+        let config = CacheConfig::from_env();
+
+        let store: Arc<dyn CacheStore> = match driver.as_str() {
+            #[cfg(feature = "redis-backend")]
+            "redis" => {
+                let url = env::var("REDIS_URL")
+                    .unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
+                Arc::new(crate::stores::RedisStore::new(&url).await?)
+            }
+            _ => {
+                // Default to memory
+                let capacity = env::var("CACHE_MEMORY_CAPACITY")
+                    .ok()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(10_000);
+                Arc::new(crate::stores::MemoryStore::with_capacity(capacity))
+            }
+        };
+
+        Ok(Self::with_config(store, config))
     }
 
     /// Get a prefixed key.

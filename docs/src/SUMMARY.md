@@ -22,7 +22,8 @@
 - [Notifications](features/notifications.md)
 - [Broadcasting](features/broadcasting.md)
 - [Storage](features/storage.md)
+- [Caching](features/caching.md)
 
 ---
 
-*More documentation coming soon: Database, Validation, Caching, Inertia.js, Testing, and CLI Reference.*
+*More documentation coming soon: Database, Validation, Inertia.js, Testing, and CLI Reference.*
