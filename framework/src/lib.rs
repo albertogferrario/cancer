@@ -180,6 +180,7 @@ pub use cancer_macros::injectable;
 pub use cancer_macros::redirect;
 pub use cancer_macros::request;
 pub use cancer_macros::service;
+pub use cancer_macros::CancerModel;
 pub use cancer_macros::FormRequest as FormRequestDerive;
 pub use cancer_macros::InertiaProps;
 

@@ -29,6 +29,8 @@
 pub mod provider;
 pub mod testing;
 
+pub use provider::{get_registered_services, ServiceBindingType, ServiceInfo};
+
 use std::any::{Any, TypeId};
 use std::cell::RefCell;
 use std::collections::HashMap;

@@ -92,6 +92,40 @@ pub struct SessionInspectParams {
     pub session_id: Option<String>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct CacheInspectParams {
+    /// Optional key pattern to filter (e.g., "user:*")
+    pub key_pattern: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct JobHistoryParams {
+    /// Optional queue name to filter
+    pub queue: Option<String>,
+    /// Maximum number of jobs to return (default: 50)
+    pub limit: Option<usize>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct GetMiddlewareParams {
+    /// Middleware name (e.g., "auth", "AuthMiddleware")
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct TestRouteParams {
+    /// HTTP method (GET, POST, PUT, DELETE, etc.)
+    pub method: String,
+    /// Route path (e.g., "/api/users")
+    pub path: String,
+    /// Optional request headers as JSON object
+    pub headers: Option<std::collections::HashMap<String, String>>,
+    /// Optional request body (JSON string)
+    pub body: Option<String>,
+    /// Whether to follow redirects (default: false)
+    pub follow_redirects: Option<bool>,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -202,6 +236,20 @@ impl CancerMcpService {
         match tools::list_middleware::execute(&self.project_root) {
             Ok(middleware) => {
                 serde_json::to_string_pretty(&middleware).unwrap_or_else(|_| "[]".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// List all registered DI container services
+    #[tool(
+        name = "list_services",
+        description = "List all registered DI container services (singletons and trait bindings)"
+    )]
+    pub async fn list_services(&self) -> String {
+        match tools::list_services::execute(&self.project_root) {
+            Ok(services) => {
+                serde_json::to_string_pretty(&services).unwrap_or_else(|_| "[]".to_string())
             }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
@@ -341,6 +389,87 @@ impl CancerMcpService {
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
+
+    /// Get a map of all foreign key relationships between database tables
+    #[tool(
+        name = "relation_map",
+        description = "Get a map of all foreign key relationships between database tables. Shows which tables reference which, useful for understanding data model and planning queries."
+    )]
+    pub async fn relation_map(&self) -> String {
+        match tools::relation_map::execute(&self.project_root).await {
+            Ok(relations) => {
+                serde_json::to_string_pretty(&relations).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Inspect cache entries, keys, and statistics
+    #[tool(
+        name = "cache_inspect",
+        description = "Inspect cache entries, keys, values, TTL, and statistics. Supports file and Redis cache drivers. Useful for debugging caching issues."
+    )]
+    pub async fn cache_inspect(&self, params: Parameters<CacheInspectParams>) -> String {
+        match tools::cache_inspect::execute(&self.project_root, params.0.key_pattern.as_deref()) {
+            Ok(cache) => serde_json::to_string_pretty(&cache).unwrap_or_else(|_| "{}".to_string()),
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// View background job execution history
+    #[tool(
+        name = "job_history",
+        description = "View pending and failed background jobs. Shows job types, payloads, attempts, and failure reasons. Useful for debugging async job issues."
+    )]
+    pub async fn job_history(&self, params: Parameters<JobHistoryParams>) -> String {
+        match tools::job_history::execute(
+            &self.project_root,
+            params.0.queue.as_deref(),
+            params.0.limit,
+        )
+        .await
+        {
+            Ok(history) => {
+                serde_json::to_string_pretty(&history).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Get the source code of a middleware
+    #[tool(
+        name = "get_middleware",
+        description = "Get the source code of a middleware by name. Shows the handle method, dependencies, and full implementation. Works for both custom and built-in middleware."
+    )]
+    pub async fn get_middleware(&self, params: Parameters<GetMiddlewareParams>) -> String {
+        match tools::get_middleware::execute(&self.project_root, &params.0.name) {
+            Ok(middleware) => {
+                serde_json::to_string_pretty(&middleware).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Test a route by simulating an HTTP request
+    #[tool(
+        name = "test_route",
+        description = "Test a route by simulating an HTTP request. Shows the response status, headers, body, and timing. Useful for debugging endpoints without browser."
+    )]
+    pub async fn test_route(&self, params: Parameters<TestRouteParams>) -> String {
+        let test_params = tools::test_route::TestRouteParams {
+            method: params.0.method,
+            path: params.0.path,
+            headers: params.0.headers,
+            body: params.0.body,
+            follow_redirects: params.0.follow_redirects,
+        };
+        match tools::test_route::execute(&self.project_root, test_params).await {
+            Ok(result) => {
+                serde_json::to_string_pretty(&result).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
 }
 
 #[tool_handler(router = self.tool_router)]
@@ -348,6 +477,9 @@ impl ServerHandler for CancerMcpService {
     fn get_info(&self) -> ServerInfo {
         ServerInfo {
             instructions: Some(CANCER_MCP_INSTRUCTIONS.to_string()),
+            capabilities: rmcp::model::ServerCapabilities::builder()
+                .enable_tools()
+                .build(),
             ..Default::default()
         }
     }
@@ -446,6 +578,7 @@ Cancer is a Laravel-inspired web framework for Rust featuring:
 ### Database (query and inspect)
 - db_schema: Table structures
 - db_query: Execute SELECT queries
+- relation_map: FK relationships between tables
 - session_inspect: Debug sessions
 
 ### Debugging (find problems)
@@ -453,6 +586,12 @@ Cancer is a Laravel-inspired web framework for Rust featuring:
 - last_error: Most recent error
 - browser_logs: Frontend errors
 - get_handler: Handler source code
+- get_middleware: Middleware source code
+- test_route: Simulate HTTP request
+
+### Background Jobs & Cache
+- job_history: Pending and failed jobs
+- cache_inspect: Cache entries and stats
 
 ### Development (generate and configure)
 - generate_types: Create TypeScript types

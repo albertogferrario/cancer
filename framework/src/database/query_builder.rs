@@ -24,11 +24,19 @@
 //!     .offset(20)
 //!     .all()
 //!     .await?;
+//!
+//! // With eager loading (avoids N+1)
+//! let (animals, shelters) = Animal::query()
+//!     .all_with(|animals| async {
+//!         Shelter::batch_load(animals.iter().map(|a| a.shelter_id)).await
+//!     })
+//!     .await?;
 //! ```
 
 use sea_orm::{
     ColumnTrait, EntityTrait, Order, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, Select,
 };
+use std::future::Future;
 
 use crate::database::DB;
 use crate::error::FrameworkError;
@@ -264,6 +272,101 @@ where
     /// ```
     pub fn into_select(self) -> Select<E> {
         self.select
+    }
+
+    /// Execute query and load related entities in a single operation
+    ///
+    /// This method helps avoid N+1 queries by allowing you to batch load
+    /// related entities after fetching the main results.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // Load animals with their shelters (2 queries instead of N+1)
+    /// let (animals, shelters) = Animal::query()
+    ///     .filter(Column::Status.eq("available"))
+    ///     .all_with(|animals| async {
+    ///         let ids: Vec<_> = animals.iter().map(|a| a.shelter_id).collect();
+    ///         Shelter::batch_load(ids).await
+    ///     })
+    ///     .await?;
+    ///
+    /// // Access related data
+    /// for animal in &animals {
+    ///     if let Some(shelter) = shelters.get(&animal.shelter_id) {
+    ///         println!("{} is at {}", animal.name, shelter.name);
+    ///     }
+    /// }
+    /// ```
+    pub async fn all_with<R, F, Fut>(self, loader: F) -> Result<(Vec<E::Model>, R), FrameworkError>
+    where
+        F: FnOnce(&[E::Model]) -> Fut,
+        Fut: Future<Output = Result<R, FrameworkError>>,
+    {
+        let models = self.all().await?;
+        let related = loader(&models).await?;
+        Ok((models, related))
+    }
+
+    /// Execute query and load multiple related entity types
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // Load animals with shelters and photos
+    /// let (animals, (shelters, photos)) = Animal::query()
+    ///     .all_with2(
+    ///         |animals| Shelter::batch_load(animals.iter().map(|a| a.shelter_id)),
+    ///         |animals| AnimalPhoto::load_for_animals(animals),
+    ///     )
+    ///     .await?;
+    /// ```
+    pub async fn all_with2<R1, R2, F1, F2, Fut1, Fut2>(
+        self,
+        loader1: F1,
+        loader2: F2,
+    ) -> Result<(Vec<E::Model>, (R1, R2)), FrameworkError>
+    where
+        F1: FnOnce(&[E::Model]) -> Fut1,
+        F2: FnOnce(&[E::Model]) -> Fut2,
+        Fut1: Future<Output = Result<R1, FrameworkError>>,
+        Fut2: Future<Output = Result<R2, FrameworkError>>,
+    {
+        let models = self.all().await?;
+        let (r1, r2) = tokio::try_join!(loader1(&models), loader2(&models))?;
+        Ok((models, (r1, r2)))
+    }
+
+    /// Execute query and load three related entity types
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let (animals, (shelters, photos, favorites)) = Animal::query()
+    ///     .all_with3(
+    ///         |a| Shelter::batch_load(a.iter().map(|x| x.shelter_id)),
+    ///         |a| AnimalPhoto::load_for_animals(a),
+    ///         |a| Favorite::load_for_animals(a),
+    ///     )
+    ///     .await?;
+    /// ```
+    pub async fn all_with3<R1, R2, R3, F1, F2, F3, Fut1, Fut2, Fut3>(
+        self,
+        loader1: F1,
+        loader2: F2,
+        loader3: F3,
+    ) -> Result<(Vec<E::Model>, (R1, R2, R3)), FrameworkError>
+    where
+        F1: FnOnce(&[E::Model]) -> Fut1,
+        F2: FnOnce(&[E::Model]) -> Fut2,
+        F3: FnOnce(&[E::Model]) -> Fut3,
+        Fut1: Future<Output = Result<R1, FrameworkError>>,
+        Fut2: Future<Output = Result<R2, FrameworkError>>,
+        Fut3: Future<Output = Result<R3, FrameworkError>>,
+    {
+        let models = self.all().await?;
+        let (r1, r2, r3) = tokio::try_join!(loader1(&models), loader2(&models), loader3(&models))?;
+        Ok((models, (r1, r2, r3)))
     }
 }
 

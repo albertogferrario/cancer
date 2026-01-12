@@ -36,17 +36,21 @@
 
 pub mod config;
 pub mod connection;
+pub mod eager_loading;
 pub mod model;
 pub mod query_builder;
 pub mod route_binding;
 pub mod testing;
+pub mod transaction;
 
 pub use config::{DatabaseConfig, DatabaseConfigBuilder, DatabaseType};
 pub use connection::DbConnection;
-pub use model::{Model, ModelMut};
+pub use eager_loading::{batch_load_has_many, BatchLoad, BatchLoadMany};
+pub use model::{Model, ModelMut, Scope, ScopedQuery, ScopedQueryBuilder};
 pub use query_builder::QueryBuilder;
 pub use route_binding::{AutoRouteBinding, RouteBinding};
 pub use testing::TestDatabase;
+pub use transaction::{transaction, TransactionExt};
 
 /// Injectable database connection type
 ///

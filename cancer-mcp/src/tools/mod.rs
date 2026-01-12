@@ -2,11 +2,14 @@
 
 pub mod application_info;
 pub mod browser_logs;
+pub mod cache_inspect;
 pub mod database_query;
 pub mod database_schema;
 pub mod generate_types;
 pub mod get_config;
 pub mod get_handler;
+pub mod get_middleware;
+pub mod job_history;
 pub mod last_error;
 pub mod list_commands;
 pub mod list_events;
@@ -15,7 +18,10 @@ pub mod list_middleware;
 pub mod list_migrations;
 pub mod list_models;
 pub mod list_routes;
+pub mod list_services;
 pub mod read_logs;
+pub mod relation_map;
 pub mod search_docs;
 pub mod session_inspect;
+pub mod test_route;
 pub mod tinker;

@@ -98,7 +98,10 @@ fn print_results(rows: &[sea_orm::QueryResult]) {
             } else if let Ok(val) = row.try_get_by_index::<Option<String>>(i) {
                 row_data.push(val.unwrap_or_else(|| "NULL".to_string()));
             } else if let Ok(val) = row.try_get_by_index::<Option<i32>>(i) {
-                row_data.push(val.map(|v| v.to_string()).unwrap_or_else(|| "NULL".to_string()));
+                row_data.push(
+                    val.map(|v| v.to_string())
+                        .unwrap_or_else(|| "NULL".to_string()),
+                );
             } else {
                 // No more columns at this index
                 break;
@@ -149,11 +152,7 @@ fn print_results(rows: &[sea_orm::QueryResult]) {
     }
 
     println!("+{}+", separator);
-    println!(
-        "\n{} {} row(s)",
-        style("→").cyan(),
-        table_data.len()
-    );
+    println!("\n{} {} row(s)", style("→").cyan(), table_data.len());
 }
 
 #[cfg(test)]

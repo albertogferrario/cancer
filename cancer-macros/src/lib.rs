@@ -16,6 +16,7 @@ mod domain_error;
 mod handler;
 mod inertia;
 mod injectable;
+mod model;
 mod redirect;
 mod request;
 mod service;
@@ -410,4 +411,55 @@ pub fn describe(input: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn test(input: TokenStream) -> TokenStream {
     test_macro::test_impl(input)
+}
+
+/// Derive macro for reducing SeaORM model boilerplate
+///
+/// Generates builder pattern, setters, and convenience methods for Cancer models.
+/// Apply to a SeaORM Model struct to get:
+/// - `Model::query()` - Start a new QueryBuilder
+/// - `Model::create()` - Get a builder for inserting new records
+/// - `model.set_*()` - Chainable setters for updating
+/// - `model.update()` - Save changes to database
+/// - `model.delete()` - Delete the record
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use cancer::CancerModel;
+/// use sea_orm::entity::prelude::*;
+///
+/// #[derive(Clone, Debug, DeriveEntityModel, CancerModel)]
+/// #[sea_orm(table_name = "users")]
+/// pub struct Model {
+///     #[sea_orm(primary_key)]
+///     pub id: i32,
+///     pub name: String,
+///     pub email: String,
+///     pub bio: Option<String>,
+/// }
+///
+/// // Create a new record
+/// let user = User::create()
+///     .set_name("John")
+///     .set_email("john@example.com")
+///     .insert()
+///     .await?;
+///
+/// // Update an existing record
+/// let updated = user
+///     .set_name("John Doe")
+///     .set_bio(Some("Developer"))
+///     .update()
+///     .await?;
+///
+/// // Query records
+/// let users = User::query()
+///     .filter(Column::Name.contains("John"))
+///     .all()
+///     .await?;
+/// ```
+#[proc_macro_derive(CancerModel)]
+pub fn derive_cancer_model(input: TokenStream) -> TokenStream {
+    model::cancer_model_impl(input)
 }

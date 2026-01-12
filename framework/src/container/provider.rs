@@ -92,3 +92,48 @@ pub fn bootstrap() {
     register_service_bindings();
     register_singletons();
 }
+
+/// Service info for introspection
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ServiceInfo {
+    /// Service name (trait or concrete type)
+    pub name: String,
+    /// Type of binding
+    pub binding_type: ServiceBindingType,
+}
+
+/// Type of service binding
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ServiceBindingType {
+    /// Trait binding (dyn Trait → Impl)
+    TraitBinding,
+    /// Concrete singleton
+    Singleton,
+}
+
+/// Get all registered services for introspection
+///
+/// Returns a list of all services registered via `#[service(ConcreteType)]`
+/// and `#[injectable]` macros.
+pub fn get_registered_services() -> Vec<ServiceInfo> {
+    let mut services = Vec::new();
+
+    // Collect trait bindings
+    for entry in inventory::iter::<ServiceBindingEntry> {
+        services.push(ServiceInfo {
+            name: entry.name.to_string(),
+            binding_type: ServiceBindingType::TraitBinding,
+        });
+    }
+
+    // Collect singletons
+    for entry in inventory::iter::<SingletonEntry> {
+        services.push(ServiceInfo {
+            name: entry.name.to_string(),
+            binding_type: ServiceBindingType::Singleton,
+        });
+    }
+
+    services
+}

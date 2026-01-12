@@ -1,14 +1,36 @@
 //! Model traits for Cancer ORM
 //!
 //! Provides Laravel-like active record pattern over SeaORM entities.
+//!
+//! # Scoped Queries
+//!
+//! Use the `ScopedQuery` trait to define reusable query scopes:
+//!
+//! ```rust,ignore
+//! impl ScopedQuery for animals::Entity {
+//!     type Scope = AnimalScope;
+//! }
+//!
+//! enum AnimalScope {
+//!     ForShelter(i64),
+//!     Available,
+//!     Species(String),
+//! }
+//!
+//! // Usage:
+//! let animals = Animal::scoped(AnimalScope::ForShelter(shelter_id))
+//!     .and(AnimalScope::Available)
+//!     .all()
+//!     .await?;
+//! ```
 
 use async_trait::async_trait;
 use sea_orm::{
-    ActiveModelBehavior, ActiveModelTrait, EntityTrait, IntoActiveModel, ModelTrait,
+    ActiveModelBehavior, ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, ModelTrait,
     PaginatorTrait, PrimaryKeyTrait, TryIntoModel,
 };
 
-use crate::database::DB;
+use crate::database::{QueryBuilder, DB};
 use crate::error::FrameworkError;
 
 /// Trait providing Laravel-like read operations on SeaORM entities
@@ -247,3 +269,190 @@ where
             .map_err(|e| FrameworkError::database(e.to_string()))
     }
 }
+
+// ============================================================================
+// SCOPED QUERIES
+// ============================================================================
+
+/// Trait for defining reusable query scopes on entities
+///
+/// Implement this trait to define common filters that can be applied
+/// to queries in a chainable, reusable way.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use cancer::database::{ScopedQuery, Scope};
+///
+/// // Define scopes for your entity
+/// pub enum AnimalScope {
+///     ForShelter(i64),
+///     Available,
+///     Species(String),
+///     Size(String),
+/// }
+///
+/// impl Scope<animals::Entity> for AnimalScope {
+///     fn apply(self, query: QueryBuilder<animals::Entity>) -> QueryBuilder<animals::Entity> {
+///         use animals::Column;
+///         match self {
+///             Self::ForShelter(id) => query.filter(Column::ShelterId.eq(id)),
+///             Self::Available => query.filter(Column::Status.eq("available")),
+///             Self::Species(s) => query.filter(Column::Species.eq(s)),
+///             Self::Size(s) => query.filter(Column::Size.eq(s)),
+///         }
+///     }
+/// }
+///
+/// // Implement ScopedQuery for your entity
+/// impl ScopedQuery for animals::Entity {
+///     type Scope = AnimalScope;
+/// }
+///
+/// // Now use scopes in queries:
+/// let dogs = Animal::scoped(AnimalScope::Species("dog".into()))
+///     .and(AnimalScope::Available)
+///     .all()
+///     .await?;
+/// ```
+pub trait ScopedQuery: EntityTrait + Sized
+where
+    Self::Model: Send + Sync,
+{
+    /// The scope type for this entity
+    type Scope: Scope<Self>;
+
+    /// Start a query with the given scope applied
+    fn scoped(scope: Self::Scope) -> ScopedQueryBuilder<Self> {
+        let builder = QueryBuilder::new();
+        ScopedQueryBuilder {
+            inner: scope.apply(builder),
+        }
+    }
+
+    /// Start a query for records belonging to a specific owner
+    ///
+    /// This is a convenience method for common "for_user" or "for_owner" patterns.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // If your entity has a user_id column
+    /// let user_favorites = Favorite::for_owner(user.id, Column::UserId).all().await?;
+    /// ```
+    fn for_owner<C, V>(owner_id: V, column: C) -> QueryBuilder<Self>
+    where
+        C: ColumnTrait,
+        V: Into<sea_orm::Value>,
+    {
+        QueryBuilder::new().filter(column.eq(owner_id))
+    }
+}
+
+/// A scope that can be applied to a query
+pub trait Scope<E: EntityTrait>
+where
+    E::Model: Send + Sync,
+{
+    /// Apply this scope to a query builder
+    fn apply(self, query: QueryBuilder<E>) -> QueryBuilder<E>;
+}
+
+/// Query builder with scopes applied
+pub struct ScopedQueryBuilder<E>
+where
+    E: EntityTrait,
+    E::Model: Send + Sync,
+{
+    inner: QueryBuilder<E>,
+}
+
+impl<E> ScopedQueryBuilder<E>
+where
+    E: EntityTrait,
+    E::Model: Send + Sync,
+{
+    /// Add another scope to the query
+    pub fn and<S: Scope<E>>(self, scope: S) -> Self {
+        Self {
+            inner: scope.apply(self.inner),
+        }
+    }
+
+    /// Add a filter condition
+    pub fn filter<F>(self, filter: F) -> Self
+    where
+        F: sea_orm::sea_query::IntoCondition,
+    {
+        Self {
+            inner: self.inner.filter(filter),
+        }
+    }
+
+    /// Get the underlying query builder
+    pub fn into_query(self) -> QueryBuilder<E> {
+        self.inner
+    }
+
+    /// Execute query and return all results
+    pub async fn all(self) -> Result<Vec<E::Model>, FrameworkError> {
+        self.inner.all().await
+    }
+
+    /// Execute query and return first result
+    pub async fn first(self) -> Result<Option<E::Model>, FrameworkError> {
+        self.inner.first().await
+    }
+
+    /// Execute query and return first result or error
+    pub async fn first_or_fail(self) -> Result<E::Model, FrameworkError> {
+        self.inner.first_or_fail().await
+    }
+
+    /// Count matching records
+    pub async fn count(self) -> Result<u64, FrameworkError> {
+        self.inner.count().await
+    }
+
+    /// Check if any records exist
+    pub async fn exists(self) -> Result<bool, FrameworkError> {
+        self.inner.exists().await
+    }
+}
+
+/// Macro to define scopes for an entity
+///
+/// # Example
+///
+/// ```rust,ignore
+/// define_scopes!(animals::Entity {
+///     ForShelter(shelter_id: i64) => Column::ShelterId.eq(shelter_id),
+///     Available => Column::Status.eq("available"),
+///     Species(species: String) => Column::Species.eq(species),
+/// });
+///
+/// // Usage:
+/// let dogs = Animal::scoped(AnimalScope::Species("dog".into())).all().await?;
+/// ```
+#[macro_export]
+macro_rules! define_scopes {
+    ($entity:ty { $($scope_name:ident $(($($arg:ident : $arg_ty:ty),*))? => $filter:expr),* $(,)? }) => {
+        pub enum Scope {
+            $($scope_name $(($($arg_ty),*))?,)*
+        }
+
+        impl $crate::database::Scope<$entity> for Scope {
+            fn apply(self, query: $crate::database::QueryBuilder<$entity>) -> $crate::database::QueryBuilder<$entity> {
+                match self {
+                    $(Self::$scope_name $(($($arg),*))? => query.filter($filter),)*
+                }
+            }
+        }
+
+        impl $crate::database::ScopedQuery for $entity {
+            type Scope = Scope;
+        }
+    };
+}
+
+pub use define_scopes;

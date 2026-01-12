@@ -129,6 +129,7 @@ async fn handle_request(
             "/_cancer/health" => health_response(query).await,
             "/_cancer/routes" => crate::debug::handle_routes(),
             "/_cancer/middleware" => crate::debug::handle_middleware(),
+            "/_cancer/services" => crate::debug::handle_services(),
             _ => HttpResponse::text("404 Not Found").status(404).into_hyper(),
         };
     }
