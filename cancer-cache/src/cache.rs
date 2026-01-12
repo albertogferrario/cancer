@@ -54,7 +54,10 @@ impl CacheConfig {
             .map(Duration::from_secs)
             .unwrap_or_else(|| Duration::from_secs(3600));
 
-        Self { default_ttl, prefix }
+        Self {
+            default_ttl,
+            prefix,
+        }
     }
 
     /// Set default TTL.
@@ -162,8 +165,8 @@ impl Cache {
         let store: Arc<dyn CacheStore> = match driver.as_str() {
             #[cfg(feature = "redis-backend")]
             "redis" => {
-                let url = env::var("REDIS_URL")
-                    .unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
+                let url =
+                    env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
                 Arc::new(crate::stores::RedisStore::new(&url).await?)
             }
             _ => {

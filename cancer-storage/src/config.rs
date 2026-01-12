@@ -84,8 +84,7 @@ impl StorageConfig {
         // S3 disk (if configured)
         #[cfg(feature = "s3")]
         if let Ok(bucket) = env::var("AWS_BUCKET") {
-            let region =
-                env::var("AWS_DEFAULT_REGION").unwrap_or_else(|_| "us-east-1".to_string());
+            let region = env::var("AWS_DEFAULT_REGION").unwrap_or_else(|_| "us-east-1".to_string());
             let mut s3_config = DiskConfig {
                 driver: DiskDriver::S3,
                 root: None,
