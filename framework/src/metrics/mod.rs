@@ -192,3 +192,155 @@ pub fn is_enabled() -> bool {
         .map(|v| v == "true" || v == "1")
         .unwrap_or(true) // Enabled by default in development
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::Duration;
+
+    fn setup() {
+        reset_metrics();
+    }
+
+    #[test]
+    fn test_record_request_increments_count() {
+        setup();
+
+        record_request("/users", "GET", Duration::from_millis(10), false);
+        record_request("/users", "GET", Duration::from_millis(20), false);
+
+        let snapshot = get_metrics();
+        let route = snapshot
+            .routes
+            .iter()
+            .find(|r| r.route == "/users")
+            .unwrap();
+
+        assert_eq!(route.count, 2);
+        assert_eq!(snapshot.total_requests, 2);
+    }
+
+    #[test]
+    fn test_record_request_tracks_duration() {
+        setup();
+
+        record_request("/api/test", "POST", Duration::from_millis(10), false);
+        record_request("/api/test", "POST", Duration::from_millis(30), false);
+        record_request("/api/test", "POST", Duration::from_millis(20), false);
+
+        let snapshot = get_metrics();
+        let route = snapshot
+            .routes
+            .iter()
+            .find(|r| r.route == "/api/test")
+            .unwrap();
+
+        assert_eq!(route.min_duration_ms, Some(10));
+        assert_eq!(route.max_duration_ms, 30);
+        assert!((route.avg_duration_ms - 20.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn test_record_request_counts_errors() {
+        setup();
+
+        record_request("/error", "GET", Duration::from_millis(5), false);
+        record_request("/error", "GET", Duration::from_millis(5), true);
+        record_request("/error", "GET", Duration::from_millis(5), true);
+
+        let snapshot = get_metrics();
+        let route = snapshot
+            .routes
+            .iter()
+            .find(|r| r.route == "/error")
+            .unwrap();
+
+        assert_eq!(route.count, 3);
+        assert_eq!(route.error_count, 2);
+        assert!((route.error_rate - 2.0 / 3.0).abs() < 0.01);
+        assert_eq!(snapshot.total_errors, 2);
+    }
+
+    #[test]
+    fn test_different_methods_tracked_separately() {
+        setup();
+
+        record_request("/resource", "GET", Duration::from_millis(10), false);
+        record_request("/resource", "POST", Duration::from_millis(20), false);
+        record_request("/resource", "GET", Duration::from_millis(15), false);
+
+        let snapshot = get_metrics();
+
+        let get_route = snapshot
+            .routes
+            .iter()
+            .find(|r| r.route == "/resource" && r.method == "GET")
+            .unwrap();
+        let post_route = snapshot
+            .routes
+            .iter()
+            .find(|r| r.route == "/resource" && r.method == "POST")
+            .unwrap();
+
+        assert_eq!(get_route.count, 2);
+        assert_eq!(post_route.count, 1);
+    }
+
+    #[test]
+    fn test_route_metrics_avg_duration_zero_count() {
+        let metrics = RouteMetrics::new("/test".to_string(), "GET".to_string());
+        assert_eq!(metrics.avg_duration_ms(), 0.0);
+    }
+
+    #[test]
+    fn test_min_duration_none_when_no_requests() {
+        setup();
+
+        // Record to a different route
+        record_request("/other", "GET", Duration::from_millis(10), false);
+
+        let snapshot = get_metrics();
+
+        // Find a route that exists
+        let route = snapshot
+            .routes
+            .iter()
+            .find(|r| r.route == "/other")
+            .unwrap();
+        assert_eq!(route.min_duration_ms, Some(10));
+    }
+
+    #[test]
+    fn test_reset_metrics_clears_data() {
+        setup();
+
+        record_request("/clear-test", "GET", Duration::from_millis(10), false);
+
+        let snapshot = get_metrics();
+        assert!(!snapshot.routes.is_empty());
+
+        reset_metrics();
+
+        let snapshot = get_metrics();
+        assert!(snapshot.routes.is_empty());
+        assert_eq!(snapshot.total_requests, 0);
+    }
+
+    #[test]
+    fn test_uptime_tracking() {
+        setup();
+
+        let snapshot1 = get_metrics();
+        std::thread::sleep(Duration::from_millis(50));
+        let snapshot2 = get_metrics();
+
+        // Uptime should have increased
+        assert!(snapshot2.uptime_seconds >= snapshot1.uptime_seconds);
+    }
+
+    #[test]
+    fn test_route_key_format() {
+        assert_eq!(route_key("GET", "/users"), "GET:/users");
+        assert_eq!(route_key("POST", "/api/v1/items"), "POST:/api/v1/items");
+    }
+}

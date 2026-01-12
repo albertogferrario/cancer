@@ -448,3 +448,187 @@ impl Queue {
 }
 
 static GLOBAL_CONNECTION: std::sync::OnceLock<QueueConnection> = std::sync::OnceLock::new();
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_queue_stats_default() {
+        let stats = QueueStats::default();
+        assert!(stats.queues.is_empty());
+        assert_eq!(stats.total_failed, 0);
+    }
+
+    #[test]
+    fn test_queue_stats_serialization() {
+        let stats = QueueStats {
+            queues: vec![
+                SingleQueueStats {
+                    name: "default".to_string(),
+                    pending: 5,
+                    delayed: 2,
+                },
+                SingleQueueStats {
+                    name: "emails".to_string(),
+                    pending: 10,
+                    delayed: 0,
+                },
+            ],
+            total_failed: 3,
+        };
+
+        let json = serde_json::to_string(&stats).unwrap();
+        let restored: QueueStats = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.queues.len(), 2);
+        assert_eq!(restored.queues[0].name, "default");
+        assert_eq!(restored.queues[0].pending, 5);
+        assert_eq!(restored.queues[1].name, "emails");
+        assert_eq!(restored.total_failed, 3);
+    }
+
+    #[test]
+    fn test_single_queue_stats_clone() {
+        let stats = SingleQueueStats {
+            name: "test".to_string(),
+            pending: 10,
+            delayed: 5,
+        };
+
+        let cloned = stats.clone();
+        assert_eq!(cloned.name, stats.name);
+        assert_eq!(cloned.pending, stats.pending);
+        assert_eq!(cloned.delayed, stats.delayed);
+    }
+
+    #[test]
+    fn test_job_state_serialization() {
+        assert_eq!(
+            serde_json::to_string(&JobState::Pending).unwrap(),
+            "\"pending\""
+        );
+        assert_eq!(
+            serde_json::to_string(&JobState::Delayed).unwrap(),
+            "\"delayed\""
+        );
+        assert_eq!(
+            serde_json::to_string(&JobState::Failed).unwrap(),
+            "\"failed\""
+        );
+    }
+
+    #[test]
+    fn test_job_state_deserialization() {
+        let pending: JobState = serde_json::from_str("\"pending\"").unwrap();
+        let delayed: JobState = serde_json::from_str("\"delayed\"").unwrap();
+        let failed: JobState = serde_json::from_str("\"failed\"").unwrap();
+
+        assert!(matches!(pending, JobState::Pending));
+        assert!(matches!(delayed, JobState::Delayed));
+        assert!(matches!(failed, JobState::Failed));
+    }
+
+    #[test]
+    fn test_job_info_serialization() {
+        let now = Utc::now();
+        let job_info = JobInfo {
+            id: "job-123".to_string(),
+            job_type: "SendEmailJob".to_string(),
+            queue: "emails".to_string(),
+            attempts: 2,
+            max_retries: 3,
+            created_at: now,
+            available_at: now,
+            state: JobState::Pending,
+        };
+
+        let json = serde_json::to_string(&job_info).unwrap();
+        let restored: JobInfo = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.id, "job-123");
+        assert_eq!(restored.job_type, "SendEmailJob");
+        assert_eq!(restored.queue, "emails");
+        assert_eq!(restored.attempts, 2);
+        assert_eq!(restored.max_retries, 3);
+        assert!(matches!(restored.state, JobState::Pending));
+    }
+
+    #[test]
+    fn test_job_info_clone() {
+        let now = Utc::now();
+        let job_info = JobInfo {
+            id: "job-456".to_string(),
+            job_type: "ProcessOrder".to_string(),
+            queue: "orders".to_string(),
+            attempts: 0,
+            max_retries: 5,
+            created_at: now,
+            available_at: now,
+            state: JobState::Delayed,
+        };
+
+        let cloned = job_info.clone();
+        assert_eq!(cloned.id, job_info.id);
+        assert_eq!(cloned.job_type, job_info.job_type);
+    }
+
+    #[test]
+    fn test_failed_job_info_serialization() {
+        let now = Utc::now();
+        let failed_job = FailedJobInfo {
+            job: JobInfo {
+                id: "job-789".to_string(),
+                job_type: "FailingJob".to_string(),
+                queue: "default".to_string(),
+                attempts: 3,
+                max_retries: 3,
+                created_at: now,
+                available_at: now,
+                state: JobState::Failed,
+            },
+            error: "Connection refused".to_string(),
+            failed_at: now,
+        };
+
+        let json = serde_json::to_string(&failed_job).unwrap();
+        let restored: FailedJobInfo = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.job.id, "job-789");
+        assert_eq!(restored.error, "Connection refused");
+        assert!(matches!(restored.job.state, JobState::Failed));
+    }
+
+    #[test]
+    fn test_failed_job_info_clone() {
+        let now = Utc::now();
+        let failed_job = FailedJobInfo {
+            job: JobInfo {
+                id: "job-999".to_string(),
+                job_type: "TestJob".to_string(),
+                queue: "test".to_string(),
+                attempts: 1,
+                max_retries: 3,
+                created_at: now,
+                available_at: now,
+                state: JobState::Failed,
+            },
+            error: "Test error".to_string(),
+            failed_at: now,
+        };
+
+        let cloned = failed_job.clone();
+        assert_eq!(cloned.job.id, failed_job.job.id);
+        assert_eq!(cloned.error, failed_job.error);
+    }
+
+    #[test]
+    fn test_job_state_debug() {
+        assert!(format!("{:?}", JobState::Pending).contains("Pending"));
+        assert!(format!("{:?}", JobState::Delayed).contains("Delayed"));
+        assert!(format!("{:?}", JobState::Failed).contains("Failed"));
+    }
+
+    // Note: Tests for actual queue operations (get_pending_jobs, get_delayed_jobs, etc.)
+    // require integration tests with a running Redis instance.
+}

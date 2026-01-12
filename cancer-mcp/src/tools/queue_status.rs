@@ -179,3 +179,184 @@ pub fn execute() -> Result<QueueStatusInfo> {
         source: QueueSource::Unavailable,
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_queue_source_serialization() {
+        assert_eq!(
+            serde_json::to_string(&QueueSource::Runtime).unwrap(),
+            "\"runtime\""
+        );
+        assert_eq!(
+            serde_json::to_string(&QueueSource::Unavailable).unwrap(),
+            "\"unavailable\""
+        );
+        assert_eq!(
+            serde_json::to_string(&QueueSource::NotInitialized).unwrap(),
+            "\"not_initialized\""
+        );
+    }
+
+    #[test]
+    fn test_queue_source_debug() {
+        assert!(format!("{:?}", QueueSource::Runtime).contains("Runtime"));
+        assert!(format!("{:?}", QueueSource::Unavailable).contains("Unavailable"));
+        assert!(format!("{:?}", QueueSource::NotInitialized).contains("NotInitialized"));
+    }
+
+    #[test]
+    fn test_single_queue_stats_serialization() {
+        let stats = SingleQueueStats {
+            name: "default".to_string(),
+            pending: 10,
+            delayed: 5,
+        };
+
+        let json = serde_json::to_string(&stats).unwrap();
+        let restored: SingleQueueStats = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.name, "default");
+        assert_eq!(restored.pending, 10);
+        assert_eq!(restored.delayed, 5);
+    }
+
+    #[test]
+    fn test_queue_stats_snapshot_serialization() {
+        let stats = QueueStatsSnapshot {
+            queues: vec![SingleQueueStats {
+                name: "emails".to_string(),
+                pending: 25,
+                delayed: 10,
+            }],
+            total_failed: 3,
+        };
+
+        let json = serde_json::to_string(&stats).unwrap();
+        let restored: QueueStatsSnapshot = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.queues.len(), 1);
+        assert_eq!(restored.queues[0].name, "emails");
+        assert_eq!(restored.total_failed, 3);
+    }
+
+    #[test]
+    fn test_job_info_serialization() {
+        let now = Utc::now();
+        let job = JobInfo {
+            id: "job-123".to_string(),
+            job_type: "SendNotification".to_string(),
+            queue: "notifications".to_string(),
+            attempts: 1,
+            max_retries: 3,
+            created_at: now,
+            available_at: now,
+            state: "pending".to_string(),
+        };
+
+        let json = serde_json::to_string(&job).unwrap();
+        let restored: JobInfo = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.id, "job-123");
+        assert_eq!(restored.job_type, "SendNotification");
+        assert_eq!(restored.attempts, 1);
+    }
+
+    #[test]
+    fn test_failed_job_info_serialization() {
+        let now = Utc::now();
+        let failed = FailedJobInfo {
+            job: JobInfo {
+                id: "job-456".to_string(),
+                job_type: "ProcessPayment".to_string(),
+                queue: "payments".to_string(),
+                attempts: 3,
+                max_retries: 3,
+                created_at: now,
+                available_at: now,
+                state: "failed".to_string(),
+            },
+            error: "Payment gateway timeout".to_string(),
+            failed_at: now,
+        };
+
+        let json = serde_json::to_string(&failed).unwrap();
+        let restored: FailedJobInfo = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.job.id, "job-456");
+        assert_eq!(restored.error, "Payment gateway timeout");
+    }
+
+    #[test]
+    fn test_queue_jobs_snapshot_serialization() {
+        let now = Utc::now();
+        let snapshot = QueueJobsSnapshot {
+            pending: vec![JobInfo {
+                id: "job-1".to_string(),
+                job_type: "Job1".to_string(),
+                queue: "default".to_string(),
+                attempts: 0,
+                max_retries: 3,
+                created_at: now,
+                available_at: now,
+                state: "pending".to_string(),
+            }],
+            delayed: vec![],
+            failed: vec![],
+        };
+
+        let json = serde_json::to_string(&snapshot).unwrap();
+        let restored: QueueJobsSnapshot = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.pending.len(), 1);
+        assert!(restored.delayed.is_empty());
+        assert!(restored.failed.is_empty());
+    }
+
+    #[test]
+    fn test_queue_status_info_debug() {
+        let info = QueueStatusInfo {
+            jobs: None,
+            stats: None,
+            source: QueueSource::Unavailable,
+        };
+        assert!(format!("{:?}", info).contains("QueueStatusInfo"));
+    }
+
+    #[test]
+    fn test_debug_jobs_response_deserialization() {
+        let json = r#"{
+            "success": true,
+            "data": {
+                "pending": [],
+                "delayed": [],
+                "failed": []
+            }
+        }"#;
+
+        let response: DebugJobsResponse = serde_json::from_str(json).unwrap();
+        assert!(response.success);
+        assert!(response.data.pending.is_empty());
+    }
+
+    #[test]
+    fn test_debug_stats_response_deserialization() {
+        let json = r#"{
+            "success": true,
+            "data": {
+                "queues": [{"name": "default", "pending": 5, "delayed": 2}],
+                "total_failed": 1
+            }
+        }"#;
+
+        let response: DebugStatsResponse = serde_json::from_str(json).unwrap();
+        assert!(response.success);
+        assert_eq!(response.data.queues.len(), 1);
+        assert_eq!(response.data.total_failed, 1);
+    }
+
+    // Note: Testing the execute() function and fetch_* functions
+    // requires integration tests with a running application server.
+}

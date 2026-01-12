@@ -98,3 +98,113 @@ pub fn execute() -> Result<MetricsInfo> {
         source: MetricsSource::Unavailable,
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_metrics_snapshot_default() {
+        let snapshot = MetricsSnapshot::default();
+        assert!(snapshot.routes.is_empty());
+        assert_eq!(snapshot.total_requests, 0);
+        assert_eq!(snapshot.total_errors, 0);
+        assert_eq!(snapshot.uptime_seconds, 0);
+    }
+
+    #[test]
+    fn test_metrics_snapshot_serialization() {
+        let snapshot = MetricsSnapshot {
+            routes: vec![RouteMetricsView {
+                route: "/api/users".to_string(),
+                method: "GET".to_string(),
+                count: 100,
+                avg_duration_ms: 15.5,
+                min_duration_ms: Some(5),
+                max_duration_ms: 50,
+                error_count: 2,
+                error_rate: 0.02,
+            }],
+            total_requests: 100,
+            total_errors: 2,
+            uptime_seconds: 3600,
+        };
+
+        let json = serde_json::to_string(&snapshot).unwrap();
+        let restored: MetricsSnapshot = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.routes.len(), 1);
+        assert_eq!(restored.routes[0].route, "/api/users");
+        assert_eq!(restored.total_requests, 100);
+        assert_eq!(restored.uptime_seconds, 3600);
+    }
+
+    #[test]
+    fn test_route_metrics_view_serialization() {
+        let view = RouteMetricsView {
+            route: "/users/{id}".to_string(),
+            method: "POST".to_string(),
+            count: 50,
+            avg_duration_ms: 25.0,
+            min_duration_ms: None,
+            max_duration_ms: 100,
+            error_count: 5,
+            error_rate: 0.1,
+        };
+
+        let json = serde_json::to_string(&view).unwrap();
+        let restored: RouteMetricsView = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(restored.route, "/users/{id}");
+        assert_eq!(restored.method, "POST");
+        assert!(restored.min_duration_ms.is_none());
+        assert!((restored.error_rate - 0.1).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_metrics_source_serialization() {
+        assert_eq!(
+            serde_json::to_string(&MetricsSource::Runtime).unwrap(),
+            "\"runtime\""
+        );
+        assert_eq!(
+            serde_json::to_string(&MetricsSource::Unavailable).unwrap(),
+            "\"unavailable\""
+        );
+    }
+
+    #[test]
+    fn test_metrics_source_debug() {
+        assert!(format!("{:?}", MetricsSource::Runtime).contains("Runtime"));
+        assert!(format!("{:?}", MetricsSource::Unavailable).contains("Unavailable"));
+    }
+
+    #[test]
+    fn test_metrics_info_debug() {
+        let info = MetricsInfo {
+            metrics: MetricsSnapshot::default(),
+            source: MetricsSource::Unavailable,
+        };
+        assert!(format!("{:?}", info).contains("MetricsInfo"));
+    }
+
+    #[test]
+    fn test_debug_response_deserialization() {
+        let json = r#"{
+            "success": true,
+            "data": {
+                "routes": [],
+                "total_requests": 0,
+                "total_errors": 0,
+                "uptime_seconds": 100
+            }
+        }"#;
+
+        let response: DebugResponse = serde_json::from_str(json).unwrap();
+        assert!(response.success);
+        assert_eq!(response.data.uptime_seconds, 100);
+    }
+
+    // Note: Testing the execute() function and fetch_runtime_metrics()
+    // requires integration tests with a running application server.
+}

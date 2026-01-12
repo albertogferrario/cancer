@@ -74,3 +74,40 @@ impl Middleware for MetricsMiddleware {
         response
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_metrics_middleware_new() {
+        let middleware = MetricsMiddleware::new();
+        assert!(format!("{:?}", middleware).contains("MetricsMiddleware"));
+    }
+
+    #[test]
+    fn test_metrics_middleware_default() {
+        let middleware = MetricsMiddleware::default();
+        assert!(format!("{:?}", middleware).contains("MetricsMiddleware"));
+    }
+
+    #[test]
+    fn test_metrics_middleware_clone() {
+        let middleware = MetricsMiddleware::new();
+        let cloned = middleware.clone();
+        // Both should exist and be the same type
+        assert!(format!("{:?}", cloned).contains("MetricsMiddleware"));
+    }
+
+    #[test]
+    fn test_metrics_middleware_copy() {
+        let middleware = MetricsMiddleware::new();
+        let copied: MetricsMiddleware = middleware; // Copy semantics
+        let _original = middleware; // Original still usable
+        assert!(format!("{:?}", copied).contains("MetricsMiddleware"));
+    }
+
+    // Note: Full middleware behavior (request handling, timing, error detection)
+    // requires integration testing with actual Request/Response types.
+    // The core metrics recording logic is tested in the metrics module.
+}
