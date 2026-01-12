@@ -53,7 +53,9 @@ pub use config::QueueConfig;
 pub use dispatcher::{dispatch, dispatch_later, dispatch_to, PendingDispatch};
 pub use error::Error;
 pub use job::{Job, JobPayload};
-pub use queue::{Queue, QueueConnection};
+pub use queue::{
+    FailedJobInfo, JobInfo, JobState, Queue, QueueConnection, QueueStats, SingleQueueStats,
+};
 pub use worker::{Worker, WorkerConfig};
 
 /// Re-export async_trait for convenience

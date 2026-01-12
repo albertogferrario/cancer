@@ -1,10 +1,81 @@
 //! Queue connection and operations.
 
 use crate::{Error, JobPayload, QueueConfig};
+use chrono::{DateTime, Utc};
 use redis::aio::ConnectionManager;
 use redis::AsyncCommands;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tracing::debug;
+
+/// Queue statistics for introspection
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct QueueStats {
+    /// Stats per queue
+    pub queues: Vec<SingleQueueStats>,
+    /// Total failed jobs count
+    pub total_failed: usize,
+}
+
+/// Statistics for a single queue
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SingleQueueStats {
+    /// Queue name
+    pub name: String,
+    /// Number of pending jobs
+    pub pending: usize,
+    /// Number of delayed jobs
+    pub delayed: usize,
+}
+
+/// Job information for introspection (without full payload data)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct JobInfo {
+    /// Unique job ID
+    pub id: String,
+    /// Job type name
+    pub job_type: String,
+    /// Queue name
+    pub queue: String,
+    /// Number of attempts made
+    pub attempts: u32,
+    /// Maximum retry attempts
+    pub max_retries: u32,
+    /// When the job was created
+    pub created_at: DateTime<Utc>,
+    /// When the job should be available for processing
+    pub available_at: DateTime<Utc>,
+    /// Job state
+    pub state: JobState,
+}
+
+/// Job state for introspection
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum JobState {
+    Pending,
+    Delayed,
+    Failed,
+}
+
+/// Failed job information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FailedJobInfo {
+    /// Job info
+    pub job: JobInfo,
+    /// Error message
+    pub error: String,
+    /// When the job failed
+    pub failed_at: DateTime<Utc>,
+}
+
+/// Stored format for failed jobs
+#[derive(Debug, Deserialize)]
+struct StoredFailedJob {
+    payload: JobPayload,
+    error: String,
+    failed_at: DateTime<Utc>,
+}
 
 /// A connection to the queue backend.
 #[derive(Clone)]
@@ -234,6 +305,119 @@ impl QueueConnection {
             .map_err(Error::Redis)?;
 
         Ok(())
+    }
+
+    /// Get pending jobs from a queue (without removing them).
+    pub async fn get_pending_jobs(&self, queue: &str, limit: usize) -> Result<Vec<JobInfo>, Error> {
+        let key = self.config.queue_key(queue);
+        let jobs: Vec<String> = self
+            .conn
+            .clone()
+            .lrange(&key, 0, limit as isize - 1)
+            .await
+            .map_err(Error::Redis)?;
+
+        let mut result = Vec::with_capacity(jobs.len());
+        for json in jobs {
+            if let Ok(payload) = JobPayload::from_json(&json) {
+                result.push(JobInfo {
+                    id: payload.id.to_string(),
+                    job_type: payload.job_type,
+                    queue: payload.queue,
+                    attempts: payload.attempts,
+                    max_retries: payload.max_retries,
+                    created_at: payload.created_at,
+                    available_at: payload.available_at,
+                    state: JobState::Pending,
+                });
+            }
+        }
+        Ok(result)
+    }
+
+    /// Get delayed jobs from a queue (without removing them).
+    pub async fn get_delayed_jobs(&self, queue: &str, limit: usize) -> Result<Vec<JobInfo>, Error> {
+        let key = self.config.delayed_key(queue);
+        let jobs: Vec<String> = self
+            .conn
+            .clone()
+            .zrange(&key, 0, limit as isize - 1)
+            .await
+            .map_err(Error::Redis)?;
+
+        let mut result = Vec::with_capacity(jobs.len());
+        for json in jobs {
+            if let Ok(payload) = JobPayload::from_json(&json) {
+                result.push(JobInfo {
+                    id: payload.id.to_string(),
+                    job_type: payload.job_type,
+                    queue: payload.queue,
+                    attempts: payload.attempts,
+                    max_retries: payload.max_retries,
+                    created_at: payload.created_at,
+                    available_at: payload.available_at,
+                    state: JobState::Delayed,
+                });
+            }
+        }
+        Ok(result)
+    }
+
+    /// Get failed jobs (without removing them).
+    pub async fn get_failed_jobs(&self, limit: usize) -> Result<Vec<FailedJobInfo>, Error> {
+        let key = self.config.failed_key();
+        let jobs: Vec<String> = self
+            .conn
+            .clone()
+            .lrange(&key, 0, limit as isize - 1)
+            .await
+            .map_err(Error::Redis)?;
+
+        let mut result = Vec::with_capacity(jobs.len());
+        for json in jobs {
+            if let Ok(failed) = serde_json::from_str::<StoredFailedJob>(&json) {
+                result.push(FailedJobInfo {
+                    job: JobInfo {
+                        id: failed.payload.id.to_string(),
+                        job_type: failed.payload.job_type,
+                        queue: failed.payload.queue,
+                        attempts: failed.payload.attempts,
+                        max_retries: failed.payload.max_retries,
+                        created_at: failed.payload.created_at,
+                        available_at: failed.payload.available_at,
+                        state: JobState::Failed,
+                    },
+                    error: failed.error,
+                    failed_at: failed.failed_at,
+                });
+            }
+        }
+        Ok(result)
+    }
+
+    /// Get the count of failed jobs.
+    pub async fn failed_count(&self) -> Result<usize, Error> {
+        let key = self.config.failed_key();
+        let len: usize = self.conn.clone().llen(&key).await.map_err(Error::Redis)?;
+        Ok(len)
+    }
+
+    /// Get queue statistics for specified queues.
+    pub async fn get_stats(&self, queues: &[&str]) -> Result<QueueStats, Error> {
+        let mut stats = QueueStats::default();
+
+        for queue in queues {
+            let pending = self.size(queue).await?;
+            let delayed = self.delayed_size(queue).await?;
+            stats.queues.push(SingleQueueStats {
+                name: queue.to_string(),
+                pending,
+                delayed,
+            });
+        }
+
+        stats.total_failed = self.failed_count().await?;
+        Ok(stats)
     }
 }
 

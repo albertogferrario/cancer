@@ -269,6 +269,20 @@ impl CancerMcpService {
         }
     }
 
+    /// Get queue status (pending, delayed, and failed jobs)
+    #[tool(
+        name = "queue_status",
+        description = "Get queue status including pending, delayed, and failed jobs. Shows job types, attempts, and error messages. Requires Redis-backed queue (not sync mode)."
+    )]
+    pub async fn queue_status(&self) -> String {
+        match tools::queue_status::execute() {
+            Ok(status) => {
+                serde_json::to_string_pretty(&status).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
     /// List all database models with their fields and types
     #[tool(
         name = "list_models",

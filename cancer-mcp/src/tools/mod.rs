@@ -19,6 +19,7 @@ pub mod list_migrations;
 pub mod list_models;
 pub mod list_routes;
 pub mod list_services;
+pub mod queue_status;
 pub mod read_logs;
 pub mod relation_map;
 pub mod request_metrics;

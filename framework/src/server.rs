@@ -131,6 +131,8 @@ async fn handle_request(
             "/_cancer/middleware" => crate::debug::handle_middleware(),
             "/_cancer/services" => crate::debug::handle_services(),
             "/_cancer/metrics" => crate::debug::handle_metrics(),
+            "/_cancer/queue/jobs" => crate::debug::handle_queue_jobs().await,
+            "/_cancer/queue/stats" => crate::debug::handle_queue_stats().await,
             _ => HttpResponse::text("404 Not Found").status(404).into_hyper(),
         };
     }

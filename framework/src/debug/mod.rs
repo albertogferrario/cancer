@@ -151,3 +151,110 @@ pub fn handle_metrics() -> hyper::Response<Full<Bytes>> {
         200,
     )
 }
+
+/// Queue jobs response
+#[derive(Debug, Serialize)]
+pub struct QueueJobsInfo {
+    /// Pending jobs (ready to process)
+    pub pending: Vec<cancer_queue::JobInfo>,
+    /// Delayed jobs (waiting for available_at)
+    pub delayed: Vec<cancer_queue::JobInfo>,
+    /// Failed jobs
+    pub failed: Vec<cancer_queue::FailedJobInfo>,
+}
+
+/// Handle /_cancer/queue/jobs endpoint
+pub async fn handle_queue_jobs() -> hyper::Response<Full<Bytes>> {
+    if !is_debug_enabled() {
+        return json_response(
+            DebugErrorResponse {
+                success: false,
+                error: "Debug endpoints disabled in production".to_string(),
+                timestamp: Utc::now().to_rfc3339(),
+            },
+            403,
+        );
+    }
+
+    // Check if queue is initialized
+    if !cancer_queue::Queue::is_initialized() {
+        return json_response(
+            DebugErrorResponse {
+                success: false,
+                error: "Queue not initialized (QUEUE_CONNECTION=sync or Redis not configured)"
+                    .to_string(),
+                timestamp: Utc::now().to_rfc3339(),
+            },
+            503,
+        );
+    }
+
+    let conn = cancer_queue::Queue::connection();
+    let default_queue = conn.config().default_queue.as_str();
+
+    // Fetch jobs from the default queue
+    let pending = conn
+        .get_pending_jobs(default_queue, 100)
+        .await
+        .unwrap_or_default();
+    let delayed = conn
+        .get_delayed_jobs(default_queue, 100)
+        .await
+        .unwrap_or_default();
+    let failed = conn.get_failed_jobs(100).await.unwrap_or_default();
+
+    json_response(
+        DebugResponse {
+            success: true,
+            data: QueueJobsInfo {
+                pending,
+                delayed,
+                failed,
+            },
+            timestamp: Utc::now().to_rfc3339(),
+        },
+        200,
+    )
+}
+
+/// Handle /_cancer/queue/stats endpoint
+pub async fn handle_queue_stats() -> hyper::Response<Full<Bytes>> {
+    if !is_debug_enabled() {
+        return json_response(
+            DebugErrorResponse {
+                success: false,
+                error: "Debug endpoints disabled in production".to_string(),
+                timestamp: Utc::now().to_rfc3339(),
+            },
+            403,
+        );
+    }
+
+    // Check if queue is initialized
+    if !cancer_queue::Queue::is_initialized() {
+        return json_response(
+            DebugErrorResponse {
+                success: false,
+                error: "Queue not initialized (QUEUE_CONNECTION=sync or Redis not configured)"
+                    .to_string(),
+                timestamp: Utc::now().to_rfc3339(),
+            },
+            503,
+        );
+    }
+
+    let conn = cancer_queue::Queue::connection();
+    let default_queue = conn.config().default_queue.as_str();
+
+    // Get stats for default queue
+    let stats = conn.get_stats(&[default_queue]).await.unwrap_or_default();
+
+    json_response(
+        DebugResponse {
+            success: true,
+            data: stats,
+            timestamp: Utc::now().to_rfc3339(),
+        },
+        200,
+    )
+}
