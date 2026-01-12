@@ -122,10 +122,15 @@ async fn handle_request(
     let path = req.uri().path().to_string();
     let query = req.uri().query().unwrap_or("");
 
-    // Built-in health check endpoint at /_cancer/health
+    // Built-in framework endpoints at /_cancer/*
     // Uses framework prefix to avoid conflicts with user-defined routes
-    if path == "/_cancer/health" && method == hyper::Method::GET {
-        return health_response(query).await;
+    if path.starts_with("/_cancer/") && method == hyper::Method::GET {
+        return match path.as_str() {
+            "/_cancer/health" => health_response(query).await,
+            "/_cancer/routes" => crate::debug::handle_routes(),
+            "/_cancer/middleware" => crate::debug::handle_middleware(),
+            _ => HttpResponse::text("404 Not Found").status(404).into_hyper(),
+        };
     }
 
     // Note: Inertia context is now read directly from Request headers

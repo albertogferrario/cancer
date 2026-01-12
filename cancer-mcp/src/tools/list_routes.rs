@@ -1,26 +1,122 @@
 //! List routes tool - parse and list application routes
+//!
+//! This tool tries to fetch routes from the running application first via
+//! the `/_cancer/routes` debug endpoint, falling back to static file parsing
+//! when the app isn't running.
 
 use crate::error::{McpError, Result};
 use regex::Regex;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 
 #[derive(Debug, Serialize)]
 pub struct RoutesInfo {
     pub routes: Vec<RouteInfo>,
+    /// Indicates whether routes came from runtime or static analysis
+    pub source: RouteSource,
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RouteSource {
+    /// Routes fetched from running application via HTTP endpoint
+    Runtime,
+    /// Routes parsed from source files (fallback when app not running)
+    StaticAnalysis,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RouteInfo {
     pub method: String,
     pub path: String,
+    #[serde(default)]
     pub handler: String,
     pub name: Option<String>,
+    #[serde(default)]
     pub middleware: Vec<String>,
 }
 
+/// Response format from the `/_cancer/routes` endpoint
+#[derive(Debug, Deserialize)]
+struct DebugResponse {
+    success: bool,
+    data: Vec<RuntimeRouteInfo>,
+}
+
+/// Route info as returned by the runtime endpoint
+#[derive(Debug, Deserialize)]
+struct RuntimeRouteInfo {
+    method: String,
+    path: String,
+    name: Option<String>,
+    middleware: Vec<String>,
+}
+
+/// Try to fetch routes from the running application
+async fn fetch_runtime_routes(base_url: &str) -> Option<Vec<RouteInfo>> {
+    let url = format!("{}/_cancer/routes", base_url);
+
+    let response = reqwest::get(&url).await.ok()?;
+
+    if !response.status().is_success() {
+        return None;
+    }
+
+    let debug_response: DebugResponse = response.json().await.ok()?;
+
+    if !debug_response.success {
+        return None;
+    }
+
+    Some(
+        debug_response
+            .data
+            .into_iter()
+            .map(|r| RouteInfo {
+                method: r.method,
+                path: r.path,
+                handler: String::new(), // Runtime doesn't expose handler names yet
+                name: r.name,
+                middleware: r.middleware,
+            })
+            .collect(),
+    )
+}
+
 pub fn execute(project_root: &Path) -> Result<RoutesInfo> {
+    // Try runtime endpoint first (synchronously block on async)
+    let rt = tokio::runtime::Handle::try_current();
+    if let Ok(handle) = rt {
+        // We're already in a tokio runtime, use block_in_place
+        let runtime_routes = handle.block_on(async {
+            // Try common development ports
+            for base_url in ["http://localhost:8000", "http://127.0.0.1:8000"] {
+                if let Some(routes) = fetch_runtime_routes(base_url).await {
+                    return Some(routes);
+                }
+            }
+            None
+        });
+
+        if let Some(routes) = runtime_routes {
+            return Ok(RoutesInfo {
+                routes,
+                source: RouteSource::Runtime,
+            });
+        }
+    }
+
+    // Fall back to static analysis
+    let routes = parse_routes_from_files(project_root)?;
+    Ok(RoutesInfo {
+        routes,
+        source: RouteSource::StaticAnalysis,
+    })
+}
+
+/// Parse routes from source files (static analysis fallback)
+fn parse_routes_from_files(project_root: &Path) -> Result<Vec<RouteInfo>> {
     let routes_file = project_root.join("src/routes.rs");
 
     if !routes_file.exists() {
@@ -29,9 +125,7 @@ pub fn execute(project_root: &Path) -> Result<RoutesInfo> {
 
     let content = fs::read_to_string(&routes_file).map_err(McpError::IoError)?;
 
-    let routes = parse_routes(&content);
-
-    Ok(RoutesInfo { routes })
+    Ok(parse_routes(&content))
 }
 
 fn parse_routes(content: &str) -> Vec<RouteInfo> {

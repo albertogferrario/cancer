@@ -6,6 +6,7 @@ pub mod config;
 pub mod container;
 pub mod csrf;
 pub mod database;
+pub mod debug;
 pub mod error;
 pub mod hashing;
 pub mod http;
@@ -61,6 +62,7 @@ pub use routing::{
     __get_impl,
     __post_impl,
     __put_impl,
+    get_registered_routes,
     route,
     validate_route_path,
     FallbackDefBuilder,
@@ -72,6 +74,7 @@ pub use routing::{
     IntoGroupItem,
     RouteBuilder,
     RouteDefBuilder,
+    RouteInfo,
     Router,
 };
 pub use schedule::{CronExpression, DayOfWeek, Schedule, Task, TaskBuilder, TaskEntry, TaskResult};

@@ -1,11 +1,19 @@
 //! Middleware introspection
 
-use crate::tools::list_middleware::MiddlewareItem;
+use serde::Serialize;
 use std::fs;
 use std::path::Path;
 use syn::visit::Visit;
 use syn::{Attribute, ItemStruct};
 use walkdir::WalkDir;
+
+/// Middleware item from static analysis
+#[derive(Debug, Serialize, Clone)]
+pub struct MiddlewareItem {
+    pub name: String,
+    pub path: String,
+    pub global: bool,
+}
 
 struct MiddlewareVisitor {
     middleware: Vec<String>,

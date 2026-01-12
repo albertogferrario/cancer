@@ -9,6 +9,9 @@ use std::sync::{OnceLock, RwLock};
 /// Global middleware registry (populated via `global_middleware!` macro in bootstrap.rs)
 static GLOBAL_MIDDLEWARE: OnceLock<RwLock<Vec<BoxedMiddleware>>> = OnceLock::new();
 
+/// Global middleware names registry (for introspection)
+static GLOBAL_MIDDLEWARE_NAMES: OnceLock<RwLock<Vec<String>>> = OnceLock::new();
+
 /// Register a global middleware that runs on every request
 ///
 /// Called by the `global_middleware!` macro. Middleware runs in registration order.
@@ -21,10 +24,27 @@ static GLOBAL_MIDDLEWARE: OnceLock<RwLock<Vec<BoxedMiddleware>>> = OnceLock::new
 /// global_middleware!(CorsMiddleware);
 /// ```
 pub fn register_global_middleware<M: Middleware + 'static>(middleware: M) {
+    // Track the middleware name for introspection
+    let type_name = std::any::type_name::<M>();
+    let short_name = type_name.rsplit("::").next().unwrap_or(type_name);
+    let names_registry = GLOBAL_MIDDLEWARE_NAMES.get_or_init(|| RwLock::new(Vec::new()));
+    if let Ok(mut names) = names_registry.write() {
+        names.push(short_name.to_string());
+    }
+
     let registry = GLOBAL_MIDDLEWARE.get_or_init(|| RwLock::new(Vec::new()));
     if let Ok(mut vec) = registry.write() {
         vec.push(into_boxed(middleware));
     }
+}
+
+/// Get global middleware names for introspection
+pub fn get_global_middleware_info() -> Vec<String> {
+    GLOBAL_MIDDLEWARE_NAMES
+        .get()
+        .and_then(|lock| lock.read().ok())
+        .map(|vec| vec.clone())
+        .unwrap_or_default()
 }
 
 /// Get all registered global middleware

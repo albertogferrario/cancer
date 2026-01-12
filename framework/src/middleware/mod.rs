@@ -45,6 +45,7 @@ pub use chain::MiddlewareChain;
 pub use rate_limit::{
     RateLimitConfig, RateLimitStore, RateLimiter, RateLimiters, Throttle, ThrottleBuilder,
 };
+pub use registry::get_global_middleware_info;
 pub use registry::register_global_middleware;
 pub use registry::MiddlewareRegistry;
 

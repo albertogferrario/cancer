@@ -20,5 +20,6 @@ pub use macros::{
     RouteDefBuilder,
 };
 pub use router::{
-    register_route_name, route, route_with_params, BoxedHandler, RouteBuilder, Router,
+    get_registered_routes, register_route_name, route, route_with_params, BoxedHandler,
+    RouteBuilder, RouteInfo, Router,
 };

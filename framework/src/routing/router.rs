@@ -1,6 +1,7 @@
 use crate::http::{Request, Response};
 use crate::middleware::{into_boxed, BoxedMiddleware, Middleware};
 use matchit::Router as MatchitRouter;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
@@ -9,12 +10,74 @@ use std::sync::{Arc, OnceLock, RwLock};
 /// Global registry mapping route names to path patterns
 static ROUTE_REGISTRY: OnceLock<RwLock<HashMap<String, String>>> = OnceLock::new();
 
+/// Global registry of all registered routes for introspection
+static REGISTERED_ROUTES: OnceLock<RwLock<Vec<RouteInfo>>> = OnceLock::new();
+
+/// Information about a registered route for introspection
+#[derive(Debug, Clone, Serialize)]
+pub struct RouteInfo {
+    /// HTTP method (GET, POST, PUT, DELETE)
+    pub method: String,
+    /// Route path pattern (e.g., "/users/{id}")
+    pub path: String,
+    /// Optional route name (e.g., "users.show")
+    pub name: Option<String>,
+    /// Middleware applied to this route
+    pub middleware: Vec<String>,
+}
+
+/// Register a route for introspection
+fn register_route(method: &str, path: &str) {
+    let registry = REGISTERED_ROUTES.get_or_init(|| RwLock::new(Vec::new()));
+    if let Ok(mut routes) = registry.write() {
+        routes.push(RouteInfo {
+            method: method.to_string(),
+            path: path.to_string(),
+            name: None,
+            middleware: Vec::new(),
+        });
+    }
+}
+
+/// Update the most recently registered route with its name
+fn update_route_name(path: &str, name: &str) {
+    let registry = REGISTERED_ROUTES.get_or_init(|| RwLock::new(Vec::new()));
+    if let Ok(mut routes) = registry.write() {
+        // Find the most recent route with this path and update its name
+        if let Some(route) = routes.iter_mut().rev().find(|r| r.path == path) {
+            route.name = Some(name.to_string());
+        }
+    }
+}
+
+/// Update a route with middleware name
+fn update_route_middleware(path: &str, middleware_name: &str) {
+    let registry = REGISTERED_ROUTES.get_or_init(|| RwLock::new(Vec::new()));
+    if let Ok(mut routes) = registry.write() {
+        // Find the most recent route with this path and add middleware
+        if let Some(route) = routes.iter_mut().rev().find(|r| r.path == path) {
+            route.middleware.push(middleware_name.to_string());
+        }
+    }
+}
+
+/// Get all registered routes for introspection
+pub fn get_registered_routes() -> Vec<RouteInfo> {
+    REGISTERED_ROUTES
+        .get()
+        .and_then(|r| r.read().ok())
+        .map(|routes| routes.clone())
+        .unwrap_or_default()
+}
+
 /// Register a route name -> path mapping
 pub fn register_route_name(name: &str, path: &str) {
     let registry = ROUTE_REGISTRY.get_or_init(|| RwLock::new(HashMap::new()));
     if let Ok(mut map) = registry.write() {
         map.insert(name.to_string(), path.to_string());
     }
+    // Also update the introspection registry
+    update_route_name(path, name);
 }
 
 /// Generate a URL for a named route with parameters
@@ -128,21 +191,25 @@ impl Router {
     /// Insert a GET route with a pre-boxed handler (internal use for groups)
     pub(crate) fn insert_get(&mut self, path: &str, handler: Arc<BoxedHandler>) {
         self.get_routes.insert(path, handler).ok();
+        register_route("GET", path);
     }
 
     /// Insert a POST route with a pre-boxed handler (internal use for groups)
     pub(crate) fn insert_post(&mut self, path: &str, handler: Arc<BoxedHandler>) {
         self.post_routes.insert(path, handler).ok();
+        register_route("POST", path);
     }
 
     /// Insert a PUT route with a pre-boxed handler (internal use for groups)
     pub(crate) fn insert_put(&mut self, path: &str, handler: Arc<BoxedHandler>) {
         self.put_routes.insert(path, handler).ok();
+        register_route("PUT", path);
     }
 
     /// Insert a DELETE route with a pre-boxed handler (internal use for groups)
     pub(crate) fn insert_delete(&mut self, path: &str, handler: Arc<BoxedHandler>) {
         self.delete_routes.insert(path, handler).ok();
+        register_route("DELETE", path);
     }
 
     /// Register a GET route
@@ -153,6 +220,7 @@ impl Router {
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
         self.get_routes.insert(path, Arc::new(handler)).ok();
+        register_route("GET", path);
         RouteBuilder {
             router: self,
             last_path: path.to_string(),
@@ -168,6 +236,7 @@ impl Router {
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
         self.post_routes.insert(path, Arc::new(handler)).ok();
+        register_route("POST", path);
         RouteBuilder {
             router: self,
             last_path: path.to_string(),
@@ -183,6 +252,7 @@ impl Router {
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
         self.put_routes.insert(path, Arc::new(handler)).ok();
+        register_route("PUT", path);
         RouteBuilder {
             router: self,
             last_path: path.to_string(),
@@ -198,6 +268,7 @@ impl Router {
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
         self.delete_routes.insert(path, Arc::new(handler)).ok();
+        register_route("DELETE", path);
         RouteBuilder {
             router: self,
             last_path: path.to_string(),
@@ -261,6 +332,11 @@ impl RouteBuilder {
     ///     .get("/api/users", users_handler).middleware(CorsMiddleware)
     /// ```
     pub fn middleware<M: Middleware + 'static>(mut self, middleware: M) -> RouteBuilder {
+        // Track middleware name for introspection
+        let type_name = std::any::type_name::<M>();
+        let short_name = type_name.rsplit("::").next().unwrap_or(type_name);
+        update_route_middleware(&self.last_path, short_name);
+
         self.router
             .add_middleware(&self.last_path, into_boxed(middleware));
         self
@@ -269,6 +345,9 @@ impl RouteBuilder {
     /// Apply pre-boxed middleware to the most recently registered route
     /// (Used internally by route macros)
     pub fn middleware_boxed(mut self, middleware: BoxedMiddleware) -> RouteBuilder {
+        // Track middleware (name not available for boxed middleware)
+        update_route_middleware(&self.last_path, "BoxedMiddleware");
+
         self.router
             .route_middleware
             .entry(self.last_path.clone())
