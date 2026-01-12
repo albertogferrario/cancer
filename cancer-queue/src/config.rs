@@ -1,5 +1,6 @@
 //! Queue configuration.
 
+use std::env;
 use std::time::Duration;
 
 /// Queue system configuration.
@@ -39,6 +40,78 @@ impl QueueConfig {
             redis_url: redis_url.into(),
             ..Default::default()
         }
+    }
+
+    /// Create configuration from environment variables.
+    ///
+    /// Reads the following environment variables:
+    /// - `QUEUE_CONNECTION`: "sync" or "redis" (defaults to "sync")
+    /// - `QUEUE_DEFAULT`: Default queue name (defaults to "default")
+    /// - `QUEUE_PREFIX`: Key prefix in Redis (defaults to "cancer_queue")
+    /// - `QUEUE_BLOCK_TIMEOUT`: Seconds to block waiting for jobs (defaults to 5)
+    /// - `QUEUE_MAX_CONCURRENT`: Max concurrent jobs per worker (defaults to 10)
+    /// - `REDIS_URL`: Full Redis URL (takes precedence if set)
+    /// - `REDIS_HOST`: Redis host (defaults to "127.0.0.1")
+    /// - `REDIS_PORT`: Redis port (defaults to 6379)
+    /// - `REDIS_PASSWORD`: Redis password (optional)
+    /// - `REDIS_DATABASE`: Redis database number (defaults to 0)
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer_queue::QueueConfig;
+    ///
+    /// // In bootstrap.rs
+    /// let config = QueueConfig::from_env();
+    /// Queue::init(config).await?;
+    /// ```
+    pub fn from_env() -> Self {
+        let redis_url = Self::build_redis_url();
+
+        Self {
+            redis_url,
+            default_queue: env::var("QUEUE_DEFAULT").unwrap_or_else(|_| "default".to_string()),
+            prefix: env::var("QUEUE_PREFIX").unwrap_or_else(|_| "cancer_queue".to_string()),
+            block_timeout: Duration::from_secs(
+                env::var("QUEUE_BLOCK_TIMEOUT")
+                    .ok()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(5),
+            ),
+            max_concurrent_jobs: env::var("QUEUE_MAX_CONCURRENT")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(10),
+            delayed_job_poll_interval: Duration::from_secs(1),
+        }
+    }
+
+    /// Build Redis URL from environment variables.
+    fn build_redis_url() -> String {
+        // Check for explicit REDIS_URL first
+        if let Ok(url) = env::var("REDIS_URL") {
+            return url;
+        }
+
+        let host = env::var("REDIS_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
+        let port = env::var("REDIS_PORT").unwrap_or_else(|_| "6379".to_string());
+        let password = env::var("REDIS_PASSWORD").ok().filter(|p| !p.is_empty());
+        let database = env::var("REDIS_DATABASE").unwrap_or_else(|_| "0".to_string());
+
+        match password {
+            Some(pass) => format!("redis://:{}@{}:{}/{}", pass, host, port, database),
+            None => format!("redis://{}:{}/{}", host, port, database),
+        }
+    }
+
+    /// Check if sync queue mode is configured.
+    ///
+    /// When QUEUE_CONNECTION=sync, jobs are processed immediately instead
+    /// of being pushed to Redis.
+    pub fn is_sync_mode() -> bool {
+        env::var("QUEUE_CONNECTION")
+            .map(|v| v.to_lowercase() == "sync")
+            .unwrap_or(true) // Default to sync for development
     }
 
     /// Set the default queue name.
@@ -115,5 +188,67 @@ mod tests {
         assert_eq!(config.default_queue, "high-priority");
         assert_eq!(config.prefix, "myapp");
         assert_eq!(config.max_concurrent_jobs, 5);
+    }
+
+    #[test]
+    fn test_from_env_defaults() {
+        // Clear any existing env vars
+        env::remove_var("QUEUE_DEFAULT");
+        env::remove_var("QUEUE_PREFIX");
+        env::remove_var("QUEUE_BLOCK_TIMEOUT");
+        env::remove_var("QUEUE_MAX_CONCURRENT");
+        env::remove_var("REDIS_URL");
+        env::remove_var("REDIS_HOST");
+        env::remove_var("REDIS_PORT");
+        env::remove_var("REDIS_PASSWORD");
+        env::remove_var("REDIS_DATABASE");
+
+        let config = QueueConfig::from_env();
+        assert_eq!(config.default_queue, "default");
+        assert_eq!(config.prefix, "cancer_queue");
+        assert_eq!(config.redis_url, "redis://127.0.0.1:6379/0");
+        assert_eq!(config.max_concurrent_jobs, 10);
+    }
+
+    #[test]
+    fn test_from_env_with_redis_url() {
+        env::set_var("REDIS_URL", "redis://custom:6380/5");
+        let config = QueueConfig::from_env();
+        assert_eq!(config.redis_url, "redis://custom:6380/5");
+        env::remove_var("REDIS_URL");
+    }
+
+    #[test]
+    fn test_build_redis_url_with_password() {
+        env::remove_var("REDIS_URL");
+        env::set_var("REDIS_HOST", "redis.example.com");
+        env::set_var("REDIS_PORT", "6380");
+        env::set_var("REDIS_PASSWORD", "secret123");
+        env::set_var("REDIS_DATABASE", "3");
+
+        let url = QueueConfig::build_redis_url();
+        assert_eq!(url, "redis://:secret123@redis.example.com:6380/3");
+
+        env::remove_var("REDIS_HOST");
+        env::remove_var("REDIS_PORT");
+        env::remove_var("REDIS_PASSWORD");
+        env::remove_var("REDIS_DATABASE");
+    }
+
+    #[test]
+    fn test_is_sync_mode() {
+        env::remove_var("QUEUE_CONNECTION");
+        assert!(QueueConfig::is_sync_mode()); // default is sync
+
+        env::set_var("QUEUE_CONNECTION", "sync");
+        assert!(QueueConfig::is_sync_mode());
+
+        env::set_var("QUEUE_CONNECTION", "redis");
+        assert!(!QueueConfig::is_sync_mode());
+
+        env::set_var("QUEUE_CONNECTION", "SYNC");
+        assert!(QueueConfig::is_sync_mode()); // case insensitive
+
+        env::remove_var("QUEUE_CONNECTION");
     }
 }
