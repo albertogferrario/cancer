@@ -17,4 +17,5 @@ pub mod list_models;
 pub mod list_routes;
 pub mod read_logs;
 pub mod search_docs;
+pub mod session_inspect;
 pub mod tinker;

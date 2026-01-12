@@ -86,6 +86,12 @@ pub struct BrowserLogsParams {
     pub level: Option<String>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct SessionInspectParams {
+    /// Optional session ID to inspect (shows all recent sessions if omitted)
+    pub session_id: Option<String>,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -316,6 +322,22 @@ impl CancerMcpService {
             params.0.level.as_deref(),
         ) {
             Ok(logs) => serde_json::to_string_pretty(&logs).unwrap_or_else(|_| "[]".to_string()),
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Inspect active sessions in the database for debugging authentication issues
+    #[tool(
+        name = "session_inspect",
+        description = "Inspect active sessions in the database. Shows session IDs, user IDs, and payload data. Useful for debugging authentication issues like session not persisting after login."
+    )]
+    pub async fn session_inspect(&self, params: Parameters<SessionInspectParams>) -> String {
+        match tools::session_inspect::execute(&self.project_root, params.0.session_id.as_deref())
+            .await
+        {
+            Ok(sessions) => {
+                serde_json::to_string_pretty(&sessions).unwrap_or_else(|_| "{}".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
