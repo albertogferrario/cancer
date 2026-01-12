@@ -67,11 +67,12 @@ Component paths validated at compile-time.
 
 ## Common Operations
 
-### Adding features
+### Adding/Updating Features
 1. Implement in appropriate crate
 2. Export from `lib.rs`
 3. Add to `framework/src/lib.rs` re-exports if user-facing
-4. Document in docs/
+4. **Update documentation** in `docs/src/` (required)
+5. **Update cancer-mcp** if the feature affects introspection (new commands, routes, models, etc.)
 
 ### Testing
 ```bash
@@ -103,3 +104,5 @@ cargo clippy
 - Run lint/tests before committing
 - Prefer editing existing files over creating new ones
 - Keep changes focused and minimal
+- **Always update docs when framework changes** - `docs/src/` must reflect current features
+- **Update cancer-mcp when needed** - New CLI commands, routes, models, or introspectable features require MCP tool updates
