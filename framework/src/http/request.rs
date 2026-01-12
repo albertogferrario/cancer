@@ -12,6 +12,8 @@ pub struct Request {
     inner: hyper::Request<hyper::body::Incoming>,
     params: HashMap<String, String>,
     extensions: HashMap<TypeId, Box<dyn Any + Send + Sync>>,
+    /// Route pattern for metrics (e.g., "/users/{id}" instead of "/users/123")
+    route_pattern: Option<String>,
 }
 
 impl Request {
@@ -20,12 +22,24 @@ impl Request {
             inner,
             params: HashMap::new(),
             extensions: HashMap::new(),
+            route_pattern: None,
         }
     }
 
     pub fn with_params(mut self, params: HashMap<String, String>) -> Self {
         self.params = params;
         self
+    }
+
+    /// Set the route pattern (e.g., "/users/{id}")
+    pub fn with_route_pattern(mut self, pattern: String) -> Self {
+        self.route_pattern = Some(pattern);
+        self
+    }
+
+    /// Get the route pattern for metrics grouping
+    pub fn route_pattern(&self) -> Option<String> {
+        self.route_pattern.clone()
     }
 
     /// Insert a value into the request extensions (type-map pattern)

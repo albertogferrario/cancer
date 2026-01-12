@@ -234,23 +234,23 @@ where
     Ok(map)
 }
 
-/// Macro to implement BatchLoad for an entity with an i32 id primary key
+/// Macro to implement BatchLoad for an entity with a primary key
 ///
 /// # Example
 ///
 /// ```rust,ignore
-/// impl_batch_load!(shelter::Entity, i32, |m| m.id);
-/// impl_batch_load!(shelter::Entity, i64, |m| m.id);
+/// impl_batch_load!(shelter::Entity, i32, id);
+/// impl_batch_load!(animal::Entity, i64, id);
 /// ```
 #[macro_export]
 macro_rules! impl_batch_load {
-    ($entity:ty, $key_type:ty, $pk_extractor:expr) => {
+    ($entity:ty, $key_type:ty, $pk_field:ident) => {
         #[async_trait::async_trait]
         impl $crate::database::BatchLoad for $entity {
             type Key = $key_type;
 
             fn extract_pk(model: &Self::Model) -> Self::Key {
-                $pk_extractor(model)
+                model.$pk_field
             }
 
             async fn batch_load<I>(
@@ -263,7 +263,7 @@ macro_rules! impl_batch_load {
                 I: IntoIterator<Item = Self::Key> + Send,
                 I::IntoIter: Send,
             {
-                use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+                use sea_orm::{ColumnTrait, EntityTrait, Iterable, QueryFilter};
                 use $crate::database::DB;
 
                 let ids_vec: Vec<Self::Key> = ids.into_iter().collect();

@@ -21,6 +21,7 @@ pub mod list_routes;
 pub mod list_services;
 pub mod read_logs;
 pub mod relation_map;
+pub mod request_metrics;
 pub mod search_docs;
 pub mod session_inspect;
 pub mod test_route;

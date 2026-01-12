@@ -255,6 +255,20 @@ impl CancerMcpService {
         }
     }
 
+    /// Get request metrics (counts, response times, error rates per route)
+    #[tool(
+        name = "request_metrics",
+        description = "Get request metrics per route including counts, response times, and error rates"
+    )]
+    pub async fn request_metrics(&self) -> String {
+        match tools::request_metrics::execute() {
+            Ok(metrics) => {
+                serde_json::to_string_pretty(&metrics).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
     /// List all database models with their fields and types
     #[tool(
         name = "list_models",

@@ -131,12 +131,15 @@ enum Method {
 pub type BoxedHandler =
     Box<dyn Fn(Request) -> Pin<Box<dyn Future<Output = Response> + Send>> + Send + Sync>;
 
+/// Value stored in the router: handler + pattern for metrics
+type RouteValue = (Arc<BoxedHandler>, String);
+
 /// HTTP Router with Laravel-like route registration
 pub struct Router {
-    get_routes: MatchitRouter<Arc<BoxedHandler>>,
-    post_routes: MatchitRouter<Arc<BoxedHandler>>,
-    put_routes: MatchitRouter<Arc<BoxedHandler>>,
-    delete_routes: MatchitRouter<Arc<BoxedHandler>>,
+    get_routes: MatchitRouter<RouteValue>,
+    post_routes: MatchitRouter<RouteValue>,
+    put_routes: MatchitRouter<RouteValue>,
+    delete_routes: MatchitRouter<RouteValue>,
     /// Middleware assignments: path -> boxed middleware instances
     route_middleware: HashMap<String, Vec<BoxedMiddleware>>,
     /// Fallback handler for when no routes match (overrides default 404)
@@ -190,25 +193,33 @@ impl Router {
 
     /// Insert a GET route with a pre-boxed handler (internal use for groups)
     pub(crate) fn insert_get(&mut self, path: &str, handler: Arc<BoxedHandler>) {
-        self.get_routes.insert(path, handler).ok();
+        self.get_routes
+            .insert(path, (handler, path.to_string()))
+            .ok();
         register_route("GET", path);
     }
 
     /// Insert a POST route with a pre-boxed handler (internal use for groups)
     pub(crate) fn insert_post(&mut self, path: &str, handler: Arc<BoxedHandler>) {
-        self.post_routes.insert(path, handler).ok();
+        self.post_routes
+            .insert(path, (handler, path.to_string()))
+            .ok();
         register_route("POST", path);
     }
 
     /// Insert a PUT route with a pre-boxed handler (internal use for groups)
     pub(crate) fn insert_put(&mut self, path: &str, handler: Arc<BoxedHandler>) {
-        self.put_routes.insert(path, handler).ok();
+        self.put_routes
+            .insert(path, (handler, path.to_string()))
+            .ok();
         register_route("PUT", path);
     }
 
     /// Insert a DELETE route with a pre-boxed handler (internal use for groups)
     pub(crate) fn insert_delete(&mut self, path: &str, handler: Arc<BoxedHandler>) {
-        self.delete_routes.insert(path, handler).ok();
+        self.delete_routes
+            .insert(path, (handler, path.to_string()))
+            .ok();
         register_route("DELETE", path);
     }
 
@@ -219,7 +230,9 @@ impl Router {
         Fut: Future<Output = Response> + Send + 'static,
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
-        self.get_routes.insert(path, Arc::new(handler)).ok();
+        self.get_routes
+            .insert(path, (Arc::new(handler), path.to_string()))
+            .ok();
         register_route("GET", path);
         RouteBuilder {
             router: self,
@@ -235,7 +248,9 @@ impl Router {
         Fut: Future<Output = Response> + Send + 'static,
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
-        self.post_routes.insert(path, Arc::new(handler)).ok();
+        self.post_routes
+            .insert(path, (Arc::new(handler), path.to_string()))
+            .ok();
         register_route("POST", path);
         RouteBuilder {
             router: self,
@@ -251,7 +266,9 @@ impl Router {
         Fut: Future<Output = Response> + Send + 'static,
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
-        self.put_routes.insert(path, Arc::new(handler)).ok();
+        self.put_routes
+            .insert(path, (Arc::new(handler), path.to_string()))
+            .ok();
         register_route("PUT", path);
         RouteBuilder {
             router: self,
@@ -267,7 +284,9 @@ impl Router {
         Fut: Future<Output = Response> + Send + 'static,
     {
         let handler: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
-        self.delete_routes.insert(path, Arc::new(handler)).ok();
+        self.delete_routes
+            .insert(path, (Arc::new(handler), path.to_string()))
+            .ok();
         register_route("DELETE", path);
         RouteBuilder {
             router: self,
@@ -276,12 +295,15 @@ impl Router {
         }
     }
 
-    /// Match a request and return the handler with extracted params
+    /// Match a request and return the handler with extracted params and route pattern
+    ///
+    /// Returns (handler, params, route_pattern) where route_pattern is the original
+    /// pattern like "/users/{id}" for metrics grouping.
     pub fn match_route(
         &self,
         method: &hyper::Method,
         path: &str,
-    ) -> Option<(Arc<BoxedHandler>, HashMap<String, String>)> {
+    ) -> Option<(Arc<BoxedHandler>, HashMap<String, String>, String)> {
         let router = match *method {
             hyper::Method::GET => &self.get_routes,
             hyper::Method::POST => &self.post_routes,
@@ -296,7 +318,8 @@ impl Router {
                 .iter()
                 .map(|(k, v)| (k.to_string(), v.to_string()))
                 .collect();
-            (matched.value.clone(), params)
+            let (handler, pattern) = matched.value.clone();
+            (handler, params, pattern)
         })
     }
 }

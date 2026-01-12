@@ -130,6 +130,7 @@ async fn handle_request(
             "/_cancer/routes" => crate::debug::handle_routes(),
             "/_cancer/middleware" => crate::debug::handle_middleware(),
             "/_cancer/services" => crate::debug::handle_services(),
+            "/_cancer/metrics" => crate::debug::handle_metrics(),
             _ => HttpResponse::text("404 Not Found").status(404).into_hyper(),
         };
     }
@@ -139,8 +140,10 @@ async fn handle_request(
     // No thread-local storage needed - this is async-safe.
 
     let response = match router.match_route(&method, &path) {
-        Some((handler, params)) => {
-            let request = Request::new(req).with_params(params);
+        Some((handler, params, route_pattern)) => {
+            let request = Request::new(req)
+                .with_params(params)
+                .with_route_pattern(route_pattern.clone());
 
             // Build middleware chain
             let mut chain = MiddlewareChain::new();
@@ -149,7 +152,7 @@ async fn handle_request(
             chain.extend(middleware_registry.global_middleware().iter().cloned());
 
             // 2. Add route-level middleware (already boxed)
-            let route_middleware = router.get_route_middleware(&path);
+            let route_middleware = router.get_route_middleware(&route_pattern);
             chain.extend(route_middleware);
 
             // 3. Execute chain with handler

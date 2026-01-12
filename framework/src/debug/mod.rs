@@ -5,6 +5,7 @@
 
 use crate::config::Config;
 use crate::container::get_registered_services;
+use crate::metrics;
 use crate::middleware::get_global_middleware_info;
 use crate::routing::get_registered_routes;
 use bytes::Bytes;
@@ -121,6 +122,30 @@ pub fn handle_services() -> hyper::Response<Full<Bytes>> {
         DebugResponse {
             success: true,
             data: services,
+            timestamp: Utc::now().to_rfc3339(),
+        },
+        200,
+    )
+}
+
+/// Handle /_cancer/metrics endpoint
+pub fn handle_metrics() -> hyper::Response<Full<Bytes>> {
+    if !is_debug_enabled() {
+        return json_response(
+            DebugErrorResponse {
+                success: false,
+                error: "Debug endpoints disabled in production".to_string(),
+                timestamp: Utc::now().to_rfc3339(),
+            },
+            403,
+        );
+    }
+
+    let snapshot = metrics::get_metrics();
+    json_response(
+        DebugResponse {
+            success: true,
+            data: snapshot,
             timestamp: Utc::now().to_rfc3339(),
         },
         200,

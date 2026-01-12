@@ -38,8 +38,11 @@
 //! ```
 
 mod chain;
+mod metrics;
 mod rate_limit;
 mod registry;
+
+pub use metrics::MetricsMiddleware;
 
 pub use chain::MiddlewareChain;
 pub use rate_limit::{

@@ -11,6 +11,7 @@ pub mod error;
 pub mod hashing;
 pub mod http;
 pub mod inertia;
+pub mod metrics;
 pub mod middleware;
 pub mod routing;
 pub mod schedule;
@@ -51,9 +52,10 @@ pub use session::{
 // Deprecated - kept for backward compatibility
 #[allow(deprecated)]
 pub use inertia::InertiaContext;
+pub use metrics::{get_metrics, MetricsSnapshot, RouteMetrics, RouteMetricsView};
 pub use middleware::{
-    register_global_middleware, Middleware, MiddlewareFuture, MiddlewareRegistry, Next,
-    RateLimitConfig, RateLimiter, RateLimiters, Throttle,
+    register_global_middleware, MetricsMiddleware, Middleware, MiddlewareFuture,
+    MiddlewareRegistry, Next, RateLimitConfig, RateLimiter, RateLimiters, Throttle,
 };
 pub use routing::{
     // Internal functions used by macros (hidden from docs)
