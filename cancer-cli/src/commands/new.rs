@@ -187,6 +187,10 @@ fn create_project(
         .map_err(|e| format!("Failed to create directories: {}", e))?;
     fs::create_dir_all(project_path.join("frontend/src/types"))
         .map_err(|e| format!("Failed to create directories: {}", e))?;
+    fs::create_dir_all(project_path.join("frontend/src/layouts"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
+    fs::create_dir_all(project_path.join("frontend/src/styles"))
+        .map_err(|e| format!("Failed to create directories: {}", e))?;
 
     // Public assets directory (for production builds)
     fs::create_dir_all(project_path.join("public/assets"))
@@ -249,6 +253,20 @@ fn create_project(
         templates::dashboard_controller(),
     )
     .map_err(|e| format!("Failed to write src/controllers/dashboard.rs: {}", e))?;
+
+    // Write src/controllers/profile.rs
+    fs::write(
+        project_path.join("src/controllers/profile.rs"),
+        templates::profile_controller(),
+    )
+    .map_err(|e| format!("Failed to write src/controllers/profile.rs: {}", e))?;
+
+    // Write src/controllers/settings.rs
+    fs::write(
+        project_path.join("src/controllers/settings.rs"),
+        templates::settings_controller(),
+    )
+    .map_err(|e| format!("Failed to write src/controllers/settings.rs: {}", e))?;
 
     // Write src/config/mod.rs
     fs::write(
@@ -327,6 +345,13 @@ fn create_project(
     )
     .map_err(|e| format!("Failed to write src/models/user.rs: {}", e))?;
 
+    // Write src/models/password_reset_tokens.rs
+    fs::write(
+        project_path.join("src/models/password_reset_tokens.rs"),
+        templates::password_reset_tokens_model(),
+    )
+    .map_err(|e| format!("Failed to write src/models/password_reset_tokens.rs: {}", e))?;
+
     // Write src/migrations/mod.rs
     fs::write(
         project_path.join("src/migrations/mod.rs"),
@@ -346,6 +371,12 @@ fn create_project(
         templates::create_sessions_migration(),
     )
     .map_err(|e| format!("Failed to write create_sessions_table migration: {}", e))?;
+
+    fs::write(
+        project_path.join("src/migrations/m20240101_000003_create_password_reset_tokens_table.rs"),
+        templates::create_password_reset_tokens_migration(),
+    )
+    .map_err(|e| format!("Failed to write create_password_reset_tokens_table migration: {}", e))?;
 
     // Note: migrations are now integrated into the main binary
     // Run with: ./app migrate
@@ -485,6 +516,62 @@ fn create_project(
         templates::inertia_props_types(),
     )
     .map_err(|e| format!("Failed to write frontend/src/types/inertia-props.ts: {}", e))?;
+
+    // Write frontend/src/layouts/AppLayout.tsx
+    fs::write(
+        project_path.join("frontend/src/layouts/AppLayout.tsx"),
+        templates::app_layout(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/layouts/AppLayout.tsx: {}", e))?;
+
+    // Write frontend/src/layouts/AuthLayout.tsx
+    fs::write(
+        project_path.join("frontend/src/layouts/AuthLayout.tsx"),
+        templates::auth_layout(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/layouts/AuthLayout.tsx: {}", e))?;
+
+    // Write frontend/src/layouts/index.ts
+    fs::write(
+        project_path.join("frontend/src/layouts/index.ts"),
+        templates::layouts_index(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/layouts/index.ts: {}", e))?;
+
+    // Write frontend/src/styles/globals.css
+    fs::write(
+        project_path.join("frontend/src/styles/globals.css"),
+        templates::globals_css(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/styles/globals.css: {}", e))?;
+
+    // Write frontend/src/pages/auth/ForgotPassword.tsx
+    fs::write(
+        project_path.join("frontend/src/pages/auth/ForgotPassword.tsx"),
+        templates::forgot_password_page(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/pages/auth/ForgotPassword.tsx: {}", e))?;
+
+    // Write frontend/src/pages/auth/ResetPassword.tsx
+    fs::write(
+        project_path.join("frontend/src/pages/auth/ResetPassword.tsx"),
+        templates::reset_password_page(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/pages/auth/ResetPassword.tsx: {}", e))?;
+
+    // Write frontend/src/pages/Profile.tsx
+    fs::write(
+        project_path.join("frontend/src/pages/Profile.tsx"),
+        templates::profile_page(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/pages/Profile.tsx: {}", e))?;
+
+    // Write frontend/src/pages/Settings.tsx
+    fs::write(
+        project_path.join("frontend/src/pages/Settings.tsx"),
+        templates::settings_page(),
+    )
+    .map_err(|e| format!("Failed to write frontend/src/pages/Settings.tsx: {}", e))?;
 
     // Initialize git repository
     if !no_git {

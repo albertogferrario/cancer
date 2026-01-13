@@ -236,6 +236,24 @@ pub fn inertia_props_types() -> &'static str {
     include_str!("files/frontend/src/types/inertia-props.ts.tpl")
 }
 
+// Frontend layout templates
+
+pub fn app_layout() -> &'static str {
+    include_str!("files/frontend/src/layouts/AppLayout.tsx.tpl")
+}
+
+pub fn auth_layout() -> &'static str {
+    include_str!("files/frontend/src/layouts/AuthLayout.tsx.tpl")
+}
+
+pub fn layouts_index() -> &'static str {
+    include_str!("files/frontend/src/layouts/index.ts.tpl")
+}
+
+pub fn globals_css() -> &'static str {
+    include_str!("files/frontend/src/styles/globals.css.tpl")
+}
+
 // Auth frontend templates
 
 pub fn login_page() -> &'static str {
@@ -246,8 +264,24 @@ pub fn register_page() -> &'static str {
     include_str!("files/frontend/src/pages/auth/Register.tsx.tpl")
 }
 
+pub fn forgot_password_page() -> &'static str {
+    include_str!("files/frontend/src/pages/auth/ForgotPassword.tsx.tpl")
+}
+
+pub fn reset_password_page() -> &'static str {
+    include_str!("files/frontend/src/pages/auth/ResetPassword.tsx.tpl")
+}
+
 pub fn dashboard_page() -> &'static str {
     include_str!("files/frontend/src/pages/Dashboard.tsx.tpl")
+}
+
+pub fn profile_page() -> &'static str {
+    include_str!("files/frontend/src/pages/Profile.tsx.tpl")
+}
+
+pub fn settings_page() -> &'static str {
+    include_str!("files/frontend/src/pages/Settings.tsx.tpl")
 }
 
 // Auth backend templates
@@ -260,12 +294,24 @@ pub fn dashboard_controller() -> &'static str {
     include_str!("files/backend/controllers/dashboard.rs.tpl")
 }
 
+pub fn profile_controller() -> &'static str {
+    include_str!("files/backend/controllers/profile.rs.tpl")
+}
+
+pub fn settings_controller() -> &'static str {
+    include_str!("files/backend/controllers/settings.rs.tpl")
+}
+
 pub fn authenticate_middleware() -> &'static str {
     include_str!("files/backend/middleware/authenticate.rs.tpl")
 }
 
 pub fn user_model() -> &'static str {
     include_str!("files/backend/models/user.rs.tpl")
+}
+
+pub fn password_reset_tokens_model() -> &'static str {
+    include_str!("files/backend/models/password_reset_tokens.rs.tpl")
 }
 
 // Auth migration templates
@@ -276,6 +322,10 @@ pub fn create_users_migration() -> &'static str {
 
 pub fn create_sessions_migration() -> &'static str {
     include_str!("files/backend/migrations/create_sessions_table.rs.tpl")
+}
+
+pub fn create_password_reset_tokens_migration() -> &'static str {
+    include_str!("files/backend/migrations/create_password_reset_tokens_table.rs.tpl")
 }
 
 // Root templates
