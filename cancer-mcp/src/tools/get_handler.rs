@@ -2,6 +2,7 @@
 
 use crate::error::{McpError, Result};
 use crate::tools::list_routes;
+use regex::Regex;
 use serde::Serialize;
 use std::fs;
 use std::path::Path;
@@ -15,6 +16,18 @@ pub struct HandlerInfo {
     pub source_code: String,
     pub line_start: usize,
     pub line_end: usize,
+    /// The Inertia component this handler renders (if any)
+    pub component: Option<String>,
+    /// The props struct name being sent (if detected)
+    pub props_struct: Option<String>,
+    /// Fields being sent to the frontend
+    pub props_fields: Vec<PropsField>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct PropsField {
+    pub name: String,
+    pub value_source: String,
 }
 
 pub fn execute(project_root: &Path, route_path: &str) -> Result<HandlerInfo> {
@@ -124,6 +137,9 @@ fn extract_handler(
                     .to_string_lossy()
                     .to_string();
 
+                // Extract component and props info
+                let (component, props_struct, props_fields) = extract_inertia_info(&source_code);
+
                 return Ok(HandlerInfo {
                     handler: handler.to_string(),
                     path: route.path.clone(),
@@ -132,6 +148,9 @@ fn extract_handler(
                     source_code,
                     line_start: start + 1, // 1-indexed
                     line_end: end,
+                    component,
+                    props_struct,
+                    props_fields,
                 });
             }
         }
@@ -142,4 +161,68 @@ fn extract_handler(
         function_name,
         file_path.display()
     )))
+}
+
+/// Extract Inertia component name, props struct, and fields from handler source code
+fn extract_inertia_info(source_code: &str) -> (Option<String>, Option<String>, Vec<PropsField>) {
+    let mut component = None;
+    let mut props_struct = None;
+    let mut props_fields = Vec::new();
+
+    // Pattern to find inertia_response!("ComponentName", PropsStruct { ... })
+    let inertia_pattern =
+        Regex::new(r#"inertia_response!\s*\(\s*"([^"]+)"\s*,\s*([A-Z][a-zA-Z0-9]*)\s*\{([^}]*)\}"#);
+
+    if let Ok(pattern) = inertia_pattern {
+        if let Some(cap) = pattern.captures(source_code) {
+            component = cap.get(1).map(|m| m.as_str().to_string());
+            props_struct = cap.get(2).map(|m| m.as_str().to_string());
+
+            if let Some(fields_match) = cap.get(3) {
+                props_fields = parse_props_fields(fields_match.as_str());
+            }
+        }
+    }
+
+    // Fallback: just try to find the component name
+    if component.is_none() {
+        let simple_pattern = Regex::new(r#"inertia_response!\s*\(\s*"([^"]+)""#);
+        if let Ok(pattern) = simple_pattern {
+            if let Some(cap) = pattern.captures(source_code) {
+                component = cap.get(1).map(|m| m.as_str().to_string());
+            }
+        }
+    }
+
+    (component, props_struct, props_fields)
+}
+
+/// Parse props fields from struct instantiation
+fn parse_props_fields(fields_str: &str) -> Vec<PropsField> {
+    let mut fields = Vec::new();
+
+    // Pattern: field_name: value or field_name (shorthand)
+    let field_pattern = Regex::new(r#"(\w+)\s*(?::\s*([^,\n]+))?"#);
+
+    if let Ok(pattern) = field_pattern {
+        for cap in pattern.captures_iter(fields_str) {
+            let name = cap
+                .get(1)
+                .map(|m| m.as_str().trim().to_string())
+                .unwrap_or_default();
+
+            if name.is_empty() {
+                continue;
+            }
+
+            let value_source = cap
+                .get(2)
+                .map(|m| m.as_str().trim().to_string())
+                .unwrap_or_else(|| name.clone()); // shorthand: field = field
+
+            fields.push(PropsField { name, value_source });
+        }
+    }
+
+    fields
 }

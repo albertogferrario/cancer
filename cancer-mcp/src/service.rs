@@ -58,6 +58,20 @@ pub struct GetConfigParams {
 pub struct GenerateTypesParams {
     /// Output file path (optional)
     pub output: Option<String>,
+    /// Dry run - preview changes without writing
+    pub dry_run: Option<bool>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct ListPropsParams {
+    /// Optional filter by name or file path
+    pub filter: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct InspectPropsParams {
+    /// Name of the InertiaProps struct to inspect
+    pub name: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
@@ -124,6 +138,12 @@ pub struct TestRouteParams {
     pub body: Option<String>,
     /// Whether to follow redirects (default: false)
     pub follow_redirects: Option<bool>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct ValidateContractsParams {
+    /// Optional route or component filter (e.g., "/rifugio" or "Dashboard")
+    pub filter: Option<String>,
 }
 
 #[tool_router(router = tool_router)]
@@ -352,11 +372,41 @@ impl CancerMcpService {
     /// Trigger TypeScript type generation
     #[tool(
         name = "generate_types",
-        description = "Trigger TypeScript type generation"
+        description = "Generate TypeScript interfaces from InertiaProps structs. Shows preview of generated types and diff from existing file. Use dry_run=true to preview without writing."
     )]
     pub async fn generate_types(&self, params: Parameters<GenerateTypesParams>) -> String {
-        match tools::generate_types::execute(&self.project_root, params.0.output.as_deref()) {
+        match tools::generate_types::execute(
+            &self.project_root,
+            params.0.output.as_deref(),
+            params.0.dry_run.unwrap_or(false),
+        ) {
             Ok(info) => serde_json::to_string_pretty(&info).unwrap_or_else(|_| "{}".to_string()),
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// List all InertiaProps structs
+    #[tool(
+        name = "list_props",
+        description = "List all InertiaProps structs in the project with their fields, TypeScript equivalents, and component mappings. Use this to understand what data contracts exist."
+    )]
+    pub async fn list_props(&self, params: Parameters<ListPropsParams>) -> String {
+        match tools::list_props::execute(&self.project_root, params.0.filter.as_deref()) {
+            Ok(props) => serde_json::to_string_pretty(&props).unwrap_or_else(|_| "{}".to_string()),
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Inspect a specific InertiaProps struct
+    #[tool(
+        name = "inspect_props",
+        description = "Detailed inspection of a single InertiaProps struct. Shows source code, TypeScript equivalent, handlers using it, and validation issues."
+    )]
+    pub async fn inspect_props(&self, params: Parameters<InspectPropsParams>) -> String {
+        match tools::inspect_props::execute(&self.project_root, &params.0.name) {
+            Ok(result) => {
+                serde_json::to_string_pretty(&result).unwrap_or_else(|_| "{}".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
@@ -498,6 +548,20 @@ impl CancerMcpService {
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
+
+    /// Validate backend/frontend data contracts
+    #[tool(
+        name = "validate_contracts",
+        description = "Validate that backend Rust handlers send the data that frontend React components expect. Compares InertiaProps structs with TypeScript interfaces to find mismatches. Use this PROACTIVELY after making changes to handlers or components to catch contract issues early."
+    )]
+    pub async fn validate_contracts(&self, params: Parameters<ValidateContractsParams>) -> String {
+        match tools::validate_contracts::execute(&self.project_root, params.0.filter.as_deref()) {
+            Ok(result) => {
+                serde_json::to_string_pretty(&result).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
 }
 
 #[tool_handler(router = self.tool_router)]
@@ -592,6 +656,13 @@ Cancer is a Laravel-inspired web framework for Rust featuring:
 - Looking up Cancer-specific APIs
 - Finding examples
 
+**USE validate_contracts** when:
+- After modifying handler code
+- After changing frontend component props
+- Before deploying to catch contract mismatches
+- When debugging "undefined" errors in frontend
+- PROACTIVELY after any Inertia-related changes
+
 ## Tool Categories
 
 ### Introspection (understand the app)
@@ -626,4 +697,8 @@ Cancer is a Laravel-inspired web framework for Rust featuring:
 - get_config: Read configuration
 - search_docs: Find documentation
 - list_commands: Available CLI commands
+
+### Contract Validation (catch mismatches)
+- validate_contracts: Compare backend props with frontend expectations
+- get_handler: Now includes component and props info
 "#;
