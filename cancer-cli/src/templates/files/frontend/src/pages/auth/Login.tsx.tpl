@@ -1,5 +1,11 @@
-import { useForm } from '@inertiajs/react'
-import type { LoginProps } from '../../types/inertia-props'
+import { useForm, Link } from '@inertiajs/react'
+import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react'
+import { Button, Input, Label, Checkbox } from '@appolabs/ui'
+import { AuthLayout } from '../../layouts'
+
+interface LoginProps {
+  errors?: Record<string, string[]>
+}
 
 export default function Login({ errors }: LoginProps) {
   const { data, setData, post, processing } = useForm({
@@ -8,90 +14,97 @@ export default function Login({ errors }: LoginProps) {
     remember: false,
   })
 
-  const submit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     post('/login')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={submit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={data.email}
-                onChange={(e) => setData('email', e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={data.password}
-                onChange={(e) => setData('password', e.target.value)}
-              />
-            </div>
-          </div>
-
-          {errors?.email && (
-            <div className="text-red-600 text-sm">{errors.email[0]}</div>
-          )}
-
-          <div className="flex items-center">
-            <input
-              id="remember"
-              name="remember"
-              type="checkbox"
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              checked={data.remember}
-              onChange={(e) => setData('remember', e.target.checked)}
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Sign in to your account to continue"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="name@example.com"
+              value={data.email}
+              onChange={(e) => setData('email', e.target.value)}
+              className="pl-10"
+              autoComplete="email"
+              required
             />
-            <label htmlFor="remember" className="ml-2 block text-sm text-gray-900">
-              Remember me
-            </label>
           </div>
+          {errors?.email && (
+            <p className="text-sm text-destructive">{errors.email[0]}</p>
+          )}
+        </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={processing}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Password</Label>
+            <Link
+              href="/forgot-password"
+              className="text-sm text-muted-foreground hover:text-primary"
             >
-              {processing ? 'Signing in...' : 'Sign in'}
-            </button>
+              Forgot password?
+            </Link>
           </div>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              value={data.password}
+              onChange={(e) => setData('password', e.target.value)}
+              className="pl-10"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+          {errors?.password && (
+            <p className="text-sm text-destructive">{errors.password[0]}</p>
+          )}
+        </div>
 
-          <div className="text-center">
-            <a href="/register" className="text-indigo-600 hover:text-indigo-500">
-              Don't have an account? Register
-            </a>
-          </div>
-        </form>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="remember"
+            checked={data.remember}
+            onCheckedChange={(checked) => setData('remember', checked as boolean)}
+          />
+          <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
+            Remember me
+          </Label>
+        </div>
+
+        <Button type="submit" className="w-full" disabled={processing}>
+          {processing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing in...
+            </>
+          ) : (
+            <>
+              Sign in
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </>
+          )}
+        </Button>
+      </form>
+
+      <div className="mt-6 text-center text-sm text-muted-foreground">
+        Don't have an account?{' '}
+        <Link href="/register" className="text-primary hover:underline">
+          Sign up
+        </Link>
       </div>
-    </div>
+    </AuthLayout>
   )
 }

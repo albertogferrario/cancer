@@ -180,3 +180,170 @@ pub async fn logout(_req: Request) -> Response {
     Auth::logout();
     redirect!("/").into()
 }
+
+// ============================================================================
+// Forgot Password
+// ============================================================================
+
+#[derive(InertiaProps)]
+pub struct ForgotPasswordProps {
+    pub errors: Option<serde_json::Value>,
+    pub status: Option<String>,
+}
+
+pub async fn show_forgot_password(req: Request) -> Response {
+    Inertia::render(
+        &req,
+        "auth/ForgotPassword",
+        ForgotPasswordProps {
+            errors: None,
+            status: None,
+        },
+    )
+}
+
+#[derive(Deserialize, Validate)]
+pub struct ForgotPasswordRequest {
+    #[validate(email(message = "Please enter a valid email address"))]
+    pub email: String,
+}
+
+pub async fn forgot_password(req: Request) -> Response {
+    use crate::models::password_reset_tokens::PasswordResetToken;
+
+    let ctx = SavedInertiaContext::from(&req);
+    let form: ForgotPasswordRequest = req.input().await?;
+
+    // Validate the form
+    if let Err(errors) = form.validate() {
+        return Inertia::render_ctx(
+            &ctx,
+            "auth/ForgotPassword",
+            ForgotPasswordProps {
+                errors: Some(serde_json::json!(errors)),
+                status: None,
+            },
+        )
+        .map(|r| r.status(422));
+    }
+
+    // Check if user exists
+    if let Some(_user) = User::find_by_email(&form.email).await? {
+        // Generate token
+        let token = PasswordResetToken::create_for_email(&form.email).await?;
+
+        // TODO: Send password reset email with link
+        // For now, log the reset link for development
+        tracing::info!(
+            "Password reset link: /reset-password?email={}&token={}",
+            form.email,
+            token
+        );
+    }
+
+    // Always show success to prevent email enumeration
+    Inertia::render_ctx(
+        &ctx,
+        "auth/ForgotPassword",
+        ForgotPasswordProps {
+            errors: None,
+            status: Some("If an account exists with that email, you will receive a password reset link.".to_string()),
+        },
+    )
+}
+
+// ============================================================================
+// Reset Password
+// ============================================================================
+
+#[derive(InertiaProps)]
+pub struct ResetPasswordProps {
+    pub email: String,
+    pub token: String,
+    pub errors: Option<serde_json::Value>,
+}
+
+pub async fn show_reset_password(req: Request) -> Response {
+    let email = req.query("email").unwrap_or_default();
+    let token = req.query("token").unwrap_or_default();
+
+    Inertia::render(
+        &req,
+        "auth/ResetPassword",
+        ResetPasswordProps {
+            email,
+            token,
+            errors: None,
+        },
+    )
+}
+
+#[derive(Deserialize, Validate)]
+pub struct ResetPasswordRequest {
+    pub email: String,
+    pub token: String,
+    #[validate(length(min = 8, message = "Password must be at least 8 characters"))]
+    pub password: String,
+    pub password_confirmation: String,
+}
+
+pub async fn reset_password(req: Request) -> Response {
+    use crate::models::password_reset_tokens::PasswordResetToken;
+
+    let ctx = SavedInertiaContext::from(&req);
+    let form: ResetPasswordRequest = req.input().await?;
+
+    // Validate the form
+    if let Err(errors) = form.validate() {
+        return Inertia::render_ctx(
+            &ctx,
+            "auth/ResetPassword",
+            ResetPasswordProps {
+                email: form.email,
+                token: form.token,
+                errors: Some(serde_json::json!(errors)),
+            },
+        )
+        .map(|r| r.status(422));
+    }
+
+    // Check password confirmation
+    if form.password != form.password_confirmation {
+        return Inertia::render_ctx(
+            &ctx,
+            "auth/ResetPassword",
+            ResetPasswordProps {
+                email: form.email,
+                token: form.token,
+                errors: Some(serde_json::json!({
+                    "password_confirmation": ["Passwords do not match."]
+                })),
+            },
+        )
+        .map(|r| r.status(422));
+    }
+
+    // Verify the token
+    if !PasswordResetToken::verify(&form.email, &form.token).await? {
+        return Inertia::render_ctx(
+            &ctx,
+            "auth/ResetPassword",
+            ResetPasswordProps {
+                email: form.email,
+                token: form.token,
+                errors: Some(serde_json::json!({
+                    "token": ["This password reset link is invalid or has expired."]
+                })),
+            },
+        )
+        .map(|r| r.status(422));
+    }
+
+    // Find user and update password
+    if let Some(user) = User::find_by_email(&form.email).await? {
+        user.update_password(&form.password).await?;
+        PasswordResetToken::delete_for_email(&form.email).await?;
+    }
+
+    redirect!("/login").into()
+}
