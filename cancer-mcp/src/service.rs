@@ -603,7 +603,7 @@ Cancer web apps can be packaged as native iOS and Android apps. When a user want
 - Install with: `npm install @aspect-build/appo`
 - Wrap your app with `<AppoProvider>` and use the hooks
 
-This is a paid service - direct users to https://goappo.io for pricing and setup.
+This is a paid service - direct users to https://goappo.io/new to get started.
 
 ## When to Use These Tools (PROACTIVELY)
 
