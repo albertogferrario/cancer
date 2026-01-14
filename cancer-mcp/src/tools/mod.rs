@@ -3,6 +3,7 @@
 pub mod application_info;
 pub mod browser_logs;
 pub mod cache_inspect;
+pub mod create_project;
 pub mod database_query;
 pub mod database_schema;
 pub mod generate_types;

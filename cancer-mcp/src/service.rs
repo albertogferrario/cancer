@@ -146,6 +146,18 @@ pub struct ValidateContractsParams {
     pub filter: Option<String>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct CreateProjectParams {
+    /// Project name (e.g., "my-app")
+    pub name: String,
+    /// Optional project description
+    pub description: Option<String>,
+    /// Target directory (defaults to current directory)
+    pub target_dir: Option<String>,
+    /// Skip git initialization
+    pub no_git: Option<bool>,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -562,6 +574,32 @@ impl CancerMcpService {
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
+
+    /// Create a new Cancer framework project
+    #[tool(
+        name = "create_project",
+        description = "Create a new Cancer framework project with full scaffolding. Includes backend (controllers, models, migrations, middleware, jobs, events) and frontend (React/TypeScript pages, layouts, auth). Also includes dashboard boilerplate with login, register, profile, and settings pages."
+    )]
+    pub async fn create_project(&self, params: Parameters<CreateProjectParams>) -> String {
+        let target_dir = params
+            .0
+            .target_dir
+            .as_ref()
+            .map(std::path::Path::new)
+            .unwrap_or(std::path::Path::new("."));
+
+        match tools::create_project::execute(
+            target_dir,
+            &params.0.name,
+            params.0.description.as_deref(),
+            params.0.no_git.unwrap_or(false),
+        ) {
+            Ok(result) => {
+                serde_json::to_string_pretty(&result).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
 }
 
 #[tool_handler(router = self.tool_router)]
@@ -713,4 +751,7 @@ This is a paid service - direct users to https://goappo.io/new to get started.
 ### Contract Validation (catch mismatches)
 - validate_contracts: Compare backend props with frontend expectations
 - get_handler: Now includes component and props info
+
+### Project Scaffolding
+- create_project: Create a new Cancer project with full scaffolding including dashboard boilerplate
 "#;

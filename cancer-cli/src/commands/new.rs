@@ -146,432 +146,13 @@ fn create_project(
     }
 
     // Create directory structure
-    // Backend directories
-    fs::create_dir_all(project_path.join("src/controllers"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/config"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/middleware"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/actions"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/models"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/migrations"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/events"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/listeners"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/jobs"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/notifications"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/tasks"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/seeders"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("src/factories"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
+    create_directories(project_path)?;
 
-    // Storage directories
-    fs::create_dir_all(project_path.join("storage/app/public"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("storage/logs"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
+    // Write backend files
+    write_backend_files(project_path, package_name, description, author)?;
 
-    // Frontend directories
-    fs::create_dir_all(project_path.join("frontend/src/pages"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("frontend/src/pages/auth"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("frontend/src/types"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("frontend/src/layouts"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-    fs::create_dir_all(project_path.join("frontend/src/styles"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-
-    // Public assets directory (for production builds)
-    fs::create_dir_all(project_path.join("public/assets"))
-        .map_err(|e| format!("Failed to create directories: {}", e))?;
-
-    // === Backend files ===
-
-    // Write Cargo.toml
-    let cargo_toml = templates::cargo_toml(package_name, description, author);
-    fs::write(project_path.join("Cargo.toml"), cargo_toml)
-        .map_err(|e| format!("Failed to write Cargo.toml: {}", e))?;
-
-    // Write .gitignore
-    fs::write(project_path.join(".gitignore"), templates::gitignore())
-        .map_err(|e| format!("Failed to write .gitignore: {}", e))?;
-
-    // Write .env
-    fs::write(project_path.join(".env"), templates::env(project_name))
-        .map_err(|e| format!("Failed to write .env: {}", e))?;
-
-    // Write .env.example
-    fs::write(project_path.join(".env.example"), templates::env_example())
-        .map_err(|e| format!("Failed to write .env.example: {}", e))?;
-
-    // Write src/main.rs
-    fs::write(
-        project_path.join("src/main.rs"),
-        templates::main_rs(package_name),
-    )
-    .map_err(|e| format!("Failed to write src/main.rs: {}", e))?;
-
-    // Write src/routes.rs
-    fs::write(project_path.join("src/routes.rs"), templates::routes_rs())
-        .map_err(|e| format!("Failed to write src/routes.rs: {}", e))?;
-
-    // Write src/controllers/mod.rs
-    fs::write(
-        project_path.join("src/controllers/mod.rs"),
-        templates::controllers_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/controllers/mod.rs: {}", e))?;
-
-    // Write src/controllers/home.rs
-    fs::write(
-        project_path.join("src/controllers/home.rs"),
-        templates::home_controller(),
-    )
-    .map_err(|e| format!("Failed to write src/controllers/home.rs: {}", e))?;
-
-    // Write src/controllers/auth.rs
-    fs::write(
-        project_path.join("src/controllers/auth.rs"),
-        templates::auth_controller(),
-    )
-    .map_err(|e| format!("Failed to write src/controllers/auth.rs: {}", e))?;
-
-    // Write src/controllers/dashboard.rs
-    fs::write(
-        project_path.join("src/controllers/dashboard.rs"),
-        templates::dashboard_controller(),
-    )
-    .map_err(|e| format!("Failed to write src/controllers/dashboard.rs: {}", e))?;
-
-    // Write src/controllers/profile.rs
-    fs::write(
-        project_path.join("src/controllers/profile.rs"),
-        templates::profile_controller(),
-    )
-    .map_err(|e| format!("Failed to write src/controllers/profile.rs: {}", e))?;
-
-    // Write src/controllers/settings.rs
-    fs::write(
-        project_path.join("src/controllers/settings.rs"),
-        templates::settings_controller(),
-    )
-    .map_err(|e| format!("Failed to write src/controllers/settings.rs: {}", e))?;
-
-    // Write src/config/mod.rs
-    fs::write(
-        project_path.join("src/config/mod.rs"),
-        templates::config_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/config/mod.rs: {}", e))?;
-
-    // Write src/config/database.rs
-    fs::write(
-        project_path.join("src/config/database.rs"),
-        templates::config_database(),
-    )
-    .map_err(|e| format!("Failed to write src/config/database.rs: {}", e))?;
-
-    // Write src/config/mail.rs
-    fs::write(
-        project_path.join("src/config/mail.rs"),
-        templates::config_mail(),
-    )
-    .map_err(|e| format!("Failed to write src/config/mail.rs: {}", e))?;
-
-    // Write src/middleware/mod.rs
-    fs::write(
-        project_path.join("src/middleware/mod.rs"),
-        templates::middleware_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/middleware/mod.rs: {}", e))?;
-
-    // Write src/middleware/logging.rs
-    fs::write(
-        project_path.join("src/middleware/logging.rs"),
-        templates::middleware_logging(),
-    )
-    .map_err(|e| format!("Failed to write src/middleware/logging.rs: {}", e))?;
-
-    // Write src/middleware/authenticate.rs
-    fs::write(
-        project_path.join("src/middleware/authenticate.rs"),
-        templates::authenticate_middleware(),
-    )
-    .map_err(|e| format!("Failed to write src/middleware/authenticate.rs: {}", e))?;
-
-    // Write src/bootstrap.rs
-    fs::write(
-        project_path.join("src/bootstrap.rs"),
-        templates::bootstrap(),
-    )
-    .map_err(|e| format!("Failed to write src/bootstrap.rs: {}", e))?;
-
-    // Write src/actions/mod.rs
-    fs::write(
-        project_path.join("src/actions/mod.rs"),
-        templates::actions_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/actions/mod.rs: {}", e))?;
-
-    // Write src/actions/example_action.rs
-    fs::write(
-        project_path.join("src/actions/example_action.rs"),
-        templates::example_action(),
-    )
-    .map_err(|e| format!("Failed to write src/actions/example_action.rs: {}", e))?;
-
-    // Write src/models/mod.rs
-    fs::write(
-        project_path.join("src/models/mod.rs"),
-        templates::models_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/models/mod.rs: {}", e))?;
-
-    // Write src/models/user.rs
-    fs::write(
-        project_path.join("src/models/user.rs"),
-        templates::user_model(),
-    )
-    .map_err(|e| format!("Failed to write src/models/user.rs: {}", e))?;
-
-    // Write src/models/password_reset_tokens.rs
-    fs::write(
-        project_path.join("src/models/password_reset_tokens.rs"),
-        templates::password_reset_tokens_model(),
-    )
-    .map_err(|e| format!("Failed to write src/models/password_reset_tokens.rs: {}", e))?;
-
-    // Write src/migrations/mod.rs
-    fs::write(
-        project_path.join("src/migrations/mod.rs"),
-        templates::migrations_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/migrations/mod.rs: {}", e))?;
-
-    // Write auth migration files
-    fs::write(
-        project_path.join("src/migrations/m20240101_000001_create_users_table.rs"),
-        templates::create_users_migration(),
-    )
-    .map_err(|e| format!("Failed to write create_users_table migration: {}", e))?;
-
-    fs::write(
-        project_path.join("src/migrations/m20240101_000002_create_sessions_table.rs"),
-        templates::create_sessions_migration(),
-    )
-    .map_err(|e| format!("Failed to write create_sessions_table migration: {}", e))?;
-
-    fs::write(
-        project_path.join("src/migrations/m20240101_000003_create_password_reset_tokens_table.rs"),
-        templates::create_password_reset_tokens_migration(),
-    )
-    .map_err(|e| format!("Failed to write create_password_reset_tokens_table migration: {}", e))?;
-
-    // Note: migrations are now integrated into the main binary
-    // Run with: ./app migrate
-
-    // === Events, Listeners, Jobs, Notifications, Tasks ===
-
-    // Write src/events/mod.rs
-    fs::write(
-        project_path.join("src/events/mod.rs"),
-        templates::events_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/events/mod.rs: {}", e))?;
-
-    // Write src/listeners/mod.rs
-    fs::write(
-        project_path.join("src/listeners/mod.rs"),
-        templates::listeners_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/listeners/mod.rs: {}", e))?;
-
-    // Write src/jobs/mod.rs
-    fs::write(project_path.join("src/jobs/mod.rs"), templates::jobs_mod())
-        .map_err(|e| format!("Failed to write src/jobs/mod.rs: {}", e))?;
-
-    // Write src/notifications/mod.rs
-    fs::write(
-        project_path.join("src/notifications/mod.rs"),
-        templates::notifications_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/notifications/mod.rs: {}", e))?;
-
-    // Write src/tasks/mod.rs
-    fs::write(
-        project_path.join("src/tasks/mod.rs"),
-        templates::tasks_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/tasks/mod.rs: {}", e))?;
-
-    // Write src/seeders/mod.rs
-    fs::write(
-        project_path.join("src/seeders/mod.rs"),
-        templates::seeders_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/seeders/mod.rs: {}", e))?;
-
-    // Write src/factories/mod.rs
-    fs::write(
-        project_path.join("src/factories/mod.rs"),
-        templates::factories_mod(),
-    )
-    .map_err(|e| format!("Failed to write src/factories/mod.rs: {}", e))?;
-
-    // Write src/schedule.rs
-    fs::write(
-        project_path.join("src/schedule.rs"),
-        templates::schedule_rs(),
-    )
-    .map_err(|e| format!("Failed to write src/schedule.rs: {}", e))?;
-
-    // Write storage/.gitkeep files
-    fs::write(project_path.join("storage/app/.gitkeep"), "")
-        .map_err(|e| format!("Failed to write storage/app/.gitkeep: {}", e))?;
-
-    fs::write(project_path.join("storage/logs/.gitkeep"), "")
-        .map_err(|e| format!("Failed to write storage/logs/.gitkeep: {}", e))?;
-
-    // === Frontend files ===
-
-    // Write frontend/package.json
-    let package_json = templates::package_json(project_name);
-    fs::write(project_path.join("frontend/package.json"), package_json)
-        .map_err(|e| format!("Failed to write frontend/package.json: {}", e))?;
-
-    // Write frontend/vite.config.ts
-    fs::write(
-        project_path.join("frontend/vite.config.ts"),
-        templates::vite_config(),
-    )
-    .map_err(|e| format!("Failed to write frontend/vite.config.ts: {}", e))?;
-
-    // Write frontend/tsconfig.json
-    fs::write(
-        project_path.join("frontend/tsconfig.json"),
-        templates::tsconfig(),
-    )
-    .map_err(|e| format!("Failed to write frontend/tsconfig.json: {}", e))?;
-
-    // Write frontend/index.html
-    let title = to_title_case(project_name);
-    let index_html = templates::index_html(&title);
-    fs::write(project_path.join("frontend/index.html"), index_html)
-        .map_err(|e| format!("Failed to write frontend/index.html: {}", e))?;
-
-    // Write frontend/src/main.tsx
-    fs::write(
-        project_path.join("frontend/src/main.tsx"),
-        templates::main_tsx(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/main.tsx: {}", e))?;
-
-    // Write frontend/src/pages/Home.tsx
-    fs::write(
-        project_path.join("frontend/src/pages/Home.tsx"),
-        templates::home_page(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/pages/Home.tsx: {}", e))?;
-
-    // Write frontend/src/pages/auth/Login.tsx
-    fs::write(
-        project_path.join("frontend/src/pages/auth/Login.tsx"),
-        templates::login_page(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/pages/auth/Login.tsx: {}", e))?;
-
-    // Write frontend/src/pages/auth/Register.tsx
-    fs::write(
-        project_path.join("frontend/src/pages/auth/Register.tsx"),
-        templates::register_page(),
-    )
-    .map_err(|e| {
-        format!(
-            "Failed to write frontend/src/pages/auth/Register.tsx: {}",
-            e
-        )
-    })?;
-
-    // Write frontend/src/pages/Dashboard.tsx
-    fs::write(
-        project_path.join("frontend/src/pages/Dashboard.tsx"),
-        templates::dashboard_page(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/pages/Dashboard.tsx: {}", e))?;
-
-    // Write frontend/src/types/inertia-props.ts
-    fs::write(
-        project_path.join("frontend/src/types/inertia-props.ts"),
-        templates::inertia_props_types(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/types/inertia-props.ts: {}", e))?;
-
-    // Write frontend/src/layouts/AppLayout.tsx
-    fs::write(
-        project_path.join("frontend/src/layouts/AppLayout.tsx"),
-        templates::app_layout(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/layouts/AppLayout.tsx: {}", e))?;
-
-    // Write frontend/src/layouts/AuthLayout.tsx
-    fs::write(
-        project_path.join("frontend/src/layouts/AuthLayout.tsx"),
-        templates::auth_layout(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/layouts/AuthLayout.tsx: {}", e))?;
-
-    // Write frontend/src/layouts/index.ts
-    fs::write(
-        project_path.join("frontend/src/layouts/index.ts"),
-        templates::layouts_index(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/layouts/index.ts: {}", e))?;
-
-    // Write frontend/src/styles/globals.css
-    fs::write(
-        project_path.join("frontend/src/styles/globals.css"),
-        templates::globals_css(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/styles/globals.css: {}", e))?;
-
-    // Write frontend/src/pages/auth/ForgotPassword.tsx
-    fs::write(
-        project_path.join("frontend/src/pages/auth/ForgotPassword.tsx"),
-        templates::forgot_password_page(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/pages/auth/ForgotPassword.tsx: {}", e))?;
-
-    // Write frontend/src/pages/auth/ResetPassword.tsx
-    fs::write(
-        project_path.join("frontend/src/pages/auth/ResetPassword.tsx"),
-        templates::reset_password_page(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/pages/auth/ResetPassword.tsx: {}", e))?;
-
-    // Write frontend/src/pages/Profile.tsx
-    fs::write(
-        project_path.join("frontend/src/pages/Profile.tsx"),
-        templates::profile_page(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/pages/Profile.tsx: {}", e))?;
-
-    // Write frontend/src/pages/Settings.tsx
-    fs::write(
-        project_path.join("frontend/src/pages/Settings.tsx"),
-        templates::settings_page(),
-    )
-    .map_err(|e| format!("Failed to write frontend/src/pages/Settings.tsx: {}", e))?;
+    // Write frontend files
+    write_frontend_files(project_path, project_name)?;
 
     // Initialize git repository
     if !no_git {
@@ -583,4 +164,298 @@ fn create_project(
     }
 
     Ok(())
+}
+
+fn create_directories(project_path: &Path) -> Result<(), String> {
+    let backend_dirs = [
+        "src/controllers",
+        "src/config",
+        "src/middleware",
+        "src/actions",
+        "src/models",
+        "src/migrations",
+        "src/events",
+        "src/listeners",
+        "src/jobs",
+        "src/notifications",
+        "src/tasks",
+        "src/seeders",
+        "src/factories",
+        "storage/app/public",
+        "storage/logs",
+    ];
+
+    let frontend_dirs = [
+        "frontend/src/pages",
+        "frontend/src/pages/auth",
+        "frontend/src/types",
+        "frontend/src/layouts",
+        "frontend/src/styles",
+        "public/assets",
+    ];
+
+    for dir in backend_dirs.iter().chain(frontend_dirs.iter()) {
+        fs::create_dir_all(project_path.join(dir))
+            .map_err(|e| format!("Failed to create directory {}: {}", dir, e))?;
+    }
+
+    Ok(())
+}
+
+fn write_backend_files(
+    project_path: &Path,
+    package_name: &str,
+    description: &str,
+    author: &str,
+) -> Result<(), String> {
+    // Root files
+    write_file(
+        project_path,
+        "Cargo.toml",
+        &templates::cargo_toml(package_name, description, author),
+    )?;
+    write_file(project_path, ".gitignore", templates::gitignore())?;
+    write_file(project_path, ".env", &templates::env(package_name))?;
+    write_file(project_path, ".env.example", templates::env_example())?;
+
+    // Main source files
+    write_file(
+        project_path,
+        "src/main.rs",
+        &templates::main_rs(package_name),
+    )?;
+    write_file(project_path, "src/routes.rs", templates::routes_rs())?;
+    write_file(project_path, "src/bootstrap.rs", templates::bootstrap())?;
+    write_file(project_path, "src/schedule.rs", templates::schedule_rs())?;
+
+    // Controllers
+    write_file(
+        project_path,
+        "src/controllers/mod.rs",
+        templates::controllers_mod(),
+    )?;
+    write_file(
+        project_path,
+        "src/controllers/home.rs",
+        templates::home_controller(),
+    )?;
+    write_file(
+        project_path,
+        "src/controllers/auth.rs",
+        templates::auth_controller(),
+    )?;
+    write_file(
+        project_path,
+        "src/controllers/dashboard.rs",
+        templates::dashboard_controller(),
+    )?;
+    write_file(
+        project_path,
+        "src/controllers/profile.rs",
+        templates::profile_controller(),
+    )?;
+    write_file(
+        project_path,
+        "src/controllers/settings.rs",
+        templates::settings_controller(),
+    )?;
+
+    // Config
+    write_file(project_path, "src/config/mod.rs", templates::config_mod())?;
+    write_file(
+        project_path,
+        "src/config/database.rs",
+        templates::config_database(),
+    )?;
+    write_file(project_path, "src/config/mail.rs", templates::config_mail())?;
+
+    // Middleware
+    write_file(
+        project_path,
+        "src/middleware/mod.rs",
+        templates::middleware_mod(),
+    )?;
+    write_file(
+        project_path,
+        "src/middleware/logging.rs",
+        templates::middleware_logging(),
+    )?;
+    write_file(
+        project_path,
+        "src/middleware/authenticate.rs",
+        templates::authenticate_middleware(),
+    )?;
+
+    // Actions
+    write_file(project_path, "src/actions/mod.rs", templates::actions_mod())?;
+    write_file(
+        project_path,
+        "src/actions/example_action.rs",
+        templates::example_action(),
+    )?;
+
+    // Models
+    write_file(project_path, "src/models/mod.rs", templates::models_mod())?;
+    write_file(project_path, "src/models/user.rs", templates::user_model())?;
+    write_file(
+        project_path,
+        "src/models/password_reset_tokens.rs",
+        templates::password_reset_tokens_model(),
+    )?;
+
+    // Migrations
+    write_file(
+        project_path,
+        "src/migrations/mod.rs",
+        templates::migrations_mod(),
+    )?;
+    write_file(
+        project_path,
+        "src/migrations/m20240101_000001_create_users_table.rs",
+        templates::create_users_migration(),
+    )?;
+    write_file(
+        project_path,
+        "src/migrations/m20240101_000002_create_sessions_table.rs",
+        templates::create_sessions_migration(),
+    )?;
+    write_file(
+        project_path,
+        "src/migrations/m20240101_000003_create_password_reset_tokens_table.rs",
+        templates::create_password_reset_tokens_migration(),
+    )?;
+
+    // Events, Listeners, Jobs, Notifications, Tasks
+    write_file(project_path, "src/events/mod.rs", templates::events_mod())?;
+    write_file(
+        project_path,
+        "src/listeners/mod.rs",
+        templates::listeners_mod(),
+    )?;
+    write_file(project_path, "src/jobs/mod.rs", templates::jobs_mod())?;
+    write_file(
+        project_path,
+        "src/notifications/mod.rs",
+        templates::notifications_mod(),
+    )?;
+    write_file(project_path, "src/tasks/mod.rs", templates::tasks_mod())?;
+    write_file(project_path, "src/seeders/mod.rs", templates::seeders_mod())?;
+    write_file(
+        project_path,
+        "src/factories/mod.rs",
+        templates::factories_mod(),
+    )?;
+
+    // Storage gitkeep files
+    write_file(project_path, "storage/app/.gitkeep", "")?;
+    write_file(project_path, "storage/logs/.gitkeep", "")?;
+
+    Ok(())
+}
+
+fn write_frontend_files(project_path: &Path, project_name: &str) -> Result<(), String> {
+    let title = to_title_case(project_name);
+
+    // Root frontend files
+    write_file(
+        project_path,
+        "frontend/package.json",
+        &templates::package_json(project_name),
+    )?;
+    write_file(
+        project_path,
+        "frontend/vite.config.ts",
+        templates::vite_config(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/tsconfig.json",
+        templates::tsconfig(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/index.html",
+        &templates::index_html(&title),
+    )?;
+
+    // Frontend source files
+    write_file(project_path, "frontend/src/main.tsx", templates::main_tsx())?;
+    write_file(
+        project_path,
+        "frontend/src/types/inertia-props.ts",
+        templates::inertia_props_types(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/src/styles/globals.css",
+        templates::globals_css(),
+    )?;
+
+    // Layouts
+    write_file(
+        project_path,
+        "frontend/src/layouts/AppLayout.tsx",
+        templates::app_layout(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/src/layouts/AuthLayout.tsx",
+        templates::auth_layout(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/src/layouts/index.ts",
+        templates::layouts_index(),
+    )?;
+
+    // Pages
+    write_file(
+        project_path,
+        "frontend/src/pages/Home.tsx",
+        templates::home_page(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/src/pages/Dashboard.tsx",
+        templates::dashboard_page(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/src/pages/Profile.tsx",
+        templates::profile_page(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/src/pages/Settings.tsx",
+        templates::settings_page(),
+    )?;
+
+    // Auth pages
+    write_file(
+        project_path,
+        "frontend/src/pages/auth/Login.tsx",
+        templates::login_page(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/src/pages/auth/Register.tsx",
+        templates::register_page(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/src/pages/auth/ForgotPassword.tsx",
+        templates::forgot_password_page(),
+    )?;
+    write_file(
+        project_path,
+        "frontend/src/pages/auth/ResetPassword.tsx",
+        templates::reset_password_page(),
+    )?;
+
+    Ok(())
+}
+
+fn write_file(project_path: &Path, relative_path: &str, content: &str) -> Result<(), String> {
+    let full_path = project_path.join(relative_path);
+    fs::write(&full_path, content).map_err(|e| format!("Failed to write {}: {}", relative_path, e))
 }
