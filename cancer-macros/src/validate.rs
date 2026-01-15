@@ -95,15 +95,15 @@ pub fn validate_impl(input: TokenStream) -> TokenStream {
     let rules_impl = generate_rules_impl(&field_rules);
 
     let expanded = quote! {
-        impl cancer::validation::Validatable for #name
+        impl cancer_rs::validation::Validatable for #name
         where
             Self: ::serde::Serialize,
         {
-            fn validate(&self) -> ::std::result::Result<(), cancer::validation::ValidationError> {
+            fn validate(&self) -> ::std::result::Result<(), cancer_rs::validation::ValidationError> {
                 #validate_impl
             }
 
-            fn validation_rules() -> ::std::vec::Vec<(&'static str, ::std::vec::Vec<::std::boxed::Box<dyn cancer::validation::Rule>>)> {
+            fn validation_rules() -> ::std::vec::Vec<(&'static str, ::std::vec::Vec<::std::boxed::Box<dyn cancer_rs::validation::Rule>>)> {
                 #rules_impl
             }
         }
@@ -200,21 +200,21 @@ fn generate_validate_impl(field_rules: &[FieldRules]) -> TokenStream2 {
             .collect();
 
         field_validations.push(quote! {
-            validator = validator.rules(#field_name, cancer::rules![#(#rule_calls),*]);
+            validator = validator.rules(#field_name, cancer_rs::rules![#(#rule_calls),*]);
         });
     }
 
     quote! {
         // Serialize self to JSON for validation
-        let data = cancer::serde_json::to_value(self)
+        let data = cancer_rs::serde_json::to_value(self)
             .map_err(|e| {
-                let mut err = cancer::validation::ValidationError::new();
+                let mut err = cancer_rs::validation::ValidationError::new();
                 err.add("_struct", format!("Failed to serialize: {}", e));
                 err
             })?;
 
         // Build validator with rules
-        let mut validator = cancer::validation::Validator::new(&data);
+        let mut validator = cancer_rs::validation::Validator::new(&data);
         #(#field_validations)*
 
         validator.validate()
@@ -226,10 +226,10 @@ fn generate_rule_call(rule: &ParsedRule) -> TokenStream2 {
     let rule_fn = Ident::new(&rule.name, proc_macro2::Span::call_site());
 
     if rule.args.is_empty() {
-        quote! { cancer::validation::#rule_fn() }
+        quote! { cancer_rs::validation::#rule_fn() }
     } else {
         let args = &rule.args;
-        quote! { cancer::validation::#rule_fn(#(#args),*) }
+        quote! { cancer_rs::validation::#rule_fn(#(#args),*) }
     }
 }
 
@@ -250,7 +250,7 @@ fn generate_rules_impl(field_rules: &[FieldRules]) -> TokenStream2 {
             .map(|rule| {
                 let call = generate_rule_call(rule);
                 quote! {
-                    ::std::boxed::Box::new(#call) as ::std::boxed::Box<dyn cancer::validation::Rule>
+                    ::std::boxed::Box::new(#call) as ::std::boxed::Box<dyn cancer_rs::validation::Rule>
                 }
             })
             .collect();

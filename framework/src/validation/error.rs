@@ -59,6 +59,12 @@ impl ValidationError {
         self.errors.values().flatten().collect()
     }
 
+    /// Consume the error and return the inner HashMap of field -> messages.
+    /// Useful for passing errors to templates.
+    pub fn into_messages(self) -> HashMap<String, Vec<String>> {
+        self.errors
+    }
+
     /// Convert to JSON-compatible format for API responses.
     pub fn to_json(&self) -> serde_json::Value {
         serde_json::json!({
