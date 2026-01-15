@@ -163,7 +163,11 @@ impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
     #[tool(
         name = "application_info",
-        description = "Get application information including framework version, Rust version, models, and installed crates"
+        description = "Get application overview including framework version, Rust version, models, and installed crates.\n\n\
+            **When to use:** Starting work on a Cancer project, understanding project setup, \
+            verifying framework version compatibility.\n\n\
+            **Returns:** Framework version, Rust version, list of models, installed Cancer crates.\n\n\
+            **Combine with:** `list_routes` to see API surface, `list_models` for detailed model info."
     )]
     pub async fn application_info(&self) -> String {
         match tools::application_info::execute(&self.project_root) {
@@ -175,7 +179,11 @@ impl CancerMcpService {
     /// Execute a read-only SQL query against the database
     #[tool(
         name = "db_query",
-        description = "Execute a read-only SQL query against the database"
+        description = "Execute a read-only SQL query against the database.\n\n\
+            **When to use:** Inspecting data directly, debugging query results, \
+            verifying data after migrations, checking specific records.\n\n\
+            **Returns:** Query results as JSON array of rows.\n\n\
+            **Combine with:** `db_schema` to understand table structure, `relation_map` for FK relationships."
     )]
     pub async fn db_query(&self, params: Parameters<DbQueryParams>) -> String {
         match tools::database_query::execute(&self.project_root, &params.0.query).await {
@@ -187,7 +195,11 @@ impl CancerMcpService {
     /// Get database schema information (tables, columns, types)
     #[tool(
         name = "db_schema",
-        description = "Get database schema information (tables, columns, types)"
+        description = "Get database schema information including tables, columns, types, and constraints.\n\n\
+            **When to use:** Understanding data structure, planning migrations, \
+            writing queries, checking column types before inserts.\n\n\
+            **Returns:** Tables with columns, types, nullability, primary/foreign keys.\n\n\
+            **Combine with:** `relation_map` for FK relationships, `list_models` for ORM view."
     )]
     pub async fn db_schema(&self, params: Parameters<DbSchemaParams>) -> String {
         match tools::database_schema::execute(&self.project_root, params.0.table.as_deref()).await {
@@ -201,7 +213,11 @@ impl CancerMcpService {
     /// List all routes defined in the application
     #[tool(
         name = "list_routes",
-        description = "List all routes defined in the application"
+        description = "List all HTTP routes defined in the application.\n\n\
+            **When to use:** Understanding API surface, finding endpoints to test or modify, \
+            verifying route registration after changes, checking for route conflicts.\n\n\
+            **Returns:** Method, path, handler function, middleware chain for each route.\n\n\
+            **Combine with:** `get_handler` to see implementation, `test_route` to exercise endpoints."
     )]
     pub async fn list_routes(&self) -> String {
         match tools::list_routes::execute(&self.project_root) {
@@ -215,7 +231,11 @@ impl CancerMcpService {
     /// List all available CLI commands
     #[tool(
         name = "list_commands",
-        description = "List all available CLI commands"
+        description = "List all available CLI commands from the cancer-cli tool.\n\n\
+            **When to use:** Discovering available commands, checking command syntax, \
+            understanding CLI capabilities.\n\n\
+            **Returns:** Command names, descriptions, and available options.\n\n\
+            **Combine with:** `search_docs` for detailed command documentation."
     )]
     pub async fn list_commands(&self) -> String {
         let result = tools::list_commands::execute();
@@ -225,7 +245,11 @@ impl CancerMcpService {
     /// Show migration status (applied and pending migrations)
     #[tool(
         name = "list_migrations",
-        description = "Show migration status (applied and pending migrations)"
+        description = "Show database migration status including applied and pending migrations.\n\n\
+            **When to use:** Before running migrations, checking database state, \
+            debugging migration order issues, verifying deployment state.\n\n\
+            **Returns:** Migration names, timestamps, applied status.\n\n\
+            **Combine with:** `db_schema` to see current table structure, `db_query` to verify data."
     )]
     pub async fn list_migrations(&self) -> String {
         match tools::list_migrations::execute(&self.project_root).await {
@@ -239,7 +263,11 @@ impl CancerMcpService {
     /// List all registered events and their listeners
     #[tool(
         name = "list_events",
-        description = "List all registered events and their listeners"
+        description = "List all registered events and their attached listeners.\n\n\
+            **When to use:** Understanding async workflows, debugging event dispatch, \
+            planning new event-driven features, tracing side effects.\n\n\
+            **Returns:** Event names, listener functions, listener order.\n\n\
+            **Combine with:** `list_jobs` for async job processing, `read_logs` to see event dispatches."
     )]
     pub async fn list_events(&self) -> String {
         match tools::list_events::execute(&self.project_root) {
@@ -251,7 +279,14 @@ impl CancerMcpService {
     }
 
     /// List all defined background jobs
-    #[tool(name = "list_jobs", description = "List all defined background jobs")]
+    #[tool(
+        name = "list_jobs",
+        description = "List all defined background job types in the application.\n\n\
+            **When to use:** Understanding async processing, planning new background work, \
+            checking job configurations, debugging job execution.\n\n\
+            **Returns:** Job class names, queue assignments, retry policies.\n\n\
+            **Combine with:** `job_history` to see execution status, `queue_status` for pending jobs."
+    )]
     pub async fn list_jobs(&self) -> String {
         match tools::list_jobs::execute(&self.project_root) {
             Ok(jobs) => serde_json::to_string_pretty(&jobs).unwrap_or_else(|_| "[]".to_string()),
@@ -262,7 +297,11 @@ impl CancerMcpService {
     /// List all registered middleware
     #[tool(
         name = "list_middleware",
-        description = "List all registered middleware"
+        description = "List all registered middleware in the request pipeline.\n\n\
+            **When to use:** Understanding request flow, debugging auth/CORS issues, \
+            adding new middleware, checking middleware order.\n\n\
+            **Returns:** Middleware names, groups, and execution order.\n\n\
+            **Combine with:** `get_middleware` to see implementation, `list_routes` to see per-route middleware."
     )]
     pub async fn list_middleware(&self) -> String {
         match tools::list_middleware::execute(&self.project_root) {
@@ -276,7 +315,11 @@ impl CancerMcpService {
     /// List all registered DI container services
     #[tool(
         name = "list_services",
-        description = "List all registered DI container services (singletons and trait bindings)"
+        description = "List all registered dependency injection container services.\n\n\
+            **When to use:** Understanding available services, checking DI bindings, \
+            planning new service dependencies, debugging resolution errors.\n\n\
+            **Returns:** Singleton registrations, trait-to-concrete bindings, scopes.\n\n\
+            **Combine with:** `get_handler` to see service usage, `application_info` for service overview."
     )]
     pub async fn list_services(&self) -> String {
         match tools::list_services::execute(&self.project_root) {
@@ -290,7 +333,11 @@ impl CancerMcpService {
     /// Get request metrics (counts, response times, error rates per route)
     #[tool(
         name = "request_metrics",
-        description = "Get request metrics per route including counts, response times, and error rates"
+        description = "Get request metrics per route including counts, response times, and error rates.\n\n\
+            **When to use:** Performance monitoring, identifying slow endpoints, \
+            finding high-error routes, capacity planning.\n\n\
+            **Returns:** Request counts, p50/p95/p99 latencies, error rates by route.\n\n\
+            **Combine with:** `list_routes` to correlate with endpoints, `read_logs` for error details."
     )]
     pub async fn request_metrics(&self) -> String {
         match tools::request_metrics::execute() {
@@ -304,7 +351,12 @@ impl CancerMcpService {
     /// Get queue status (pending, delayed, and failed jobs)
     #[tool(
         name = "queue_status",
-        description = "Get queue status including pending, delayed, and failed jobs. Shows job types, attempts, and error messages. Requires Redis-backed queue (not sync mode)."
+        description = "Get queue status including pending, delayed, and failed jobs.\n\n\
+            **When to use:** Monitoring job processing, debugging stuck jobs, \
+            checking queue backlog, verifying job dispatch.\n\n\
+            **Returns:** Pending/delayed/failed counts by queue, job types, error messages.\n\n\
+            **Combine with:** `job_history` for execution details, `list_jobs` for job definitions.\n\n\
+            **Note:** Requires Redis-backed queue driver (not sync mode)."
     )]
     pub async fn queue_status(&self) -> String {
         match tools::queue_status::execute() {
@@ -318,7 +370,11 @@ impl CancerMcpService {
     /// List all database models with their fields and types
     #[tool(
         name = "list_models",
-        description = "List all database models with their fields, types, and relationships"
+        description = "List all SeaORM database models with their fields, types, and relationships.\n\n\
+            **When to use:** Understanding data layer, planning queries, \
+            checking field types before operations, reviewing model structure.\n\n\
+            **Returns:** Model names, field names/types, relationships (has_many, belongs_to).\n\n\
+            **Combine with:** `db_schema` for raw SQL types, `relation_map` for FK diagram."
     )]
     pub async fn list_models(&self) -> String {
         match tools::list_models::execute(&self.project_root) {
@@ -332,7 +388,11 @@ impl CancerMcpService {
     /// Get handler source code for a specific route
     #[tool(
         name = "get_handler",
-        description = "Get the source code of a handler function for a given route path"
+        description = "Get the source code of a handler function for a given route path.\n\n\
+            **When to use:** Understanding endpoint implementation, debugging controller logic, \
+            reviewing request/response flow, checking service dependencies.\n\n\
+            **Returns:** Handler source code, file path, Inertia component/props if applicable.\n\n\
+            **Combine with:** `list_routes` to find routes, `validate_contracts` for type checking."
     )]
     pub async fn get_handler(&self, params: Parameters<GetHandlerParams>) -> String {
         match tools::get_handler::execute(&self.project_root, &params.0.route) {
@@ -344,7 +404,14 @@ impl CancerMcpService {
     }
 
     /// Read recent log entries
-    #[tool(name = "read_logs", description = "Read recent log entries")]
+    #[tool(
+        name = "read_logs",
+        description = "Read recent application log entries with optional level filtering.\n\n\
+            **When to use:** Debugging runtime issues, tracing request flow, \
+            monitoring application behavior, investigating errors.\n\n\
+            **Returns:** Log lines with timestamps, levels, messages, and context.\n\n\
+            **Combine with:** `last_error` for most recent error, `browser_logs` for frontend errors."
+    )]
     pub async fn read_logs(&self, params: Parameters<ReadLogsParams>) -> String {
         match tools::read_logs::execute(
             &self.project_root,
@@ -359,7 +426,11 @@ impl CancerMcpService {
     /// Get the most recent error from logs
     #[tool(
         name = "last_error",
-        description = "Get the most recent error from logs"
+        description = "Get the most recent error from application logs.\n\n\
+            **When to use:** Quick error diagnosis, debugging failures, \
+            checking if errors occurred after changes.\n\n\
+            **Returns:** Error message, stack trace, timestamp, request context if available.\n\n\
+            **Combine with:** `read_logs` for surrounding context, `get_handler` to see failing code."
     )]
     pub async fn last_error(&self) -> String {
         match tools::last_error::execute(&self.project_root) {
@@ -371,7 +442,14 @@ impl CancerMcpService {
     }
 
     /// Read configuration values
-    #[tool(name = "get_config", description = "Read configuration values")]
+    #[tool(
+        name = "get_config",
+        description = "Read application configuration values from .env and config files.\n\n\
+            **When to use:** Checking environment settings, debugging connection issues, \
+            verifying feature flags, understanding deployment configuration.\n\n\
+            **Returns:** Configuration keys and values (secrets redacted).\n\n\
+            **Combine with:** `application_info` for framework settings, `db_schema` after config changes."
+    )]
     pub async fn get_config(&self, params: Parameters<GetConfigParams>) -> String {
         match tools::get_config::execute(&self.project_root, params.0.key.as_deref()) {
             Ok(config) => {
@@ -384,7 +462,12 @@ impl CancerMcpService {
     /// Trigger TypeScript type generation
     #[tool(
         name = "generate_types",
-        description = "Generate TypeScript interfaces from InertiaProps structs. Shows preview of generated types and diff from existing file. Use dry_run=true to preview without writing."
+        description = "Generate TypeScript interfaces from InertiaProps structs for type-safe frontend development.\n\n\
+            **When to use:** After modifying backend props, syncing frontend types, \
+            setting up new components, maintaining type safety.\n\n\
+            **Returns:** Generated TypeScript, diff from existing file, file path.\n\n\
+            **Combine with:** `list_props` to see all props, `validate_contracts` to check alignment.\n\n\
+            **Tip:** Use dry_run=true to preview changes without writing."
     )]
     pub async fn generate_types(&self, params: Parameters<GenerateTypesParams>) -> String {
         match tools::generate_types::execute(
@@ -400,7 +483,11 @@ impl CancerMcpService {
     /// List all InertiaProps structs
     #[tool(
         name = "list_props",
-        description = "List all InertiaProps structs in the project with their fields, TypeScript equivalents, and component mappings. Use this to understand what data contracts exist."
+        description = "List all InertiaProps structs with their fields, TypeScript equivalents, and component mappings.\n\n\
+            **When to use:** Understanding data contracts, planning frontend changes, \
+            reviewing props before generating types, finding props for a component.\n\n\
+            **Returns:** Props names, fields, types, mapped components.\n\n\
+            **Combine with:** `inspect_props` for detailed view, `generate_types` to sync TypeScript."
     )]
     pub async fn list_props(&self, params: Parameters<ListPropsParams>) -> String {
         match tools::list_props::execute(&self.project_root, params.0.filter.as_deref()) {
@@ -412,7 +499,11 @@ impl CancerMcpService {
     /// Inspect a specific InertiaProps struct
     #[tool(
         name = "inspect_props",
-        description = "Detailed inspection of a single InertiaProps struct. Shows source code, TypeScript equivalent, handlers using it, and validation issues."
+        description = "Get detailed inspection of a single InertiaProps struct.\n\n\
+            **When to use:** Deep-diving into a specific props type, checking field details, \
+            understanding which handlers use it, finding validation issues.\n\n\
+            **Returns:** Source code, TypeScript equivalent, handler usages, validation issues.\n\n\
+            **Combine with:** `list_props` to find props, `get_handler` to see usage context."
     )]
     pub async fn inspect_props(&self, params: Parameters<InspectPropsParams>) -> String {
         match tools::inspect_props::execute(&self.project_root, &params.0.name) {
@@ -424,7 +515,14 @@ impl CancerMcpService {
     }
 
     /// Search framework documentation
-    #[tool(name = "search_docs", description = "Search framework documentation")]
+    #[tool(
+        name = "search_docs",
+        description = "Search Cancer framework documentation for APIs, patterns, and examples.\n\n\
+            **When to use:** Looking up Cancer-specific APIs, finding examples, \
+            answering 'how do I...' questions, learning framework patterns.\n\n\
+            **Returns:** Matching documentation sections with titles and content.\n\n\
+            **Combine with:** `list_commands` for CLI docs, `application_info` for project-specific info."
+    )]
     pub async fn search_docs(&self, params: Parameters<SearchDocsParams>) -> String {
         match tools::search_docs::execute(&self.project_root, &params.0.query) {
             Ok(results) => {
@@ -437,7 +535,12 @@ impl CancerMcpService {
     /// Execute Rust code within the application context (like Laravel Tinker)
     #[tool(
         name = "tinker",
-        description = "Execute Rust code within the application context (like Laravel Tinker)"
+        description = "Execute Rust code within the application context (like Laravel Tinker).\n\n\
+            **When to use:** Testing code snippets, experimenting with APIs, \
+            debugging complex logic, ad-hoc data manipulation.\n\n\
+            **Returns:** Code output, return value, any errors.\n\n\
+            **Combine with:** `list_models` to know available types, `list_services` for available services.\n\n\
+            **Warning:** Code executes in app context - be careful with destructive operations."
     )]
     pub async fn tinker(&self, params: Parameters<TinkerParams>) -> String {
         match tools::tinker::execute(&self.project_root, &params.0.code) {
@@ -451,7 +554,11 @@ impl CancerMcpService {
     /// Read browser/frontend error logs
     #[tool(
         name = "browser_logs",
-        description = "Read browser/frontend error logs from the application"
+        description = "Read browser/frontend error logs sent from the React application.\n\n\
+            **When to use:** Debugging frontend errors, checking React component issues, \
+            investigating client-side exceptions, reviewing console errors.\n\n\
+            **Returns:** Browser console errors with stack traces, component info.\n\n\
+            **Combine with:** `read_logs` for backend logs, `validate_contracts` for type mismatches."
     )]
     pub async fn browser_logs(&self, params: Parameters<BrowserLogsParams>) -> String {
         match tools::browser_logs::execute(
@@ -467,7 +574,11 @@ impl CancerMcpService {
     /// Inspect active sessions in the database for debugging authentication issues
     #[tool(
         name = "session_inspect",
-        description = "Inspect active sessions in the database. Shows session IDs, user IDs, and payload data. Useful for debugging authentication issues like session not persisting after login."
+        description = "Inspect active sessions stored in the database.\n\n\
+            **When to use:** Debugging authentication issues, session not persisting, \
+            user being logged out unexpectedly, verifying session data.\n\n\
+            **Returns:** Session IDs, user IDs, payload data, timestamps.\n\n\
+            **Combine with:** `read_logs` for auth-related logs, `list_middleware` for auth middleware."
     )]
     pub async fn session_inspect(&self, params: Parameters<SessionInspectParams>) -> String {
         match tools::session_inspect::execute(&self.project_root, params.0.session_id.as_deref())
@@ -483,7 +594,11 @@ impl CancerMcpService {
     /// Get a map of all foreign key relationships between database tables
     #[tool(
         name = "relation_map",
-        description = "Get a map of all foreign key relationships between database tables. Shows which tables reference which, useful for understanding data model and planning queries."
+        description = "Get a map of all foreign key relationships between database tables.\n\n\
+            **When to use:** Understanding data model, planning complex queries, \
+            identifying cascade delete risks, visualizing entity relationships.\n\n\
+            **Returns:** Table pairs, foreign key columns, relationship types.\n\n\
+            **Combine with:** `list_models` for ORM view, `db_schema` for full table structure."
     )]
     pub async fn relation_map(&self) -> String {
         match tools::relation_map::execute(&self.project_root).await {
@@ -497,7 +612,12 @@ impl CancerMcpService {
     /// Inspect cache entries, keys, and statistics
     #[tool(
         name = "cache_inspect",
-        description = "Inspect cache entries, keys, values, TTL, and statistics. Supports file and Redis cache drivers. Useful for debugging caching issues."
+        description = "Inspect cache entries, keys, values, TTL, and statistics.\n\n\
+            **When to use:** Debugging caching issues, checking TTLs, \
+            verifying cache hits, investigating stale data.\n\n\
+            **Returns:** Cache keys, values, TTL, hit/miss statistics.\n\n\
+            **Combine with:** `get_config` for cache driver settings, `request_metrics` for cache impact.\n\n\
+            **Note:** Supports both file and Redis cache drivers."
     )]
     pub async fn cache_inspect(&self, params: Parameters<CacheInspectParams>) -> String {
         match tools::cache_inspect::execute(&self.project_root, params.0.key_pattern.as_deref()) {
@@ -509,7 +629,11 @@ impl CancerMcpService {
     /// View background job execution history
     #[tool(
         name = "job_history",
-        description = "View pending and failed background jobs. Shows job types, payloads, attempts, and failure reasons. Useful for debugging async job issues."
+        description = "View pending and failed background jobs with execution details.\n\n\
+            **When to use:** Debugging failed jobs, checking job payloads, \
+            investigating retry attempts, monitoring job execution.\n\n\
+            **Returns:** Job types, payloads, attempt counts, failure reasons, timestamps.\n\n\
+            **Combine with:** `list_jobs` for job definitions, `queue_status` for queue overview."
     )]
     pub async fn job_history(&self, params: Parameters<JobHistoryParams>) -> String {
         match tools::job_history::execute(
@@ -529,7 +653,12 @@ impl CancerMcpService {
     /// Get the source code of a middleware
     #[tool(
         name = "get_middleware",
-        description = "Get the source code of a middleware by name. Shows the handle method, dependencies, and full implementation. Works for both custom and built-in middleware."
+        description = "Get the source code of a middleware by name.\n\n\
+            **When to use:** Understanding middleware behavior, debugging request pipeline, \
+            reviewing auth/CORS logic, planning middleware modifications.\n\n\
+            **Returns:** Handle method source, dependencies, file location.\n\n\
+            **Combine with:** `list_middleware` to find middleware names, `list_routes` for middleware assignments.\n\n\
+            **Note:** Works for both custom and built-in middleware."
     )]
     pub async fn get_middleware(&self, params: Parameters<GetMiddlewareParams>) -> String {
         match tools::get_middleware::execute(&self.project_root, &params.0.name) {
@@ -543,7 +672,11 @@ impl CancerMcpService {
     /// Test a route by simulating an HTTP request
     #[tool(
         name = "test_route",
-        description = "Test a route by simulating an HTTP request. Shows the response status, headers, body, and timing. Useful for debugging endpoints without browser."
+        description = "Test a route by simulating an HTTP request.\n\n\
+            **When to use:** Testing endpoints without a browser, debugging API responses, \
+            verifying authentication, checking redirect behavior.\n\n\
+            **Returns:** Response status, headers, body, timing.\n\n\
+            **Combine with:** `list_routes` to find endpoints, `get_handler` to see implementation."
     )]
     pub async fn test_route(&self, params: Parameters<TestRouteParams>) -> String {
         let test_params = tools::test_route::TestRouteParams {
@@ -564,7 +697,12 @@ impl CancerMcpService {
     /// Validate backend/frontend data contracts
     #[tool(
         name = "validate_contracts",
-        description = "Validate that backend Rust handlers send the data that frontend React components expect. Compares InertiaProps structs with TypeScript interfaces to find mismatches. Use this PROACTIVELY after making changes to handlers or components to catch contract issues early."
+        description = "Validate that backend handlers send data matching frontend component expectations.\n\n\
+            **When to use:** After modifying handler code, after changing frontend props, \
+            before deploying, debugging 'undefined' errors in frontend.\n\n\
+            **Returns:** Validation status, mismatches found, missing/extra fields.\n\n\
+            **Combine with:** `list_props` to see all contracts, `generate_types` to fix TypeScript.\n\n\
+            **Best practice:** Run proactively after any Inertia-related changes."
     )]
     pub async fn validate_contracts(&self, params: Parameters<ValidateContractsParams>) -> String {
         match tools::validate_contracts::execute(&self.project_root, params.0.filter.as_deref()) {
@@ -578,7 +716,12 @@ impl CancerMcpService {
     /// Create a new Cancer framework project
     #[tool(
         name = "create_project",
-        description = "Create a new Cancer framework project with full scaffolding. Includes backend (controllers, models, migrations, middleware, jobs, events) and frontend (React/TypeScript pages, layouts, auth). Also includes dashboard boilerplate with login, register, profile, and settings pages."
+        description = "Create a new Cancer framework project with full scaffolding.\n\n\
+            **When to use:** Starting a new project, scaffolding a fresh Cancer application, \
+            getting started with the framework.\n\n\
+            **Returns:** Created file list, next steps, project location.\n\n\
+            **Includes:** Backend (controllers, models, migrations, middleware, jobs, events), \
+            frontend (React/TypeScript pages, layouts), and dashboard boilerplate (login, register, profile)."
     )]
     pub async fn create_project(&self, params: Parameters<CreateProjectParams>) -> String {
         let target_dir = params
