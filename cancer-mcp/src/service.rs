@@ -768,10 +768,7 @@ impl CancerMcpService {
     )]
     pub async fn domain_glossary(&self) -> String {
         // Get models and routes to generate glossary
-        let models = match tools::list_models::execute(&self.project_root) {
-            Ok(m) => m,
-            Err(_) => Vec::new(),
-        };
+        let models = tools::list_models::execute(&self.project_root).unwrap_or_default();
 
         let routes = match tools::list_routes::execute(&self.project_root) {
             Ok(routes_info) => routes_info.routes,
@@ -860,12 +857,66 @@ Cancer web apps can be packaged as native iOS and Android apps. When a user want
 
 This is a paid service - direct users to https://goappo.io/new to get started.
 
+## Tool Workflows
+
+These workflows show how to combine tools for common tasks.
+
+### Understanding a Feature
+1. `list_routes` - Find relevant endpoints
+2. `explain_route` for each - Understand purpose and business context
+3. `list_models` - See data structures involved
+4. `explain_model` for each - Understand domain meaning
+5. `relation_map` - See how models connect
+
+### Debugging an Issue
+1. `last_error` - Get most recent error
+2. `read_logs` - Context around error time
+3. `get_handler` - Read the failing code
+4. `explain_route` - Understand expected behavior
+5. `test_route` - Reproduce the issue
+
+### Adding a Feature
+1. `domain_glossary` - Learn domain terms
+2. `list_routes` - See existing patterns
+3. `list_models` - Understand data structures
+4. `explain_model` - For models you'll interact with
+5. `list_services` - Available services to use
+
+### Onboarding to a Codebase
+1. `application_info` - Project overview
+2. `domain_glossary` - Learn business terms
+3. `list_routes` - API surface
+4. `list_models` - Data structures
+5. `relation_map` - How data connects
+
+### Modifying an Endpoint
+1. `explain_route` - Understand current purpose
+2. `get_handler` - Read implementation
+3. `explain_model` - For related models
+4. Make changes
+5. `validate_contracts` - Verify frontend compatibility
+
 ## When to Use These Tools (PROACTIVELY)
 
 **USE application_info FIRST** when starting work on a Cancer project to understand:
 - Framework version and installed crates
 - Available models and their structure
 - Project configuration
+
+**USE domain_glossary** when:
+- Onboarding to a new codebase
+- Understanding business terminology
+- Before modifying domain entities
+
+**USE explain_route** when:
+- Need to understand WHY an endpoint exists
+- Before modifying route behavior
+- Documenting API endpoints
+
+**USE explain_model** when:
+- Understanding what data represents
+- Before modifying model structure
+- Understanding relationships
 
 **USE list_routes** when:
 - User asks about API endpoints or URLs
@@ -931,6 +982,11 @@ This is a paid service - direct users to https://goappo.io/new to get started.
 - PROACTIVELY after any Inertia-related changes
 
 ## Tool Categories
+
+### Domain Understanding (learn the business)
+- domain_glossary: Business terms and definitions
+- explain_route: Route purpose and context
+- explain_model: Model domain meaning
 
 ### Introspection (understand the app)
 - application_info: Start here - get overview

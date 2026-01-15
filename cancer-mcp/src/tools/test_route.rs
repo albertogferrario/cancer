@@ -117,7 +117,7 @@ pub async fn execute(project_root: &Path, params: TestRouteParams) -> Result<Rou
     // Parse curl info
     let curl_info_lines: Vec<&str> = curl_info.trim().lines().collect();
     let status_code: u16 = curl_info_lines
-        .get(0)
+        .first()
         .and_then(|s| s.parse().ok())
         .unwrap_or(0);
     let content_type = curl_info_lines

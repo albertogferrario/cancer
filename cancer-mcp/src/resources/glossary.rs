@@ -48,10 +48,10 @@ pub fn generate_glossary(models: &[ModelDetails], routes: &[RouteInfo]) -> Domai
 
         // Find related routes
         for route in routes {
-            if route_relates_to_model(&route.path, &model.name) {
-                if !entry.routes.contains(&route.path) {
-                    entry.routes.push(route.path.clone());
-                }
+            if route_relates_to_model(&route.path, &model.name)
+                && !entry.routes.contains(&route.path)
+            {
+                entry.routes.push(route.path.clone());
             }
         }
     }
