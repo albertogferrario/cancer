@@ -22,6 +22,7 @@ mod request;
 mod service;
 mod test_macro;
 mod utils;
+mod validate;
 
 /// Derive macro for generating `Serialize` implementation for Inertia props
 ///
@@ -462,4 +463,35 @@ pub fn test(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(CancerModel)]
 pub fn derive_cancer_model(input: TokenStream) -> TokenStream {
     model::cancer_model_impl(input)
+}
+
+/// Derive macro for declarative struct validation
+///
+/// Generates `Validatable` trait implementation from field attributes.
+/// Validation rules are co-located with the struct definition.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use cancer::Validate;
+///
+/// #[derive(Validate)]
+/// struct CreateUserRequest {
+///     #[validate(required, email)]
+///     email: String,
+///
+///     #[validate(required, min(8))]
+///     password: String,
+///
+///     #[validate(required, integer, min(18))]
+///     age: Option<i32>,
+/// }
+///
+/// // Usage
+/// let request = CreateUserRequest { ... };
+/// request.validate()?;
+/// ```
+#[proc_macro_derive(Validate, attributes(validate))]
+pub fn derive_validate(input: TokenStream) -> TokenStream {
+    validate::validate_impl(input)
 }
