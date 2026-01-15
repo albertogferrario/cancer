@@ -179,6 +179,12 @@ pub struct DiagnoseErrorParams {
     pub category: Option<String>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct RouteDependenciesParams {
+    /// Route path to analyze (e.g., "/users/{id}")
+    pub route: String,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -880,6 +886,27 @@ impl CancerMcpService {
     pub async fn error_patterns(&self) -> String {
         let catalog = error_patterns::get_error_patterns();
         serde_json::to_string_pretty(&catalog).unwrap_or_else(|_| "{}".to_string())
+    }
+
+    /// Analyze route handler to detect model dependencies
+    #[tool(
+        name = "route_dependencies",
+        description = "Analyze a route's handler to identify which models it uses.\n\n\
+            **When to use:** Understanding data dependencies for a route, planning refactors, \
+            impact analysis before model changes, identifying coupled components.\n\n\
+            **Returns:** Models used (with usage type: query, active_model, column_filter), \
+            Inertia component (if any), services injected.\n\n\
+            **Combine with:** `model_usages` for reverse lookup, `dependency_graph` for full picture, \
+            `get_handler` to see source code."
+    )]
+    pub async fn route_dependencies(
+        &self,
+        params: Parameters<RouteDependenciesParams>,
+    ) -> String {
+        match tools::route_dependencies::execute(&self.project_root, &params.0.route) {
+            Ok(deps) => serde_json::to_string_pretty(&deps).unwrap_or_else(|_| "{}".to_string()),
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
     }
 }
 
