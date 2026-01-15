@@ -59,6 +59,7 @@ pub use middleware::{
 };
 pub use routing::{
     // Internal functions used by macros (hidden from docs)
+    __box_handler,
     __delete_impl,
     __fallback_impl,
     __get_impl,
@@ -74,6 +75,9 @@ pub use routing::{
     GroupRoute,
     GroupRouter,
     IntoGroupItem,
+    ResourceAction,
+    ResourceDef,
+    ResourceRoute,
     RouteBuilder,
     RouteDefBuilder,
     RouteInfo,

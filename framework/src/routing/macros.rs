@@ -670,6 +670,302 @@ macro_rules! routes {
     };
 }
 
+// ============================================================================
+// RESTful Resource Routing Support
+// ============================================================================
+
+/// Actions available for resource routing
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ResourceAction {
+    Index,
+    Create,
+    Store,
+    Show,
+    Edit,
+    Update,
+    Destroy,
+}
+
+impl ResourceAction {
+    /// Get all available resource actions
+    pub const fn all() -> &'static [ResourceAction] {
+        &[
+            ResourceAction::Index,
+            ResourceAction::Create,
+            ResourceAction::Store,
+            ResourceAction::Show,
+            ResourceAction::Edit,
+            ResourceAction::Update,
+            ResourceAction::Destroy,
+        ]
+    }
+
+    /// Get the HTTP method for this action
+    pub const fn method(&self) -> HttpMethod {
+        match self {
+            ResourceAction::Index => HttpMethod::Get,
+            ResourceAction::Create => HttpMethod::Get,
+            ResourceAction::Store => HttpMethod::Post,
+            ResourceAction::Show => HttpMethod::Get,
+            ResourceAction::Edit => HttpMethod::Get,
+            ResourceAction::Update => HttpMethod::Put,
+            ResourceAction::Destroy => HttpMethod::Delete,
+        }
+    }
+
+    /// Get the path suffix for this action (relative to resource path)
+    pub const fn path_suffix(&self) -> &'static str {
+        match self {
+            ResourceAction::Index => "/",
+            ResourceAction::Create => "/create",
+            ResourceAction::Store => "/",
+            ResourceAction::Show => "/{id}",
+            ResourceAction::Edit => "/{id}/edit",
+            ResourceAction::Update => "/{id}",
+            ResourceAction::Destroy => "/{id}",
+        }
+    }
+
+    /// Get the route name suffix for this action
+    pub const fn name_suffix(&self) -> &'static str {
+        match self {
+            ResourceAction::Index => "index",
+            ResourceAction::Create => "create",
+            ResourceAction::Store => "store",
+            ResourceAction::Show => "show",
+            ResourceAction::Edit => "edit",
+            ResourceAction::Update => "update",
+            ResourceAction::Destroy => "destroy",
+        }
+    }
+}
+
+/// A resource route stored within a ResourceDef (type-erased handler)
+pub struct ResourceRoute {
+    action: ResourceAction,
+    handler: Arc<BoxedHandler>,
+}
+
+/// Resource definition that generates RESTful routes from a controller module
+///
+/// Generates 7 standard routes following Rails/Laravel conventions:
+///
+/// - GET    /users          -> index   (list all)
+/// - GET    /users/create   -> create  (show create form)
+/// - POST   /users          -> store   (create new)
+/// - GET    /users/{id}     -> show    (show one)
+/// - GET    /users/{id}/edit -> edit   (show edit form)
+/// - PUT    /users/{id}     -> update  (update one)
+/// - DELETE /users/{id}     -> destroy (delete one)
+///
+/// Route names are auto-generated: users.index, users.create, etc.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// routes! {
+///     resource!("/users", controllers::user),
+///     resource!("/posts", controllers::post).middleware(AuthMiddleware),
+///     resource!("/comments", controllers::comment, only: [index, show]),
+/// }
+/// ```
+pub struct ResourceDef {
+    prefix: &'static str,
+    routes: Vec<ResourceRoute>,
+    middlewares: Vec<BoxedMiddleware>,
+}
+
+impl ResourceDef {
+    /// Create a new resource definition with no routes (internal use)
+    #[doc(hidden)]
+    pub fn __new_unchecked(prefix: &'static str) -> Self {
+        Self {
+            prefix,
+            routes: Vec::new(),
+            middlewares: Vec::new(),
+        }
+    }
+
+    /// Add a route for a specific action
+    #[doc(hidden)]
+    pub fn __add_route(mut self, action: ResourceAction, handler: Arc<BoxedHandler>) -> Self {
+        self.routes.push(ResourceRoute { action, handler });
+        self
+    }
+
+    /// Add middleware to all routes in this resource
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// resource!("/admin", controllers::admin, only: [index, show])
+    ///     .middleware(AuthMiddleware)
+    ///     .middleware(AdminMiddleware)
+    /// ```
+    pub fn middleware<M: Middleware + 'static>(mut self, middleware: M) -> Self {
+        self.middlewares.push(into_boxed(middleware));
+        self
+    }
+
+    /// Register all resource routes with the router
+    pub fn register(self, mut router: Router) -> Router {
+        // Derive route name prefix from path: "/users" -> "users", "/api/users" -> "api.users"
+        let name_prefix = self
+            .prefix
+            .trim_start_matches('/')
+            .replace('/', ".");
+
+        for route in self.routes {
+            let action = route.action;
+            let path_suffix = action.path_suffix();
+
+            // Build full path
+            let full_path = if path_suffix == "/" {
+                self.prefix.to_string()
+            } else {
+                format!("{}{}", self.prefix, path_suffix)
+            };
+            let full_path: &'static str = Box::leak(full_path.into_boxed_str());
+
+            // Build route name
+            let route_name = format!("{}.{}", name_prefix, action.name_suffix());
+            let route_name: &'static str = Box::leak(route_name.into_boxed_str());
+
+            // Register the route
+            match action.method() {
+                HttpMethod::Get => {
+                    router.insert_get(full_path, route.handler);
+                }
+                HttpMethod::Post => {
+                    router.insert_post(full_path, route.handler);
+                }
+                HttpMethod::Put => {
+                    router.insert_put(full_path, route.handler);
+                }
+                HttpMethod::Delete => {
+                    router.insert_delete(full_path, route.handler);
+                }
+            }
+
+            // Register route name
+            register_route_name(route_name, full_path);
+
+            // Apply middleware
+            for mw in &self.middlewares {
+                router.add_middleware(full_path, mw.clone());
+            }
+        }
+
+        router
+    }
+}
+
+/// Helper function to create a boxed handler from a handler function
+#[doc(hidden)]
+pub fn __box_handler<H, Fut>(handler: H) -> Arc<BoxedHandler>
+where
+    H: Fn(Request) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Response> + Send + 'static,
+{
+    let boxed: BoxedHandler = Box::new(move |req| Box::pin(handler(req)));
+    Arc::new(boxed)
+}
+
+/// Define RESTful resource routes with convention-over-configuration
+///
+/// Generates 7 standard routes following Rails/Laravel conventions from a
+/// single controller module reference.
+///
+/// # Convention Mapping
+///
+/// | Method | Path            | Action  | Route Name    |
+/// |--------|-----------------|---------|---------------|
+/// | GET    | /users          | index   | users.index   |
+/// | GET    | /users/create   | create  | users.create  |
+/// | POST   | /users          | store   | users.store   |
+/// | GET    | /users/{id}     | show    | users.show    |
+/// | GET    | /users/{id}/edit| edit    | users.edit    |
+/// | PUT    | /users/{id}     | update  | users.update  |
+/// | DELETE | /users/{id}     | destroy | users.destroy |
+///
+/// # Basic Usage
+///
+/// ```rust,ignore
+/// routes! {
+///     resource!("/users", controllers::user),
+/// }
+/// ```
+///
+/// # With Middleware
+///
+/// ```rust,ignore
+/// routes! {
+///     resource!("/admin", controllers::admin).middleware(AuthMiddleware),
+/// }
+/// ```
+///
+/// # Subset of Actions
+///
+/// Use `only:` to generate only specific routes:
+///
+/// ```rust,ignore
+/// routes! {
+///     // Only index, show, and store - no create/edit forms, update, or destroy
+///     resource!("/posts", controllers::post, only: [index, show, store]),
+/// }
+/// ```
+///
+/// # Path Naming
+///
+/// Route names are derived from the path:
+/// - `/users` → `users.index`, `users.show`, etc.
+/// - `/api/users` → `api.users.index`, `api.users.show`, etc.
+///
+/// # Compile Error
+///
+/// Fails to compile if path doesn't start with '/'.
+#[macro_export]
+macro_rules! resource {
+    // Full resource (all 7 routes)
+    ($path:expr, $controller:path) => {{
+        const _: &str = $crate::validate_route_path($path);
+        $crate::ResourceDef::__new_unchecked($path)
+            .__add_route($crate::ResourceAction::Index, $crate::__box_handler($controller::index))
+            .__add_route($crate::ResourceAction::Create, $crate::__box_handler($controller::create))
+            .__add_route($crate::ResourceAction::Store, $crate::__box_handler($controller::store))
+            .__add_route($crate::ResourceAction::Show, $crate::__box_handler($controller::show))
+            .__add_route($crate::ResourceAction::Edit, $crate::__box_handler($controller::edit))
+            .__add_route($crate::ResourceAction::Update, $crate::__box_handler($controller::update))
+            .__add_route($crate::ResourceAction::Destroy, $crate::__box_handler($controller::destroy))
+    }};
+
+    // Subset of routes with `only:` parameter
+    ($path:expr, $controller:path, only: [$($action:ident),* $(,)?]) => {{
+        const _: &str = $crate::validate_route_path($path);
+        let mut resource = $crate::ResourceDef::__new_unchecked($path);
+        $(
+            resource = resource.__add_route(
+                $crate::__resource_action!($action),
+                $crate::__box_handler($controller::$action)
+            );
+        )*
+        resource
+    }};
+}
+
+/// Internal macro to convert action identifier to ResourceAction enum
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __resource_action {
+    (index) => { $crate::ResourceAction::Index };
+    (create) => { $crate::ResourceAction::Create };
+    (store) => { $crate::ResourceAction::Store };
+    (show) => { $crate::ResourceAction::Show };
+    (edit) => { $crate::ResourceAction::Edit };
+    (update) => { $crate::ResourceAction::Update };
+    (destroy) => { $crate::ResourceAction::Destroy };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -5,6 +5,7 @@ mod router;
 pub use group::{GroupBuilder, GroupRouter};
 pub use macros::{
     // Internal functions used by macros (hidden from docs)
+    __box_handler,
     __delete_impl,
     __fallback_impl,
     __get_impl,
@@ -17,6 +18,9 @@ pub use macros::{
     GroupRoute,
     HttpMethod,
     IntoGroupItem,
+    ResourceAction,
+    ResourceDef,
+    ResourceRoute,
     RouteDefBuilder,
 };
 pub use router::{
