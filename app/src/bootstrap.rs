@@ -12,8 +12,12 @@
 //!
 //! // For services needing runtime config, register here:
 //! pub async fn register() {
-//!     // Initialize database
-//!     DB::init().await.expect("Failed to connect to database");
+//!     // Initialize database (errors provide actionable guidance)
+//!     DB::init().await.unwrap_or_else(|e| {
+//!         eprintln!("Error: Failed to connect to database");
+//!         eprintln!("  Cause: {}", e);
+//!         std::process::exit(1);
+//!     });
 //!
 //!     // Global middleware
 //!     global_middleware!(middleware::LoggingMiddleware);
@@ -35,7 +39,20 @@ use crate::providers::DatabaseUserProvider;
 /// Middleware and services registered here can use environment variables, config files, etc.
 pub async fn register() {
     // Initialize database connection
-    DB::init().await.expect("Failed to connect to database");
+    DB::init().await.unwrap_or_else(|e| {
+        eprintln!("Error: Failed to connect to database");
+        eprintln!("  Cause: {}", e);
+        eprintln!();
+        eprintln!("How to fix:");
+        eprintln!("  1. Check DATABASE_URL is set in .env");
+        eprintln!("  2. Ensure the database server is running");
+        eprintln!("  3. Verify connection credentials are correct");
+        eprintln!();
+        eprintln!("Example .env:");
+        eprintln!("  DATABASE_URL=sqlite://./database.db");
+        eprintln!("  DATABASE_URL=postgres://user:pass@localhost/mydb");
+        std::process::exit(1);
+    });
 
     // Global middleware (runs on every request in registration order)
     global_middleware!(middleware::LoggingMiddleware);
