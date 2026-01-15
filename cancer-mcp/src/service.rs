@@ -444,14 +444,17 @@ impl CancerMcpService {
         }
     }
 
-    /// Get the most recent error from logs
+    /// Get the most recent error from logs with route correlation and categorization
     #[tool(
         name = "last_error",
-        description = "Get the most recent error from application logs.\n\n\
+        description = "Get the most recent error from application logs with route correlation and categorization.\n\n\
             **When to use:** Quick error diagnosis, debugging failures, \
-            checking if errors occurred after changes.\n\n\
-            **Returns:** Error message, stack trace, timestamp, request context if available.\n\n\
-            **Combine with:** `read_logs` for surrounding context, `get_handler` to see failing code."
+            checking if errors occurred after changes, starting error investigation.\n\n\
+            **Returns:** Error message, stack trace, timestamp, error category (validation, database, \
+            not_found, permission, internal, panic), route context (handler, path, method), \
+            and related routes.\n\n\
+            **Combine with:** `diagnose_error` for fix suggestions, `read_logs` for surrounding context, \
+            `get_handler` to see failing code."
     )]
     pub async fn last_error(&self) -> String {
         match tools::last_error::execute(&self.project_root) {
@@ -697,7 +700,9 @@ impl CancerMcpService {
             **When to use:** Testing endpoints without a browser, debugging API responses, \
             verifying authentication, checking redirect behavior.\n\n\
             **Returns:** Response status, headers, body, timing.\n\n\
-            **Combine with:** `list_routes` to find endpoints, `get_handler` to see implementation."
+            **Combine with:** `list_routes` to find endpoints, `get_handler` to see implementation.\n\n\
+            **On error:** Use `last_error` to get categorized error with context, then \
+            `diagnose_error` for Cancer-specific fix suggestions."
     )]
     pub async fn test_route(&self, params: Parameters<TestRouteParams>) -> String {
         let test_params = tools::test_route::TestRouteParams {
@@ -723,7 +728,9 @@ impl CancerMcpService {
             before deploying, debugging 'undefined' errors in frontend.\n\n\
             **Returns:** Validation status, mismatches found, missing/extra fields.\n\n\
             **Combine with:** `list_props` to see all contracts, `generate_types` to fix TypeScript.\n\n\
-            **Best practice:** Run proactively after any Inertia-related changes."
+            **Best practice:** Run proactively after any Inertia-related changes.\n\n\
+            **On error:** If validation fails, use `get_handler` to see what props are being sent, \
+            then `diagnose_error` with category='validation' for fix suggestions."
     )]
     pub async fn validate_contracts(&self, params: Parameters<ValidateContractsParams>) -> String {
         match tools::validate_contracts::execute(&self.project_root, params.0.filter.as_deref()) {
@@ -929,11 +936,12 @@ These workflows show how to combine tools for common tasks.
 5. `relation_map` - See how models connect
 
 ### Debugging an Issue
-1. `last_error` - Get most recent error
-2. `read_logs` - Context around error time
-3. `get_handler` - Read the failing code
-4. `explain_route` - Understand expected behavior
-5. `test_route` - Reproduce the issue
+1. `last_error` - Get categorized error with route context
+2. `diagnose_error` - Get Cancer-specific fix suggestions
+3. `error_patterns` - Reference common issues if needed
+4. `explain_route` / `explain_model` - Understand affected code
+5. `get_handler` - Read the failing code
+6. `test_route` - Verify the fix works
 
 ### Adding a Feature
 1. `domain_glossary` - Learn domain terms
@@ -1015,10 +1023,25 @@ These workflows show how to combine tools for common tasks.
 - Debugging event/listener connections
 - Planning new features
 
-**USE read_logs and last_error** when:
+**USE last_error** when:
 - User reports an error
+- Something isn't working after changes
+- ALWAYS check this first when debugging failures
+
+**USE diagnose_error** when:
+- After getting an error from last_error
+- Need Cancer-specific fix suggestions
+- Want to know which tools can help investigate
+
+**USE error_patterns** when:
+- Learning what common errors look like
+- Building error handling strategies
+- Understanding error categories
+
+**USE read_logs** when:
+- Need context around an error
 - Debugging runtime issues
-- ALWAYS check logs when something isn't working
+- Tracing request flow
 
 **USE session_inspect** when:
 - Debugging authentication issues
@@ -1064,8 +1087,10 @@ These workflows show how to combine tools for common tasks.
 - session_inspect: Debug sessions
 
 ### Debugging (find problems)
+- last_error: Most recent error with category and route context
+- diagnose_error: Get fix suggestions for errors
+- error_patterns: Catalog of common error patterns
 - read_logs: Application logs
-- last_error: Most recent error
 - browser_logs: Frontend errors
 - get_handler: Handler source code
 - get_middleware: Middleware source code
