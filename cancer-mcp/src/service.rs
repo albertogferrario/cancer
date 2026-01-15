@@ -185,6 +185,12 @@ pub struct RouteDependenciesParams {
     pub route: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct ModelUsagesParams {
+    /// Model name to find usages of (e.g., "User", "Animal")
+    pub model: String,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -905,6 +911,26 @@ impl CancerMcpService {
     ) -> String {
         match tools::route_dependencies::execute(&self.project_root, &params.0.route) {
             Ok(deps) => serde_json::to_string_pretty(&deps).unwrap_or_else(|_| "{}".to_string()),
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Find all routes that use a specific model
+    #[tool(
+        name = "model_usages",
+        description = "Find all routes/handlers that reference a given model.\n\n\
+            **When to use:** Impact analysis before model changes, understanding model dependencies, \
+            finding all CRUD operations for a model, planning model refactors.\n\n\
+            **Returns:** Routes using this model with path, method, handler, usage types (query, \
+            mutation, filter), and summary statistics.\n\n\
+            **Combine with:** `route_dependencies` for single route analysis, `dependency_graph` \
+            for full picture, `explain_model` for model context."
+    )]
+    pub async fn model_usages(&self, params: Parameters<ModelUsagesParams>) -> String {
+        match tools::model_usages::execute(&self.project_root, &params.0.model) {
+            Ok(usages) => {
+                serde_json::to_string_pretty(&usages).unwrap_or_else(|_| "{}".to_string())
+            }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }

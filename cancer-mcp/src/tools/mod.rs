@@ -23,6 +23,7 @@ pub mod list_middleware;
 pub mod list_migrations;
 pub mod list_models;
 pub mod list_props;
+pub mod model_usages;
 pub mod list_routes;
 pub mod list_services;
 pub mod queue_status;
