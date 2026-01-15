@@ -2,8 +2,9 @@ use std::fs;
 use std::path::Path;
 
 use crate::templates;
+use dialoguer::Confirm;
 
-pub fn run(name: String, fields: Vec<String>, with_tests: bool, with_factory: bool) {
+pub fn run(name: String, fields: Vec<String>, with_tests: bool, with_factory: bool, auto_routes: bool, yes: bool) {
     // Validate resource name
     if !is_valid_identifier(&name) {
         eprintln!(
@@ -49,8 +50,12 @@ pub fn run(name: String, fields: Vec<String>, with_tests: bool, with_factory: bo
         generate_scaffold_factory(&name, &snake_name, &parsed_fields);
     }
 
-    // Print route registration instructions
-    print_route_instructions(&name, &snake_name, &plural_snake);
+    // Auto-register routes or print instructions
+    if auto_routes {
+        register_routes(&snake_name, &plural_snake, yes);
+    } else {
+        print_route_instructions(&name, &snake_name, &plural_snake);
+    }
 
     println!("\n✅ Scaffold for {} created successfully!", name);
 }
@@ -1296,6 +1301,93 @@ route_delete("/{plural}/{{id}}", {snake}_controller::destroy);"#,
         snake = snake_name,
         plural = plural_snake
     );
+}
+
+fn register_routes(snake_name: &str, plural_snake: &str, skip_confirm: bool) {
+    let routes_path = Path::new("src/routes.rs");
+
+    if !routes_path.exists() {
+        eprintln!("Warning: src/routes.rs not found. Skipping route registration.");
+        return;
+    }
+
+    let content = fs::read_to_string(routes_path).expect("Failed to read routes.rs");
+
+    // Check if resource already registered
+    let resource_pattern = format!("resource!(\"/{}\"", plural_snake);
+    if content.contains(&resource_pattern) {
+        println!("   ⏭️  Route already registered for /{}", plural_snake);
+        return;
+    }
+
+    // Show what will be added and confirm
+    let route_entry = format!(
+        "\n    // {} routes\n    resource!(\"/{}\", controllers::{}),",
+        to_pascal_case(snake_name),
+        plural_snake,
+        snake_name
+    );
+    let use_statement = format!("{}::{}_controller", "controllers", snake_name);
+
+    println!("\n📝 Route registration:");
+    println!("   Will add: resource!(\"/{}\", controllers::{})", plural_snake, snake_name);
+
+    if !skip_confirm {
+        let confirmed = Confirm::new()
+            .with_prompt("Register route in src/routes.rs?")
+            .default(true)
+            .interact()
+            .unwrap_or(false);
+
+        if !confirmed {
+            println!("   ⏭️  Skipped route registration");
+            return;
+        }
+    }
+
+    // Find routes! macro and insert before its closing brace
+    // Note: resource! macro accesses controllers::name module directly
+    // No additional use statement needed since routes already imports controllers
+    let _ = use_statement; // Mark as intentionally unused
+
+    // Find the closing brace of routes! macro
+    // Strategy: Find "routes! {" and then find its matching "}"
+    if let Some(routes_start) = content.find("routes!") {
+        if let Some(brace_start) = content[routes_start..].find('{') {
+            let routes_content_start = routes_start + brace_start + 1;
+            let mut depth = 1;
+            let mut insert_pos = None;
+
+            for (i, c) in content[routes_content_start..].char_indices() {
+                match c {
+                    '{' => depth += 1,
+                    '}' => {
+                        depth -= 1;
+                        if depth == 0 {
+                            insert_pos = Some(routes_content_start + i);
+                            break;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+
+            if let Some(pos) = insert_pos {
+                let updated_content = format!(
+                    "{}{}\n{}",
+                    &content[..pos],
+                    route_entry,
+                    &content[pos..]
+                );
+
+                fs::write(routes_path, updated_content).expect("Failed to write routes.rs");
+                println!("   ✅ Registered route in src/routes.rs");
+                return;
+            }
+        }
+    }
+
+    eprintln!("Warning: Could not find routes! macro. Skipping route registration.");
 }
 
 fn generate_tests(_name: &str, snake_name: &str, plural_snake: &str) {

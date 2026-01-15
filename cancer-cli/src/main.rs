@@ -162,6 +162,12 @@ enum Commands {
         /// Generate factory with field definitions
         #[arg(long)]
         with_factory: bool,
+        /// Automatically register routes in src/routes.rs
+        #[arg(long)]
+        auto_routes: bool,
+        /// Skip confirmation prompt for auto-routes (for CI/automation)
+        #[arg(long, short = 'y')]
+        yes: bool,
     },
     /// Run all pending database migrations
     Migrate,
@@ -303,8 +309,8 @@ fn main() {
         Commands::MakeSeeder { name } => {
             commands::make_seeder::run(name);
         }
-        Commands::MakeScaffold { name, fields, with_tests, with_factory } => {
-            commands::make_scaffold::run(name, fields, with_tests, with_factory);
+        Commands::MakeScaffold { name, fields, with_tests, with_factory, auto_routes, yes } => {
+            commands::make_scaffold::run(name, fields, with_tests, with_factory, auto_routes, yes);
         }
         Commands::Migrate => {
             commands::migrate::run();
