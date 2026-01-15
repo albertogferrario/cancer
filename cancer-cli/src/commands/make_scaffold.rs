@@ -4,7 +4,15 @@ use std::path::Path;
 use crate::templates;
 use dialoguer::Confirm;
 
-pub fn run(name: String, fields: Vec<String>, with_tests: bool, with_factory: bool, auto_routes: bool, yes: bool, api_only: bool) {
+pub fn run(
+    name: String,
+    fields: Vec<String>,
+    with_tests: bool,
+    with_factory: bool,
+    auto_routes: bool,
+    yes: bool,
+    api_only: bool,
+) {
     // Validate resource name
     if !is_valid_identifier(&name) {
         eprintln!(
@@ -559,7 +567,13 @@ fn update_models_mod(snake_name: &str) {
     fs::write(mod_path, updated).expect("Failed to write mod.rs");
 }
 
-fn generate_controller(name: &str, snake_name: &str, plural_snake: &str, fields: &[Field], api_only: bool) {
+fn generate_controller(
+    name: &str,
+    snake_name: &str,
+    plural_snake: &str,
+    fields: &[Field],
+    api_only: bool,
+) {
     let controllers_dir = Path::new("src/controllers");
 
     if !controllers_dir.exists() {
@@ -591,10 +605,12 @@ fn generate_controller(name: &str, snake_name: &str, plural_snake: &str, fields:
 
     let insert_fields: String = fields
         .iter()
-        .map(|f| format!(
-            "        {}: ActiveValue::Set(form.{}.clone()),\n",
-            f.name, f.name
-        ))
+        .map(|f| {
+            format!(
+                "        {}: ActiveValue::Set(form.{}.clone()),\n",
+                f.name, f.name
+            )
+        })
         .collect();
 
     let controller_content = if api_only {
@@ -769,7 +785,11 @@ pub async fn destroy(req: Request, id: i64) -> Response {{
     // Update mod.rs
     update_controllers_mod(snake_name);
 
-    let controller_type = if api_only { "API controller" } else { "controller" };
+    let controller_type = if api_only {
+        "API controller"
+    } else {
+        "controller"
+    };
     println!(
         "   📦 Created {}: src/controllers/{}_controller.rs",
         controller_type, snake_name
@@ -1350,7 +1370,10 @@ fn register_routes(snake_name: &str, plural_snake: &str, skip_confirm: bool) {
     let use_statement = format!("{}::{}_controller", "controllers", snake_name);
 
     println!("\n📝 Route registration:");
-    println!("   Will add: resource!(\"/{}\", controllers::{})", plural_snake, snake_name);
+    println!(
+        "   Will add: resource!(\"/{}\", controllers::{})",
+        plural_snake, snake_name
+    );
 
     if !skip_confirm {
         let confirmed = Confirm::new()
@@ -1393,12 +1416,8 @@ fn register_routes(snake_name: &str, plural_snake: &str, skip_confirm: bool) {
             }
 
             if let Some(pos) = insert_pos {
-                let updated_content = format!(
-                    "{}{}\n{}",
-                    &content[..pos],
-                    route_entry,
-                    &content[pos..]
-                );
+                let updated_content =
+                    format!("{}{}\n{}", &content[..pos], route_entry, &content[pos..]);
 
                 fs::write(routes_path, updated_content).expect("Failed to write routes.rs");
                 println!("   ✅ Registered route in src/routes.rs");
@@ -1504,6 +1523,9 @@ fn update_factories_mod(file_name: &str) {
         return;
     }
 
-    let updated = format!("{}{}\npub use {}::*;\n", content, mod_declaration, file_name);
+    let updated = format!(
+        "{}{}\npub use {}::*;\n",
+        content, mod_declaration, file_name
+    );
     fs::write(mod_path, updated).expect("Failed to write mod.rs");
 }

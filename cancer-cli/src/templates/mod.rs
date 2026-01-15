@@ -1650,13 +1650,25 @@ pub fn scaffold_factory_template(
     // Build field definitions
     let field_defs: String = fields
         .iter()
-        .map(|f| format!("    pub {}: {},\n", f.name, rust_type_for_factory(&f.field_type)))
+        .map(|f| {
+            format!(
+                "    pub {}: {},\n",
+                f.name,
+                rust_type_for_factory(&f.field_type)
+            )
+        })
         .collect();
 
     // Build Fake::* assignments
     let fake_assignments: String = fields
         .iter()
-        .map(|f| format!("            {}: {},\n", f.name, fake_value_for_type(&f.field_type)))
+        .map(|f| {
+            format!(
+                "            {}: {},\n",
+                f.name,
+                fake_value_for_type(&f.field_type)
+            )
+        })
         .collect();
 
     format!(

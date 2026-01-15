@@ -1,3 +1,4 @@
+mod analyzer;
 mod commands;
 mod templates;
 
@@ -312,8 +313,24 @@ fn main() {
         Commands::MakeSeeder { name } => {
             commands::make_seeder::run(name);
         }
-        Commands::MakeScaffold { name, fields, with_tests, with_factory, auto_routes, yes, api } => {
-            commands::make_scaffold::run(name, fields, with_tests, with_factory, auto_routes, yes, api);
+        Commands::MakeScaffold {
+            name,
+            fields,
+            with_tests,
+            with_factory,
+            auto_routes,
+            yes,
+            api,
+        } => {
+            commands::make_scaffold::run(
+                name,
+                fields,
+                with_tests,
+                with_factory,
+                auto_routes,
+                yes,
+                api,
+            );
         }
         Commands::Migrate => {
             commands::migrate::run();
