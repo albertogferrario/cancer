@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** Phase 10 complete — CLI smart defaults implemented
+**Current focus:** Phase 11 in progress — FK detection and factory-test integration complete
 
 ## Current Position
 
-Phase: 11 of 12 (CLI Component Integration) - PLANNED
-Plan: 0 of 3 in phase - READY TO EXECUTE
-Status: Phase 11 planned with 3 plans in 2 waves
-Last activity: 2026-01-15 — Created Phase 11 plans (CLI Component Integration)
+Phase: 11 of 12 (CLI Component Integration) - IN PROGRESS
+Plan: 1 of 3 in phase - COMPLETE
+Status: Plan 1 complete with FK detection and factory-test integration
+Last activity: 2026-01-15 — Completed Phase 11 Plan 1 (FK detection, factory-test integration)
 
 Progress: ████████████████ 83%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 30 min
-- Total execution time: 5 hours
+- Total plans completed: 11
+- Average duration: 29 min
+- Total execution time: 5 hours 25 min
 
 **By Phase:**
 
@@ -37,9 +37,10 @@ Progress: ████████████████ 83%
 | 8 | 1 | 25 min | 25 min |
 | 9 | 1 | 35 min | 35 min |
 | 10 | 1 | 30 min | 30 min |
+| 11 | 1 | 25 min | 25 min |
 
 **Recent Trend:**
-- Last 10 plans: All completed successfully
+- Last 11 plans: All completed successfully
 - Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
@@ -74,6 +75,9 @@ Recent decisions affecting current work:
 23. **SmartDefaults tracking struct** - Separate tracking of detections vs applied flags enables showing user what was auto-detected.
 24. **Field inference returns tuple** - `infer_field_type()` returns `(FieldType, reason)` for display in summary.
 25. **Interactive by default** - Smart defaults summary prompts for confirmation unless `--yes` or `--quiet` passed.
+26. **ForeignKeyInfo struct** - Contains field_name, target_model, target_table, validated for comprehensive FK information.
+27. **Validated FK flag** - FK detection checks if target model exists in project, enabling smart suggestions.
+28. **Factory-integrated tests** - Tests conditionally use factory template when both --with-tests and --with-factory are used.
 
 ### Pending Todos
 
@@ -88,5 +92,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Completed Phase 10 Plan 1
+Stopped at: Completed Phase 11 Plan 1
 Resume file: None
