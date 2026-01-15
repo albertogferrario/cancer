@@ -47,7 +47,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Goal**: More concise validation rule definitions
 **Depends on**: Phase 2
 **Research**: Unlikely (internal validation patterns)
-**Plans**: TBD
+**Plans**: 1 (Validate Derive Macro)
 
 ### Phase 4: Convention-over-Configuration
 **Goal**: Smart defaults reduce explicit configuration for common scenarios
@@ -116,7 +116,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Handler Simplification | 1/1 | Complete | 2026-01-15 |
 | 2. Model Boilerplate Reduction | 1/1 | Complete | 2026-01-15 |
-| 3. Validation Syntax Streamlining | 0/TBD | Not started | - |
+| 3. Validation Syntax Streamlining | 0/1 | Planned | - |
 | 4. Convention-over-Configuration | 0/TBD | Not started | - |
 | 5. MCP Intent Understanding | 0/TBD | Not started | - |
 | 6. MCP Error Context | 0/TBD | Not started | - |
