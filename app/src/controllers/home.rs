@@ -1,4 +1,4 @@
-use cancer::{App, Inertia, InertiaProps, Request, Response};
+use cancer::{handler, App, Inertia, InertiaProps, Request, Response};
 
 use crate::actions::example_action::ExampleAction;
 
@@ -22,6 +22,7 @@ pub struct HomeProps {
     pub stats: Stats,
 }
 
+#[handler]
 pub async fn index(req: Request) -> Response {
     // Get the action from the service container using resolve()
     // This returns a proper error response if not registered
