@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 
-use crate::analyzer::ProjectAnalyzer;
+use crate::analyzer::{FactoryPattern, ProjectAnalyzer, ProjectConventions, TestPattern};
 use crate::templates;
 use dialoguer::Confirm;
 
@@ -17,11 +17,12 @@ pub fn run(
     no_smart_defaults: bool,
 ) {
     // Apply smart defaults unless disabled
-    let api_only = if no_smart_defaults {
-        api_only
+    let (api_only, with_tests, with_factory) = if no_smart_defaults {
+        (api_only, with_tests, with_factory)
     } else {
-        apply_api_smart_default(api_only)
+        apply_smart_defaults(api_only, with_tests, with_factory)
     };
+
     // Validate resource name
     if !is_valid_identifier(&name) {
         eprintln!(
@@ -1539,23 +1540,79 @@ fn update_factories_mod(file_name: &str) {
     fs::write(mod_path, updated).expect("Failed to write mod.rs");
 }
 
-/// Apply smart default for API-only mode based on project structure.
+/// Apply smart defaults for scaffold generation based on project structure.
 ///
-/// If user explicitly specified --api, use their choice.
-/// Otherwise, detect if project has Inertia pages and suggest API-only if not.
-fn apply_api_smart_default(explicit_api: bool) -> bool {
+/// Returns (api_only, with_tests, with_factory) tuple with detected defaults.
+/// User-explicit flags are preserved (e.g., if --api is passed, always use API mode).
+fn apply_smart_defaults(
+    explicit_api: bool,
+    explicit_tests: bool,
+    explicit_factory: bool,
+) -> (bool, bool, bool) {
+    // Analyze project once for all detections
+    let analyzer = ProjectAnalyzer::current_dir();
+    let conventions = analyzer.analyze();
+
+    let api_only = apply_api_smart_default_from_conventions(explicit_api, &conventions);
+    let with_tests = apply_test_smart_default(explicit_tests, &conventions);
+    let with_factory = apply_factory_smart_default(explicit_factory, &conventions);
+
+    (api_only, with_tests, with_factory)
+}
+
+/// Apply smart default for API-only mode based on analyzed conventions.
+fn apply_api_smart_default_from_conventions(
+    explicit_api: bool,
+    conventions: &ProjectConventions,
+) -> bool {
     // If user explicitly requested API mode, honor that
     if explicit_api {
         return true;
     }
 
-    // Analyze project to detect Inertia pages
-    let analyzer = ProjectAnalyzer::current_dir();
-    let conventions = analyzer.analyze();
-
     // If no Inertia pages found, suggest API-only mode
     if !conventions.has_inertia_pages {
         println!("💡 Detected API-only project (no Inertia pages found), using --api flag");
+        return true;
+    }
+
+    false
+}
+
+/// Apply smart default for --with-tests based on existing test patterns.
+fn apply_test_smart_default(explicit_tests: bool, conventions: &ProjectConventions) -> bool {
+    // If user explicitly requested tests, honor that
+    if explicit_tests {
+        return true;
+    }
+
+    // If existing test pattern detected, suggest --with-tests
+    if conventions.test_pattern == TestPattern::PerController && conventions.test_file_count > 0 {
+        println!(
+            "💡 Detected test pattern ({} existing test files), suggesting --with-tests",
+            conventions.test_file_count
+        );
+        return true;
+    }
+
+    false
+}
+
+/// Apply smart default for --with-factory based on existing factory patterns.
+fn apply_factory_smart_default(explicit_factory: bool, conventions: &ProjectConventions) -> bool {
+    // If user explicitly requested factory, honor that
+    if explicit_factory {
+        return true;
+    }
+
+    // If existing factory pattern detected, suggest --with-factory
+    if conventions.factory_pattern == FactoryPattern::PerModel
+        && conventions.factory_file_count > 0
+    {
+        println!(
+            "💡 Detected factory pattern ({} existing factories), suggesting --with-factory",
+            conventions.factory_file_count
+        );
         return true;
     }
 
