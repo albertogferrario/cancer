@@ -1,8 +1,9 @@
-use cancer::{json_response, App, Request, Response, ResponseExt};
+use cancer::{handler, json_response, App, Response, ResponseExt};
 
 use crate::actions::todo_action::{CreateRandomTodoAction, ListTodosAction};
 
-pub async fn create_random(_req: Request) -> Response {
+#[handler]
+pub async fn create_random() -> Response {
     let action = App::resolve::<CreateRandomTodoAction>()?;
 
     match action.execute().await {
@@ -19,15 +20,15 @@ pub async fn create_random(_req: Request) -> Response {
     }
 }
 
-pub async fn list(_req: Request) -> Response {
+#[handler]
+pub async fn list() -> Response {
     let action = App::resolve::<ListTodosAction>()?;
 
     match action.execute().await {
         Ok(todos) => json_response!({
             "success": true,
             "todos": todos
-        })
-        .status(200),
+        }),
         Err(e) => json_response!({
             "success": false,
             "error": e.to_string()
