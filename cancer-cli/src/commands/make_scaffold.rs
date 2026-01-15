@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::Path;
 
-use crate::analyzer::{FactoryPattern, ProjectAnalyzer, ProjectConventions, TestPattern};
+use crate::analyzer::{
+    FactoryPattern, ForeignKeyInfo, ProjectAnalyzer, ProjectConventions, TestPattern,
+};
 use crate::templates;
 use dialoguer::Confirm;
 
@@ -148,18 +150,33 @@ pub fn run(
 
     println!("🚀 Scaffolding {}...\n", name);
 
+    // Detect foreign keys from field names
+    let analyzer = ProjectAnalyzer::current_dir();
+    let field_tuples: Vec<(&str, &str)> = parsed_fields
+        .iter()
+        .map(|f| (f.name.as_str(), f.field_type.to_display_name()))
+        .collect();
+    let foreign_keys = analyzer.detect_foreign_keys(&field_tuples);
+
     // Generate migration
-    generate_migration(&name, &snake_name, &plural_snake, &parsed_fields);
+    generate_migration(&name, &snake_name, &plural_snake, &parsed_fields, &foreign_keys);
 
     // Generate model (includes entity)
-    generate_model(&name, &snake_name, &parsed_fields);
+    generate_model(&name, &snake_name, &parsed_fields, &foreign_keys);
 
     // Generate controller
-    generate_controller(&name, &snake_name, &plural_snake, &parsed_fields, api_only);
+    generate_controller(
+        &name,
+        &snake_name,
+        &plural_snake,
+        &parsed_fields,
+        &foreign_keys,
+        api_only,
+    );
 
     // Generate Inertia pages (skip for API-only scaffold)
     if !api_only {
-        generate_inertia_pages(&name, &snake_name, &plural_snake, &parsed_fields);
+        generate_inertia_pages(&name, &snake_name, &plural_snake, &parsed_fields, &foreign_keys);
     }
 
     // Generate tests if requested
@@ -175,7 +192,7 @@ pub fn run(
 
     // Generate factory if requested
     if with_factory {
-        generate_scaffold_factory(&name, &snake_name, &parsed_fields);
+        generate_scaffold_factory(&name, &snake_name, &parsed_fields, &foreign_keys);
     }
 
     // Auto-register routes or print instructions
@@ -483,7 +500,13 @@ fn pluralize(name: &str) -> String {
     }
 }
 
-fn generate_migration(_name: &str, _snake_name: &str, plural_snake: &str, fields: &[Field]) {
+fn generate_migration(
+    _name: &str,
+    _snake_name: &str,
+    plural_snake: &str,
+    fields: &[Field],
+    foreign_keys: &[ForeignKeyInfo],
+) {
     // Check for both possible migration directory locations
     let migrations_dir = if Path::new("src/migrations").exists() {
         Path::new("src/migrations")
@@ -512,10 +535,59 @@ fn generate_migration(_name: &str, _snake_name: &str, plural_snake: &str, fields
         ));
     }
 
+    // Build foreign key constraints for validated FKs only
+    let mut fk_constraints = String::new();
+    let mut fk_comments = String::new();
+    for fk in foreign_keys {
+        if fk.validated {
+            fk_constraints.push_str(&format!(
+                r#"            .foreign_key(
+                ForeignKey::create()
+                    .name("fk_{table}_{field}")
+                    .from({table_enum}::Table, {table_enum}::{column})
+                    .to({target_table_enum}::Table, {target_table_enum}::Id)
+                    .on_delete(ForeignKeyAction::Cascade)
+                    .on_update(ForeignKeyAction::Cascade),
+            )
+"#,
+                table = plural_snake,
+                field = fk.field_name,
+                table_enum = to_pascal_case(plural_snake),
+                column = to_pascal_case(&fk.field_name),
+                target_table_enum = to_pascal_case(&fk.target_table),
+            ));
+        } else {
+            fk_comments.push_str(&format!(
+                "// Note: {} model not found - FK constraint for {} skipped\n",
+                fk.target_model, fk.field_name
+            ));
+        }
+    }
+
+    // Build FK table enum imports if we have validated FKs
+    let fk_table_enums: String = foreign_keys
+        .iter()
+        .filter(|fk| fk.validated)
+        .map(|fk| {
+            format!(
+                r#"
+/// Reference to {target_table} table for FK constraint
+#[derive(Iden)]
+pub enum {target_table_enum} {{
+    Table,
+    Id,
+}}
+"#,
+                target_table = fk.target_table,
+                target_table_enum = to_pascal_case(&fk.target_table),
+            )
+        })
+        .collect();
+
     let migration_content = format!(
         r#"use sea_orm_migration::prelude::*;
 
-#[derive(DeriveMigrationName)]
+{fk_comments}#[derive(DeriveMigrationName)]
 pub struct Migration;
 
 #[async_trait::async_trait]
@@ -533,7 +605,7 @@ impl MigrationTrait for Migration {{
                             .auto_increment()
                             .primary_key(),
                     )
-{columns}                    .col(
+{columns}{fk_constraints}                    .col(
                         ColumnDef::new({table_enum}::CreatedAt)
                             .timestamp_with_time_zone()
                             .not_null()
@@ -564,13 +636,16 @@ pub enum {table_enum} {{
 {iden_columns}    CreatedAt,
     UpdatedAt,
 }}
-"#,
+{fk_table_enums}"#,
         table_enum = to_pascal_case(plural_snake),
         columns = columns,
+        fk_constraints = fk_constraints,
+        fk_comments = fk_comments,
         iden_columns = fields
             .iter()
             .map(|f| format!("    {},\n", to_pascal_case(&f.name)))
-            .collect::<String>()
+            .collect::<String>(),
+        fk_table_enums = fk_table_enums,
     );
 
     fs::write(&file_path, migration_content).expect("Failed to write migration file");
@@ -669,7 +744,12 @@ fn update_migrations_mod(migration_name: &str) {
     fs::write(mod_path, content).expect("Failed to write mod.rs");
 }
 
-fn generate_model(name: &str, snake_name: &str, fields: &[Field]) {
+fn generate_model(
+    name: &str,
+    snake_name: &str,
+    fields: &[Field],
+    foreign_keys: &[ForeignKeyInfo],
+) {
     let models_dir = Path::new("src/models");
 
     if !models_dir.exists() {
@@ -688,6 +768,56 @@ fn generate_model(name: &str, snake_name: &str, fields: &[Field]) {
         ));
     }
 
+    // Build Relation enum variants for validated FKs
+    let validated_fks: Vec<&ForeignKeyInfo> = foreign_keys.iter().filter(|fk| fk.validated).collect();
+
+    let relation_enum = if validated_fks.is_empty() {
+        "#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]\npub enum Relation {}".to_string()
+    } else {
+        let variants: String = validated_fks
+            .iter()
+            .map(|fk| {
+                let target_snake = to_snake_case(&fk.target_model);
+                format!(
+                    r#"    #[sea_orm(
+        belongs_to = "super::{target_snake}::Entity",
+        from = "Column::{fk_column}",
+        to = "super::{target_snake}::Column::Id"
+    )]
+    {target_pascal},
+"#,
+                    target_snake = target_snake,
+                    fk_column = to_pascal_case(&fk.field_name),
+                    target_pascal = fk.target_model,
+                )
+            })
+            .collect();
+
+        format!(
+            "#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]\npub enum Relation {{\n{}}}\n",
+            variants
+        )
+    };
+
+    // Build Related<T> impls for validated FKs
+    let related_impls: String = validated_fks
+        .iter()
+        .map(|fk| {
+            let target_snake = to_snake_case(&fk.target_model);
+            format!(
+                r#"
+impl Related<super::{target_snake}::Entity> for Entity {{
+    fn to() -> RelationDef {{
+        Relation::{target_pascal}.def()
+    }}
+}}
+"#,
+                target_snake = target_snake,
+                target_pascal = fk.target_model,
+            )
+        })
+        .collect();
+
     let model_content = format!(
         r#"//! {name} model
 
@@ -705,14 +835,13 @@ pub struct Model {{
     pub updated_at: DateTimeUtc,
 }}
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {{}}
+{relation_enum}
 
 impl ActiveModelBehavior for ActiveModel {{}}
 
 impl DatabaseModel for Entity {{}}
 impl ModelMut for Entity {{}}
-
+{related_impls}
 /// Type alias for convenient access
 pub type {name} = Model;
 
@@ -725,7 +854,9 @@ impl Model {{
 "#,
         name = name,
         table_name = pluralize(snake_name),
-        field_defs = field_defs
+        field_defs = field_defs,
+        relation_enum = relation_enum,
+        related_impls = related_impls,
     );
 
     fs::write(&file_path, model_content).expect("Failed to write model file");
@@ -767,6 +898,7 @@ fn generate_controller(
     snake_name: &str,
     plural_snake: &str,
     fields: &[Field],
+    foreign_keys: &[ForeignKeyInfo],
     api_only: bool,
 ) {
     let controllers_dir = Path::new("src/controllers");
@@ -808,170 +940,58 @@ fn generate_controller(
         })
         .collect();
 
+    // Convert ForeignKeyInfo to ForeignKeyField for templates
+    let fk_fields: Vec<templates::ForeignKeyField> = foreign_keys
+        .iter()
+        .map(|fk| templates::ForeignKeyField {
+            field_name: fk.field_name.clone(),
+            target_model: fk.target_model.clone(),
+            target_table: fk.target_table.clone(),
+            validated: fk.validated,
+        })
+        .collect();
+
     let controller_content = if api_only {
-        templates::api_controller_template(
+        // Use FK-aware API template if there are foreign keys
+        if !fk_fields.is_empty() {
+            templates::api_controller_with_fk_template(
+                name,
+                snake_name,
+                plural_snake,
+                &form_fields,
+                &update_fields,
+                &insert_fields,
+                &fk_fields,
+            )
+        } else {
+            templates::api_controller_template(
+                name,
+                snake_name,
+                plural_snake,
+                &form_fields,
+                &update_fields,
+                &insert_fields,
+            )
+        }
+    } else if !fk_fields.is_empty() {
+        // Use FK-aware template if there are foreign keys
+        templates::scaffold_controller_with_fk_template(
             name,
             snake_name,
             plural_snake,
             &form_fields,
             &update_fields,
             &insert_fields,
+            &fk_fields,
         )
     } else {
-        format!(
-            r#"use cancer::{{
-    http::{{Request, Response, HttpResponse}},
-    inertia::{{Inertia, SavedInertiaContext}},
-    validation::Validatable,
-    ValidateRules,
-}};
-use sea_orm::{{EntityTrait, ActiveModelTrait, ActiveValue}};
-use serde::{{Deserialize, Serialize}};
-
-use crate::models::{snake_name}::{{self, Entity, Model as {name}}};
-
-#[derive(Debug, Deserialize, Serialize, ValidateRules)]
-pub struct {name}Form {{
-{form_fields}}}
-
-#[derive(Debug, Serialize)]
-pub struct {plural_pascal}IndexProps {{
-    pub {plural}: Vec<{name}>,
-}}
-
-#[derive(Debug, Serialize)]
-pub struct {name}ShowProps {{
-    pub {snake}: {name},
-}}
-
-#[derive(Debug, Serialize)]
-pub struct {name}CreateProps {{
-    pub errors: Option<std::collections::HashMap<String, Vec<String>>>,
-}}
-
-#[derive(Debug, Serialize)]
-pub struct {name}EditProps {{
-    pub {snake}: {name},
-    pub errors: Option<std::collections::HashMap<String, Vec<String>>>,
-}}
-
-/// List all {plural}
-pub async fn index(req: Request) -> Response {{
-    let db = req.db();
-    let {plural} = {snake_name}::Entity::find()
-        .all(db)
-        .await
-        .map_err(|e| HttpResponse::internal_server_error(e.to_string()))?;
-
-    Inertia::render(&req, "{plural}/Index", {plural_pascal}IndexProps {{ {plural} }})
-}}
-
-/// Show a single {snake}
-pub async fn show(req: Request, id: i64) -> Response {{
-    let db = req.db();
-    let {snake} = {snake_name}::Entity::find_by_id(id)
-        .one(db)
-        .await
-        .map_err(|e| HttpResponse::internal_server_error(e.to_string()))?
-        .ok_or_else(|| HttpResponse::not_found("{name} not found"))?;
-
-    Inertia::render(&req, "{plural}/Show", {name}ShowProps {{ {snake} }})
-}}
-
-/// Show create form
-pub async fn create(req: Request) -> Response {{
-    Inertia::render(&req, "{plural}/Create", {name}CreateProps {{ errors: None }})
-}}
-
-/// Store a new {snake}
-pub async fn store(req: Request) -> Response {{
-    let ctx = SavedInertiaContext::from(&req);
-    let form: {name}Form = req.input().await.map_err(|e| {{
-        HttpResponse::bad_request(format!("Invalid form data: {{}}", e))
-    }})?;
-
-    // Validate using derive macro
-    if let Err(errors) = form.validate() {{
-        return Inertia::render_ctx(&ctx, "{plural}/Create", {name}CreateProps {{
-            errors: Some(errors.into_messages()),
-        }});
-    }}
-
-    let db = req.db();
-    let model = {snake_name}::ActiveModel {{
-        id: ActiveValue::NotSet,
-{insert_fields}        created_at: ActiveValue::Set(chrono::Utc::now()),
-        updated_at: ActiveValue::Set(chrono::Utc::now()),
-    }};
-
-    let result = model.insert(db).await
-        .map_err(|e| HttpResponse::internal_server_error(e.to_string()))?;
-
-    HttpResponse::redirect(&format!("/{plural}/{{}}", result.id))
-}}
-
-/// Show edit form
-pub async fn edit(req: Request, id: i64) -> Response {{
-    let db = req.db();
-    let {snake} = {snake_name}::Entity::find_by_id(id)
-        .one(db)
-        .await
-        .map_err(|e| HttpResponse::internal_server_error(e.to_string()))?
-        .ok_or_else(|| HttpResponse::not_found("{name} not found"))?;
-
-    Inertia::render(&req, "{plural}/Edit", {name}EditProps {{ {snake}, errors: None }})
-}}
-
-/// Update an existing {snake}
-pub async fn update(req: Request, id: i64) -> Response {{
-    let ctx = SavedInertiaContext::from(&req);
-    let form: {name}Form = req.input().await.map_err(|e| {{
-        HttpResponse::bad_request(format!("Invalid form data: {{}}", e))
-    }})?;
-
-    let db = req.db();
-    let {snake} = {snake_name}::Entity::find_by_id(id)
-        .one(db)
-        .await
-        .map_err(|e| HttpResponse::internal_server_error(e.to_string()))?
-        .ok_or_else(|| HttpResponse::not_found("{name} not found"))?;
-
-    // Validate using derive macro
-    if let Err(errors) = form.validate() {{
-        return Inertia::render_ctx(&ctx, "{plural}/Edit", {name}EditProps {{
-            {snake},
-            errors: Some(errors.into_messages()),
-        }});
-    }}
-
-    let mut model: {snake_name}::ActiveModel = {snake}.into();
-{update_fields}    model.updated_at = ActiveValue::Set(chrono::Utc::now());
-
-    model.update(db).await
-        .map_err(|e| HttpResponse::internal_server_error(e.to_string()))?;
-
-    HttpResponse::redirect(&format!("/{plural}/{{}}", id))
-}}
-
-/// Delete a {snake}
-pub async fn destroy(req: Request, id: i64) -> Response {{
-    let db = req.db();
-    {snake_name}::Entity::delete_by_id(id)
-        .exec(db)
-        .await
-        .map_err(|e| HttpResponse::internal_server_error(e.to_string()))?;
-
-    HttpResponse::redirect("/{plural}")
-}}
-"#,
-            name = name,
-            snake = snake_name,
-            snake_name = snake_name,
-            plural = plural_snake,
-            plural_pascal = to_pascal_case(plural_snake),
-            form_fields = form_fields,
-            update_fields = update_fields,
-            insert_fields = insert_fields
+        templates::scaffold_controller_template(
+            name,
+            snake_name,
+            plural_snake,
+            &form_fields,
+            &update_fields,
+            &insert_fields,
         )
     };
 
@@ -1697,7 +1717,12 @@ fn update_tests_mod(snake_name: &str) {
     fs::write(mod_path, updated).expect("Failed to write mod.rs");
 }
 
-fn generate_scaffold_factory(name: &str, snake_name: &str, fields: &[Field]) {
+fn generate_scaffold_factory(
+    name: &str,
+    snake_name: &str,
+    fields: &[Field],
+    foreign_keys: &[ForeignKeyInfo],
+) {
     let factories_dir = Path::new("src/factories");
 
     if !factories_dir.exists() {
@@ -1717,8 +1742,24 @@ fn generate_scaffold_factory(name: &str, snake_name: &str, fields: &[Field]) {
         })
         .collect();
 
-    let factory_content =
-        templates::scaffold_factory_template(&file_name, &struct_name, name, &scaffold_fields);
+    // Convert ForeignKeyInfo to ScaffoldForeignKey for template
+    let scaffold_fks: Vec<templates::ScaffoldForeignKey> = foreign_keys
+        .iter()
+        .map(|fk| templates::ScaffoldForeignKey {
+            field_name: fk.field_name.clone(),
+            target_model: fk.target_model.clone(),
+            target_snake: fk.target_table.trim_end_matches('s').to_string(), // users -> user
+            validated: fk.validated,
+        })
+        .collect();
+
+    let factory_content = templates::scaffold_factory_template(
+        &file_name,
+        &struct_name,
+        name,
+        &scaffold_fields,
+        &scaffold_fks,
+    );
 
     fs::write(&file_path, factory_content).expect("Failed to write factory file");
 
