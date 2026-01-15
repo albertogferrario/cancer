@@ -209,27 +209,90 @@ fn parse_fields(fields: &[String]) -> Result<Vec<Field>, String> {
 
     for field_str in fields {
         let parts: Vec<&str> = field_str.split(':').collect();
-        if parts.len() != 2 {
-            return Err(format!(
-                "Invalid field format: '{}'. Expected format: name:type (e.g., title:string)",
-                field_str
-            ));
-        }
 
-        let name = parts[0].to_string();
-        if !is_valid_field_name(&name) {
-            return Err(format!(
-                "Invalid field name: '{}'. Use snake_case (e.g., user_id)",
-                name
-            ));
-        }
-
-        let field_type = FieldType::from_str(parts[1])?;
+        let (name, field_type) = match parts.len() {
+            1 => {
+                // Just field name, infer type from naming convention
+                let name = parts[0].to_string();
+                if !is_valid_field_name(&name) {
+                    return Err(format!(
+                        "Invalid field name: '{}'. Use snake_case (e.g., user_id)",
+                        name
+                    ));
+                }
+                let field_type = infer_field_type(&name);
+                (name, field_type)
+            }
+            2 => {
+                // Explicit name:type format
+                let name = parts[0].to_string();
+                if !is_valid_field_name(&name) {
+                    return Err(format!(
+                        "Invalid field name: '{}'. Use snake_case (e.g., user_id)",
+                        name
+                    ));
+                }
+                let field_type = FieldType::from_str(parts[1])?;
+                (name, field_type)
+            }
+            _ => {
+                return Err(format!(
+                    "Invalid field format: '{}'. Expected format: name or name:type (e.g., title or title:string)",
+                    field_str
+                ));
+            }
+        };
 
         parsed.push(Field { name, field_type });
     }
 
     Ok(parsed)
+}
+
+/// Infer field type from naming conventions.
+///
+/// Patterns:
+/// - `*_id` -> bigint (foreign key)
+/// - `*_at` -> datetime (timestamp)
+/// - `email` -> string
+/// - `password` -> string
+/// - `is_*` or `has_*` -> bool
+/// - default -> string
+fn infer_field_type(name: &str) -> FieldType {
+    // Foreign key pattern
+    if name.ends_with("_id") {
+        println!("   💡 Inferred {}: bigint (foreign key pattern)", name);
+        return FieldType::BigInteger;
+    }
+
+    // Timestamp pattern
+    if name.ends_with("_at") {
+        println!("   💡 Inferred {}: datetime (timestamp pattern)", name);
+        return FieldType::DateTime;
+    }
+
+    // Boolean patterns
+    if name.starts_with("is_") || name.starts_with("has_") {
+        println!("   💡 Inferred {}: bool (boolean pattern)", name);
+        return FieldType::Boolean;
+    }
+
+    // Common field names
+    match name {
+        "email" => {
+            println!("   💡 Inferred {}: string", name);
+            FieldType::String
+        }
+        "password" => {
+            println!("   💡 Inferred {}: string (hashed)", name);
+            FieldType::String
+        }
+        _ => {
+            // Default to string
+            println!("   💡 Inferred {}: string (default)", name);
+            FieldType::String
+        }
+    }
 }
 
 fn is_valid_identifier(name: &str) -> bool {
