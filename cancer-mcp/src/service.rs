@@ -165,6 +165,12 @@ pub struct ExplainRouteParams {
     pub route: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct ExplainModelParams {
+    /// Model name to explain (e.g., "User", "Todo")
+    pub model: String,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -787,6 +793,24 @@ impl CancerMcpService {
     )]
     pub async fn explain_route(&self, params: Parameters<ExplainRouteParams>) -> String {
         match tools::explain_route::execute(&self.project_root, &params.0.route) {
+            Ok(explanation) => {
+                serde_json::to_string_pretty(&explanation).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Explain what a model represents in the business domain
+    #[tool(
+        name = "explain_model",
+        description = "Explain the domain meaning, relationships, and usage of a model.\n\n\
+            **When to use:** Understanding what a model represents in the business, \
+            before modifying model structure, understanding data relationships.\n\n\
+            **Returns:** Domain meaning, field explanations, relationships, related routes, common queries.\n\n\
+            **Combine with:** `list_models` to see all models, `relation_map` for visual relationships."
+    )]
+    pub async fn explain_model(&self, params: Parameters<ExplainModelParams>) -> String {
+        match tools::explain_model::execute(&self.project_root, &params.0.model) {
             Ok(explanation) => {
                 serde_json::to_string_pretty(&explanation).unwrap_or_else(|_| "{}".to_string())
             }
