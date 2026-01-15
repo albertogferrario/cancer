@@ -5,6 +5,85 @@ use crate::analyzer::{FactoryPattern, ProjectAnalyzer, ProjectConventions, TestP
 use crate::templates;
 use dialoguer::Confirm;
 
+/// Tracks which smart defaults were applied and why.
+#[derive(Debug, Default)]
+struct SmartDefaults {
+    api_detected: bool,
+    test_detected: bool,
+    test_count: usize,
+    factory_detected: bool,
+    factory_count: usize,
+    field_inferences: Vec<(String, String, String)>, // (name, type, reason)
+}
+
+impl SmartDefaults {
+    fn has_any(&self) -> bool {
+        self.api_detected
+            || self.test_detected
+            || self.factory_detected
+            || !self.field_inferences.is_empty()
+    }
+
+    fn display(&self, api_only: bool, with_tests: bool, with_factory: bool) {
+        println!("\n📊 Smart Defaults Detected:");
+        println!("   ─────────────────────────");
+
+        // Project type
+        if self.api_detected {
+            println!("   Project type: API-only (no Inertia pages found)");
+        } else if api_only {
+            println!("   Project type: API-only (explicit --api flag)");
+        } else {
+            println!("   Project type: Full-stack (Inertia pages present)");
+        }
+
+        // Test pattern
+        if self.test_detected {
+            println!(
+                "   Test pattern: Per-controller ({} existing test files)",
+                self.test_count
+            );
+        } else if with_tests {
+            println!("   Test pattern: Enabled (explicit --with-tests flag)");
+        }
+
+        // Factory pattern
+        if self.factory_detected {
+            println!(
+                "   Factory pattern: Per-model ({} existing factories)",
+                self.factory_count
+            );
+        } else if with_factory {
+            println!("   Factory pattern: Enabled (explicit --with-factory flag)");
+        }
+
+        // Applied flags summary
+        let mut flags = Vec::new();
+        if api_only {
+            flags.push("--api");
+        }
+        if with_tests {
+            flags.push("--with-tests");
+        }
+        if with_factory {
+            flags.push("--with-factory");
+        }
+        if !flags.is_empty() {
+            println!("\n   Applied flags: {}", flags.join(" "));
+        }
+
+        // Field inferences
+        if !self.field_inferences.is_empty() {
+            println!("\n   Field type inference:");
+            for (name, field_type, reason) in &self.field_inferences {
+                println!("     {} → {} ({})", name, field_type, reason);
+            }
+        }
+
+        println!();
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn run(
     name: String,
@@ -15,12 +94,16 @@ pub fn run(
     yes: bool,
     api_only: bool,
     no_smart_defaults: bool,
+    quiet: bool,
 ) {
+    // Track what smart defaults were applied
+    let mut smart_defaults = SmartDefaults::default();
+
     // Apply smart defaults unless disabled
     let (api_only, with_tests, with_factory) = if no_smart_defaults {
         (api_only, with_tests, with_factory)
     } else {
-        apply_smart_defaults(api_only, with_tests, with_factory)
+        apply_smart_defaults(api_only, with_tests, with_factory, &mut smart_defaults)
     };
 
     // Validate resource name
@@ -32,8 +115,8 @@ pub fn run(
         std::process::exit(1);
     }
 
-    // Parse fields
-    let parsed_fields = match parse_fields(&fields) {
+    // Parse fields (with type inference tracking)
+    let parsed_fields = match parse_fields(&fields, &mut smart_defaults, no_smart_defaults) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("Error parsing fields: {}", e);
@@ -43,6 +126,25 @@ pub fn run(
 
     let snake_name = to_snake_case(&name);
     let plural_snake = pluralize(&snake_name);
+
+    // Display smart defaults summary (unless quiet or no smart defaults)
+    if !quiet && !no_smart_defaults && smart_defaults.has_any() {
+        smart_defaults.display(api_only, with_tests, with_factory);
+
+        // Interactive confirmation unless --yes is passed
+        if !yes {
+            let confirmed = Confirm::new()
+                .with_prompt("Proceed with generation?")
+                .default(true)
+                .interact()
+                .unwrap_or(false);
+
+            if !confirmed {
+                println!("Aborted.");
+                return;
+            }
+        }
+    }
 
     println!("🚀 Scaffolding {}...\n", name);
 
@@ -116,6 +218,20 @@ impl FieldType {
             "date" => Ok(FieldType::Date),
             "uuid" => Ok(FieldType::Uuid),
             _ => Err(format!("Unknown field type: '{}'. Valid types: string, text, integer, bigint, float, bool, datetime, date, uuid", s)),
+        }
+    }
+
+    fn to_display_name(&self) -> &'static str {
+        match self {
+            FieldType::String => "string",
+            FieldType::Text => "text",
+            FieldType::Integer => "integer",
+            FieldType::BigInteger => "bigint",
+            FieldType::Float => "float",
+            FieldType::Boolean => "bool",
+            FieldType::DateTime => "datetime",
+            FieldType::Date => "date",
+            FieldType::Uuid => "uuid",
         }
     }
 
@@ -204,7 +320,11 @@ impl FieldType {
     }
 }
 
-fn parse_fields(fields: &[String]) -> Result<Vec<Field>, String> {
+fn parse_fields(
+    fields: &[String],
+    tracking: &mut SmartDefaults,
+    no_smart_defaults: bool,
+) -> Result<Vec<Field>, String> {
     let mut parsed = Vec::new();
 
     for field_str in fields {
@@ -220,7 +340,14 @@ fn parse_fields(fields: &[String]) -> Result<Vec<Field>, String> {
                         name
                     ));
                 }
-                let field_type = infer_field_type(&name);
+                let (field_type, reason) = infer_field_type(&name);
+                if !no_smart_defaults {
+                    tracking.field_inferences.push((
+                        name.clone(),
+                        field_type.to_display_name().to_string(),
+                        reason.to_string(),
+                    ));
+                }
                 (name, field_type)
             }
             2 => {
@@ -251,6 +378,8 @@ fn parse_fields(fields: &[String]) -> Result<Vec<Field>, String> {
 
 /// Infer field type from naming conventions.
 ///
+/// Returns (FieldType, reason) tuple.
+///
 /// Patterns:
 /// - `*_id` -> bigint (foreign key)
 /// - `*_at` -> datetime (timestamp)
@@ -258,40 +387,27 @@ fn parse_fields(fields: &[String]) -> Result<Vec<Field>, String> {
 /// - `password` -> string
 /// - `is_*` or `has_*` -> bool
 /// - default -> string
-fn infer_field_type(name: &str) -> FieldType {
+fn infer_field_type(name: &str) -> (FieldType, &'static str) {
     // Foreign key pattern
     if name.ends_with("_id") {
-        println!("   💡 Inferred {}: bigint (foreign key pattern)", name);
-        return FieldType::BigInteger;
+        return (FieldType::BigInteger, "foreign key pattern");
     }
 
     // Timestamp pattern
     if name.ends_with("_at") {
-        println!("   💡 Inferred {}: datetime (timestamp pattern)", name);
-        return FieldType::DateTime;
+        return (FieldType::DateTime, "timestamp pattern");
     }
 
     // Boolean patterns
     if name.starts_with("is_") || name.starts_with("has_") {
-        println!("   💡 Inferred {}: bool (boolean pattern)", name);
-        return FieldType::Boolean;
+        return (FieldType::Boolean, "boolean pattern");
     }
 
     // Common field names
     match name {
-        "email" => {
-            println!("   💡 Inferred {}: string", name);
-            FieldType::String
-        }
-        "password" => {
-            println!("   💡 Inferred {}: string (hashed)", name);
-            FieldType::String
-        }
-        _ => {
-            // Default to string
-            println!("   💡 Inferred {}: string (default)", name);
-            FieldType::String
-        }
+        "email" => (FieldType::String, "common field"),
+        "password" => (FieldType::String, "hashed field"),
+        _ => (FieldType::String, "default"),
     }
 }
 
@@ -1607,18 +1723,23 @@ fn update_factories_mod(file_name: &str) {
 ///
 /// Returns (api_only, with_tests, with_factory) tuple with detected defaults.
 /// User-explicit flags are preserved (e.g., if --api is passed, always use API mode).
+/// Apply smart defaults for scaffold generation based on project structure.
+///
+/// Returns (api_only, with_tests, with_factory) tuple with detected defaults.
+/// User-explicit flags are preserved (e.g., if --api is passed, always use API mode).
 fn apply_smart_defaults(
     explicit_api: bool,
     explicit_tests: bool,
     explicit_factory: bool,
+    tracking: &mut SmartDefaults,
 ) -> (bool, bool, bool) {
     // Analyze project once for all detections
     let analyzer = ProjectAnalyzer::current_dir();
     let conventions = analyzer.analyze();
 
-    let api_only = apply_api_smart_default_from_conventions(explicit_api, &conventions);
-    let with_tests = apply_test_smart_default(explicit_tests, &conventions);
-    let with_factory = apply_factory_smart_default(explicit_factory, &conventions);
+    let api_only = apply_api_smart_default_from_conventions(explicit_api, &conventions, tracking);
+    let with_tests = apply_test_smart_default(explicit_tests, &conventions, tracking);
+    let with_factory = apply_factory_smart_default(explicit_factory, &conventions, tracking);
 
     (api_only, with_tests, with_factory)
 }
@@ -1627,6 +1748,7 @@ fn apply_smart_defaults(
 fn apply_api_smart_default_from_conventions(
     explicit_api: bool,
     conventions: &ProjectConventions,
+    tracking: &mut SmartDefaults,
 ) -> bool {
     // If user explicitly requested API mode, honor that
     if explicit_api {
@@ -1635,7 +1757,7 @@ fn apply_api_smart_default_from_conventions(
 
     // If no Inertia pages found, suggest API-only mode
     if !conventions.has_inertia_pages {
-        println!("💡 Detected API-only project (no Inertia pages found), using --api flag");
+        tracking.api_detected = true;
         return true;
     }
 
@@ -1643,7 +1765,11 @@ fn apply_api_smart_default_from_conventions(
 }
 
 /// Apply smart default for --with-tests based on existing test patterns.
-fn apply_test_smart_default(explicit_tests: bool, conventions: &ProjectConventions) -> bool {
+fn apply_test_smart_default(
+    explicit_tests: bool,
+    conventions: &ProjectConventions,
+    tracking: &mut SmartDefaults,
+) -> bool {
     // If user explicitly requested tests, honor that
     if explicit_tests {
         return true;
@@ -1651,10 +1777,8 @@ fn apply_test_smart_default(explicit_tests: bool, conventions: &ProjectConventio
 
     // If existing test pattern detected, suggest --with-tests
     if conventions.test_pattern == TestPattern::PerController && conventions.test_file_count > 0 {
-        println!(
-            "💡 Detected test pattern ({} existing test files), suggesting --with-tests",
-            conventions.test_file_count
-        );
+        tracking.test_detected = true;
+        tracking.test_count = conventions.test_file_count;
         return true;
     }
 
@@ -1662,7 +1786,11 @@ fn apply_test_smart_default(explicit_tests: bool, conventions: &ProjectConventio
 }
 
 /// Apply smart default for --with-factory based on existing factory patterns.
-fn apply_factory_smart_default(explicit_factory: bool, conventions: &ProjectConventions) -> bool {
+fn apply_factory_smart_default(
+    explicit_factory: bool,
+    conventions: &ProjectConventions,
+    tracking: &mut SmartDefaults,
+) -> bool {
     // If user explicitly requested factory, honor that
     if explicit_factory {
         return true;
@@ -1672,10 +1800,8 @@ fn apply_factory_smart_default(explicit_factory: bool, conventions: &ProjectConv
     if conventions.factory_pattern == FactoryPattern::PerModel
         && conventions.factory_file_count > 0
     {
-        println!(
-            "💡 Detected factory pattern ({} existing factories), suggesting --with-factory",
-            conventions.factory_file_count
-        );
+        tracking.factory_detected = true;
+        tracking.factory_count = conventions.factory_file_count;
         return true;
     }
 

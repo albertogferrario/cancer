@@ -175,6 +175,9 @@ enum Commands {
         /// Disable smart defaults detection (use explicit flags only)
         #[arg(long)]
         no_smart_defaults: bool,
+        /// Suppress smart defaults summary output
+        #[arg(long, short = 'q')]
+        quiet: bool,
     },
     /// Run all pending database migrations
     Migrate,
@@ -325,6 +328,7 @@ fn main() {
             yes,
             api,
             no_smart_defaults,
+            quiet,
         } => {
             commands::make_scaffold::run(
                 name,
@@ -335,6 +339,7 @@ fn main() {
                 yes,
                 api,
                 no_smart_defaults,
+                quiet,
             );
         }
         Commands::Migrate => {
