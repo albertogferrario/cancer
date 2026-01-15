@@ -16,7 +16,7 @@ None
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Handler Simplification** - Reduce ceremony in handler definitions
+- [x] **Phase 1: Handler Simplification** - Reduce ceremony in handler definitions
 - [ ] **Phase 2: Model Boilerplate Reduction** - Derive more from models, write less
 - [ ] **Phase 3: Validation Syntax Streamlining** - More concise rule definitions
 - [ ] **Phase 4: Convention-over-Configuration** - Smart defaults for common patterns
@@ -114,7 +114,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Handler Simplification | 0/1 | Planned | - |
+| 1. Handler Simplification | 1/1 | Complete | 2026-01-15 |
 | 2. Model Boilerplate Reduction | 0/TBD | Not started | - |
 | 3. Validation Syntax Streamlining | 0/TBD | Not started | - |
 | 4. Convention-over-Configuration | 0/TBD | Not started | - |
