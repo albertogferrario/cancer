@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** Phase 9 complete — CLI feature scaffolding enhanced
+**Current focus:** Phase 10 complete — CLI smart defaults implemented
 
 ## Current Position
 
-Phase: 9 of 12 (CLI Feature Scaffolding) - COMPLETE
+Phase: 10 of 12 (CLI Smart Defaults) - COMPLETE
 Plan: 1 of 1 in phase - COMPLETE
-Status: Phase complete, ready for Phase 10
-Last activity: 2026-01-15 — Completed 09-01-PLAN (CLI Feature Scaffolding)
+Status: Phase complete, ready for Phase 11
+Last activity: 2026-01-15 — Completed 10-01-PLAN (CLI Smart Defaults)
 
-Progress: ██████████████ 75%
+Progress: ████████████████ 83%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 30 min
-- Total execution time: 4.5 hours
+- Total execution time: 5 hours
 
 **By Phase:**
 
@@ -36,9 +36,10 @@ Progress: ██████████████ 75%
 | 7 | 1 | 30 min | 30 min |
 | 8 | 1 | 25 min | 25 min |
 | 9 | 1 | 35 min | 35 min |
+| 10 | 1 | 30 min | 30 min |
 
 **Recent Trend:**
-- Last 9 plans: All completed successfully
+- Last 10 plans: All completed successfully
 - Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
@@ -69,6 +70,10 @@ Recent decisions affecting current work:
 19. **Template placeholder format** - Used `{{Name}}` double-brace syntax for template placeholders.
 20. **dialoguer for prompts** - Used dialoguer::Confirm for interactive route registration prompts.
 21. **String manipulation over AST** - Route injection uses simple string matching rather than Rust AST parsing.
+22. **Single analyzer call** - Project structure analyzed once per scaffold, conventions passed to all detection functions.
+23. **SmartDefaults tracking struct** - Separate tracking of detections vs applied flags enables showing user what was auto-detected.
+24. **Field inference returns tuple** - `infer_field_type()` returns `(FieldType, reason)` for display in summary.
+25. **Interactive by default** - Smart defaults summary prompts for confirmation unless `--yes` or `--quiet` passed.
 
 ### Pending Todos
 
@@ -83,5 +88,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Completed Phase 9 Plan 1
+Stopped at: Completed Phase 10 Plan 1
 Resume file: None
