@@ -6,6 +6,7 @@ pub mod cache_inspect;
 pub mod create_project;
 pub mod database_query;
 pub mod database_schema;
+pub mod explain_route;
 pub mod generate_types;
 pub mod get_config;
 pub mod get_handler;

@@ -159,6 +159,12 @@ pub struct CreateProjectParams {
     pub no_git: Option<bool>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct ExplainRouteParams {
+    /// Route path to explain (e.g., "/users/{id}")
+    pub route: String,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -768,6 +774,24 @@ impl CancerMcpService {
 
         let glossary = glossary::generate_glossary(&models, &routes);
         serde_json::to_string_pretty(&glossary).unwrap_or_else(|_| "{}".to_string())
+    }
+
+    /// Explain the purpose and business context of a route
+    #[tool(
+        name = "explain_route",
+        description = "Explain the purpose, business context, and usage of a specific route.\n\n\
+            **When to use:** Understanding WHY a route exists, onboarding to a codebase, \
+            before modifying route behavior, documenting API endpoints.\n\n\
+            **Returns:** Purpose, business context, guards, related routes, usage examples.\n\n\
+            **Combine with:** `get_handler` to see implementation, `domain_glossary` for term definitions."
+    )]
+    pub async fn explain_route(&self, params: Parameters<ExplainRouteParams>) -> String {
+        match tools::explain_route::execute(&self.project_root, &params.0.route) {
+            Ok(explanation) => {
+                serde_json::to_string_pretty(&explanation).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
     }
 }
 
