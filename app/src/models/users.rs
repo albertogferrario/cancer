@@ -5,127 +5,14 @@
 //!
 //! This file is NEVER overwritten by `cancer db:sync` - your custom code is safe here.
 
-// Re-export the auto-generated entity
+// Re-export the auto-generated entity (includes CancerModel-generated boilerplate)
 pub use super::entities::users::*;
 
-use cancer::database::{ModelMut, QueryBuilder};
 use cancer::Authenticatable;
-use sea_orm::{entity::prelude::*, Set};
 use std::any::Any;
 
 /// Type alias for convenient access
 pub type User = Model;
-
-// ============================================================================
-// ENTITY CONFIGURATION
-// ============================================================================
-
-impl ActiveModelBehavior for ActiveModel {}
-
-impl cancer::database::Model for Entity {}
-impl cancer::database::ModelMut for Entity {}
-
-// ============================================================================
-// ELOQUENT-LIKE API
-// Fluent query builder and setter methods for User
-// ============================================================================
-
-impl Model {
-    /// Start a new query builder
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// let records = User::query().all().await?;
-    /// let record = User::query().filter(Column::Id.eq(1)).first().await?;
-    /// ```
-    pub fn query() -> QueryBuilder<Entity> {
-        QueryBuilder::new()
-    }
-
-    /// Create a new record builder
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// let record = User::create()
-    ///     .set_field("value")
-    ///     .insert()
-    ///     .await?;
-    /// ```
-    pub fn create() -> UserBuilder {
-        UserBuilder::default()
-    }
-
-    /// Save changes to the database
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// let updated = record.set_field("new_value").update().await?;
-    /// ```
-    pub async fn update(self) -> Result<Self, cancer::FrameworkError> {
-        let active = self.to_active_model();
-        Entity::update_one(active).await
-    }
-
-    /// Delete this record from the database
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// record.delete().await?;
-    /// ```
-    pub async fn delete(self) -> Result<u64, cancer::FrameworkError> {
-        Entity::delete_by_pk(self.id).await
-    }
-
-    fn to_active_model(&self) -> ActiveModel {
-        ActiveModel {
-            id: Set(self.id),
-            created_at: Set(self.created_at.clone()),
-            updated_at: Set(self.updated_at.clone()),
-        }
-    }
-}
-
-// ============================================================================
-// BUILDER
-// For creating new records with fluent setter pattern
-// ============================================================================
-
-/// Builder for creating new User records
-#[derive(Default)]
-pub struct UserBuilder {
-    created_at: Option<String>,
-    updated_at: Option<String>,
-}
-
-impl UserBuilder {
-    /// Insert the record into the database
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// let record = User::create()
-    ///     .set_field("value")
-    ///     .insert()
-    ///     .await?;
-    /// ```
-    pub async fn insert(self) -> Result<Model, cancer::FrameworkError> {
-        let active = self.build();
-        Entity::insert_one(active).await
-    }
-
-    fn build(self) -> ActiveModel {
-        ActiveModel {
-            id: sea_orm::ActiveValue::NotSet,
-            created_at: self
-                .created_at
-                .map(Set)
-                .unwrap_or(sea_orm::ActiveValue::NotSet),
-            updated_at: self
-                .updated_at
-                .map(Set)
-                .unwrap_or(sea_orm::ActiveValue::NotSet),
-        }
-    }
-}
 
 // ============================================================================
 // CUSTOM METHODS

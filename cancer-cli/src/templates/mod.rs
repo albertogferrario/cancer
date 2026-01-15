@@ -2317,14 +2317,12 @@ mod tests {
 
     #[test]
     fn test_entity_template_includes_cancer_model_derive() {
-        let columns = vec![
-            ColumnInfo {
-                name: "id".to_string(),
-                col_type: "INTEGER".to_string(),
-                is_nullable: false,
-                is_primary_key: true,
-            },
-        ];
+        let columns = vec![ColumnInfo {
+            name: "id".to_string(),
+            col_type: "INTEGER".to_string(),
+            is_nullable: false,
+            is_primary_key: true,
+        }];
 
         let result = entity_template("users", &columns);
         // Should include CancerModel in derives

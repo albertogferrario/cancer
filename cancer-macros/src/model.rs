@@ -190,12 +190,12 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
             /// Save changes to the database
             pub async fn update(self) -> Result<Self, cancer::FrameworkError> {
                 let active = self.to_active_model();
-                Entity::update_one(active).await
+                <Entity as cancer::database::ModelMut>::update_one(active).await
             }
 
             /// Delete this record from the database
             pub async fn delete(self) -> Result<u64, cancer::FrameworkError> {
-                Entity::delete_by_pk(self.id).await
+                <Entity as cancer::database::ModelMut>::delete_by_pk(self.id).await
             }
 
             fn to_active_model(&self) -> ActiveModel {
@@ -217,7 +217,7 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
             /// Insert the record into the database
             pub async fn insert(self) -> Result<#name, cancer::FrameworkError> {
                 let active = self.build();
-                Entity::insert_one(active).await
+                <Entity as cancer::database::ModelMut>::insert_one(active).await
             }
 
             fn build(self) -> ActiveModel {
