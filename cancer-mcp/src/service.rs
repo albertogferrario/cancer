@@ -191,6 +191,11 @@ pub struct ModelUsagesParams {
     pub model: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct DependencyGraphParams {
+    // No parameters - analyzes entire project
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -930,6 +935,26 @@ impl CancerMcpService {
         match tools::model_usages::execute(&self.project_root, &params.0.model) {
             Ok(usages) => {
                 serde_json::to_string_pretty(&usages).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => format!("{{\"error\": \"{}\"}}", e),
+        }
+    }
+
+    /// Build comprehensive dependency graph of routes, models, and components
+    #[tool(
+        name = "dependency_graph",
+        description = "Build a comprehensive dependency graph showing relationships between routes, models, and components.\n\n\
+            **When to use:** Understanding application architecture, impact analysis for refactors, \
+            visualizing data flow, planning large changes, architecture documentation.\n\n\
+            **Returns:** Graph nodes (routes, models, components), edges (uses_model, belongs_to, \
+            has_many, renders), and summary statistics including most-used models.\n\n\
+            **Combine with:** `route_dependencies` for single-route analysis, `model_usages` for \
+            single-model analysis, `relation_map` for FK details."
+    )]
+    pub async fn dependency_graph(&self, _params: Parameters<DependencyGraphParams>) -> String {
+        match tools::dependency_graph::execute(&self.project_root).await {
+            Ok(graph) => {
+                serde_json::to_string_pretty(&graph).unwrap_or_else(|_| "{}".to_string())
             }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
