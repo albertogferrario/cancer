@@ -9,6 +9,19 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+/// Information about a detected foreign key relationship.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ForeignKeyInfo {
+    /// The field name (e.g., "user_id")
+    pub field_name: String,
+    /// The target model name in PascalCase (e.g., "User")
+    pub target_model: String,
+    /// The target table name in snake_case plural (e.g., "users")
+    pub target_table: String,
+    /// Whether the target model exists in the project
+    pub validated: bool,
+}
+
 /// Pattern for test file organization.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TestPattern {
@@ -232,6 +245,98 @@ impl ProjectAnalyzer {
             let path = e.path();
             path.is_file() && path.extension().is_some_and(|ext| ext == "tsx")
         })
+    }
+
+    /// List all existing model names (snake_case) in the project.
+    pub fn list_models(&self) -> Vec<String> {
+        let models_dir = self.root.join("src/models");
+
+        if !models_dir.exists() || !models_dir.is_dir() {
+            return Vec::new();
+        }
+
+        let mut models = Vec::new();
+        if let Ok(entries) = fs::read_dir(&models_dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_file() {
+                    if let Some(name) = path.file_stem() {
+                        let name_str = name.to_string_lossy().to_string();
+                        // Skip mod.rs
+                        if name_str != "mod" {
+                            models.push(name_str);
+                        }
+                    }
+                }
+            }
+        }
+        models.sort();
+        models
+    }
+
+    /// Check if a model exists in the project (case-insensitive).
+    pub fn model_exists(&self, name: &str) -> bool {
+        let models = self.list_models();
+        let name_lower = name.to_lowercase();
+
+        models
+            .iter()
+            .any(|m| m.to_lowercase() == name_lower || to_pascal_case(m).to_lowercase() == name_lower)
+    }
+
+    /// Detect foreign key relationships from a list of fields.
+    ///
+    /// Fields ending in `_id` are considered potential foreign keys.
+    /// Returns information about each detected FK including whether
+    /// the target model exists in the project.
+    pub fn detect_foreign_keys(&self, fields: &[(&str, &str)]) -> Vec<ForeignKeyInfo> {
+        let mut fks = Vec::new();
+
+        for (field_name, _field_type) in fields {
+            if let Some(prefix) = field_name.strip_suffix("_id") {
+                // Skip "id" field itself
+                if prefix.is_empty() {
+                    continue;
+                }
+
+                let target_model = to_pascal_case(prefix);
+                let target_table = to_plural(prefix);
+                let validated = self.model_exists(&target_model);
+
+                fks.push(ForeignKeyInfo {
+                    field_name: field_name.to_string(),
+                    target_model,
+                    target_table,
+                    validated,
+                });
+            }
+        }
+
+        fks
+    }
+}
+
+/// Convert snake_case to PascalCase.
+fn to_pascal_case(s: &str) -> String {
+    s.split('_')
+        .map(|part| {
+            let mut chars = part.chars();
+            match chars.next() {
+                None => String::new(),
+                Some(first) => first.to_uppercase().chain(chars).collect(),
+            }
+        })
+        .collect()
+}
+
+/// Convert snake_case singular to snake_case plural.
+fn to_plural(s: &str) -> String {
+    if s.ends_with('s') || s.ends_with('x') || s.ends_with("ch") || s.ends_with("sh") {
+        format!("{s}es")
+    } else if s.ends_with('y') && !s.ends_with("ay") && !s.ends_with("ey") && !s.ends_with("oy") && !s.ends_with("uy") {
+        format!("{}ies", &s[..s.len() - 1])
+    } else {
+        format!("{s}s")
     }
 }
 
