@@ -279,3 +279,84 @@ impl From<crate::error::AppError> for HttpResponse {
         framework_err.into()
     }
 }
+
+/// Inertia-aware HTTP Redirect response builder.
+///
+/// Unlike standard `Redirect`, this respects the Inertia protocol:
+/// - For Inertia XHR requests from POST/PUT/PATCH/DELETE, uses 303 status
+/// - Includes X-Inertia header in responses to Inertia requests
+/// - Falls back to standard 302 for non-Inertia requests
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use cancer::{InertiaRedirect, Request, Response};
+///
+/// pub async fn store(req: Request) -> Response {
+///     // ... create record ...
+///     InertiaRedirect::to(&req, "/items").into()
+/// }
+/// ```
+pub struct InertiaRedirect<'a> {
+    request: &'a crate::http::Request,
+    location: String,
+    query_params: Vec<(String, String)>,
+}
+
+impl<'a> InertiaRedirect<'a> {
+    /// Create a redirect that respects Inertia protocol.
+    pub fn to(request: &'a crate::http::Request, path: impl Into<String>) -> Self {
+        Self {
+            request,
+            location: path.into(),
+            query_params: Vec::new(),
+        }
+    }
+
+    /// Add a query parameter.
+    pub fn query(mut self, key: &str, value: impl Into<String>) -> Self {
+        self.query_params.push((key.to_string(), value.into()));
+        self
+    }
+
+    fn build_url(&self) -> String {
+        if self.query_params.is_empty() {
+            self.location.clone()
+        } else {
+            let query = self
+                .query_params
+                .iter()
+                .map(|(k, v)| format!("{}={}", k, v))
+                .collect::<Vec<_>>()
+                .join("&");
+            format!("{}?{}", self.location, query)
+        }
+    }
+
+    fn is_post_like_method(&self) -> bool {
+        matches!(
+            self.request.method().as_str(),
+            "POST" | "PUT" | "PATCH" | "DELETE"
+        )
+    }
+}
+
+impl From<InertiaRedirect<'_>> for Response {
+    fn from(redirect: InertiaRedirect<'_>) -> Response {
+        let url = redirect.build_url();
+        let is_inertia = redirect.request.is_inertia();
+        let is_post_like = redirect.is_post_like_method();
+
+        if is_inertia {
+            // Use 303 for POST-like methods to force GET on redirect
+            let status = if is_post_like { 303 } else { 302 };
+            Ok(HttpResponse::new()
+                .status(status)
+                .header("X-Inertia", "true")
+                .header("Location", url))
+        } else {
+            // Standard redirect for non-Inertia requests
+            Ok(HttpResponse::new().status(302).header("Location", url))
+        }
+    }
+}
