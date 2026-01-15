@@ -156,6 +156,9 @@ enum Commands {
         /// Fields in format field:type (e.g., title:string body:text published:bool)
         #[arg(trailing_var_arg = true)]
         fields: Vec<String>,
+        /// Generate test file with CRUD test stubs
+        #[arg(long)]
+        with_tests: bool,
     },
     /// Run all pending database migrations
     Migrate,
@@ -297,8 +300,8 @@ fn main() {
         Commands::MakeSeeder { name } => {
             commands::make_seeder::run(name);
         }
-        Commands::MakeScaffold { name, fields } => {
-            commands::make_scaffold::run(name, fields);
+        Commands::MakeScaffold { name, fields, with_tests } => {
+            commands::make_scaffold::run(name, fields, with_tests);
         }
         Commands::Migrate => {
             commands::migrate::run();

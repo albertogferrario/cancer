@@ -1631,6 +1631,97 @@ pub fn policies_mod() -> &'static str {
 }
 
 // ============================================================================
+// Scaffold Test Template
+// ============================================================================
+
+/// Template for generating controller tests with make:scaffold --with-tests
+pub fn scaffold_test_template(snake_name: &str, plural_snake: &str) -> String {
+    format!(
+        r#"//! {plural_pascal} controller tests
+//!
+//! Generated with `cancer make:scaffold --with-tests`
+
+use cancer::testing::{{TestClient, TestResponse}};
+
+/// Test that the {plural} index endpoint returns success
+#[tokio::test]
+async fn test_{plural}_index() {{
+    let client = TestClient::new();
+
+    let response = client.get("/{plural}").send().await;
+
+    // TODO: Configure TestClient with your app's router
+    // response.assert_ok();
+    assert!(response.status().is_success());
+}}
+
+/// Test that showing a single {snake} returns success
+#[tokio::test]
+async fn test_{plural}_show() {{
+    let client = TestClient::new();
+
+    let response = client.get("/{plural}/1").send().await;
+
+    // TODO: Create a test record first, then verify response
+    // response.assert_ok().assert_json_has("{snake}");
+    assert!(response.status().is_success());
+}}
+
+/// Test that creating a {snake} works
+#[tokio::test]
+async fn test_{plural}_store() {{
+    let client = TestClient::new();
+
+    let response = client
+        .post("/{plural}")
+        .json(&serde_json::json!({{
+            // TODO: Add your model fields here
+        }}))
+        .send()
+        .await;
+
+    // TODO: Verify redirect or JSON response
+    // response.assert_status(302);
+    assert!(response.status().is_success());
+}}
+
+/// Test that updating a {snake} works
+#[tokio::test]
+async fn test_{plural}_update() {{
+    let client = TestClient::new();
+
+    let response = client
+        .put("/{plural}/1")
+        .json(&serde_json::json!({{
+            // TODO: Add your model fields here
+        }}))
+        .send()
+        .await;
+
+    // TODO: Verify redirect or JSON response
+    // response.assert_status(302);
+    assert!(response.status().is_success());
+}}
+
+/// Test that deleting a {snake} works
+#[tokio::test]
+async fn test_{plural}_destroy() {{
+    let client = TestClient::new();
+
+    let response = client.delete("/{plural}/1").send().await;
+
+    // TODO: Verify redirect or JSON response
+    // response.assert_status(302);
+    assert!(response.status().is_success());
+}}
+"#,
+        snake = snake_name,
+        plural = plural_snake,
+        plural_pascal = to_pascal_case(plural_snake),
+    )
+}
+
+// ============================================================================
 // Tests
 // ============================================================================
 

@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::Path;
 
-pub fn run(name: String, fields: Vec<String>) {
+use crate::templates;
+
+pub fn run(name: String, fields: Vec<String>, with_tests: bool) {
     // Validate resource name
     if !is_valid_identifier(&name) {
         eprintln!(
@@ -36,6 +38,11 @@ pub fn run(name: String, fields: Vec<String>) {
 
     // Generate Inertia pages
     generate_inertia_pages(&name, &snake_name, &plural_snake, &parsed_fields);
+
+    // Generate tests if requested
+    if with_tests {
+        generate_tests(&name, &snake_name, &plural_snake);
+    }
 
     // Print route registration instructions
     print_route_instructions(&name, &snake_name, &plural_snake);
@@ -1270,4 +1277,46 @@ route_delete("/{plural}/{{id}}", {snake}_controller::destroy);"#,
         snake = snake_name,
         plural = plural_snake
     );
+}
+
+fn generate_tests(_name: &str, snake_name: &str, plural_snake: &str) {
+    let tests_dir = Path::new("src/tests");
+
+    if !tests_dir.exists() {
+        fs::create_dir_all(tests_dir).expect("Failed to create tests directory");
+    }
+
+    let file_path = tests_dir.join(format!("{}_controller_test.rs", snake_name));
+    let test_content = templates::scaffold_test_template(snake_name, plural_snake);
+
+    fs::write(&file_path, test_content).expect("Failed to write test file");
+
+    // Update tests/mod.rs
+    update_tests_mod(snake_name);
+
+    println!(
+        "   📦 Created test: src/tests/{}_controller_test.rs",
+        snake_name
+    );
+}
+
+fn update_tests_mod(snake_name: &str) {
+    let mod_path = Path::new("src/tests/mod.rs");
+    let module_name = format!("{}_controller_test", snake_name);
+
+    if !mod_path.exists() {
+        let content = format!("pub mod {};\n", module_name);
+        fs::write(mod_path, content).expect("Failed to write mod.rs");
+        return;
+    }
+
+    let content = fs::read_to_string(mod_path).expect("Failed to read mod.rs");
+    let mod_declaration = format!("pub mod {};", module_name);
+
+    if content.contains(&mod_declaration) {
+        return;
+    }
+
+    let updated = format!("{}{}\n", content, mod_declaration);
+    fs::write(mod_path, updated).expect("Failed to write mod.rs");
 }
