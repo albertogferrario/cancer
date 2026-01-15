@@ -1,9 +1,10 @@
-use cancer::{json_response, Config, Request, Response};
+use cancer::{handler, json_response, Config, Response};
 
 use crate::config::{DatabaseConfig, MailConfig};
 
 /// Example endpoint showing how to use config values
-pub async fn show(_req: Request) -> Response {
+#[handler]
+pub async fn show() -> Response {
     let db = Config::get::<DatabaseConfig>().unwrap();
     let mail = Config::get::<MailConfig>().unwrap();
 
