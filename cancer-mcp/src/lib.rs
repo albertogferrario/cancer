@@ -2,6 +2,7 @@
 
 pub mod error;
 pub mod introspection;
+pub mod resources;
 pub mod server;
 pub mod service;
 pub mod tools;

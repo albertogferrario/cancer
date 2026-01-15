@@ -1,5 +1,6 @@
 //! MCP Service implementation with tool handlers
 
+use crate::resources::glossary;
 use crate::tools;
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
@@ -742,6 +743,31 @@ impl CancerMcpService {
             }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
+    }
+
+    /// Get domain glossary with business terms and their meanings
+    #[tool(
+        name = "domain_glossary",
+        description = "Get a glossary of business domain terms extracted from models and routes.\n\n\
+            **When to use:** Understanding what models represent in the business domain, \
+            learning domain terminology before making changes, onboarding to a new codebase.\n\n\
+            **Returns:** Terms with definitions, related models, related routes, and business intent.\n\n\
+            **Combine with:** `explain_model` for detailed model explanation, `explain_route` for route purpose."
+    )]
+    pub async fn domain_glossary(&self) -> String {
+        // Get models and routes to generate glossary
+        let models = match tools::list_models::execute(&self.project_root) {
+            Ok(m) => m,
+            Err(_) => Vec::new(),
+        };
+
+        let routes = match tools::list_routes::execute(&self.project_root) {
+            Ok(routes_info) => routes_info.routes,
+            Err(_) => Vec::new(),
+        };
+
+        let glossary = glossary::generate_glossary(&models, &routes);
+        serde_json::to_string_pretty(&glossary).unwrap_or_else(|_| "{}".to_string())
     }
 }
 
