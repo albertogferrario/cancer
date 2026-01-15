@@ -1,4 +1,4 @@
-use cancer::{get, group, post, routes};
+use cancer::{get, group, post, resource, routes};
 
 use crate::controllers;
 use crate::middleware::AuthMiddleware;
@@ -8,12 +8,8 @@ routes! {
     get!("/redirect-example", controllers::user::redirect_example),
     get!("/config", controllers::config_example::show).name("config.show"),
 
-    // User routes group
-    group!("/users", {
-        get!("/", controllers::user::index).name("users.index"),
-        get!("/{id}", controllers::user::show).name("users.show"),
-        post!("/", controllers::user::store).name("users.store"),
-    }),
+    // User routes - all 7 RESTful endpoints from a single line
+    resource!("/users", controllers::user),
 
     // Protected routes - requires Authorization header
     group!("/protected", {

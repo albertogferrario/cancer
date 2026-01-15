@@ -810,10 +810,7 @@ impl ResourceDef {
     /// Register all resource routes with the router
     pub fn register(self, mut router: Router) -> Router {
         // Derive route name prefix from path: "/users" -> "users", "/api/users" -> "api.users"
-        let name_prefix = self
-            .prefix
-            .trim_start_matches('/')
-            .replace('/', ".");
+        let name_prefix = self.prefix.trim_start_matches('/').replace('/', ".");
 
         for route in self.routes {
             let action = route.action;
@@ -874,7 +871,7 @@ where
 /// Define RESTful resource routes with convention-over-configuration
 ///
 /// Generates 7 standard routes following Rails/Laravel conventions from a
-/// single controller module reference.
+/// controller module reference.
 ///
 /// # Convention Mapping
 ///
@@ -927,26 +924,27 @@ where
 #[macro_export]
 macro_rules! resource {
     // Full resource (all 7 routes)
-    ($path:expr, $controller:path) => {{
+    // Note: The module path is followed by path segments to each handler
+    ($path:expr, $($controller:ident)::+) => {{
         const _: &str = $crate::validate_route_path($path);
         $crate::ResourceDef::__new_unchecked($path)
-            .__add_route($crate::ResourceAction::Index, $crate::__box_handler($controller::index))
-            .__add_route($crate::ResourceAction::Create, $crate::__box_handler($controller::create))
-            .__add_route($crate::ResourceAction::Store, $crate::__box_handler($controller::store))
-            .__add_route($crate::ResourceAction::Show, $crate::__box_handler($controller::show))
-            .__add_route($crate::ResourceAction::Edit, $crate::__box_handler($controller::edit))
-            .__add_route($crate::ResourceAction::Update, $crate::__box_handler($controller::update))
-            .__add_route($crate::ResourceAction::Destroy, $crate::__box_handler($controller::destroy))
+            .__add_route($crate::ResourceAction::Index, $crate::__box_handler($($controller)::+::index))
+            .__add_route($crate::ResourceAction::Create, $crate::__box_handler($($controller)::+::create))
+            .__add_route($crate::ResourceAction::Store, $crate::__box_handler($($controller)::+::store))
+            .__add_route($crate::ResourceAction::Show, $crate::__box_handler($($controller)::+::show))
+            .__add_route($crate::ResourceAction::Edit, $crate::__box_handler($($controller)::+::edit))
+            .__add_route($crate::ResourceAction::Update, $crate::__box_handler($($controller)::+::update))
+            .__add_route($crate::ResourceAction::Destroy, $crate::__box_handler($($controller)::+::destroy))
     }};
 
     // Subset of routes with `only:` parameter
-    ($path:expr, $controller:path, only: [$($action:ident),* $(,)?]) => {{
+    ($path:expr, $($controller:ident)::+, only: [$($action:ident),* $(,)?]) => {{
         const _: &str = $crate::validate_route_path($path);
         let mut resource = $crate::ResourceDef::__new_unchecked($path);
         $(
             resource = resource.__add_route(
                 $crate::__resource_action!($action),
-                $crate::__box_handler($controller::$action)
+                $crate::__box_handler($($controller)::+::$action)
             );
         )*
         resource
@@ -957,13 +955,27 @@ macro_rules! resource {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __resource_action {
-    (index) => { $crate::ResourceAction::Index };
-    (create) => { $crate::ResourceAction::Create };
-    (store) => { $crate::ResourceAction::Store };
-    (show) => { $crate::ResourceAction::Show };
-    (edit) => { $crate::ResourceAction::Edit };
-    (update) => { $crate::ResourceAction::Update };
-    (destroy) => { $crate::ResourceAction::Destroy };
+    (index) => {
+        $crate::ResourceAction::Index
+    };
+    (create) => {
+        $crate::ResourceAction::Create
+    };
+    (store) => {
+        $crate::ResourceAction::Store
+    };
+    (show) => {
+        $crate::ResourceAction::Show
+    };
+    (edit) => {
+        $crate::ResourceAction::Edit
+    };
+    (update) => {
+        $crate::ResourceAction::Update
+    };
+    (destroy) => {
+        $crate::ResourceAction::Destroy
+    };
 }
 
 #[cfg(test)]
