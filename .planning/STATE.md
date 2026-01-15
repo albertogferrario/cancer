@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** Phase 11 complete — Full FK-aware scaffold generation including Inertia pages
+**Current focus:** Phase 12 in progress — Agent-first polish with actionable errors
 
 ## Current Position
 
-Phase: 11 of 12 (CLI Component Integration) - COMPLETE
-Plan: 3 of 3 in phase - COMPLETE
-Status: Phase 11 complete with FK-aware migrations, models, factories, controllers, and Inertia pages
-Last activity: 2026-01-15 — Completed Phase 11 Plan 3 (FK-aware controllers and Inertia pages)
+Phase: 12 of 12 (Agent-First Polish)
+Plan: 1 of 4 in phase - COMPLETE
+Status: Plan 01 complete - actionable error messages and accurate CLI port display
+Last activity: 2026-01-16 — Completed Phase 12 Plan 01 (Actionable Errors)
 
-Progress: ████████████████░ 92%
+Progress: █████████████████ 94%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: 28 min
-- Total execution time: 6 hours 15 min
+- Total plans completed: 14
+- Average duration: 26 min
+- Total execution time: 6 hours 23 min
 
 **By Phase:**
 
@@ -38,9 +38,10 @@ Progress: ████████████████░ 92%
 | 9 | 1 | 35 min | 35 min |
 | 10 | 1 | 30 min | 30 min |
 | 11 | 3 | 75 min | 25 min |
+| 12 | 1/4 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 13 plans: All completed successfully
+- Last 14 plans: All completed successfully
 - Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
@@ -81,6 +82,8 @@ Recent decisions affecting current work:
 29. **Cascade FK behavior** - FK constraints use ON DELETE CASCADE and ON UPDATE CASCADE as sensible defaults.
 30. **Factory with_* methods** - Factories get builder methods for FK fields plus create_with_relations() for auto-creation.
 31. **Display field cascade** - Select options use `name ?? title ?? email ?? id` to show meaningful text for any model type.
+32. **fail_with helper pattern** - Centralized error formatting in main.rs with context + cause + fix list format.
+33. **ENV precedence for ports** - CLI default (8000) triggers env lookup, explicit CLI arg overrides .env values.
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-15
-Stopped at: Completed Phase 11 Plan 3 (FK-aware controllers and Inertia pages)
+Last session: 2026-01-16
+Stopped at: Completed Phase 12 Plan 01 (Actionable Errors)
 Resume file: None
