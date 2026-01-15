@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** Phase 3 complete — Ready for Phase 4
+**Current focus:** Phase 5 Plan 1 complete — Ready for Phase 6
 
 ## Current Position
 
-Phase: 4 of 12 (Convention-over-Configuration) - IN PROGRESS
-Plan: 1 of TBD in phase - COMPLETE
-Status: Completed resource! macro, ready for additional convention-over-configuration features
-Last activity: 2026-01-15 — Completed 04-01-PLAN (resource! macro for RESTful routes)
+Phase: 5 of 12 (MCP Intent Understanding) - COMPLETE
+Plan: 1 of 1 in phase - COMPLETE
+Status: Completed all intent tools and enhanced descriptions
+Last activity: 2026-01-15 — Completed 05-01-PLAN (MCP Intent Understanding)
 
-Progress: ████░░░░░░ 33%
+Progress: ████████░░ 42%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 29 min
-- Total execution time: 1.9 hours
+- Total plans completed: 5
+- Average duration: 30 min
+- Total execution time: 2.5 hours
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: ████░░░░░░ 33%
 | 2 | 1 | 30 min | 30 min |
 | 3 | 1 | 45 min | 45 min |
 | 4 | 1 | 25 min | 25 min |
+| 5 | 1 | 35 min | 35 min |
 
 **Recent Trend:**
-- Last 4 plans: All completed successfully
-- Trend: Accelerating (faster execution with growing pattern knowledge)
+- Last 5 plans: All completed successfully
+- Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
 
@@ -51,6 +52,9 @@ Recent decisions affecting current work:
 6. **Float literals for rules** - Numeric rule arguments like `min()` require float literals: `min(8.0)` not `min(8)`.
 7. **Declarative macro for resource!** - Used macro_rules! instead of proc macro to stay consistent with existing routing macros.
 8. **Module path capture pattern** - Used `$($controller:ident)::+` pattern to properly capture and expand module paths with `::action` suffix.
+9. **Tool vs Resource for Glossary** - Implemented domain_glossary as tool rather than MCP resource for simpler agent consumption.
+10. **Inference over Annotation** - Domain meaning inferred from naming patterns rather than requiring explicit annotations.
+11. **Structured Description Format** - Standardized on When/Returns/Combine format for all tool descriptions.
 
 ### Pending Todos
 
@@ -64,5 +68,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Completed Phase 4 Plan 1
+Stopped at: Completed Phase 5 Plan 1
 Resume file: None

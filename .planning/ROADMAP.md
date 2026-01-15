@@ -19,8 +19,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Handler Simplification** - Reduce ceremony in handler definitions
 - [x] **Phase 2: Model Boilerplate Reduction** - Derive more from models, write less
 - [x] **Phase 3: Validation Syntax Streamlining** - More concise rule definitions
-- [ ] **Phase 4: Convention-over-Configuration** - Smart defaults for common patterns
-- [ ] **Phase 5: MCP Intent Understanding** - Agent comprehension of app purpose
+- [x] **Phase 4: Convention-over-Configuration** - Smart defaults for common patterns
+- [x] **Phase 5: MCP Intent Understanding** - Agent comprehension of app purpose
 - [ ] **Phase 6: MCP Error Context** - Better diagnostic information for agents
 - [ ] **Phase 7: MCP Relationship Visibility** - Data flow and relationship introspection
 - [ ] **Phase 8: MCP Generation Hints** - Embedded hints in introspection responses
@@ -117,8 +117,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Handler Simplification | 1/1 | Complete | 2026-01-15 |
 | 2. Model Boilerplate Reduction | 1/1 | Complete | 2026-01-15 |
 | 3. Validation Syntax Streamlining | 1/1 | Complete | 2026-01-15 |
-| 4. Convention-over-Configuration | 1/TBD | In Progress | - |
-| 5. MCP Intent Understanding | 0/TBD | Not started | - |
+| 4. Convention-over-Configuration | 1/1 | Complete | 2026-01-15 |
+| 5. MCP Intent Understanding | 1/1 | Complete | 2026-01-15 |
 | 6. MCP Error Context | 0/TBD | Not started | - |
 | 7. MCP Relationship Visibility | 0/TBD | Not started | - |
 | 8. MCP Generation Hints | 0/TBD | Not started | - |
