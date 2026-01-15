@@ -61,7 +61,6 @@ pub fn run(days: u32, toolchains: bool, skip_install_check: bool) {
 }
 
 /// Run sweep silently, return cleaned size if any
-#[allow(dead_code)] // Used by serve command
 pub fn run_silent(days: u32) -> Option<String> {
     if !is_sweep_installed() {
         return None;

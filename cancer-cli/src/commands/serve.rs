@@ -1,3 +1,4 @@
+use super::clean;
 use console::style;
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::io::{BufRead, BufReader};
@@ -212,6 +213,12 @@ pub fn run(
             .and_then(|v| v.parse().ok())
             .unwrap_or(frontend_port)
     };
+
+    // Auto-cleanup old build artifacts (silent, non-blocking)
+    // Uses 7-day threshold by default for aggressive dev workflow cleanup
+    if let Some(cleaned) = clean::run_silent(7) {
+        println!("{} {}", style("♻").cyan(), cleaned);
+    }
 
     println!();
     println!(
