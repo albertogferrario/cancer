@@ -639,7 +639,8 @@ impl CancerMcpService {
             **When to use:** Understanding data model, planning complex queries, \
             identifying cascade delete risks, visualizing entity relationships.\n\n\
             **Returns:** Table pairs, foreign key columns, relationship types.\n\n\
-            **Combine with:** `list_models` for ORM view, `db_schema` for full table structure."
+            **Combine with:** `list_models` for ORM view, `db_schema` for full table structure, \
+            `dependency_graph` for complete relationship picture including routes."
     )]
     pub async fn relation_map(&self) -> String {
         match tools::relation_map::execute(&self.project_root).await {
@@ -1042,6 +1043,19 @@ These workflows show how to combine tools for common tasks.
 4. Make changes
 5. `validate_contracts` - Verify frontend compatibility
 
+### Understanding Relationships (impact analysis)
+1. `dependency_graph` - Get full architecture view
+2. `route_dependencies` - Drill into specific route's model usage
+3. `model_usages` - Find all routes affected by model changes
+4. `relation_map` - See FK constraints (cascade delete risks)
+
+### Planning a Model Refactor
+1. `model_usages` - Find ALL routes using the model
+2. `dependency_graph` - See model connections in context
+3. `relation_map` - Understand FK constraints
+4. `explain_model` - Business context before changes
+5. `list_routes` for affected routes - Plan updates
+
 ## When to Use These Tools (PROACTIVELY)
 
 **USE application_info FIRST** when starting work on a Cancer project to understand:
@@ -1142,6 +1156,24 @@ These workflows show how to combine tools for common tasks.
 - When debugging "undefined" errors in frontend
 - PROACTIVELY after any Inertia-related changes
 
+**USE route_dependencies** when:
+- Understanding what data a route needs
+- Planning changes to a specific endpoint
+- Identifying which models an endpoint interacts with
+- Finding services injected into handlers
+
+**USE model_usages** when:
+- Planning model changes (find all affected routes)
+- Impact analysis before schema migrations
+- Checking if a model can be safely removed
+- Finding all CRUD operations for a model
+
+**USE dependency_graph** when:
+- Understanding overall application architecture
+- Planning large-scale refactors
+- Visualizing route-model-component relationships
+- Onboarding to understand data flow
+
 ## Tool Categories
 
 ### Domain Understanding (learn the business)
@@ -1187,6 +1219,12 @@ These workflows show how to combine tools for common tasks.
 ### Contract Validation (catch mismatches)
 - validate_contracts: Compare backend props with frontend expectations
 - get_handler: Now includes component and props info
+
+### Relationship Analysis (understand dependencies)
+- route_dependencies: What models/services does a route use?
+- model_usages: Which routes use a given model?
+- dependency_graph: Full architecture graph (routes, models, components)
+- relation_map: FK relationships between database tables
 
 ### Project Scaffolding
 - create_project: Create a new Cancer project with full scaffolding including dashboard boilerplate
