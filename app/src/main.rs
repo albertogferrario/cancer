@@ -143,20 +143,17 @@ async fn run_server() {
 
     let router = routes::register();
 
-    Server::from_config(router)
-        .run()
-        .await
-        .unwrap_or_else(|e| {
-            fail_with(
-                "Server failed to start",
-                e,
-                &[
-                    "Check SERVER_HOST and SERVER_PORT in .env",
-                    "Ensure the port is not already in use",
-                    "Verify network permissions allow binding to the address",
-                ],
-            )
-        });
+    Server::from_config(router).run().await.unwrap_or_else(|e| {
+        fail_with(
+            "Server failed to start",
+            e,
+            &[
+                "Check SERVER_HOST and SERVER_PORT in .env",
+                "Ensure the port is not already in use",
+                "Verify network permissions allow binding to the address",
+            ],
+        )
+    });
 }
 
 async fn get_database_connection() -> sea_orm::DatabaseConnection {
@@ -218,72 +215,64 @@ async fn run_migrations_silent() {
 async fn run_migrations() {
     println!("Running migrations...");
     let db = get_database_connection().await;
-    Migrator::up(&db, None)
-        .await
-        .unwrap_or_else(|e| {
-            fail_with(
-                "Migration failed",
-                e,
-                &[
-                    "Run `./app migrate:status` to see pending migrations",
-                    "Check database permissions",
-                    "Verify migration files are valid",
-                ],
-            )
-        });
+    Migrator::up(&db, None).await.unwrap_or_else(|e| {
+        fail_with(
+            "Migration failed",
+            e,
+            &[
+                "Run `./app migrate:status` to see pending migrations",
+                "Check database permissions",
+                "Verify migration files are valid",
+            ],
+        )
+    });
     println!("Migrations completed successfully!");
 }
 
 async fn show_migration_status() {
     println!("Migration status:");
     let db = get_database_connection().await;
-    Migrator::status(&db)
-        .await
-        .unwrap_or_else(|e| {
-            fail_with(
-                "Could not get migration status",
-                e,
-                &[
-                    "Ensure database is accessible",
-                    "Check DATABASE_URL in .env",
-                ],
-            )
-        });
+    Migrator::status(&db).await.unwrap_or_else(|e| {
+        fail_with(
+            "Could not get migration status",
+            e,
+            &[
+                "Ensure database is accessible",
+                "Check DATABASE_URL in .env",
+            ],
+        )
+    });
 }
 
 async fn rollback_migrations(steps: u32) {
     println!("Rolling back {} migration(s)...", steps);
     let db = get_database_connection().await;
-    Migrator::down(&db, Some(steps))
-        .await
-        .unwrap_or_else(|e| {
-            fail_with(
-                "Rollback failed",
-                e,
-                &[
-                    "Check that there are migrations to rollback with `./app migrate:status`",
-                    "Verify database permissions",
-                ],
-            )
-        });
+    Migrator::down(&db, Some(steps)).await.unwrap_or_else(|e| {
+        fail_with(
+            "Rollback failed",
+            e,
+            &[
+                "Check that there are migrations to rollback with `./app migrate:status`",
+                "Verify database permissions",
+            ],
+        )
+    });
     println!("Rollback completed successfully!");
 }
 
 async fn fresh_migrations() {
     println!("WARNING: Dropping all tables and re-running migrations...");
     let db = get_database_connection().await;
-    Migrator::fresh(&db)
-        .await
-        .unwrap_or_else(|e| {
-            fail_with(
-                "Database refresh failed",
-                e,
-                &[
-                    "Ensure database user has DROP TABLE permissions",
-                    "Check database connection is valid",
-                ],
-            )
-        });
+    Migrator::fresh(&db).await.unwrap_or_else(|e| {
+        fail_with(
+            "Database refresh failed",
+            e,
+            &[
+                "Ensure database user has DROP TABLE permissions",
+                "Check database connection is valid",
+            ],
+        )
+    });
     println!("Database refreshed successfully!");
 }
 
