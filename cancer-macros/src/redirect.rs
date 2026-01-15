@@ -20,17 +20,30 @@ impl Parse for RedirectInput {
 }
 
 /// Implementation for the redirect! macro
+///
+/// Supports both path redirects and named route redirects:
+/// - Path (starts with /): `redirect!("/dashboard")` → `Redirect::to("/dashboard")`
+/// - Named route: `redirect!("users.index")` → `Redirect::route("users.index")`
 pub fn redirect_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as RedirectInput);
     let route_name = input.route_name.value();
     let route_lit = &input.route_name;
 
-    // Validate the route exists at compile time
+    // Check if this is a path (starts with /) or a named route
+    if route_name.starts_with('/') {
+        // Path redirect - use Redirect::to() directly
+        let expanded = quote! {
+            ::cancer::Redirect::to(#route_lit)
+        };
+        return expanded.into();
+    }
+
+    // Named route - validate it exists at compile time
     if let Err(err) = validate_route_exists(&route_name, route_lit.span()) {
         return err.to_compile_error().into();
     }
 
-    // Generate the redirect builder
+    // Generate the redirect builder for named routes
     let expanded = quote! {
         ::cancer::Redirect::route(#route_lit)
     };

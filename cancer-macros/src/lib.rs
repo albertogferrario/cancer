@@ -67,12 +67,15 @@ pub fn inertia_response(input: TokenStream) -> TokenStream {
     inertia::inertia_response_impl(input)
 }
 
-/// Create a redirect to a named route with compile-time validation
+/// Create a redirect to a path or named route
 ///
 /// # Examples
 ///
 /// ```rust,ignore
-/// // Simple redirect
+/// // Path redirect (starts with /)
+/// redirect!("/dashboard").into()
+///
+/// // Named route redirect
 /// redirect!("users.index").into()
 ///
 /// // Redirect with route parameters
@@ -82,8 +85,8 @@ pub fn inertia_response(input: TokenStream) -> TokenStream {
 /// redirect!("users.index").query("page", "1").into()
 /// ```
 ///
-/// This macro validates that the route name exists at compile time.
-/// If the route doesn't exist, you'll get a compile error with suggestions.
+/// For named routes, this macro validates that the route exists at compile time.
+/// Path redirects (starting with `/`) bypass validation and redirect directly.
 #[proc_macro]
 pub fn redirect(input: TokenStream) -> TokenStream {
     redirect::redirect_impl(input)
