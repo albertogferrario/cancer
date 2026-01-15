@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** Phase 7 Plan 1 complete — Ready for Phase 8
+**Current focus:** Phase 8 complete — Generation hints tools delivered
 
 ## Current Position
 
-Phase: 7 of 12 (MCP Relationship Visibility) - COMPLETE
+Phase: 8 of 12 (MCP Generation Hints) - COMPLETE
 Plan: 1 of 1 in phase - COMPLETE
-Status: Completed all relationship visibility tools
-Last activity: 2026-01-15 — Completed 07-01-PLAN (MCP Relationship Visibility)
+Status: Phase complete, ready for Phase 9
+Last activity: 2026-01-15 — Completed 08-01-PLAN (MCP Generation Hints)
 
-Progress: ██████████ 58%
+Progress: ████████████ 67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 30 min
-- Total execution time: 3.5 hours
+- Total plans completed: 8
+- Average duration: 29 min
+- Total execution time: 3.9 hours
 
 **By Phase:**
 
@@ -34,9 +34,10 @@ Progress: ██████████ 58%
 | 5 | 1 | 35 min | 35 min |
 | 6 | 1 | 30 min | 30 min |
 | 7 | 1 | 30 min | 30 min |
+| 8 | 1 | 25 min | 25 min |
 
 **Recent Trend:**
-- Last 7 plans: All completed successfully
+- Last 8 plans: All completed successfully
 - Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
@@ -63,6 +64,8 @@ Recent decisions affecting current work:
 15. **Known models validation** - route_dependencies only reports models that exist in list_models, reducing false positives.
 16. **Graph node IDs with prefixes** - Use `route:`, `model:`, `component:` prefixes for unique, type-safe identification.
 17. **Bidirectional FK edges** - Both belongs_to and has_many edges created for each FK relationship.
+18. **Dedicated generation tools** - Created generation_context and code_templates as separate tools rather than adding include_hints param to existing tools.
+19. **Template placeholder format** - Used `{{Name}}` double-brace syntax for template placeholders.
 
 ### Pending Todos
 
@@ -77,5 +80,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Completed Phase 7 Plan 1
+Stopped at: Completed Phase 8 Plan 1
 Resume file: None
