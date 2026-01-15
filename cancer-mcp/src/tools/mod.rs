@@ -9,6 +9,7 @@ pub mod database_schema;
 pub mod dependency_graph;
 pub mod diagnose_error;
 pub mod explain_model;
+pub mod generation_context;
 pub mod explain_route;
 pub mod generate_types;
 pub mod get_config;
