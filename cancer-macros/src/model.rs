@@ -226,6 +226,15 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
                 }
             }
         }
+
+        // Implement SeaORM ActiveModelBehavior for lifecycle hooks
+        impl sea_orm::ActiveModelBehavior for ActiveModel {}
+
+        // Implement Cancer's Model trait for convenient read operations
+        impl cancer::database::Model for Entity {}
+
+        // Implement Cancer's ModelMut trait for write operations
+        impl cancer::database::ModelMut for Entity {}
     };
 
     TokenStream::from(expanded)
