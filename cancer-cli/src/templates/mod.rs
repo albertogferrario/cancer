@@ -1673,7 +1673,10 @@ pub fn scaffold_factory_template(
     foreign_keys: &[ScaffoldForeignKey],
 ) -> String {
     // Separate FK fields from regular fields for special handling
-    let fk_field_names: Vec<&str> = foreign_keys.iter().map(|fk| fk.field_name.as_str()).collect();
+    let fk_field_names: Vec<&str> = foreign_keys
+        .iter()
+        .map(|fk| fk.field_name.as_str())
+        .collect();
 
     // Build field definitions
     let field_defs: String = fields
@@ -1750,7 +1753,8 @@ pub fn scaffold_factory_template(
         .collect();
 
     // Build create method that creates related records first (for validated FKs)
-    let validated_fks: Vec<&ScaffoldForeignKey> = foreign_keys.iter().filter(|fk| fk.validated).collect();
+    let validated_fks: Vec<&ScaffoldForeignKey> =
+        foreign_keys.iter().filter(|fk| fk.validated).collect();
     let create_method = if validated_fks.is_empty() {
         String::new()
     } else {
@@ -2239,7 +2243,12 @@ pub fn scaffold_controller_with_fk_template(
     let unvalidated_comment = if !unvalidated_fks.is_empty() {
         let fk_list: String = unvalidated_fks
             .iter()
-            .map(|fk| format!("// - {} (model {} not found)", fk.field_name, fk.target_model))
+            .map(|fk| {
+                format!(
+                    "// - {} (model {} not found)",
+                    fk.field_name, fk.target_model
+                )
+            })
             .collect::<Vec<_>>()
             .join("\n");
         format!(
@@ -2929,7 +2938,12 @@ pub fn api_controller_with_fk_template(
     let unvalidated_comment = if !unvalidated_fks.is_empty() {
         let fk_list: String = unvalidated_fks
             .iter()
-            .map(|fk| format!("// - {} (model {} not found)", fk.field_name, fk.target_model))
+            .map(|fk| {
+                format!(
+                    "// - {} (model {} not found)",
+                    fk.field_name, fk.target_model
+                )
+            })
             .collect::<Vec<_>>()
             .join("\n");
         format!(

@@ -159,7 +159,13 @@ pub fn run(
     let foreign_keys = analyzer.detect_foreign_keys(&field_tuples);
 
     // Generate migration
-    generate_migration(&name, &snake_name, &plural_snake, &parsed_fields, &foreign_keys);
+    generate_migration(
+        &name,
+        &snake_name,
+        &plural_snake,
+        &parsed_fields,
+        &foreign_keys,
+    );
 
     // Generate model (includes entity)
     generate_model(&name, &snake_name, &parsed_fields, &foreign_keys);
@@ -176,7 +182,13 @@ pub fn run(
 
     // Generate Inertia pages (skip for API-only scaffold)
     if !api_only {
-        generate_inertia_pages(&name, &snake_name, &plural_snake, &parsed_fields, &foreign_keys);
+        generate_inertia_pages(
+            &name,
+            &snake_name,
+            &plural_snake,
+            &parsed_fields,
+            &foreign_keys,
+        );
     }
 
     // Generate tests if requested
@@ -744,12 +756,7 @@ fn update_migrations_mod(migration_name: &str) {
     fs::write(mod_path, content).expect("Failed to write mod.rs");
 }
 
-fn generate_model(
-    name: &str,
-    snake_name: &str,
-    fields: &[Field],
-    foreign_keys: &[ForeignKeyInfo],
-) {
+fn generate_model(name: &str, snake_name: &str, fields: &[Field], foreign_keys: &[ForeignKeyInfo]) {
     let models_dir = Path::new("src/models");
 
     if !models_dir.exists() {
@@ -769,7 +776,8 @@ fn generate_model(
     }
 
     // Build Relation enum variants for validated FKs
-    let validated_fks: Vec<&ForeignKeyInfo> = foreign_keys.iter().filter(|fk| fk.validated).collect();
+    let validated_fks: Vec<&ForeignKeyInfo> =
+        foreign_keys.iter().filter(|fk| fk.validated).collect();
 
     let relation_enum = if validated_fks.is_empty() {
         "#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]\npub enum Relation {}".to_string()
@@ -1032,7 +1040,13 @@ fn update_controllers_mod(snake_name: &str) {
     fs::write(mod_path, updated).expect("Failed to write mod.rs");
 }
 
-fn generate_inertia_pages(name: &str, snake_name: &str, plural_snake: &str, fields: &[Field]) {
+fn generate_inertia_pages(
+    name: &str,
+    snake_name: &str,
+    plural_snake: &str,
+    fields: &[Field],
+    foreign_keys: &[ForeignKeyInfo],
+) {
     let pages_dir = Path::new("frontend/src/pages").join(plural_snake);
 
     if !pages_dir.exists() {
@@ -1046,10 +1060,24 @@ fn generate_inertia_pages(name: &str, snake_name: &str, plural_snake: &str, fiel
     generate_show_page(&pages_dir, name, snake_name, plural_snake, fields);
 
     // Generate Create page
-    generate_create_page(&pages_dir, name, snake_name, plural_snake, fields);
+    generate_create_page(
+        &pages_dir,
+        name,
+        snake_name,
+        plural_snake,
+        fields,
+        foreign_keys,
+    );
 
     // Generate Edit page
-    generate_edit_page(&pages_dir, name, snake_name, plural_snake, fields);
+    generate_edit_page(
+        &pages_dir,
+        name,
+        snake_name,
+        plural_snake,
+        fields,
+        foreign_keys,
+    );
 
     println!(
         "   📦 Created Inertia pages: frontend/src/pages/{}/",
@@ -1270,17 +1298,70 @@ fn generate_create_page(
     _snake_name: &str,
     plural_snake: &str,
     fields: &[Field],
+    foreign_keys: &[ForeignKeyInfo],
 ) {
     let file_path = pages_dir.join("Create.tsx");
 
-    // Build form inputs
+    // Build form inputs with FK select dropdowns
     let form_inputs: String = fields
         .iter()
         .map(|f| {
-            let input_type = f.field_type.to_form_input_type();
-            if input_type == "textarea" {
-                format!(
-                    r#"        <div className="mb-4">
+            // Check if this field is a foreign key
+            if let Some(fk) = foreign_keys.iter().find(|fk| fk.field_name == f.name) {
+                if fk.validated {
+                    // Validated FK: render select dropdown
+                    let target_plural = pluralize(&to_snake_case(&fk.target_model));
+                    let target_snake = to_snake_case(&fk.target_model);
+                    format!(
+                        r#"        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">{label}</label>
+          <select
+            value={{data.{field}}}
+            onChange={{e => setData('{field}', parseInt(e.target.value) || 0)}}
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="">Select {target_label}...</option>
+            {{{target_plural}.map(({target_snake}) => (
+              <option key={{{target_snake}.id}} value={{{target_snake}.id}}>
+                {{{target_snake}.name ?? {target_snake}.title ?? {target_snake}.email ?? {target_snake}.id}}
+              </option>
+            ))}}
+          </select>
+          {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
+        </div>
+"#,
+                        label = to_pascal_case(&f.name),
+                        field = f.name,
+                        target_label = fk.target_model,
+                        target_plural = target_plural,
+                        target_snake = target_snake
+                    )
+                } else {
+                    // Unvalidated FK: render number input with TODO
+                    format!(
+                        r#"        {{/* TODO: Replace with select once {target_model} model exists */}}
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">{label}</label>
+          <input
+            type="number"
+            value={{data.{field}}}
+            onChange={{e => setData('{field}', parseInt(e.target.value) || 0)}}
+            className="w-full border rounded px-3 py-2"
+          />
+          {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
+        </div>
+"#,
+                        label = to_pascal_case(&f.name),
+                        field = f.name,
+                        target_model = fk.target_model
+                    )
+                }
+            } else {
+                // Regular field
+                let input_type = f.field_type.to_form_input_type();
+                if input_type == "textarea" {
+                    format!(
+                        r#"        <div className="mb-4">
           <label className="block text-gray-700 mb-2">{label}</label>
           <textarea
             value={{data.{field}}}
@@ -1291,12 +1372,12 @@ fn generate_create_page(
           {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
         </div>
 "#,
-                    label = to_pascal_case(&f.name),
-                    field = f.name
-                )
-            } else if input_type == "checkbox" {
-                format!(
-                    r#"        <div className="mb-4">
+                        label = to_pascal_case(&f.name),
+                        field = f.name
+                    )
+                } else if input_type == "checkbox" {
+                    format!(
+                        r#"        <div className="mb-4">
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -1309,12 +1390,12 @@ fn generate_create_page(
           {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
         </div>
 "#,
-                    label = to_pascal_case(&f.name),
-                    field = f.name
-                )
-            } else {
-                format!(
-                    r#"        <div className="mb-4">
+                        label = to_pascal_case(&f.name),
+                        field = f.name
+                    )
+                } else {
+                    format!(
+                        r#"        <div className="mb-4">
           <label className="block text-gray-700 mb-2">{label}</label>
           <input
             type="{input_type}"
@@ -1325,10 +1406,11 @@ fn generate_create_page(
           {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
         </div>
 "#,
-                    label = to_pascal_case(&f.name),
-                    field = f.name,
-                    input_type = input_type
-                )
+                        label = to_pascal_case(&f.name),
+                        field = f.name,
+                        input_type = input_type
+                    )
+                }
             }
         })
         .collect();
@@ -1348,14 +1430,54 @@ fn generate_create_page(
         })
         .collect();
 
+    // Build TypeScript interfaces for related data
+    let validated_fks: Vec<_> = foreign_keys.iter().filter(|fk| fk.validated).collect();
+    let fk_interfaces: String = validated_fks
+        .iter()
+        .map(|fk| {
+            format!(
+                r#"
+interface {target_model} {{
+  id: number;
+  name?: string;
+  title?: string;
+  email?: string;
+}}
+"#,
+                target_model = fk.target_model
+            )
+        })
+        .collect();
+
+    // Build props interface with related data
+    let fk_props: String = validated_fks
+        .iter()
+        .map(|fk| {
+            let target_plural = pluralize(&to_snake_case(&fk.target_model));
+            format!("  {}: {}[];\n", target_plural, fk.target_model)
+        })
+        .collect();
+
+    // Build props destructuring
+    let fk_destructure: String = if validated_fks.is_empty() {
+        String::new()
+    } else {
+        validated_fks
+            .iter()
+            .map(|fk| pluralize(&to_snake_case(&fk.target_model)))
+            .collect::<Vec<_>>()
+            .join(", ")
+            + ", "
+    };
+
     let content = format!(
         r#"import {{ Link, useForm }} from '@inertiajs/react';
-
+{fk_interfaces}
 interface Props {{
-  errors?: Record<string, string[]>;
+{fk_props}  errors?: Record<string, string[]>;
 }}
 
-export default function Create({{ errors: serverErrors }}: Props) {{
+export default function Create({{ {fk_destructure}errors: serverErrors }}: Props) {{
   const {{ data, setData, post, processing, errors }} = useForm({{
 {initial_data}  }});
 
@@ -1394,7 +1516,10 @@ export default function Create({{ errors: serverErrors }}: Props) {{
         name = name,
         plural = plural_snake,
         form_inputs = form_inputs,
-        initial_data = initial_data
+        initial_data = initial_data,
+        fk_interfaces = fk_interfaces,
+        fk_props = fk_props,
+        fk_destructure = fk_destructure
     );
 
     fs::write(file_path, content).expect("Failed to write Create.tsx");
@@ -1406,17 +1531,70 @@ fn generate_edit_page(
     snake_name: &str,
     plural_snake: &str,
     fields: &[Field],
+    foreign_keys: &[ForeignKeyInfo],
 ) {
     let file_path = pages_dir.join("Edit.tsx");
 
-    // Build form inputs
+    // Build form inputs with FK select dropdowns
     let form_inputs: String = fields
         .iter()
         .map(|f| {
-            let input_type = f.field_type.to_form_input_type();
-            if input_type == "textarea" {
-                format!(
-                    r#"        <div className="mb-4">
+            // Check if this field is a foreign key
+            if let Some(fk) = foreign_keys.iter().find(|fk| fk.field_name == f.name) {
+                if fk.validated {
+                    // Validated FK: render select dropdown
+                    let target_plural = pluralize(&to_snake_case(&fk.target_model));
+                    let target_snake = to_snake_case(&fk.target_model);
+                    format!(
+                        r#"        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">{label}</label>
+          <select
+            value={{data.{field}}}
+            onChange={{e => setData('{field}', parseInt(e.target.value) || 0)}}
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="">Select {target_label}...</option>
+            {{{target_plural}.map(({target_snake}) => (
+              <option key={{{target_snake}.id}} value={{{target_snake}.id}}>
+                {{{target_snake}.name ?? {target_snake}.title ?? {target_snake}.email ?? {target_snake}.id}}
+              </option>
+            ))}}
+          </select>
+          {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
+        </div>
+"#,
+                        label = to_pascal_case(&f.name),
+                        field = f.name,
+                        target_label = fk.target_model,
+                        target_plural = target_plural,
+                        target_snake = target_snake
+                    )
+                } else {
+                    // Unvalidated FK: render number input with TODO
+                    format!(
+                        r#"        {{/* TODO: Replace with select once {target_model} model exists */}}
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">{label}</label>
+          <input
+            type="number"
+            value={{data.{field}}}
+            onChange={{e => setData('{field}', parseInt(e.target.value) || 0)}}
+            className="w-full border rounded px-3 py-2"
+          />
+          {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
+        </div>
+"#,
+                        label = to_pascal_case(&f.name),
+                        field = f.name,
+                        target_model = fk.target_model
+                    )
+                }
+            } else {
+                // Regular field
+                let input_type = f.field_type.to_form_input_type();
+                if input_type == "textarea" {
+                    format!(
+                        r#"        <div className="mb-4">
           <label className="block text-gray-700 mb-2">{label}</label>
           <textarea
             value={{data.{field}}}
@@ -1427,12 +1605,12 @@ fn generate_edit_page(
           {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
         </div>
 "#,
-                    label = to_pascal_case(&f.name),
-                    field = f.name
-                )
-            } else if input_type == "checkbox" {
-                format!(
-                    r#"        <div className="mb-4">
+                        label = to_pascal_case(&f.name),
+                        field = f.name
+                    )
+                } else if input_type == "checkbox" {
+                    format!(
+                        r#"        <div className="mb-4">
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -1445,12 +1623,12 @@ fn generate_edit_page(
           {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
         </div>
 "#,
-                    label = to_pascal_case(&f.name),
-                    field = f.name
-                )
-            } else {
-                format!(
-                    r#"        <div className="mb-4">
+                        label = to_pascal_case(&f.name),
+                        field = f.name
+                    )
+                } else {
+                    format!(
+                        r#"        <div className="mb-4">
           <label className="block text-gray-700 mb-2">{label}</label>
           <input
             type="{input_type}"
@@ -1461,10 +1639,11 @@ fn generate_edit_page(
           {{errors.{field} && <p className="text-red-500 text-sm mt-1">{{errors.{field}}}</p>}}
         </div>
 "#,
-                    label = to_pascal_case(&f.name),
-                    field = f.name,
-                    input_type = input_type
-                )
+                        label = to_pascal_case(&f.name),
+                        field = f.name,
+                        input_type = input_type
+                    )
+                }
             }
         })
         .collect();
@@ -1475,9 +1654,49 @@ fn generate_edit_page(
         .map(|f| format!("    {}: {}.{},\n", f.name, snake_name, f.name))
         .collect();
 
+    // Build TypeScript interfaces for related data
+    let validated_fks: Vec<_> = foreign_keys.iter().filter(|fk| fk.validated).collect();
+    let fk_interfaces: String = validated_fks
+        .iter()
+        .map(|fk| {
+            format!(
+                r#"
+interface {target_model} {{
+  id: number;
+  name?: string;
+  title?: string;
+  email?: string;
+}}
+"#,
+                target_model = fk.target_model
+            )
+        })
+        .collect();
+
+    // Build props interface with related data
+    let fk_props: String = validated_fks
+        .iter()
+        .map(|fk| {
+            let target_plural = pluralize(&to_snake_case(&fk.target_model));
+            format!("  {}: {}[];\n", target_plural, fk.target_model)
+        })
+        .collect();
+
+    // Build props destructuring
+    let fk_destructure: String = if validated_fks.is_empty() {
+        String::new()
+    } else {
+        validated_fks
+            .iter()
+            .map(|fk| pluralize(&to_snake_case(&fk.target_model)))
+            .collect::<Vec<_>>()
+            .join(", ")
+            + ", "
+    };
+
     let content = format!(
         r#"import {{ Link, useForm }} from '@inertiajs/react';
-
+{fk_interfaces}
 interface {name} {{
   id: number;
 {ts_fields}  created_at: string;
@@ -1486,10 +1705,10 @@ interface {name} {{
 
 interface Props {{
   {snake}: {name};
-  errors?: Record<string, string[]>;
+{fk_props}  errors?: Record<string, string[]>;
 }}
 
-export default function Edit({{ {snake}, errors: serverErrors }}: Props) {{
+export default function Edit({{ {snake}, {fk_destructure}errors: serverErrors }}: Props) {{
   const {{ data, setData, put, processing, errors }} = useForm({{
 {initial_data}  }});
 
@@ -1533,7 +1752,10 @@ export default function Edit({{ {snake}, errors: serverErrors }}: Props) {{
         ts_fields = fields
             .iter()
             .map(|f| format!("  {}: {};\n", f.name, f.field_type.to_typescript_type()))
-            .collect::<String>()
+            .collect::<String>(),
+        fk_interfaces = fk_interfaces,
+        fk_props = fk_props,
+        fk_destructure = fk_destructure
     );
 
     fs::write(file_path, content).expect("Failed to write Edit.tsx");
