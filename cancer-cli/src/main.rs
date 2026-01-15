@@ -168,6 +168,9 @@ enum Commands {
         /// Skip confirmation prompt for auto-routes (for CI/automation)
         #[arg(long, short = 'y')]
         yes: bool,
+        /// Generate API-only scaffold (JSON responses, no Inertia pages)
+        #[arg(long)]
+        api: bool,
     },
     /// Run all pending database migrations
     Migrate,
@@ -309,8 +312,8 @@ fn main() {
         Commands::MakeSeeder { name } => {
             commands::make_seeder::run(name);
         }
-        Commands::MakeScaffold { name, fields, with_tests, with_factory, auto_routes, yes } => {
-            commands::make_scaffold::run(name, fields, with_tests, with_factory, auto_routes, yes);
+        Commands::MakeScaffold { name, fields, with_tests, with_factory, auto_routes, yes, api } => {
+            commands::make_scaffold::run(name, fields, with_tests, with_factory, auto_routes, yes, api);
         }
         Commands::Migrate => {
             commands::migrate::run();

@@ -4,7 +4,7 @@ use std::path::Path;
 use crate::templates;
 use dialoguer::Confirm;
 
-pub fn run(name: String, fields: Vec<String>, with_tests: bool, with_factory: bool, auto_routes: bool, yes: bool) {
+pub fn run(name: String, fields: Vec<String>, with_tests: bool, with_factory: bool, auto_routes: bool, yes: bool, api_only: bool) {
     // Validate resource name
     if !is_valid_identifier(&name) {
         eprintln!(
@@ -35,10 +35,12 @@ pub fn run(name: String, fields: Vec<String>, with_tests: bool, with_factory: bo
     generate_model(&name, &snake_name, &parsed_fields);
 
     // Generate controller
-    generate_controller(&name, &snake_name, &plural_snake, &parsed_fields);
+    generate_controller(&name, &snake_name, &plural_snake, &parsed_fields, api_only);
 
-    // Generate Inertia pages
-    generate_inertia_pages(&name, &snake_name, &plural_snake, &parsed_fields);
+    // Generate Inertia pages (skip for API-only scaffold)
+    if !api_only {
+        generate_inertia_pages(&name, &snake_name, &plural_snake, &parsed_fields);
+    }
 
     // Generate tests if requested
     if with_tests {
@@ -57,7 +59,11 @@ pub fn run(name: String, fields: Vec<String>, with_tests: bool, with_factory: bo
         print_route_instructions(&name, &snake_name, &plural_snake);
     }
 
-    println!("\n✅ Scaffold for {} created successfully!", name);
+    if api_only {
+        println!("\n✅ API scaffold for {} created successfully!", name);
+    } else {
+        println!("\n✅ Scaffold for {} created successfully!", name);
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -553,7 +559,7 @@ fn update_models_mod(snake_name: &str) {
     fs::write(mod_path, updated).expect("Failed to write mod.rs");
 }
 
-fn generate_controller(name: &str, snake_name: &str, plural_snake: &str, fields: &[Field]) {
+fn generate_controller(name: &str, snake_name: &str, plural_snake: &str, fields: &[Field], api_only: bool) {
     let controllers_dir = Path::new("src/controllers");
 
     if !controllers_dir.exists() {
@@ -583,8 +589,26 @@ fn generate_controller(name: &str, snake_name: &str, plural_snake: &str, fields:
         ));
     }
 
-    let controller_content = format!(
-        r#"use cancer::{{
+    let insert_fields: String = fields
+        .iter()
+        .map(|f| format!(
+            "        {}: ActiveValue::Set(form.{}.clone()),\n",
+            f.name, f.name
+        ))
+        .collect();
+
+    let controller_content = if api_only {
+        templates::api_controller_template(
+            name,
+            snake_name,
+            plural_snake,
+            &form_fields,
+            &update_fields,
+            &insert_fields,
+        )
+    } else {
+        format!(
+            r#"use cancer::{{
     http::{{Request, Response, HttpResponse}},
     inertia::{{Inertia, SavedInertiaContext}},
     validation::Validatable,
@@ -729,30 +753,26 @@ pub async fn destroy(req: Request, id: i64) -> Response {{
     HttpResponse::redirect("/{plural}")
 }}
 "#,
-        name = name,
-        snake = snake_name,
-        snake_name = snake_name,
-        plural = plural_snake,
-        plural_pascal = to_pascal_case(plural_snake),
-        form_fields = form_fields,
-        update_fields = update_fields,
-        insert_fields = fields
-            .iter()
-            .map(|f| format!(
-                "        {}: ActiveValue::Set(form.{}.clone()),\n",
-                f.name, f.name
-            ))
-            .collect::<String>()
-    );
+            name = name,
+            snake = snake_name,
+            snake_name = snake_name,
+            plural = plural_snake,
+            plural_pascal = to_pascal_case(plural_snake),
+            form_fields = form_fields,
+            update_fields = update_fields,
+            insert_fields = insert_fields
+        )
+    };
 
     fs::write(&file_path, controller_content).expect("Failed to write controller file");
 
     // Update mod.rs
     update_controllers_mod(snake_name);
 
+    let controller_type = if api_only { "API controller" } else { "controller" };
     println!(
-        "   📦 Created controller: src/controllers/{}_controller.rs",
-        snake_name
+        "   📦 Created {}: src/controllers/{}_controller.rs",
+        controller_type, snake_name
     );
 }
 

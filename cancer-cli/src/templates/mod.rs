@@ -1848,6 +1848,184 @@ async fn test_{plural}_destroy() {{
 }
 
 // ============================================================================
+// API Controller Template
+// ============================================================================
+
+/// Template for generating API-only controller with make:scaffold --api
+pub fn api_controller_template(
+    name: &str,
+    snake_name: &str,
+    plural_snake: &str,
+    form_fields: &str,
+    update_fields: &str,
+    insert_fields: &str,
+) -> String {
+    format!(
+        r#"//! {name} API controller
+//!
+//! Generated with `cancer make:scaffold --api`
+
+use cancer::{{handler, json_response, Request, Response}};
+use crate::models::{snake_name}::{{self, Column, Entity, Model as {name}}};
+use sea_orm::{{ColumnTrait, EntityTrait, QueryFilter}};
+
+/// Form data for creating/updating {name}
+#[derive(serde::Deserialize)]
+pub struct {name}Form {{
+{form_fields}
+}}
+
+/// List all {plural_snake}
+///
+/// GET /{plural_snake}
+#[handler]
+pub async fn index(req: Request) -> Response {{
+    let db = req.db();
+    let {plural_snake} = Entity::find().all(db).await.map_err(|e| {{
+        tracing::error!("Failed to fetch {plural_snake}: {{:?}}", e);
+        cancer::error_response!(500, "Failed to fetch {plural_snake}")
+    }})?;
+
+    let total = {plural_snake}.len();
+
+    json_response!({{
+        "data": {plural_snake},
+        "meta": {{
+            "total": total
+        }}
+    }})
+}}
+
+/// Get a single {snake_name}
+///
+/// GET /{plural_snake}/{{id}}
+#[handler]
+pub async fn show(req: Request) -> Response {{
+    let db = req.db();
+    let id: i64 = req.param("id").unwrap_or_default();
+
+    let {snake_name} = Entity::find_by_id(id as i32)
+        .one(db)
+        .await
+        .map_err(|e| {{
+            tracing::error!("Failed to fetch {snake_name}: {{:?}}", e);
+            cancer::error_response!(500, "Failed to fetch {snake_name}")
+        }})?
+        .ok_or_else(|| cancer::error_response!(404, "{name} not found"))?;
+
+    json_response!({{
+        "data": {snake_name}
+    }})
+}}
+
+/// Create a new {snake_name}
+///
+/// POST /{plural_snake}
+#[handler]
+pub async fn store(req: Request) -> Response {{
+    let db = req.db();
+    let form: {name}Form = req.input().await?;
+
+    let {snake_name} = {snake_name}::ActiveModel {{
+{insert_fields}
+        ..Default::default()
+    }};
+
+    let result = Entity::insert({snake_name})
+        .exec(db)
+        .await
+        .map_err(|e| {{
+            tracing::error!("Failed to create {snake_name}: {{:?}}", e);
+            cancer::error_response!(500, "Failed to create {snake_name}")
+        }})?;
+
+    let created = Entity::find_by_id(result.last_insert_id)
+        .one(db)
+        .await
+        .map_err(|e| {{
+            tracing::error!("Failed to fetch created {snake_name}: {{:?}}", e);
+            cancer::error_response!(500, "Failed to fetch created {snake_name}")
+        }})?
+        .ok_or_else(|| cancer::error_response!(500, "Failed to retrieve created {snake_name}"))?;
+
+    json_response!({{
+        "data": created,
+        "message": "{name} created successfully"
+    }})
+}}
+
+/// Update an existing {snake_name}
+///
+/// PUT /{plural_snake}/{{id}}
+#[handler]
+pub async fn update(req: Request) -> Response {{
+    let db = req.db();
+    let id: i64 = req.param("id").unwrap_or_default();
+    let form: {name}Form = req.input().await?;
+
+    let existing = Entity::find_by_id(id as i32)
+        .one(db)
+        .await
+        .map_err(|e| {{
+            tracing::error!("Failed to fetch {snake_name}: {{:?}}", e);
+            cancer::error_response!(500, "Failed to fetch {snake_name}")
+        }})?
+        .ok_or_else(|| cancer::error_response!(404, "{name} not found"))?;
+
+    let mut {snake_name}: {snake_name}::ActiveModel = existing.into();
+{update_fields}
+
+    let updated = {snake_name}.update(db).await.map_err(|e| {{
+        tracing::error!("Failed to update {snake_name}: {{:?}}", e);
+        cancer::error_response!(500, "Failed to update {snake_name}")
+    }})?;
+
+    json_response!({{
+        "data": updated,
+        "message": "{name} updated successfully"
+    }})
+}}
+
+/// Delete a {snake_name}
+///
+/// DELETE /{plural_snake}/{{id}}
+#[handler]
+pub async fn destroy(req: Request) -> Response {{
+    let db = req.db();
+    let id: i64 = req.param("id").unwrap_or_default();
+
+    let existing = Entity::find_by_id(id as i32)
+        .one(db)
+        .await
+        .map_err(|e| {{
+            tracing::error!("Failed to fetch {snake_name}: {{:?}}", e);
+            cancer::error_response!(500, "Failed to fetch {snake_name}")
+        }})?
+        .ok_or_else(|| cancer::error_response!(404, "{name} not found"))?;
+
+    Entity::delete_by_id(existing.id)
+        .exec(db)
+        .await
+        .map_err(|e| {{
+            tracing::error!("Failed to delete {snake_name}: {{:?}}", e);
+            cancer::error_response!(500, "Failed to delete {snake_name}")
+        }})?;
+
+    json_response!({{
+        "message": "{name} deleted successfully"
+    }})
+}}
+"#,
+        name = name,
+        snake_name = snake_name,
+        plural_snake = plural_snake,
+        form_fields = form_fields,
+        update_fields = update_fields,
+        insert_fields = insert_fields,
+    )
+}
+
+// ============================================================================
 // Tests
 // ============================================================================
 
@@ -2630,5 +2808,29 @@ mod tests {
 
         let result = entity_template("test_table", &columns);
         assert!(result.contains("pub optional_name: Option<String>"));
+    }
+
+    // -------------------------------------------------------------------------
+    // API Controller Template Tests
+    // -------------------------------------------------------------------------
+
+    #[test]
+    fn test_api_controller_template_substitution() {
+        let result = api_controller_template(
+            "Post",
+            "post",
+            "posts",
+            "    pub title: String,\n    pub body: String,",
+            "    post.title = sea_orm::ActiveValue::Set(form.title.clone());\n    post.body = sea_orm::ActiveValue::Set(form.body.clone());",
+            "        title: sea_orm::ActiveValue::Set(form.title.clone()),\n        body: sea_orm::ActiveValue::Set(form.body.clone()),",
+        );
+        assert!(result.contains("Post API controller"));
+        assert!(result.contains("pub async fn index"));
+        assert!(result.contains("pub async fn show"));
+        assert!(result.contains("pub async fn store"));
+        assert!(result.contains("pub async fn update"));
+        assert!(result.contains("pub async fn destroy"));
+        assert!(result.contains("json_response!"));
+        assert!(!result.contains("Inertia"));
     }
 }
