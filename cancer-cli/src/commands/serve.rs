@@ -186,16 +186,20 @@ pub fn run(
     // Load .env file from current directory
     let _ = dotenvy::dotenv();
 
+    // Resolve backend host and port from env vars (matching ServerConfig defaults)
+    let backend_host = std::env::var("SERVER_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
+
     // Resolve ports: CLI args take precedence, then env vars, then defaults
-    let backend_port = if port != 8080 {
-        // CLI argument was explicitly provided (different from default)
+    // CLI default is 8000, framework ServerConfig default is 8080
+    let backend_port = if port != 8000 {
+        // CLI argument was explicitly provided (different from CLI default)
         port
     } else {
-        // Use env var or default
+        // Use env var or framework default (8080)
         std::env::var("SERVER_PORT")
             .ok()
             .and_then(|v| v.parse().ok())
-            .unwrap_or(port)
+            .unwrap_or(8080)
     };
 
     let vite_port = if frontend_port != 5173 {
@@ -295,8 +299,9 @@ pub fn run(
         };
 
         println!(
-            "{} Backend server on http://127.0.0.1:{}",
+            "{} Backend server on http://{}:{}",
             style("[backend]").magenta().bold(),
+            backend_host,
             backend_port
         );
 
