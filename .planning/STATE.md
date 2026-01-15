@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 ## Current Position
 
 Phase: 12 of 12 (Agent-First Polish)
-Plan: 1 of 4 in phase - COMPLETE
-Status: Plan 01 complete - actionable error messages and accurate CLI port display
-Last activity: 2026-01-16 — Completed Phase 12 Plan 01 (Actionable Errors)
+Plan: 2 of 4 in phase - COMPLETE
+Status: Plan 02 complete - comprehensive .env.example and redis 0.27 upgrade
+Last activity: 2026-01-16 — Completed Phase 12 Plan 02 (Environment Configuration)
 
-Progress: █████████████████ 94%
+Progress: █████████████████ 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 26 min
-- Total execution time: 6 hours 23 min
+- Total plans completed: 15
+- Average duration: 25 min
+- Total execution time: 6 hours 35 min
 
 **By Phase:**
 
@@ -38,10 +38,10 @@ Progress: █████████████████ 94%
 | 9 | 1 | 35 min | 35 min |
 | 10 | 1 | 30 min | 30 min |
 | 11 | 3 | 75 min | 25 min |
-| 12 | 1/4 | 8 min | 8 min |
+| 12 | 2/4 | 20 min | 10 min |
 
 **Recent Trend:**
-- Last 14 plans: All completed successfully
+- Last 15 plans: All completed successfully
 - Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
@@ -84,6 +84,7 @@ Recent decisions affecting current work:
 31. **Display field cascade** - Select options use `name ?? title ?? email ?? id` to show meaningful text for any model type.
 32. **fail_with helper pattern** - Centralized error formatting in main.rs with context + cause + fix list format.
 33. **ENV precedence for ports** - CLI default (8000) triggers env lookup, explicit CLI arg overrides .env values.
+34. **Self-documenting .env.example** - All environment variables documented with comments explaining purpose, format, and defaults.
 
 ### Pending Todos
 
@@ -98,5 +99,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Completed Phase 12 Plan 01 (Actionable Errors)
+Stopped at: Completed Phase 12 Plan 02 (Environment Configuration)
 Resume file: None
