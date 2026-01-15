@@ -465,25 +465,28 @@ pub fn derive_cancer_model(input: TokenStream) -> TokenStream {
     model::cancer_model_impl(input)
 }
 
-/// Derive macro for declarative struct validation
+/// Derive macro for declarative struct validation using Cancer's rules
 ///
 /// Generates `Validatable` trait implementation from field attributes.
 /// Validation rules are co-located with the struct definition.
 ///
+/// This uses Cancer's Laravel-style validation rules (required(), email(), etc.)
+/// rather than the external `validator` crate.
+///
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::Validate;
+/// use cancer::ValidateRules;
 ///
-/// #[derive(Validate)]
+/// #[derive(ValidateRules)]
 /// struct CreateUserRequest {
-///     #[validate(required, email)]
+///     #[rule(required, email)]
 ///     email: String,
 ///
-///     #[validate(required, min(8))]
+///     #[rule(required, min(8))]
 ///     password: String,
 ///
-///     #[validate(required, integer, min(18))]
+///     #[rule(required, integer, min(18))]
 ///     age: Option<i32>,
 /// }
 ///
@@ -491,7 +494,7 @@ pub fn derive_cancer_model(input: TokenStream) -> TokenStream {
 /// let request = CreateUserRequest { ... };
 /// request.validate()?;
 /// ```
-#[proc_macro_derive(Validate, attributes(validate))]
-pub fn derive_validate(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(ValidateRules, attributes(rule))]
+pub fn derive_validate_rules(input: TokenStream) -> TokenStream {
     validate::validate_impl(input)
 }

@@ -26,11 +26,13 @@
 mod error;
 mod rule;
 mod rules;
+mod validatable;
 mod validator;
 
 pub use error::ValidationError;
 pub use rule::Rule;
 pub use rules::*;
+pub use validatable::Validatable;
 pub use validator::{validate, Validator};
 
 /// Macro for creating a vector of boxed validation rules.

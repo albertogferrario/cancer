@@ -169,6 +169,7 @@ pub use validation::{
     url,
     validate,
     Rule,
+    Validatable,
     ValidationError,
     Validator,
 };
@@ -185,6 +186,7 @@ pub use cancer_macros::service;
 pub use cancer_macros::CancerModel;
 pub use cancer_macros::FormRequest as FormRequestDerive;
 pub use cancer_macros::InertiaProps;
+pub use cancer_macros::ValidateRules;
 
 // Re-export Jest-like testing macros
 pub use cancer_macros::describe;
