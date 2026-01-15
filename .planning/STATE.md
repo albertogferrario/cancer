@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 3 of 12 (Validation Syntax Streamlining) - COMPLETE
-Plan: 1 of 1 in phase - COMPLETE
-Status: Ready for Phase 4 (Error Handling Consistency)
-Last activity: 2026-01-15 — Completed 03-01-PLAN (ValidateRules derive macro)
+Phase: 4 of 12 (Convention-over-Configuration) - IN PROGRESS
+Plan: 1 of TBD in phase - COMPLETE
+Status: Completed resource! macro, ready for additional convention-over-configuration features
+Last activity: 2026-01-15 — Completed 04-01-PLAN (resource! macro for RESTful routes)
 
-Progress: ███░░░░░░░ 25%
+Progress: ████░░░░░░ 33%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 30 min
-- Total execution time: 1.5 hours
+- Total plans completed: 4
+- Average duration: 29 min
+- Total execution time: 1.9 hours
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: ███░░░░░░░ 25%
 | 1 | 1 | 15 min | 15 min |
 | 2 | 1 | 30 min | 30 min |
 | 3 | 1 | 45 min | 45 min |
+| 4 | 1 | 25 min | 25 min |
 
 **Recent Trend:**
-- Last 3 plans: All completed successfully
-- Trend: Consistent momentum
+- Last 4 plans: All completed successfully
+- Trend: Accelerating (faster execution with growing pattern knowledge)
 
 ## Accumulated Context
 
@@ -48,6 +49,8 @@ Recent decisions affecting current work:
 4. **ValidateRules not Validate** - Named derive macro `ValidateRules` to avoid conflict with validator crate's `Validate` derive.
 5. **#[rule(...)] not #[validate(...)]** - Used `rule` attribute name to avoid namespace collision with validator crate.
 6. **Float literals for rules** - Numeric rule arguments like `min()` require float literals: `min(8.0)` not `min(8)`.
+7. **Declarative macro for resource!** - Used macro_rules! instead of proc macro to stay consistent with existing routing macros.
+8. **Module path capture pattern** - Used `$($controller:ident)::+` pattern to properly capture and expand module paths with `::action` suffix.
 
 ### Pending Todos
 
@@ -61,5 +64,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Completed Phase 3 Plan 1
+Stopped at: Completed Phase 4 Plan 1
 Resume file: None
