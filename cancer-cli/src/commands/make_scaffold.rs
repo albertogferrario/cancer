@@ -133,6 +133,20 @@ impl FieldType {
             FieldType::Uuid => "text",
         }
     }
+
+    fn to_validation_attr(&self) -> &'static str {
+        match self {
+            FieldType::String => "#[rule(required, string)]",
+            FieldType::Text => "#[rule(required, string)]",
+            FieldType::Integer => "#[rule(required, integer)]",
+            FieldType::BigInteger => "#[rule(required, integer)]",
+            FieldType::Float => "#[rule(required, numeric)]",
+            FieldType::Boolean => "#[rule(required, boolean)]",
+            FieldType::DateTime => "#[rule(required, date)]",
+            FieldType::Date => "#[rule(required, date)]",
+            FieldType::Uuid => "#[rule(required, string)]",
+        }
+    }
 }
 
 fn parse_fields(fields: &[String]) -> Result<Vec<Field>, String> {
@@ -526,42 +540,31 @@ fn generate_controller(name: &str, snake_name: &str, plural_snake: &str, fields:
         ));
     }
 
-    // Build form struct fields
+    // Build form struct fields with validation attributes
     let mut form_fields = String::new();
     for field in fields {
+        let rule_attr = field.field_type.to_validation_attr();
         form_fields.push_str(&format!(
-            "    pub {}: {},\n",
+            "    {}\n    pub {}: {},\n",
+            rule_attr,
             field.name,
             field.field_type.to_rust_type()
         ));
-    }
-
-    // Build validation rules
-    let mut validation_rules = String::new();
-    for field in fields {
-        let rule = match field.field_type {
-            FieldType::String => {
-                format!("        .rules(\"{}\", rules![required()])\n", field.name)
-            }
-            FieldType::Text => format!("        .rules(\"{}\", rules![required()])\n", field.name),
-            _ => format!("        .rules(\"{}\", rules![required()])\n", field.name),
-        };
-        validation_rules.push_str(&rule);
     }
 
     let controller_content = format!(
         r#"use cancer::{{
     http::{{Request, Response, HttpResponse}},
     inertia::{{Inertia, SavedInertiaContext}},
-    database::Db,
-    validation::{{Validator, rules}},
+    validation::Validatable,
+    ValidateRules,
 }};
 use sea_orm::{{EntityTrait, ActiveModelTrait, ActiveValue}};
 use serde::{{Deserialize, Serialize}};
 
 use crate::models::{snake_name}::{{self, Entity, Model as {name}}};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, ValidateRules)]
 pub struct {name}Form {{
 {form_fields}}}
 
@@ -621,11 +624,8 @@ pub async fn store(req: Request) -> Response {{
         HttpResponse::bad_request(format!("Invalid form data: {{}}", e))
     }})?;
 
-    // Validate
-    let validation = Validator::new(&form)
-{validation_rules}        .validate();
-
-    if let Err(errors) = validation {{
+    // Validate using derive macro
+    if let Err(errors) = form.validate() {{
         return Inertia::render_ctx(&ctx, "{plural}/Create", {name}CreateProps {{
             errors: Some(errors.into_messages()),
         }});
@@ -670,11 +670,8 @@ pub async fn update(req: Request, id: i64) -> Response {{
         .map_err(|e| HttpResponse::internal_server_error(e.to_string()))?
         .ok_or_else(|| HttpResponse::not_found("{name} not found"))?;
 
-    // Validate
-    let validation = Validator::new(&form)
-{validation_rules}        .validate();
-
-    if let Err(errors) = validation {{
+    // Validate using derive macro
+    if let Err(errors) = form.validate() {{
         return Inertia::render_ctx(&ctx, "{plural}/Edit", {name}EditProps {{
             {snake},
             errors: Some(errors.into_messages()),
@@ -707,7 +704,6 @@ pub async fn destroy(req: Request, id: i64) -> Response {{
         plural = plural_snake,
         plural_pascal = to_pascal_case(plural_snake),
         form_fields = form_fields,
-        validation_rules = validation_rules,
         update_fields = update_fields,
         insert_fields = fields
             .iter()
