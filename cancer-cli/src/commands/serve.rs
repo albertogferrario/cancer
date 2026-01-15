@@ -215,9 +215,16 @@ pub fn run(
     };
 
     // Auto-cleanup old build artifacts (silent, non-blocking)
-    // Uses 7-day threshold by default for aggressive dev workflow cleanup
-    if let Some(cleaned) = clean::run_silent(7) {
-        println!("{} {}", style("♻").cyan(), cleaned);
+    // Configurable via CARGO_SWEEP_DAYS (default: 7, set to 0 to disable)
+    let sweep_days: u32 = std::env::var("CARGO_SWEEP_DAYS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(7);
+
+    if sweep_days > 0 {
+        if let Some(cleaned) = clean::run_silent(sweep_days) {
+            println!("{} {}", style("♻").cyan(), cleaned);
+        }
     }
 
     println!();
