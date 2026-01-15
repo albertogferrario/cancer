@@ -164,7 +164,7 @@ pub fn run(
 
     // Generate tests if requested
     if with_tests {
-        generate_tests(&name, &snake_name, &plural_snake);
+        generate_tests(&name, &snake_name, &plural_snake, &parsed_fields, with_factory);
     }
 
     // Generate factory if requested
@@ -1618,7 +1618,7 @@ fn register_routes(snake_name: &str, plural_snake: &str, skip_confirm: bool) {
     eprintln!("Warning: Could not find routes! macro. Skipping route registration.");
 }
 
-fn generate_tests(_name: &str, snake_name: &str, plural_snake: &str) {
+fn generate_tests(name: &str, snake_name: &str, plural_snake: &str, fields: &[Field], with_factory: bool) {
     let tests_dir = Path::new("src/tests");
 
     if !tests_dir.exists() {
@@ -1626,16 +1626,32 @@ fn generate_tests(_name: &str, snake_name: &str, plural_snake: &str) {
     }
 
     let file_path = tests_dir.join(format!("{}_controller_test.rs", snake_name));
-    let test_content = templates::scaffold_test_template(snake_name, plural_snake);
+
+    // Choose template based on whether factory is also being generated
+    let test_content = if with_factory {
+        // Convert Field to ScaffoldField for template
+        let scaffold_fields: Vec<templates::ScaffoldField> = fields
+            .iter()
+            .map(|f| templates::ScaffoldField {
+                name: f.name.clone(),
+                field_type: f.field_type.to_scaffold_type().to_string(),
+            })
+            .collect();
+
+        templates::scaffold_test_with_factory_template(snake_name, plural_snake, name, &scaffold_fields)
+    } else {
+        templates::scaffold_test_template(snake_name, plural_snake)
+    };
 
     fs::write(&file_path, test_content).expect("Failed to write test file");
 
     // Update tests/mod.rs
     update_tests_mod(snake_name);
 
+    let test_type = if with_factory { "test (with factory usage)" } else { "test" };
     println!(
-        "   📦 Created test: src/tests/{}_controller_test.rs",
-        snake_name
+        "   📦 Created {}: src/tests/{}_controller_test.rs",
+        test_type, snake_name
     );
 }
 

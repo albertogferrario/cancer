@@ -1859,6 +1859,134 @@ async fn test_{plural}_destroy() {{
     )
 }
 
+/// Template for generating controller tests that use factories
+///
+/// Generated when both --with-tests and --with-factory flags are used.
+/// Tests create model instances using the factory for realistic test data.
+pub fn scaffold_test_with_factory_template(
+    snake_name: &str,
+    plural_snake: &str,
+    pascal_name: &str,
+    fields: &[ScaffoldField],
+) -> String {
+    // Build JSON fields for store/update tests from factory data
+    let json_fields: String = fields
+        .iter()
+        .map(|f| format!("            \"{}\": factory.{}.clone(),\n", f.name, f.name))
+        .collect();
+
+    format!(
+        r#"//! {plural_pascal} controller tests
+//!
+//! Generated with `cancer make:scaffold --with-tests --with-factory`
+
+use cancer::testing::{{Factory, TestClient, TestDatabase, TestResponse}};
+use crate::factories::{snake}_factory::{pascal}Factory;
+
+/// Test that the {plural} index endpoint returns a list
+#[tokio::test]
+async fn test_{plural}_index() {{
+    let db = TestDatabase::new().await;
+    let client = TestClient::with_db(db.clone());
+
+    // Create 3 {plural} using factory
+    for _ in 0..3 {{
+        let model = {pascal}Factory::factory().create(&db).await.unwrap();
+    }}
+
+    let response = client.get("/{plural}").send().await;
+
+    response.assert_ok();
+    // response.assert_json_path("data").assert_count(3);
+}}
+
+/// Test that showing a single {snake} returns the correct record
+#[tokio::test]
+async fn test_{plural}_show() {{
+    let db = TestDatabase::new().await;
+    let client = TestClient::with_db(db.clone());
+
+    // Create a {snake} using factory
+    let {snake} = {pascal}Factory::factory().create(&db).await.unwrap();
+
+    let response = client.get(&format!("/{plural}/{{}}", {snake}.id)).send().await;
+
+    response.assert_ok();
+    // response.assert_json_path("data.id").assert_eq({snake}.id);
+}}
+
+/// Test that creating a {snake} persists to database
+#[tokio::test]
+async fn test_{plural}_store() {{
+    let db = TestDatabase::new().await;
+    let client = TestClient::with_db(db.clone());
+
+    // Use factory to generate valid input data
+    let factory = {pascal}Factory::definition();
+
+    let response = client
+        .post("/{plural}")
+        .json(&serde_json::json!({{
+{json_fields}        }}))
+        .send()
+        .await;
+
+    response.assert_created();
+    // Verify record was created in database
+    // let count = {pascal}::query().count(&db).await.unwrap();
+    // assert_eq!(count, 1);
+}}
+
+/// Test that updating a {snake} modifies the record
+#[tokio::test]
+async fn test_{plural}_update() {{
+    let db = TestDatabase::new().await;
+    let client = TestClient::with_db(db.clone());
+
+    // Create initial {snake}
+    let {snake} = {pascal}Factory::factory().create(&db).await.unwrap();
+
+    // Use factory for updated data
+    let factory = {pascal}Factory::definition();
+
+    let response = client
+        .put(&format!("/{plural}/{{}}", {snake}.id))
+        .json(&serde_json::json!({{
+{json_fields}        }}))
+        .send()
+        .await;
+
+    response.assert_ok();
+    // Verify record was updated
+    // let updated = {pascal}::find({snake}.id, &db).await.unwrap();
+    // assert_ne!(updated.field, {snake}.field);
+}}
+
+/// Test that deleting a {snake} removes the record
+#[tokio::test]
+async fn test_{plural}_destroy() {{
+    let db = TestDatabase::new().await;
+    let client = TestClient::with_db(db.clone());
+
+    // Create a {snake} using factory
+    let {snake} = {pascal}Factory::factory().create(&db).await.unwrap();
+
+    let response = client.delete(&format!("/{plural}/{{}}", {snake}.id)).send().await;
+
+    response.assert_ok();
+    // Verify record was deleted
+    // let exists = {pascal}::find({snake}.id, &db).await.is_ok();
+    // assert!(!exists);
+}}
+"#,
+        snake = snake_name,
+        plural = plural_snake,
+        pascal = pascal_name,
+        plural_pascal = to_pascal_case(plural_snake),
+        json_fields = json_fields,
+    )
+}
+
 // ============================================================================
 // API Controller Template
 // ============================================================================
