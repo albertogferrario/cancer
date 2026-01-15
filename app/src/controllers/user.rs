@@ -1,25 +1,26 @@
-use cancer::{json_response, redirect, route, Request, Response, ResponseExt};
+use cancer::{handler, json_response, redirect, route, Response};
 
-pub async fn index(_req: Request) -> Response {
+#[handler]
+pub async fn index() -> Response {
     json_response!({
         "users": [
             {"id": 1, "name": "John"},
             {"id": 2, "name": "Jane"}
         ]
     })
-    .status(200)
 }
 
-pub async fn show(req: Request) -> Response {
-    let id = req.param("id")?;
+#[handler]
+pub async fn show(id: i32) -> Response {
     json_response!({
         "id": id,
-        "name": format!("User {}", id)
+        "name": format!("User {id}")
     })
 }
 
 /// Example: Create a user and redirect to the user list
-pub async fn store(_req: Request) -> Response {
+#[handler]
+pub async fn store() -> Response {
     // ... create user logic would go here ...
 
     // Redirect to users.index (compile-time validated!)
@@ -27,7 +28,8 @@ pub async fn store(_req: Request) -> Response {
 }
 
 /// Example: Redirect to a specific user with query params
-pub async fn redirect_example(_req: Request) -> Response {
+#[handler]
+pub async fn redirect_example() -> Response {
     // Generate a URL using route()
     let url = route("users.show", &[("id", "42")]);
     println!("Generated URL: {:?}", url);
