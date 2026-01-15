@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** Phase 6 Plan 1 complete — Ready for Phase 7
+**Current focus:** Phase 7 Plan 1 complete — Ready for Phase 8
 
 ## Current Position
 
-Phase: 6 of 12 (MCP Error Context) - COMPLETE
+Phase: 7 of 12 (MCP Relationship Visibility) - COMPLETE
 Plan: 1 of 1 in phase - COMPLETE
-Status: Completed all error context tools and enhanced descriptions
-Last activity: 2026-01-15 — Completed 06-01-PLAN (MCP Error Context Enhancement)
+Status: Completed all relationship visibility tools
+Last activity: 2026-01-15 — Completed 07-01-PLAN (MCP Relationship Visibility)
 
-Progress: █████████░ 50%
+Progress: ██████████ 58%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 30 min
-- Total execution time: 3 hours
+- Total execution time: 3.5 hours
 
 **By Phase:**
 
@@ -33,9 +33,10 @@ Progress: █████████░ 50%
 | 4 | 1 | 25 min | 25 min |
 | 5 | 1 | 35 min | 35 min |
 | 6 | 1 | 30 min | 30 min |
+| 7 | 1 | 30 min | 30 min |
 
 **Recent Trend:**
-- Last 6 plans: All completed successfully
+- Last 7 plans: All completed successfully
 - Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
@@ -56,9 +57,12 @@ Recent decisions affecting current work:
 9. **Tool vs Resource for Glossary** - Implemented domain_glossary as tool rather than MCP resource for simpler agent consumption.
 10. **Inference over Annotation** - Domain meaning inferred from naming patterns rather than requiring explicit annotations.
 11. **Structured Description Format** - Standardized on When/Returns/Combine format for all tool descriptions.
-12. **Regex caching with once_cell** - Used once_cell::sync::Lazy to cache compiled regex patterns for route extraction.
+12. **Regex caching with once_cell** - Used once_cell::sync::Lazy to cache compiled regex patterns for route extraction and model detection.
 13. **Category-specific fix prioritization** - Fix suggestions have priority 1-5 where 1 is highest for most actionable fixes.
 14. **Static error patterns** - Error patterns are hardcoded rather than dynamic to ensure consistency.
+15. **Known models validation** - route_dependencies only reports models that exist in list_models, reducing false positives.
+16. **Graph node IDs with prefixes** - Use `route:`, `model:`, `component:` prefixes for unique, type-safe identification.
+17. **Bidirectional FK edges** - Both belongs_to and has_many edges created for each FK relationship.
 
 ### Pending Todos
 
@@ -68,9 +72,10 @@ None.
 
 1. **Pre-existing test failures**: cancer-storage has unimplemented trait methods. Unrelated to current work but blocks full test suite.
 2. **Pre-existing metrics test failure**: Flaky shared state issue in test_record_request_increments_count.
+3. **Pre-existing clippy warnings**: cancer-macros and cancer-events have clippy warnings unrelated to MCP work.
 
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Completed Phase 6 Plan 1
+Stopped at: Completed Phase 7 Plan 1
 Resume file: None
