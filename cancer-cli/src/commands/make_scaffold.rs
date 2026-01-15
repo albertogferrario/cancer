@@ -3,7 +3,7 @@ use std::path::Path;
 
 use crate::templates;
 
-pub fn run(name: String, fields: Vec<String>, with_tests: bool) {
+pub fn run(name: String, fields: Vec<String>, with_tests: bool, with_factory: bool) {
     // Validate resource name
     if !is_valid_identifier(&name) {
         eprintln!(
@@ -42,6 +42,11 @@ pub fn run(name: String, fields: Vec<String>, with_tests: bool) {
     // Generate tests if requested
     if with_tests {
         generate_tests(&name, &snake_name, &plural_snake);
+    }
+
+    // Generate factory if requested
+    if with_factory {
+        generate_scaffold_factory(&name, &snake_name, &parsed_fields);
     }
 
     // Print route registration instructions
@@ -152,6 +157,20 @@ impl FieldType {
             FieldType::DateTime => "#[rule(required, date)]",
             FieldType::Date => "#[rule(required, date)]",
             FieldType::Uuid => "#[rule(required, string)]",
+        }
+    }
+
+    fn to_scaffold_type(&self) -> &'static str {
+        match self {
+            FieldType::String => "string",
+            FieldType::Text => "text",
+            FieldType::Integer => "integer",
+            FieldType::BigInteger => "bigint",
+            FieldType::Float => "float",
+            FieldType::Boolean => "bool",
+            FieldType::DateTime => "datetime",
+            FieldType::Date => "date",
+            FieldType::Uuid => "uuid",
         }
     }
 }
@@ -1318,5 +1337,61 @@ fn update_tests_mod(snake_name: &str) {
     }
 
     let updated = format!("{}{}\n", content, mod_declaration);
+    fs::write(mod_path, updated).expect("Failed to write mod.rs");
+}
+
+fn generate_scaffold_factory(name: &str, snake_name: &str, fields: &[Field]) {
+    let factories_dir = Path::new("src/factories");
+
+    if !factories_dir.exists() {
+        fs::create_dir_all(factories_dir).expect("Failed to create factories directory");
+    }
+
+    let file_name = format!("{}_factory", snake_name);
+    let struct_name = format!("{}Factory", name);
+    let file_path = factories_dir.join(format!("{}.rs", file_name));
+
+    // Convert Field to ScaffoldField for template
+    let scaffold_fields: Vec<templates::ScaffoldField> = fields
+        .iter()
+        .map(|f| templates::ScaffoldField {
+            name: f.name.clone(),
+            field_type: f.field_type.to_scaffold_type().to_string(),
+        })
+        .collect();
+
+    let factory_content =
+        templates::scaffold_factory_template(&file_name, &struct_name, name, &scaffold_fields);
+
+    fs::write(&file_path, factory_content).expect("Failed to write factory file");
+
+    // Update factories/mod.rs
+    update_factories_mod(&file_name);
+
+    println!("   📦 Created factory: src/factories/{}.rs", file_name);
+}
+
+fn update_factories_mod(file_name: &str) {
+    let mod_path = Path::new("src/factories/mod.rs");
+
+    if !mod_path.exists() {
+        let content = format!(
+            "{}pub mod {};\npub use {}::*;\n",
+            templates::factories_mod(),
+            file_name,
+            file_name
+        );
+        fs::write(mod_path, content).expect("Failed to write mod.rs");
+        return;
+    }
+
+    let content = fs::read_to_string(mod_path).expect("Failed to read mod.rs");
+    let mod_declaration = format!("pub mod {};", file_name);
+
+    if content.contains(&mod_declaration) {
+        return;
+    }
+
+    let updated = format!("{}{}\npub use {}::*;\n", content, mod_declaration, file_name);
     fs::write(mod_path, updated).expect("Failed to write mod.rs");
 }

@@ -1631,6 +1631,132 @@ pub fn policies_mod() -> &'static str {
 }
 
 // ============================================================================
+// Scaffold Factory Template
+// ============================================================================
+
+/// Scaffold field information for factory generation
+pub struct ScaffoldField {
+    pub name: String,
+    pub field_type: String,
+}
+
+/// Template for generating factory with pre-populated fields from scaffold definition
+pub fn scaffold_factory_template(
+    _file_name: &str,
+    struct_name: &str,
+    model_name: &str,
+    fields: &[ScaffoldField],
+) -> String {
+    // Build field definitions
+    let field_defs: String = fields
+        .iter()
+        .map(|f| format!("    pub {}: {},\n", f.name, rust_type_for_factory(&f.field_type)))
+        .collect();
+
+    // Build Fake::* assignments
+    let fake_assignments: String = fields
+        .iter()
+        .map(|f| format!("            {}: {},\n", f.name, fake_value_for_type(&f.field_type)))
+        .collect();
+
+    format!(
+        r#"//! {struct_name} factory
+//!
+//! Generated with `cancer make:scaffold --with-factory`
+
+use cancer::testing::{{Factory, FactoryTraits, Fake}};
+// use cancer::testing::DatabaseFactory;
+// use crate::models::{model_lower}::{{self, Model as {model_name}}};
+
+/// Factory for creating {model_name} instances in tests
+#[derive(Clone)]
+pub struct {struct_name} {{
+    pub id: i64,
+{field_defs}    pub created_at: String,
+    pub updated_at: String,
+}}
+
+impl Factory for {struct_name} {{
+    fn definition() -> Self {{
+        Self {{
+            id: 0, // Will be set by database
+{fake_assignments}            created_at: Fake::datetime(),
+            updated_at: Fake::datetime(),
+        }}
+    }}
+
+    fn traits() -> FactoryTraits<Self> {{
+        FactoryTraits::new()
+    }}
+}}
+
+// Uncomment to enable database persistence with create():
+//
+// #[cancer::async_trait]
+// impl DatabaseFactory for {struct_name} {{
+//     type Entity = {model_lower}::Entity;
+//     type ActiveModel = {model_lower}::ActiveModel;
+// }}
+
+// Usage in tests:
+//
+// // Make without persisting:
+// let model = {struct_name}::factory().make();
+//
+// // Apply named trait:
+// let custom = {struct_name}::factory().trait_("custom").make();
+//
+// // With inline state:
+// let model = {struct_name}::factory()
+//     .state(|m| m.id = 42)
+//     .make();
+//
+// // Create with database persistence:
+// let model = {struct_name}::factory().create().await?;
+//
+// // Create multiple:
+// let models = {struct_name}::factory().count(5).create_many().await?;
+"#,
+        struct_name = struct_name,
+        model_name = model_name,
+        model_lower = model_name.to_lowercase(),
+        field_defs = field_defs,
+        fake_assignments = fake_assignments,
+    )
+}
+
+/// Convert scaffold field type to Rust type for factory
+fn rust_type_for_factory(field_type: &str) -> &'static str {
+    match field_type.to_lowercase().as_str() {
+        "string" | "str" | "text" => "String",
+        "int" | "integer" | "i32" => "i32",
+        "bigint" | "biginteger" | "i64" => "i64",
+        "float" | "f64" | "double" => "f64",
+        "bool" | "boolean" => "bool",
+        "datetime" | "timestamp" => "String",
+        "date" => "String",
+        "uuid" => "String",
+        _ => "String",
+    }
+}
+
+/// Generate Fake::* value based on field type
+fn fake_value_for_type(field_type: &str) -> &'static str {
+    match field_type.to_lowercase().as_str() {
+        "string" | "str" => "Fake::word()",
+        "text" => "Fake::sentence()",
+        "int" | "integer" | "i32" => "Fake::integer(1, 1000)",
+        "bigint" | "biginteger" | "i64" => "Fake::integer(1, 1000000) as i64",
+        "float" | "f64" | "double" => "Fake::float(0.0, 1000.0)",
+        "bool" | "boolean" => "Fake::boolean()",
+        "datetime" | "timestamp" => "Fake::datetime()",
+        "date" => "Fake::date()",
+        "uuid" => "Fake::uuid()",
+        _ => "Fake::word()",
+    }
+}
+
+// ============================================================================
 // Scaffold Test Template
 // ============================================================================
 

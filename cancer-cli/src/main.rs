@@ -159,6 +159,9 @@ enum Commands {
         /// Generate test file with CRUD test stubs
         #[arg(long)]
         with_tests: bool,
+        /// Generate factory with field definitions
+        #[arg(long)]
+        with_factory: bool,
     },
     /// Run all pending database migrations
     Migrate,
@@ -300,8 +303,8 @@ fn main() {
         Commands::MakeSeeder { name } => {
             commands::make_seeder::run(name);
         }
-        Commands::MakeScaffold { name, fields, with_tests } => {
-            commands::make_scaffold::run(name, fields, with_tests);
+        Commands::MakeScaffold { name, fields, with_tests, with_factory } => {
+            commands::make_scaffold::run(name, fields, with_tests, with_factory);
         }
         Commands::Migrate => {
             commands::migrate::run();
