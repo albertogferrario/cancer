@@ -171,6 +171,14 @@ pub struct ExplainModelParams {
     pub model: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct DiagnoseErrorParams {
+    /// Error message to analyze
+    pub error_message: Option<String>,
+    /// Pre-classified error category (validation, database, not_found, permission, internal, panic)
+    pub category: Option<String>,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -813,6 +821,43 @@ impl CancerMcpService {
             }
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
+    }
+
+    /// Diagnose an error and suggest fixes
+    #[tool(
+        name = "diagnose_error",
+        description = "Analyze an error message and provide actionable fix suggestions.\n\n\
+            **When to use:** After encountering an error, to understand the cause and get \
+            Cancer-specific fix suggestions. Works best with last_error output.\n\n\
+            **Returns:** Error category, likely cause, prioritized fix suggestions, code examples, \
+            and related tools to investigate further.\n\n\
+            **Combine with:** `last_error` to get the error first, then diagnose. \
+            Follow up with suggested tools like `db_schema`, `list_routes`, or `get_handler`."
+    )]
+    pub async fn diagnose_error(&self, params: Parameters<DiagnoseErrorParams>) -> String {
+        use tools::diagnose_error::{DiagnoseErrorParams as InternalParams, ErrorDiagnosis};
+        use tools::last_error::ErrorCategory;
+
+        // Convert string category to enum
+        let category = params.0.category.as_ref().and_then(|c| {
+            match c.to_lowercase().as_str() {
+                "validation" => Some(ErrorCategory::Validation),
+                "database" => Some(ErrorCategory::Database),
+                "not_found" | "notfound" => Some(ErrorCategory::NotFound),
+                "permission" => Some(ErrorCategory::Permission),
+                "internal" => Some(ErrorCategory::Internal),
+                "panic" => Some(ErrorCategory::Panic),
+                _ => None,
+            }
+        });
+
+        let internal_params = InternalParams {
+            error_message: params.0.error_message,
+            category,
+        };
+
+        let diagnosis: ErrorDiagnosis = tools::diagnose_error::execute(internal_params);
+        serde_json::to_string_pretty(&diagnosis).unwrap_or_else(|_| "{}".to_string())
     }
 }
 
