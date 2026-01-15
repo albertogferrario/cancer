@@ -1,6 +1,6 @@
 //! MCP Service implementation with tool handlers
 
-use crate::resources::glossary;
+use crate::resources::{error_patterns, glossary};
 use crate::tools;
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
@@ -858,6 +858,21 @@ impl CancerMcpService {
 
         let diagnosis: ErrorDiagnosis = tools::diagnose_error::execute(internal_params);
         serde_json::to_string_pretty(&diagnosis).unwrap_or_else(|_| "{}".to_string())
+    }
+
+    /// Get catalog of common error patterns
+    #[tool(
+        name = "error_patterns",
+        description = "Get a catalog of common error patterns with resolutions and examples.\n\n\
+            **When to use:** Learning common error types, reference for error handling, \
+            understanding what causes specific errors, building error handling strategies.\n\n\
+            **Returns:** Error patterns grouped by category (validation, database, not_found, \
+            permission, internal, panic), each with pattern, description, resolution, and example.\n\n\
+            **Combine with:** `last_error` to identify your error, `diagnose_error` for specific diagnosis."
+    )]
+    pub async fn error_patterns(&self) -> String {
+        let catalog = error_patterns::get_error_patterns();
+        serde_json::to_string_pretty(&catalog).unwrap_or_else(|_| "{}".to_string())
     }
 }
 
