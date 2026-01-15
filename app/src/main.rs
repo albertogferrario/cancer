@@ -24,6 +24,21 @@ use sea_orm_migration::prelude::*;
 use std::env;
 use std::path::Path;
 
+/// Print actionable error and exit
+fn fail_with(context: &str, error: impl std::fmt::Display, how_to_fix: &[&str]) -> ! {
+    eprintln!("Error: {}", context);
+    eprintln!("  Cause: {}", error);
+    eprintln!();
+    if !how_to_fix.is_empty() {
+        eprintln!("How to fix:");
+        for (i, fix) in how_to_fix.iter().enumerate() {
+            eprintln!("  {}. {}", i + 1, fix);
+        }
+        eprintln!();
+    }
+    std::process::exit(1)
+}
+
 mod actions;
 mod bootstrap;
 mod config;
@@ -131,11 +146,31 @@ async fn run_server() {
     Server::from_config(router)
         .run()
         .await
-        .expect("Failed to start server");
+        .unwrap_or_else(|e| {
+            fail_with(
+                "Server failed to start",
+                e,
+                &[
+                    "Check SERVER_HOST and SERVER_PORT in .env",
+                    "Ensure the port is not already in use",
+                    "Verify network permissions allow binding to the address",
+                ],
+            )
+        });
 }
 
 async fn get_database_connection() -> sea_orm::DatabaseConnection {
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = env::var("DATABASE_URL").unwrap_or_else(|e| {
+        fail_with(
+            "DATABASE_URL not set",
+            e,
+            &[
+                "Add DATABASE_URL to .env file",
+                "Example: DATABASE_URL=sqlite://./database.db",
+                "Example: DATABASE_URL=postgres://user:pass@localhost/db",
+            ],
+        )
+    });
 
     // For SQLite, ensure the database file can be created
     let database_url = if database_url.starts_with("sqlite://") {
@@ -154,12 +189,23 @@ async fn get_database_connection() -> sea_orm::DatabaseConnection {
 
         format!("sqlite:{}?mode=rwc", path)
     } else {
-        database_url
+        database_url.clone()
     };
 
+    let url_for_error = database_url.clone();
     sea_orm::Database::connect(&database_url)
         .await
-        .expect("Failed to connect to database")
+        .unwrap_or_else(|e| {
+            fail_with(
+                &format!("Failed to connect to database at {}", url_for_error),
+                e,
+                &[
+                    "Check that the database server is running",
+                    "Verify the DATABASE_URL is correct",
+                    "Ensure database credentials are valid",
+                ],
+            )
+        })
 }
 
 async fn run_migrations_silent() {
@@ -174,7 +220,17 @@ async fn run_migrations() {
     let db = get_database_connection().await;
     Migrator::up(&db, None)
         .await
-        .expect("Failed to run migrations");
+        .unwrap_or_else(|e| {
+            fail_with(
+                "Migration failed",
+                e,
+                &[
+                    "Run `./app migrate:status` to see pending migrations",
+                    "Check database permissions",
+                    "Verify migration files are valid",
+                ],
+            )
+        });
     println!("Migrations completed successfully!");
 }
 
@@ -183,7 +239,16 @@ async fn show_migration_status() {
     let db = get_database_connection().await;
     Migrator::status(&db)
         .await
-        .expect("Failed to get migration status");
+        .unwrap_or_else(|e| {
+            fail_with(
+                "Could not get migration status",
+                e,
+                &[
+                    "Ensure database is accessible",
+                    "Check DATABASE_URL in .env",
+                ],
+            )
+        });
 }
 
 async fn rollback_migrations(steps: u32) {
@@ -191,7 +256,16 @@ async fn rollback_migrations(steps: u32) {
     let db = get_database_connection().await;
     Migrator::down(&db, Some(steps))
         .await
-        .expect("Failed to rollback migrations");
+        .unwrap_or_else(|e| {
+            fail_with(
+                "Rollback failed",
+                e,
+                &[
+                    "Check that there are migrations to rollback with `./app migrate:status`",
+                    "Verify database permissions",
+                ],
+            )
+        });
     println!("Rollback completed successfully!");
 }
 
@@ -200,7 +274,16 @@ async fn fresh_migrations() {
     let db = get_database_connection().await;
     Migrator::fresh(&db)
         .await
-        .expect("Failed to refresh database");
+        .unwrap_or_else(|e| {
+            fail_with(
+                "Database refresh failed",
+                e,
+                &[
+                    "Ensure database user has DROP TABLE permissions",
+                    "Check database connection is valid",
+                ],
+            )
+        });
     println!("Database refreshed successfully!");
 }
 
