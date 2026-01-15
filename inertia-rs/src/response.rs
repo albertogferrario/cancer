@@ -65,6 +65,28 @@ impl InertiaHttpResponse {
         self.headers.push((name.into(), value.into()));
         self
     }
+
+    /// Create a redirect response for Inertia requests.
+    ///
+    /// For POST/PUT/PATCH/DELETE requests, uses status 303 (See Other) to force
+    /// the browser to follow the redirect with a GET request.
+    ///
+    /// For GET requests, uses standard 302.
+    pub fn redirect(location: impl Into<String>, is_post_like: bool) -> Self {
+        // POST/PUT/PATCH/DELETE -> 303 (See Other) forces GET on redirect
+        // GET -> 302 (Found) standard redirect
+        let status = if is_post_like { 303 } else { 302 };
+
+        Self {
+            status,
+            headers: vec![
+                ("X-Inertia".to_string(), "true".to_string()),
+                ("Location".to_string(), location.into()),
+            ],
+            body: String::new(),
+            content_type: "text/plain",
+        }
+    }
 }
 
 /// Main Inertia integration struct.
