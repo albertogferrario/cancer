@@ -164,7 +164,13 @@ pub fn run(
 
     // Generate tests if requested
     if with_tests {
-        generate_tests(&name, &snake_name, &plural_snake, &parsed_fields, with_factory);
+        generate_tests(
+            &name,
+            &snake_name,
+            &plural_snake,
+            &parsed_fields,
+            with_factory,
+        );
     }
 
     // Generate factory if requested
@@ -1618,7 +1624,13 @@ fn register_routes(snake_name: &str, plural_snake: &str, skip_confirm: bool) {
     eprintln!("Warning: Could not find routes! macro. Skipping route registration.");
 }
 
-fn generate_tests(name: &str, snake_name: &str, plural_snake: &str, fields: &[Field], with_factory: bool) {
+fn generate_tests(
+    name: &str,
+    snake_name: &str,
+    plural_snake: &str,
+    fields: &[Field],
+    with_factory: bool,
+) {
     let tests_dir = Path::new("src/tests");
 
     if !tests_dir.exists() {
@@ -1638,7 +1650,12 @@ fn generate_tests(name: &str, snake_name: &str, plural_snake: &str, fields: &[Fi
             })
             .collect();
 
-        templates::scaffold_test_with_factory_template(snake_name, plural_snake, name, &scaffold_fields)
+        templates::scaffold_test_with_factory_template(
+            snake_name,
+            plural_snake,
+            name,
+            &scaffold_fields,
+        )
     } else {
         templates::scaffold_test_template(snake_name, plural_snake)
     };
@@ -1648,7 +1665,11 @@ fn generate_tests(name: &str, snake_name: &str, plural_snake: &str, fields: &[Fi
     // Update tests/mod.rs
     update_tests_mod(snake_name);
 
-    let test_type = if with_factory { "test (with factory usage)" } else { "test" };
+    let test_type = if with_factory {
+        "test (with factory usage)"
+    } else {
+        "test"
+    };
     println!(
         "   📦 Created {}: src/tests/{}_controller_test.rs",
         test_type, snake_name
@@ -1813,8 +1834,7 @@ fn apply_factory_smart_default(
     }
 
     // If existing factory pattern detected, suggest --with-factory
-    if conventions.factory_pattern == FactoryPattern::PerModel
-        && conventions.factory_file_count > 0
+    if conventions.factory_pattern == FactoryPattern::PerModel && conventions.factory_file_count > 0
     {
         tracking.factory_detected = true;
         tracking.factory_count = conventions.factory_file_count;
