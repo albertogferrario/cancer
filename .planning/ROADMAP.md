@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Goal**: Reduce boilerplate in handler function definitions
 **Depends on**: Nothing (first phase)
 **Research**: Unlikely (existing Rust macro patterns)
-**Plans**: TBD
+**Plans**: 1 (Sample App Handler Modernization)
 
 ### Phase 2: Model Boilerplate Reduction
 **Goal**: Derive more from SeaORM models, write less boilerplate
@@ -114,7 +114,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Handler Simplification | 0/TBD | Not started | - |
+| 1. Handler Simplification | 0/1 | Planned | - |
 | 2. Model Boilerplate Reduction | 0/TBD | Not started | - |
 | 3. Validation Syntax Streamlining | 0/TBD | Not started | - |
 | 4. Convention-over-Configuration | 0/TBD | Not started | - |
