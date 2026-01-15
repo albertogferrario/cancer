@@ -252,6 +252,20 @@ enum Commands {
         #[arg(long)]
         editor: Option<String>,
     },
+    /// Clean build artifacts using cargo-sweep
+    Clean {
+        /// Remove artifacts older than N days (default: 30)
+        #[arg(short, long, default_value = "30")]
+        days: u32,
+
+        /// Also remove artifacts from old toolchains
+        #[arg(short, long)]
+        toolchains: bool,
+
+        /// Skip cargo-sweep installation check
+        #[arg(long)]
+        skip_install_check: bool,
+    },
 }
 
 fn main() {
@@ -389,6 +403,13 @@ fn main() {
         }
         Commands::BoostInstall { editor } => {
             commands::boost_install::run(editor);
+        }
+        Commands::Clean {
+            days,
+            toolchains,
+            skip_install_check,
+        } => {
+            commands::clean::run(days, toolchains, skip_install_check);
         }
     }
 }
