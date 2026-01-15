@@ -41,7 +41,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Goal**: Derive more from SeaORM models, write less boilerplate
 **Depends on**: Phase 1
 **Research**: Unlikely (existing SeaORM patterns in codebase)
-**Plans**: TBD
+**Plans**: 1 (CancerModel Derive Macro Integration)
 
 ### Phase 3: Validation Syntax Streamlining
 **Goal**: More concise validation rule definitions
