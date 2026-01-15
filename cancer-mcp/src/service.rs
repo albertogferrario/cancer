@@ -196,6 +196,17 @@ pub struct DependencyGraphParams {
     // No parameters - analyzes entire project
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct GenerationContextParams {
+    // No parameters - returns full context
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+pub struct CodeTemplatesParams {
+    /// Filter by category: handler, model, migration, middleware, validation
+    pub category: Option<String>,
+}
+
 #[tool_router(router = tool_router)]
 impl CancerMcpService {
     /// Get application information including framework version, Rust version, models, and installed crates
@@ -960,6 +971,33 @@ impl CancerMcpService {
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }
+
+    /// Get framework conventions, patterns, and anti-patterns for code generation
+    #[tool(
+        name = "generation_context",
+        description = "Get framework conventions, patterns, and anti-patterns for code generation.\n\n\
+            **When to use:** Before generating new code, understanding Cancer framework patterns, \
+            ensuring generated code follows conventions.\n\n\
+            **Returns:** Naming conventions, file structure, common patterns, things to avoid, import templates.\n\n\
+            **Combine with:** `code_templates` for copy-paste snippets, `list_models` for existing patterns."
+    )]
+    pub async fn generation_context(&self, _params: Parameters<GenerationContextParams>) -> String {
+        let context = tools::generation_context::execute();
+        serde_json::to_string_pretty(&context).unwrap_or_else(|_| "{}".to_string())
+    }
+
+    /// Get copy-paste code templates for common Cancer framework patterns
+    #[tool(
+        name = "code_templates",
+        description = "Get copy-paste code templates for common Cancer framework patterns.\n\n\
+            **When to use:** Creating new handlers, models, migrations, or middleware from scratch.\n\n\
+            **Returns:** Ready-to-use templates with placeholders, required imports, and usage notes.\n\n\
+            **Combine with:** `generation_context` for conventions, `get_handler` for real examples."
+    )]
+    pub async fn code_templates(&self, params: Parameters<CodeTemplatesParams>) -> String {
+        let templates = tools::code_templates::execute(params.0.category.as_deref());
+        serde_json::to_string_pretty(&templates).unwrap_or_else(|_| "{}".to_string())
+    }
 }
 
 #[tool_handler(router = self.tool_router)]
@@ -1055,6 +1093,14 @@ These workflows show how to combine tools for common tasks.
 3. `relation_map` - Understand FK constraints
 4. `explain_model` - Business context before changes
 5. `list_routes` for affected routes - Plan updates
+
+### Generating New Code
+1. `generation_context` - Get naming conventions and patterns to follow
+2. `code_templates` - Get ready-to-use template for your artifact type
+3. `list_models` or `list_routes` - See existing code for consistency
+4. `get_handler` - Reference a real example if needed
+5. Implement using templates with correct placeholders
+6. `validate_contracts` - If Inertia, verify types match
 
 ## When to Use These Tools (PROACTIVELY)
 
@@ -1174,6 +1220,18 @@ These workflows show how to combine tools for common tasks.
 - Visualizing route-model-component relationships
 - Onboarding to understand data flow
 
+**USE generation_context** when:
+- Generating new code from scratch
+- Need to know Cancer naming conventions
+- Ensuring generated code follows framework patterns
+- Understanding what to avoid in Cancer code
+
+**USE code_templates** when:
+- Creating a new handler, model, migration, or middleware
+- Need copy-paste boilerplate for CRUD operations
+- Starting with a working template and customizing
+- Learning the correct structure for Cancer artifacts
+
 ## Tool Categories
 
 ### Domain Understanding (learn the business)
@@ -1228,4 +1286,8 @@ These workflows show how to combine tools for common tasks.
 
 ### Project Scaffolding
 - create_project: Create a new Cancer project with full scaffolding including dashboard boilerplate
+
+### Code Generation (write new code correctly)
+- generation_context: Naming conventions, file structure, patterns, anti-patterns
+- code_templates: Ready-to-use templates for handlers, models, migrations, middleware
 "#;
