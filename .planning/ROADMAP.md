@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: MCP Relationship Visibility** - Data flow and relationship introspection
 - [x] **Phase 8: MCP Generation Hints** - Embedded hints in introspection responses
 - [x] **Phase 9: CLI Feature Scaffolding** - Higher-level scaffolding (full features)
-- [ ] **Phase 10: CLI Smart Defaults** - Context-aware pattern detection
+- [x] **Phase 10: CLI Smart Defaults** - Context-aware pattern detection
 - [ ] **Phase 11: CLI Component Integration** - Better integration between generated parts
 - [ ] **Phase 12: Agent-First Polish** - Self-documenting patterns and actionable errors
 
@@ -98,7 +98,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Goal**: Better integration between generated components
 **Depends on**: Phase 10
 **Research**: Unlikely (existing CLI patterns)
-**Plans**: TBD
+**Plans**: 3 (FK Detection & Test-Factory, FK-Aware Generation, Controllers & Pages)
 
 ### Phase 12: Agent-First Polish
 **Goal**: Clear, predictable patterns agents can learn; self-documenting code; actionable errors
@@ -122,6 +122,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. MCP Relationship Visibility | 1/1 | Complete | 2026-01-15 |
 | 8. MCP Generation Hints | 1/1 | Complete | 2026-01-15 |
 | 9. CLI Feature Scaffolding | 1/1 | Complete | 2026-01-15 |
-| 10. CLI Smart Defaults | 0/1 | Planned | - |
-| 11. CLI Component Integration | 0/TBD | Not started | - |
+| 10. CLI Smart Defaults | 1/1 | Complete | 2026-01-15 |
+| 11. CLI Component Integration | 0/3 | Planned | - |
 | 12. Agent-First Polish | 0/TBD | Not started | - |
