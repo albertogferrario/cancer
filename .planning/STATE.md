@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** Phase 11 in progress — FK detection and factory-test integration complete
+**Current focus:** Phase 11 complete — All scaffold components now FK-aware
 
 ## Current Position
 
-Phase: 11 of 12 (CLI Component Integration) - IN PROGRESS
-Plan: 1 of 3 in phase - COMPLETE
-Status: Plan 1 complete with FK detection and factory-test integration
-Last activity: 2026-01-15 — Completed Phase 11 Plan 1 (FK detection, factory-test integration)
+Phase: 11 of 12 (CLI Component Integration) - COMPLETE
+Plan: 2 of 2 in phase - COMPLETE
+Status: Phase 11 complete with FK-aware migrations, models, factories, and controllers
+Last activity: 2026-01-15 — Completed Phase 11 Plan 2 (FK-aware scaffold generation)
 
-Progress: ████████████████ 83%
+Progress: ████████████████░ 92%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 29 min
-- Total execution time: 5 hours 25 min
+- Total plans completed: 12
+- Average duration: 28 min
+- Total execution time: 5 hours 50 min
 
 **By Phase:**
 
@@ -37,10 +37,10 @@ Progress: ████████████████ 83%
 | 8 | 1 | 25 min | 25 min |
 | 9 | 1 | 35 min | 35 min |
 | 10 | 1 | 30 min | 30 min |
-| 11 | 1 | 25 min | 25 min |
+| 11 | 2 | 50 min | 25 min |
 
 **Recent Trend:**
-- Last 11 plans: All completed successfully
+- Last 12 plans: All completed successfully
 - Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
@@ -78,6 +78,8 @@ Recent decisions affecting current work:
 26. **ForeignKeyInfo struct** - Contains field_name, target_model, target_table, validated for comprehensive FK information.
 27. **Validated FK flag** - FK detection checks if target model exists in project, enabling smart suggestions.
 28. **Factory-integrated tests** - Tests conditionally use factory template when both --with-tests and --with-factory are used.
+29. **Cascade FK behavior** - FK constraints use ON DELETE CASCADE and ON UPDATE CASCADE as sensible defaults.
+30. **Factory with_* methods** - Factories get builder methods for FK fields plus create_with_relations() for auto-creation.
 
 ### Pending Todos
 
@@ -92,5 +94,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Completed Phase 11 Plan 1
+Stopped at: Completed Phase 11 Plan 2 (FK-aware scaffold generation)
 Resume file: None
