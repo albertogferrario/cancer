@@ -172,6 +172,9 @@ enum Commands {
         /// Generate API-only scaffold (JSON responses, no Inertia pages)
         #[arg(long)]
         api: bool,
+        /// Disable smart defaults detection (use explicit flags only)
+        #[arg(long)]
+        no_smart_defaults: bool,
     },
     /// Run all pending database migrations
     Migrate,
@@ -321,6 +324,7 @@ fn main() {
             auto_routes,
             yes,
             api,
+            no_smart_defaults,
         } => {
             commands::make_scaffold::run(
                 name,
@@ -330,6 +334,7 @@ fn main() {
                 auto_routes,
                 yes,
                 api,
+                no_smart_defaults,
             );
         }
         Commands::Migrate => {

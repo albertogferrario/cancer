@@ -1,9 +1,11 @@
 use std::fs;
 use std::path::Path;
 
+use crate::analyzer::ProjectAnalyzer;
 use crate::templates;
 use dialoguer::Confirm;
 
+#[allow(clippy::too_many_arguments)]
 pub fn run(
     name: String,
     fields: Vec<String>,
@@ -12,7 +14,14 @@ pub fn run(
     auto_routes: bool,
     yes: bool,
     api_only: bool,
+    no_smart_defaults: bool,
 ) {
+    // Apply smart defaults unless disabled
+    let api_only = if no_smart_defaults {
+        api_only
+    } else {
+        apply_api_smart_default(api_only)
+    };
     // Validate resource name
     if !is_valid_identifier(&name) {
         eprintln!(
@@ -1528,4 +1537,27 @@ fn update_factories_mod(file_name: &str) {
         content, mod_declaration, file_name
     );
     fs::write(mod_path, updated).expect("Failed to write mod.rs");
+}
+
+/// Apply smart default for API-only mode based on project structure.
+///
+/// If user explicitly specified --api, use their choice.
+/// Otherwise, detect if project has Inertia pages and suggest API-only if not.
+fn apply_api_smart_default(explicit_api: bool) -> bool {
+    // If user explicitly requested API mode, honor that
+    if explicit_api {
+        return true;
+    }
+
+    // Analyze project to detect Inertia pages
+    let analyzer = ProjectAnalyzer::current_dir();
+    let conventions = analyzer.analyze();
+
+    // If no Inertia pages found, suggest API-only mode
+    if !conventions.has_inertia_pages {
+        println!("💡 Detected API-only project (no Inertia pages found), using --api flag");
+        return true;
+    }
+
+    false
 }
