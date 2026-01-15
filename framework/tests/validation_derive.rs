@@ -262,7 +262,8 @@ fn test_multiple_rules_fails_min() {
 #[test]
 fn test_multiple_rules_fails_max() {
     let request = MultipleRulesRequest {
-        password: "this is a very long password that exceeds the maximum allowed length".to_string(),
+        password: "this is a very long password that exceeds the maximum allowed length"
+            .to_string(),
     };
 
     assert!(request.validate().is_err());

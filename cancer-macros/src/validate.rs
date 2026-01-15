@@ -193,11 +193,7 @@ fn generate_validate_impl(field_rules: &[FieldRules]) -> TokenStream2 {
     for fr in field_rules {
         let field_name = &fr.name;
 
-        let rule_calls: Vec<TokenStream2> = fr
-            .rules
-            .iter()
-            .map(|rule| generate_rule_call(rule))
-            .collect();
+        let rule_calls: Vec<TokenStream2> = fr.rules.iter().map(generate_rule_call).collect();
 
         field_validations.push(quote! {
             validator = validator.rules(#field_name, cancer_rs::rules![#(#rule_calls),*]);
