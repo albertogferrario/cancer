@@ -155,11 +155,7 @@ pub fn execute(project_root: &Path) -> Result<LastErrorInfo> {
     let category = categorize_error(&message, error_level);
 
     // Extract route context from error message and stacktrace
-    let full_context = format!(
-        "{}\n{}",
-        message,
-        stacktrace.as_deref().unwrap_or_default()
-    );
+    let full_context = format!("{}\n{}", message, stacktrace.as_deref().unwrap_or_default());
     let route_context = extract_route_context(&full_context);
 
     // Find related routes based on error context

@@ -224,7 +224,9 @@ pub async fn execute(project_root: &Path) -> Result<DependencyGraph> {
                 let model_id = format!("model:{}", model_usage.model);
 
                 // Track model usage count
-                *model_usage_counts.entry(model_usage.model.clone()).or_insert(0) += 1;
+                *model_usage_counts
+                    .entry(model_usage.model.clone())
+                    .or_insert(0) += 1;
 
                 // Ensure model node exists
                 if !seen_nodes.contains(&model_id) {

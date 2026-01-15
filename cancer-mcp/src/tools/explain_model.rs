@@ -86,7 +86,10 @@ fn infer_domain_meaning(name: &str, fields: &[FieldInfo]) -> String {
         "Task or to-do item for tracking work and productivity"
     } else if name_lower.contains("rifugio") {
         "Mountain shelter or refuge for hikers and visitors"
-    } else if name_lower.contains("prenotazione") || name_lower.contains("booking") || name_lower.contains("reservation") {
+    } else if name_lower.contains("prenotazione")
+        || name_lower.contains("booking")
+        || name_lower.contains("reservation")
+    {
         "Reservation or booking record representing user intent to reserve a resource"
     } else if name_lower.contains("session") {
         "User session for tracking authentication state"
@@ -100,13 +103,22 @@ fn infer_domain_meaning(name: &str, fields: &[FieldInfo]) -> String {
         "Classification category for organizing content"
     } else if name_lower.contains("tag") {
         "Label or tag for content classification and filtering"
-    } else if name_lower.contains("image") || name_lower.contains("photo") || name_lower.contains("media") {
+    } else if name_lower.contains("image")
+        || name_lower.contains("photo")
+        || name_lower.contains("media")
+    {
         "Image or media asset for content"
-    } else if name_lower.contains("file") || name_lower.contains("document") || name_lower.contains("attachment") {
+    } else if name_lower.contains("file")
+        || name_lower.contains("document")
+        || name_lower.contains("attachment")
+    {
         "File or document attachment"
     } else if name_lower.contains("notification") || name_lower.contains("alert") {
         "User notification or alert message"
-    } else if name_lower.contains("setting") || name_lower.contains("config") || name_lower.contains("preference") {
+    } else if name_lower.contains("setting")
+        || name_lower.contains("config")
+        || name_lower.contains("preference")
+    {
         "Configuration or settings record"
     } else if name_lower.contains("role") || name_lower.contains("permission") {
         "Authorization role or permission for access control"
@@ -123,10 +135,18 @@ fn infer_domain_meaning(name: &str, fields: &[FieldInfo]) -> String {
     };
 
     // Enhance with field-based context
-    let has_email = fields.iter().any(|f| f.name.to_lowercase().contains("email"));
-    let has_password = fields.iter().any(|f| f.name.to_lowercase().contains("password"));
-    let has_status = fields.iter().any(|f| f.name.to_lowercase().contains("status"));
-    let has_amount = fields.iter().any(|f| f.name.to_lowercase().contains("amount") || f.name.to_lowercase().contains("price"));
+    let has_email = fields
+        .iter()
+        .any(|f| f.name.to_lowercase().contains("email"));
+    let has_password = fields
+        .iter()
+        .any(|f| f.name.to_lowercase().contains("password"));
+    let has_status = fields
+        .iter()
+        .any(|f| f.name.to_lowercase().contains("status"));
+    let has_amount = fields.iter().any(|f| {
+        f.name.to_lowercase().contains("amount") || f.name.to_lowercase().contains("price")
+    });
 
     let mut meaning = base_meaning.to_string();
 
@@ -201,7 +221,10 @@ fn infer_field_meaning(name: &str, field_type: &str) -> String {
         format!("Foreign key reference to {} record", related)
     } else if name_lower.contains("count") || name_lower.contains("quantity") {
         "Numeric count or quantity".to_string()
-    } else if name_lower.contains("amount") || name_lower.contains("price") || name_lower.contains("cost") {
+    } else if name_lower.contains("amount")
+        || name_lower.contains("price")
+        || name_lower.contains("cost")
+    {
         "Monetary amount or price".to_string()
     } else if name_lower.contains("url") || name_lower.contains("link") {
         "URL or web link".to_string()
@@ -209,11 +232,16 @@ fn infer_field_meaning(name: &str, field_type: &str) -> String {
         "File path or storage location".to_string()
     } else if name_lower.contains("token") {
         "Security token or access key".to_string()
-    } else if name_lower.contains("date") || name_lower.contains("time") || field_type.contains("DateTime") || field_type.contains("NaiveDateTime") {
+    } else if name_lower.contains("date")
+        || name_lower.contains("time")
+        || field_type.contains("DateTime")
+        || field_type.contains("NaiveDateTime")
+    {
         "Date/time value".to_string()
     } else if field_type.contains("bool") || field_type.contains("Bool") {
         format!("Boolean flag for {}", name.replace('_', " "))
-    } else if field_type.contains("i32") || field_type.contains("i64") || field_type.contains("u32") {
+    } else if field_type.contains("i32") || field_type.contains("i64") || field_type.contains("u32")
+    {
         format!("Numeric value for {}", name.replace('_', " "))
     } else {
         format!("Value for {}", name.replace('_', " "))
@@ -232,9 +260,10 @@ fn infer_relationships(fields: &[FieldInfo], all_models: &[ModelDetails]) -> Vec
             let related_name = name_lower.trim_end_matches("_id");
 
             // Try to find matching model
-            let related_model = all_models
-                .iter()
-                .find(|m| m.name.to_lowercase() == related_name || m.name.to_lowercase() == format!("{}s", related_name));
+            let related_model = all_models.iter().find(|m| {
+                m.name.to_lowercase() == related_name
+                    || m.name.to_lowercase() == format!("{}s", related_name)
+            });
 
             if let Some(model) = related_model {
                 relationships.push(format!("belongs_to: {}", model.name));
@@ -338,14 +367,12 @@ mod tests {
 
     #[test]
     fn test_infer_domain_meaning() {
-        let fields = vec![
-            FieldInfo {
-                name: "email".to_string(),
-                field_type: "String".to_string(),
-                is_primary_key: false,
-                is_nullable: false,
-            },
-        ];
+        let fields = vec![FieldInfo {
+            name: "email".to_string(),
+            field_type: "String".to_string(),
+            is_primary_key: false,
+            is_nullable: false,
+        }];
         let meaning = infer_domain_meaning("User", &fields);
         assert!(meaning.contains("user account"));
     }
@@ -359,22 +386,18 @@ mod tests {
 
     #[test]
     fn test_infer_relationships() {
-        let fields = vec![
-            FieldInfo {
-                name: "user_id".to_string(),
-                field_type: "i32".to_string(),
-                is_primary_key: false,
-                is_nullable: false,
-            },
-        ];
-        let models = vec![
-            ModelDetails {
-                name: "User".to_string(),
-                table: Some("users".to_string()),
-                path: "src/models/user.rs".to_string(),
-                fields: vec![],
-            },
-        ];
+        let fields = vec![FieldInfo {
+            name: "user_id".to_string(),
+            field_type: "i32".to_string(),
+            is_primary_key: false,
+            is_nullable: false,
+        }];
+        let models = vec![ModelDetails {
+            name: "User".to_string(),
+            table: Some("users".to_string()),
+            path: "src/models/user.rs".to_string(),
+            fields: vec![],
+        }];
         let relationships = infer_relationships(&fields, &models);
         assert_eq!(relationships.len(), 1);
         assert!(relationships[0].contains("User"));

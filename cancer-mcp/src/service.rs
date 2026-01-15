@@ -875,8 +875,11 @@ impl CancerMcpService {
         use tools::last_error::ErrorCategory;
 
         // Convert string category to enum
-        let category = params.0.category.as_ref().and_then(|c| {
-            match c.to_lowercase().as_str() {
+        let category = params
+            .0
+            .category
+            .as_ref()
+            .and_then(|c| match c.to_lowercase().as_str() {
                 "validation" => Some(ErrorCategory::Validation),
                 "database" => Some(ErrorCategory::Database),
                 "not_found" | "notfound" => Some(ErrorCategory::NotFound),
@@ -884,8 +887,7 @@ impl CancerMcpService {
                 "internal" => Some(ErrorCategory::Internal),
                 "panic" => Some(ErrorCategory::Panic),
                 _ => None,
-            }
-        });
+            });
 
         let internal_params = InternalParams {
             error_message: params.0.error_message,
@@ -922,10 +924,7 @@ impl CancerMcpService {
             **Combine with:** `model_usages` for reverse lookup, `dependency_graph` for full picture, \
             `get_handler` to see source code."
     )]
-    pub async fn route_dependencies(
-        &self,
-        params: Parameters<RouteDependenciesParams>,
-    ) -> String {
+    pub async fn route_dependencies(&self, params: Parameters<RouteDependenciesParams>) -> String {
         match tools::route_dependencies::execute(&self.project_root, &params.0.route) {
             Ok(deps) => serde_json::to_string_pretty(&deps).unwrap_or_else(|_| "{}".to_string()),
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
@@ -965,9 +964,7 @@ impl CancerMcpService {
     )]
     pub async fn dependency_graph(&self, _params: Parameters<DependencyGraphParams>) -> String {
         match tools::dependency_graph::execute(&self.project_root).await {
-            Ok(graph) => {
-                serde_json::to_string_pretty(&graph).unwrap_or_else(|_| "{}".to_string())
-            }
+            Ok(graph) => serde_json::to_string_pretty(&graph).unwrap_or_else(|_| "{}".to_string()),
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
     }

@@ -185,7 +185,10 @@ mod tests {
         let context = execute();
 
         assert!(!context.avoid.is_empty());
-        assert!(context.avoid.len() >= 5, "Should have at least 5 anti-patterns");
+        assert!(
+            context.avoid.len() >= 5,
+            "Should have at least 5 anti-patterns"
+        );
 
         // Verify key anti-patterns are present
         let avoid_text = context.avoid.join(" ");

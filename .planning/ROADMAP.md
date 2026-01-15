@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Convention-over-Configuration** - Smart defaults for common patterns
 - [x] **Phase 5: MCP Intent Understanding** - Agent comprehension of app purpose
 - [x] **Phase 6: MCP Error Context** - Better diagnostic information for agents
-- [ ] **Phase 7: MCP Relationship Visibility** - Data flow and relationship introspection
+- [x] **Phase 7: MCP Relationship Visibility** - Data flow and relationship introspection
 - [ ] **Phase 8: MCP Generation Hints** - Embedded hints in introspection responses
 - [ ] **Phase 9: CLI Feature Scaffolding** - Higher-level scaffolding (full features)
 - [ ] **Phase 10: CLI Smart Defaults** - Context-aware pattern detection
@@ -119,8 +119,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Convention-over-Configuration | 1/1 | Complete | 2026-01-15 |
 | 5. MCP Intent Understanding | 1/1 | Complete | 2026-01-15 |
 | 6. MCP Error Context | 1/1 | Complete | 2026-01-15 |
-| 7. MCP Relationship Visibility | 0/1 | Planned | - |
-| 8. MCP Generation Hints | 0/TBD | Not started | - |
+| 7. MCP Relationship Visibility | 1/1 | Complete | 2026-01-15 |
+| 8. MCP Generation Hints | 0/1 | Planned | - |
 | 9. CLI Feature Scaffolding | 0/TBD | Not started | - |
 | 10. CLI Smart Defaults | 0/TBD | Not started | - |
 | 11. CLI Component Integration | 0/TBD | Not started | - |

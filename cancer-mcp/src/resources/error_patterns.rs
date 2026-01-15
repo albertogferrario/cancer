@@ -292,7 +292,10 @@ mod tests {
     #[test]
     fn test_get_error_patterns() {
         let catalog = get_error_patterns();
-        assert!(catalog.total_patterns >= 20, "Should have at least 20 patterns");
+        assert!(
+            catalog.total_patterns >= 20,
+            "Should have at least 20 patterns"
+        );
         assert_eq!(catalog.categories.len(), 6, "Should have 6 categories");
     }
 
@@ -303,8 +306,14 @@ mod tests {
             for pattern in category.patterns {
                 assert!(!pattern.id.is_empty(), "Pattern should have id");
                 assert!(!pattern.pattern.is_empty(), "Pattern should have pattern");
-                assert!(!pattern.description.is_empty(), "Pattern should have description");
-                assert!(!pattern.resolution.is_empty(), "Pattern should have resolution");
+                assert!(
+                    !pattern.description.is_empty(),
+                    "Pattern should have description"
+                );
+                assert!(
+                    !pattern.resolution.is_empty(),
+                    "Pattern should have resolution"
+                );
                 assert!(!pattern.example.is_empty(), "Pattern should have example");
             }
         }

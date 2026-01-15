@@ -125,8 +125,7 @@ fn generate_model_definition(
     let key_fields: Vec<&str> = field_names
         .iter()
         .filter(|f| {
-            !["id", "created_at", "updated_at", "deleted_at"]
-                .contains(&f.to_lowercase().as_str())
+            !["id", "created_at", "updated_at", "deleted_at"].contains(&f.to_lowercase().as_str())
         })
         .take(3)
         .copied()
@@ -135,11 +134,7 @@ fn generate_model_definition(
     if key_fields.is_empty() {
         definition.to_string()
     } else {
-        format!(
-            "{}. Key attributes: {}",
-            definition,
-            key_fields.join(", ")
-        )
+        format!("{}. Key attributes: {}", definition, key_fields.join(", "))
     }
 }
 

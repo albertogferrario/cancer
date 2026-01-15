@@ -93,7 +93,8 @@ pub async fn index(req: Request) -> Response {
             "total": total
         }
     }))
-}"#.to_string(),
+}"#
+            .to_string(),
             imports: vec![
                 "use cancer::prelude::*;".to_string(),
                 "use crate::entities::{{entity}};".to_string(),
@@ -125,7 +126,8 @@ pub async fn show(req: Request, id: Path<i32>) -> Response {
         .ok_or_else(|| not_found("{{Entity}} not found"))?;
 
     Ok(json!(item))
-}"#.to_string(),
+}"#
+            .to_string(),
             imports: vec![
                 "use cancer::prelude::*;".to_string(),
                 "use crate::entities::{{entity}}::Entity as {{Entity}};".to_string(),
@@ -166,7 +168,8 @@ pub async fn create(req: Request) -> Response {
     let result = model.insert(db).await?;
 
     Ok(json!(result).with_status(StatusCode::CREATED))
-}"#.to_string(),
+}"#
+            .to_string(),
             imports: vec![
                 "use cancer::prelude::*;".to_string(),
                 "use cancer::validation::{Validator, rules};".to_string(),
@@ -213,7 +216,8 @@ pub async fn update(req: Request, id: Path<i32>) -> Response {
     let result = model.update(db).await?;
 
     Ok(json!(result))
-}"#.to_string(),
+}"#
+            .to_string(),
             imports: vec![
                 "use cancer::prelude::*;".to_string(),
                 "use cancer::validation::{Validator, rules};".to_string(),
@@ -250,7 +254,8 @@ pub async fn destroy(req: Request, id: Path<i32>) -> Response {
     existing.delete(db).await?;
 
     Ok(json!({"deleted": true}).with_status(StatusCode::OK))
-}"#.to_string(),
+}"#
+            .to_string(),
             imports: vec![
                 "use cancer::prelude::*;".to_string(),
                 "use crate::entities::{{entity}}::Entity as {{Entity}};".to_string(),
@@ -297,7 +302,8 @@ pub async fn store(req: Request) -> Response {
 
     // Use saved context for render
     Inertia::render_ctx(&ctx, "{{Component}}", {{Props}}Props { /* ... */ })
-}"#.to_string(),
+}"#
+            .to_string(),
             imports: vec![
                 "use cancer::prelude::*;".to_string(),
                 "use cancer::inertia::{Inertia, SavedInertiaContext};".to_string(),
@@ -354,15 +360,14 @@ pub enum Relation {
     // Posts,
 }
 
-impl ActiveModelBehavior for ActiveModel {}"#.to_string(),
-            imports: vec![],  // Already in code
-            placeholders: vec![
-                Placeholder {
-                    name: "{{table_name}}".to_string(),
-                    description: "Database table name (snake_case plural)".to_string(),
-                    example: "users".to_string(),
-                },
-            ],
+impl ActiveModelBehavior for ActiveModel {}"#
+                .to_string(),
+            imports: vec![], // Already in code
+            placeholders: vec![Placeholder {
+                name: "{{table_name}}".to_string(),
+                description: "Database table name (snake_case plural)".to_string(),
+                example: "users".to_string(),
+            }],
         },
         CodeTemplate {
             name: "active_model".to_string(),
@@ -389,18 +394,17 @@ let model = {{entity}}::ActiveModel {
     name: Set("Example".to_string()),
     ..Default::default()
 };
-let result = model.save(db).await?;"#.to_string(),
+let result = model.save(db).await?;"#
+                .to_string(),
             imports: vec![
                 "use crate::entities::{{entity}};".to_string(),
                 "use sea_orm::{ActiveModelTrait, Set};".to_string(),
             ],
-            placeholders: vec![
-                Placeholder {
-                    name: "{{entity}}".to_string(),
-                    description: "Entity module name (snake_case)".to_string(),
-                    example: "user".to_string(),
-                },
-            ],
+            placeholders: vec![Placeholder {
+                name: "{{entity}}".to_string(),
+                description: "Entity module name (snake_case)".to_string(),
+                example: "user".to_string(),
+            }],
         },
         CodeTemplate {
             name: "query_example".to_string(),
@@ -443,7 +447,8 @@ let items = {{Entity}}::find()
 let count = {{Entity}}::find()
     .filter({{entity}}::Column::Status.eq("active"))
     .count(db)
-    .await?;"#.to_string(),
+    .await?;"#
+                .to_string(),
             imports: vec![
                 "use crate::entities::{{entity}};".to_string(),
                 "use crate::entities::{{entity}}::Entity as {{Entity}};".to_string(),
@@ -523,17 +528,14 @@ enum {{Entity}} {
     Name,
     CreatedAt,
     UpdatedAt,
-}"#.to_string(),
-            imports: vec![
-                "use sea_orm_migration::prelude::*;".to_string(),
-            ],
-            placeholders: vec![
-                Placeholder {
-                    name: "{{Entity}}".to_string(),
-                    description: "Entity enum name (PascalCase)".to_string(),
-                    example: "User".to_string(),
-                },
-            ],
+}"#
+            .to_string(),
+            imports: vec!["use sea_orm_migration::prelude::*;".to_string()],
+            placeholders: vec![Placeholder {
+                name: "{{Entity}}".to_string(),
+                description: "Entity enum name (PascalCase)".to_string(),
+                example: "User".to_string(),
+            }],
         },
         CodeTemplate {
             name: "add_column".to_string(),
@@ -577,10 +579,9 @@ impl MigrationTrait for Migration {
 enum {{Entity}} {
     Table,
     {{NewColumn}},
-}"#.to_string(),
-            imports: vec![
-                "use sea_orm_migration::prelude::*;".to_string(),
-            ],
+}"#
+            .to_string(),
+            imports: vec!["use sea_orm_migration::prelude::*;".to_string()],
             placeholders: vec![
                 Placeholder {
                     name: "{{Entity}}".to_string(),
@@ -634,10 +635,9 @@ impl MigrationTrait for Migration {
 enum {{Entity}} {
     Table,
     {{Column}},
-}"#.to_string(),
-            imports: vec![
-                "use sea_orm_migration::prelude::*;".to_string(),
-            ],
+}"#
+            .to_string(),
+            imports: vec!["use sea_orm_migration::prelude::*;".to_string()],
             placeholders: vec![
                 Placeholder {
                     name: "{{Entity}}".to_string(),
@@ -720,10 +720,9 @@ enum {{ParentEntity}} {
 enum {{ChildEntity}} {
     Table,
     {{ParentEntity}}Id,
-}"#.to_string(),
-            imports: vec![
-                "use sea_orm_migration::prelude::*;".to_string(),
-            ],
+}"#
+            .to_string(),
+            imports: vec!["use sea_orm_migration::prelude::*;".to_string()],
             placeholders: vec![
                 Placeholder {
                     name: "{{ParentEntity}}".to_string(),
@@ -772,7 +771,8 @@ impl Middleware for AuthMiddleware {
             None => unauthorized().into_response(),
         }
     }
-}"#.to_string(),
+}"#
+            .to_string(),
             imports: vec![
                 "use cancer::middleware::{Middleware, Next};".to_string(),
                 "use cancer::prelude::*;".to_string(),
@@ -803,18 +803,17 @@ impl Middleware for {{Name}}Middleware {
 
         response
     }
-}"#.to_string(),
+}"#
+            .to_string(),
             imports: vec![
                 "use cancer::middleware::{Middleware, Next};".to_string(),
                 "use cancer::prelude::*;".to_string(),
             ],
-            placeholders: vec![
-                Placeholder {
-                    name: "{{Name}}".to_string(),
-                    description: "Middleware name (PascalCase)".to_string(),
-                    example: "RateLimit".to_string(),
-                },
-            ],
+            placeholders: vec![Placeholder {
+                name: "{{Name}}".to_string(),
+                description: "Middleware name (PascalCase)".to_string(),
+                example: "RateLimit".to_string(),
+            }],
         },
     ]
 }
@@ -846,19 +845,18 @@ Validator::new(&data)
     .rules("age", rules![sometimes(), integer(), min(0.0), max(150.0)])
     .validate()?;
 
-// Validation passes, data is valid"#.to_string(),
+// Validation passes, data is valid"#
+                .to_string(),
             imports: vec![
                 "use cancer::validation::{Validator, rules};".to_string(),
                 "use cancer::validation::rules::*;".to_string(),
                 "use serde::Deserialize;".to_string(),
             ],
-            placeholders: vec![
-                Placeholder {
-                    name: "{{Form}}".to_string(),
-                    description: "Form/request struct name prefix".to_string(),
-                    example: "CreateUser".to_string(),
-                },
-            ],
+            placeholders: vec![Placeholder {
+                name: "{{Form}}".to_string(),
+                description: "Form/request struct name prefix".to_string(),
+                example: "CreateUser".to_string(),
+            }],
         },
         CodeTemplate {
             name: "field_rules".to_string(),
@@ -885,10 +883,9 @@ rules![required_if("type", "premium")]  // Required if type == premium
 rules![required_unless("status", "draft")]  // Required unless draft
 
 // Array/List
-rules![required(), min(1.0)]  // At least one item"#.to_string(),
-            imports: vec![
-                "use cancer::validation::rules::*;".to_string(),
-            ],
+rules![required(), min(1.0)]  // At least one item"#
+                .to_string(),
+            imports: vec!["use cancer::validation::rules::*;".to_string()],
             placeholders: vec![],
         },
     ]
@@ -902,14 +899,29 @@ mod tests {
     fn test_all_categories_present() {
         let templates = execute(None);
 
-        let categories: std::collections::HashSet<_> =
-            templates.templates.iter().map(|t| t.category.as_str()).collect();
+        let categories: std::collections::HashSet<_> = templates
+            .templates
+            .iter()
+            .map(|t| t.category.as_str())
+            .collect();
 
-        assert!(categories.contains("handler"), "Should have handler templates");
+        assert!(
+            categories.contains("handler"),
+            "Should have handler templates"
+        );
         assert!(categories.contains("model"), "Should have model templates");
-        assert!(categories.contains("migration"), "Should have migration templates");
-        assert!(categories.contains("middleware"), "Should have middleware templates");
-        assert!(categories.contains("validation"), "Should have validation templates");
+        assert!(
+            categories.contains("migration"),
+            "Should have migration templates"
+        );
+        assert!(
+            categories.contains("middleware"),
+            "Should have middleware templates"
+        );
+        assert!(
+            categories.contains("validation"),
+            "Should have validation templates"
+        );
     }
 
     #[test]
@@ -917,14 +929,20 @@ mod tests {
         let handler_templates = execute(Some("handler"));
         assert!(!handler_templates.templates.is_empty());
         assert!(
-            handler_templates.templates.iter().all(|t| t.category == "handler"),
+            handler_templates
+                .templates
+                .iter()
+                .all(|t| t.category == "handler"),
             "All templates should be handlers"
         );
 
         let model_templates = execute(Some("model"));
         assert!(!model_templates.templates.is_empty());
         assert!(
-            model_templates.templates.iter().all(|t| t.category == "model"),
+            model_templates
+                .templates
+                .iter()
+                .all(|t| t.category == "model"),
             "All templates should be models"
         );
     }
@@ -935,8 +953,14 @@ mod tests {
 
         for template in &templates.templates {
             assert!(!template.name.is_empty(), "Template should have name");
-            assert!(!template.category.is_empty(), "Template should have category");
-            assert!(!template.description.is_empty(), "Template should have description");
+            assert!(
+                !template.category.is_empty(),
+                "Template should have category"
+            );
+            assert!(
+                !template.description.is_empty(),
+                "Template should have description"
+            );
             assert!(!template.code.is_empty(), "Template should have code");
             // imports can be empty for self-contained templates
         }
@@ -967,6 +991,9 @@ mod tests {
     #[test]
     fn test_unknown_category_returns_empty() {
         let templates = execute(Some("nonexistent"));
-        assert!(templates.templates.is_empty(), "Unknown category should return empty");
+        assert!(
+            templates.templates.is_empty(),
+            "Unknown category should return empty"
+        );
     }
 }

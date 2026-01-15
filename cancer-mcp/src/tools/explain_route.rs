@@ -44,7 +44,9 @@ pub fn execute(project_root: &Path, route_path: &str) -> Result<RouteExplanation
         .or_else(|| {
             // Try matching without leading slash
             let normalized = route_path.trim_start_matches('/');
-            routes.iter().find(|r| r.path.trim_start_matches('/') == normalized)
+            routes
+                .iter()
+                .find(|r| r.path.trim_start_matches('/') == normalized)
         })
         .ok_or_else(|| McpError::NotFound(format!("Route '{}' not found", route_path)))?;
 
@@ -129,23 +131,35 @@ fn infer_business_context(path: &str, handler: &str) -> String {
     // Check for common domain patterns
     let path_lower = path.to_lowercase();
 
-    if path_lower.contains("user") || path_lower.contains("profile") || path_lower.contains("account") {
+    if path_lower.contains("user")
+        || path_lower.contains("profile")
+        || path_lower.contains("account")
+    {
         "User management and authentication workflow".to_string()
     } else if path_lower.contains("admin") {
         "Administrative functions requiring elevated privileges".to_string()
     } else if path_lower.contains("api") {
         format!("API endpoint for programmatic {} access", resource)
-    } else if path_lower.contains("auth") || path_lower.contains("login") || path_lower.contains("logout") {
+    } else if path_lower.contains("auth")
+        || path_lower.contains("login")
+        || path_lower.contains("logout")
+    {
         "Authentication and session management".to_string()
     } else if path_lower.contains("rifugio") {
         "Core shelter/refuge entity for visitor browsing and booking".to_string()
-    } else if path_lower.contains("prenotazione") || path_lower.contains("booking") || path_lower.contains("reservation") {
+    } else if path_lower.contains("prenotazione")
+        || path_lower.contains("booking")
+        || path_lower.contains("reservation")
+    {
         "Reservation workflow for booking resources".to_string()
     } else if path_lower.contains("todo") || path_lower.contains("task") {
         "Task management and productivity tracking".to_string()
     } else if path_lower.contains("notification") {
         "User notification and alert system".to_string()
-    } else if path_lower.contains("upload") || path_lower.contains("file") || path_lower.contains("media") {
+    } else if path_lower.contains("upload")
+        || path_lower.contains("file")
+        || path_lower.contains("media")
+    {
         "File management and media handling".to_string()
     } else if path_lower.contains("report") || path_lower.contains("analytics") {
         "Reporting and analytics functionality".to_string()
@@ -238,7 +252,12 @@ fn generate_usage_examples(method: &str, path: &str) -> Vec<String> {
 /// Extract resource name from route path
 fn extract_resource_name(path: &str) -> String {
     path.split('/')
-        .find(|s| !s.is_empty() && !s.starts_with('{') && !s.starts_with(':') && !["api", "v1", "v2", "admin"].contains(s))
+        .find(|s| {
+            !s.is_empty()
+                && !s.starts_with('{')
+                && !s.starts_with(':')
+                && !["api", "v1", "v2", "admin"].contains(s)
+        })
         .map(|s| s.to_string())
         .unwrap_or_else(|| "resource".to_string())
 }
@@ -251,10 +270,13 @@ fn extract_prefix(path: &str) -> String {
     }
 
     // Find first non-parameter segment
-    let first_resource = parts.iter()
+    let first_resource = parts
+        .iter()
         .find(|s| !s.starts_with('{') && !s.starts_with(':'));
 
-    first_resource.map(|s| format!("/{}", s)).unwrap_or_default()
+    first_resource
+        .map(|s| format!("/{}", s))
+        .unwrap_or_default()
 }
 
 /// Capitalize first letter of a string

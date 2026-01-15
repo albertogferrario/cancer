@@ -313,7 +313,8 @@ fn diagnose_panic(message: &Option<String>) -> ErrorDiagnosis {
         fix_suggestions: vec![
             FixSuggestion {
                 action: "Replace .unwrap() with proper error handling".to_string(),
-                details: "Use .ok_or()?, .map_err()?, or pattern matching instead of .unwrap().".to_string(),
+                details: "Use .ok_or()?, .map_err()?, or pattern matching instead of .unwrap()."
+                    .to_string(),
                 priority: 1,
             },
             FixSuggestion {
@@ -323,7 +324,8 @@ fn diagnose_panic(message: &Option<String>) -> ErrorDiagnosis {
             },
             FixSuggestion {
                 action: "Review the stack trace".to_string(),
-                details: "Use last_error to get the full stack trace and identify the exact line.".to_string(),
+                details: "Use last_error to get the full stack trace and identify the exact line."
+                    .to_string(),
                 priority: 2,
             },
             FixSuggestion {
@@ -332,7 +334,8 @@ fn diagnose_panic(message: &Option<String>) -> ErrorDiagnosis {
                 priority: 3,
             },
         ],
-        code_example: Some(r#"// Instead of unwrap:
+        code_example: Some(
+            r#"// Instead of unwrap:
 let value = some_option.unwrap();  // PANIC if None!
 
 // Use error propagation:
@@ -345,7 +348,9 @@ let value = match some_option {
 };
 
 // Safe array access:
-let item = items.get(index).ok_or(AppError::bad_request("Invalid index"))?;"#.to_string()),
+let item = items.get(index).ok_or(AppError::bad_request("Invalid index"))?;"#
+                .to_string(),
+        ),
         related_tools: vec![
             "last_error".to_string(),
             "read_logs".to_string(),
