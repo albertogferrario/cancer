@@ -104,7 +104,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Goal**: Clear, predictable patterns agents can learn; self-documenting code; actionable errors
 **Depends on**: Phase 11
 **Research**: Unlikely (consolidation of earlier work)
-**Plans**: TBD
+**Plans**: 3 (Actionable Errors, Self-Documenting Config, Tailwind Out-of-Box)
 
 ## Progress
 
@@ -124,4 +124,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. CLI Feature Scaffolding | 1/1 | Complete | 2026-01-15 |
 | 10. CLI Smart Defaults | 1/1 | Complete | 2026-01-15 |
 | 11. CLI Component Integration | 3/3 | Complete | 2026-01-15 |
-| 12. Agent-First Polish | 0/TBD | Not started | - |
+| 12. Agent-First Polish | 0/3 | Not started | - |
