@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** Phase 5 Plan 1 complete — Ready for Phase 6
+**Current focus:** Phase 6 Plan 1 complete — Ready for Phase 7
 
 ## Current Position
 
-Phase: 5 of 12 (MCP Intent Understanding) - COMPLETE
+Phase: 6 of 12 (MCP Error Context) - COMPLETE
 Plan: 1 of 1 in phase - COMPLETE
-Status: Completed all intent tools and enhanced descriptions
-Last activity: 2026-01-15 — Completed 05-01-PLAN (MCP Intent Understanding)
+Status: Completed all error context tools and enhanced descriptions
+Last activity: 2026-01-15 — Completed 06-01-PLAN (MCP Error Context Enhancement)
 
-Progress: ████████░░ 42%
+Progress: █████████░ 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 30 min
-- Total execution time: 2.5 hours
+- Total execution time: 3 hours
 
 **By Phase:**
 
@@ -32,9 +32,10 @@ Progress: ████████░░ 42%
 | 3 | 1 | 45 min | 45 min |
 | 4 | 1 | 25 min | 25 min |
 | 5 | 1 | 35 min | 35 min |
+| 6 | 1 | 30 min | 30 min |
 
 **Recent Trend:**
-- Last 5 plans: All completed successfully
+- Last 6 plans: All completed successfully
 - Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
@@ -55,6 +56,9 @@ Recent decisions affecting current work:
 9. **Tool vs Resource for Glossary** - Implemented domain_glossary as tool rather than MCP resource for simpler agent consumption.
 10. **Inference over Annotation** - Domain meaning inferred from naming patterns rather than requiring explicit annotations.
 11. **Structured Description Format** - Standardized on When/Returns/Combine format for all tool descriptions.
+12. **Regex caching with once_cell** - Used once_cell::sync::Lazy to cache compiled regex patterns for route extraction.
+13. **Category-specific fix prioritization** - Fix suggestions have priority 1-5 where 1 is highest for most actionable fixes.
+14. **Static error patterns** - Error patterns are hardcoded rather than dynamic to ensure consistency.
 
 ### Pending Todos
 
@@ -68,5 +72,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Completed Phase 5 Plan 1
+Stopped at: Completed Phase 6 Plan 1
 Resume file: None
