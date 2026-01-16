@@ -1,8 +1,7 @@
 //! Authentication controller
 
 use cancer::{
-    redirect, serde_json, Auth, Inertia, InertiaProps, Request, Response,
-    SavedInertiaContext, Validate,
+    serde_json, Auth, Inertia, InertiaProps, Request, Response, SavedInertiaContext, Validate,
 };
 use serde::Deserialize;
 
@@ -90,7 +89,7 @@ pub async fn login(req: Request) -> Response {
         user.update_remember_token(Some(token)).await?;
     }
 
-    redirect!("/dashboard").into()
+    Inertia::redirect_ctx(&ctx, "/dashboard")
 }
 
 // ============================================================================
@@ -169,16 +168,16 @@ pub async fn register(req: Request) -> Response {
     // Log in the new user
     Auth::login(user.id);
 
-    redirect!("/dashboard").into()
+    Inertia::redirect_ctx(&ctx, "/dashboard")
 }
 
 // ============================================================================
 // Logout
 // ============================================================================
 
-pub async fn logout(_req: Request) -> Response {
+pub async fn logout(req: Request) -> Response {
     Auth::logout();
-    redirect!("/").into()
+    Inertia::redirect(&req, "/")
 }
 
 // ============================================================================
@@ -345,5 +344,5 @@ pub async fn reset_password(req: Request) -> Response {
         PasswordResetToken::delete_for_email(&form.email).await?;
     }
 
-    redirect!("/login").into()
+    Inertia::redirect_ctx(&ctx, "/login")
 }
