@@ -52,7 +52,7 @@ Complete rebrand of the framework, including all crates, CLI tools, MCP server, 
 **Goal**: Rename cancer-cli to ferro-cli, update binary name, command references
 **Depends on**: Phase 15
 **Research**: Unlikely (CLI patterns established)
-**Plans**: TBD
+**Plans**: 1 (CLI Rebrand)
 
 #### Phase 17: MCP Server Rebrand
 **Goal**: Rename cancer-mcp to ferro-mcp, update tool prefixes and descriptions
@@ -225,7 +225,7 @@ Phases execute in numeric order: 1 → 2 → ... → 12 (v1.0) → 13 → ... �
 | 13. Rebrand Audit | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 14. Core Framework Rename | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 15. Supporting Crates Rename | v2.0 | 1/1 | Complete | 2026-01-16 |
-| 16. CLI Rebrand | v2.0 | 0/? | Not started | - |
+| 16. CLI Rebrand | v2.0 | 0/1 | Not started | - |
 | 17. MCP Server Rebrand | v2.0 | 0/? | Not started | - |
 | 18. Documentation Update | v2.0 | 0/? | Not started | - |
 | 19. Sample App Migration | v2.0 | 0/? | Not started | - |
