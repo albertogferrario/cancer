@@ -52,11 +52,11 @@ impl InertiaPropsVisitor {
                         if path.is_ident("InertiaProps") {
                             return true;
                         }
-                        // Also check for cancer::InertiaProps
+                        // Also check for ferro::InertiaProps
                         if path.segments.len() == 2 {
                             let first = &path.segments[0].ident;
                             let second = &path.segments[1].ident;
-                            if first == "cancer" && second == "InertiaProps" {
+                            if first == "ferro" && second == "InertiaProps" {
                                 return true;
                             }
                         }

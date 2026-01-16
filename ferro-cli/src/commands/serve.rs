@@ -113,7 +113,7 @@ fn get_package_name() -> Result<String, String> {
         .ok_or_else(|| "Could not find package name in Cargo.toml".to_string())
 }
 
-fn validate_cancer_project(backend_only: bool, frontend_only: bool) -> Result<(), String> {
+fn validate_ferro_project(backend_only: bool, frontend_only: bool) -> Result<(), String> {
     let cargo_toml = Path::new("Cargo.toml");
     let frontend_dir = Path::new("frontend");
 
@@ -237,7 +237,7 @@ pub fn run(
     println!();
 
     // Validate project
-    if let Err(e) = validate_cancer_project(backend_only, frontend_only) {
+    if let Err(e) = validate_ferro_project(backend_only, frontend_only) {
         eprintln!("{} {}", style("Error:").red().bold(), e);
         std::process::exit(1);
     }

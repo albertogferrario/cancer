@@ -198,7 +198,7 @@ fn print_instructions(project_name: &str, has_mailpit: bool, has_minio: bool) {
     println!("Update your .env:");
     println!(
         "  {}",
-        style("DATABASE_URL=postgres://cancer:cancer_secret@localhost:5432/cancer_db").dim()
+        style("DATABASE_URL=postgres://ferro:ferro_secret@localhost:5432/ferro_db").dim()
     );
     if has_mailpit {
         println!("  {}", style("MAIL_HOST=localhost").dim());

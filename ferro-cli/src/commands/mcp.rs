@@ -22,7 +22,7 @@ pub fn run(cwd: Option<String>) {
     let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
 
     rt.block_on(async {
-        let server = cancer_mcp::McpServer::with_project_root(project_root);
+        let server = ferro_mcp::McpServer::with_project_root(project_root);
 
         if let Err(e) = server.run().await {
             eprintln!(

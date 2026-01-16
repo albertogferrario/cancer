@@ -57,12 +57,12 @@ fn get_project_name(name: Option<String>, no_interaction: bool) -> String {
     }
 
     if no_interaction {
-        return "my-cancer-app".to_string();
+        return "my-ferro-app".to_string();
     }
 
     Input::with_theme(&ColorfulTheme::default())
         .with_prompt("Project name")
-        .default("my-cancer-app".to_string())
+        .default("my-ferro-app".to_string())
         .interact_text()
         .unwrap()
 }

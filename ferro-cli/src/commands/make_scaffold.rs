@@ -829,7 +829,7 @@ impl Related<super::{target_snake}::Entity> for Entity {{
     let model_content = format!(
         r#"//! {name} model
 
-use cancer::database::{{Model as DatabaseModel, ModelMut, QueryBuilder}};
+use ferro::database::{{Model as DatabaseModel, ModelMut, QueryBuilder}};
 use sea_orm::entity::prelude::*;
 use sea_orm::Set;
 use serde::Serialize;

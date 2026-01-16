@@ -124,7 +124,7 @@ pub fn run(name: String, model: Option<String>) {
     println!();
     println!("Example:");
     println!("  use crate::policies::{};", struct_name);
-    println!("  use cancer::authorization::Policy;");
+    println!("  use ferro::authorization::Policy;");
     println!();
     println!("  let policy = {};", struct_name);
     println!("  if policy.update(&user, &model).allowed() {{");
