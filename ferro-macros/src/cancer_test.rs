@@ -1,4 +1,4 @@
-//! `#[cancer_test]` attribute macro for database-enabled tests
+//! `#[cancer_test]` attribute macro for database-enabled tests (Ferro framework)
 //!
 //! This macro simplifies writing tests that need database access by automatically
 //! setting up an in-memory SQLite database with migrations applied.
@@ -81,9 +81,9 @@ pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
         // Function has TestDatabase parameter - bind it
         quote! {
             // Bootstrap services so #[injectable] types are available
-            ::cancer::App::init();
-            ::cancer::App::boot_services();
-            let #param_name = ::cancer::testing::TestDatabase::fresh::<#migrator_type>()
+            ::ferro::App::init();
+            ::ferro::App::boot_services();
+            let #param_name = ::ferro::testing::TestDatabase::fresh::<#migrator_type>()
                 .await
                 .expect("Failed to set up test database");
             #fn_block
@@ -92,9 +92,9 @@ pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
         // No TestDatabase parameter - still set up but don't bind
         quote! {
             // Bootstrap services so #[injectable] types are available
-            ::cancer::App::init();
-            ::cancer::App::boot_services();
-            let _db = ::cancer::testing::TestDatabase::fresh::<#migrator_type>()
+            ::ferro::App::init();
+            ::ferro::App::boot_services();
+            let _db = ::ferro::testing::TestDatabase::fresh::<#migrator_type>()
                 .await
                 .expect("Failed to set up test database");
             #fn_block

@@ -1,6 +1,6 @@
-//! Cancer Application Entry Point
+//! Ferro Application Entry Point
 //!
-//! This is the unified entry point for the Cancer application.
+//! This is the unified entry point for the Ferro application.
 //! It provides subcommands for running the web server, migrations, and scheduler.
 //!
 //! # Usage
@@ -18,8 +18,8 @@
 //! ./app schedule:list      # List registered tasks
 //! ```
 
-use cancer::{Config, Server};
 use clap::{Parser, Subcommand};
+use ferro::{Config, Server};
 use sea_orm_migration::prelude::*;
 use std::env;
 use std::path::Path;
@@ -53,7 +53,7 @@ use migrations::Migrator;
 
 #[derive(Parser)]
 #[command(name = "app")]
-#[command(about = "Cancer application server and utilities")]
+#[command(about = "Ferro application server and utilities")]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -276,16 +276,16 @@ async fn fresh_migrations() {
     println!("Database refreshed successfully!");
 }
 
-// Schedule functionality - these will work once the user creates tasks with `cancer make:task`
+// Schedule functionality - these will work once the user creates tasks with `ferro make:task`
 async fn run_scheduler_daemon() {
     // Bootstrap the application for scheduler context
     bootstrap::register().await;
 
     println!("==============================================");
-    println!("  Cancer Scheduler Daemon");
+    println!("  Ferro Scheduler Daemon");
     println!("==============================================");
     println!();
-    println!("  Note: Create tasks with `cancer make:task <name>`");
+    println!("  Note: Create tasks with `ferro make:task <name>`");
     println!("  Press Ctrl+C to stop");
     println!();
     println!("==============================================");
@@ -293,7 +293,7 @@ async fn run_scheduler_daemon() {
     // For now, this is a placeholder that will be enhanced when schedule module exists
     // In a full implementation, this would load src/schedule.rs and run tasks
     eprintln!("Scheduler daemon is not yet configured.");
-    eprintln!("Create a scheduled task with: cancer make:task <name>");
+    eprintln!("Create a scheduled task with: ferro make:task <name>");
     eprintln!("Then register it in src/schedule.rs");
 }
 
@@ -303,12 +303,12 @@ async fn run_scheduled_tasks() {
 
     println!("Running scheduled tasks...");
     eprintln!("Scheduler is not yet configured.");
-    eprintln!("Create a scheduled task with: cancer make:task <name>");
+    eprintln!("Create a scheduled task with: ferro make:task <name>");
 }
 
 async fn list_scheduled_tasks() {
     println!("Registered scheduled tasks:");
     println!();
     eprintln!("No scheduled tasks registered.");
-    eprintln!("Create a scheduled task with: cancer make:task <name>");
+    eprintln!("Create a scheduled task with: ferro make:task <name>");
 }

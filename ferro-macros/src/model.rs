@@ -176,8 +176,8 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
     let expanded = quote! {
         impl #name {
             /// Start a new query builder
-            pub fn query() -> cancer::database::QueryBuilder<Entity> {
-                cancer::database::QueryBuilder::new()
+            pub fn query() -> ferro::database::QueryBuilder<Entity> {
+                ferro::database::QueryBuilder::new()
             }
 
             /// Create a new record builder
@@ -188,14 +188,14 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
             #(#model_setters)*
 
             /// Save changes to the database
-            pub async fn update(self) -> Result<Self, cancer::FrameworkError> {
+            pub async fn update(self) -> Result<Self, ferro::FrameworkError> {
                 let active = self.to_active_model();
-                <Entity as cancer::database::ModelMut>::update_one(active).await
+                <Entity as ferro::database::ModelMut>::update_one(active).await
             }
 
             /// Delete this record from the database
-            pub async fn delete(self) -> Result<u64, cancer::FrameworkError> {
-                <Entity as cancer::database::ModelMut>::delete_by_pk(self.id).await
+            pub async fn delete(self) -> Result<u64, ferro::FrameworkError> {
+                <Entity as ferro::database::ModelMut>::delete_by_pk(self.id).await
             }
 
             fn to_active_model(&self) -> ActiveModel {
@@ -215,9 +215,9 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
             #(#builder_setters)*
 
             /// Insert the record into the database
-            pub async fn insert(self) -> Result<#name, cancer::FrameworkError> {
+            pub async fn insert(self) -> Result<#name, ferro::FrameworkError> {
                 let active = self.build();
-                <Entity as cancer::database::ModelMut>::insert_one(active).await
+                <Entity as ferro::database::ModelMut>::insert_one(active).await
             }
 
             fn build(self) -> ActiveModel {
@@ -231,10 +231,10 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
         impl sea_orm::ActiveModelBehavior for ActiveModel {}
 
         // Implement Cancer's Model trait for convenient read operations
-        impl cancer::database::Model for Entity {}
+        impl ferro::database::Model for Entity {}
 
         // Implement Cancer's ModelMut trait for write operations
-        impl cancer::database::ModelMut for Entity {}
+        impl ferro::database::ModelMut for Entity {}
     };
 
     TokenStream::from(expanded)

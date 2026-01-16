@@ -1,4 +1,4 @@
-use cancer::{handler, json_response, Config, Response};
+use ferro::{handler, json_response, Config, Response};
 
 use crate::config::{DatabaseConfig, MailConfig};
 

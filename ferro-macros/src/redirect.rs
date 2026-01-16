@@ -33,7 +33,7 @@ pub fn redirect_impl(input: TokenStream) -> TokenStream {
     if route_name.starts_with('/') {
         // Path redirect - use Redirect::to() directly
         let expanded = quote! {
-            ::cancer::Redirect::to(#route_lit)
+            ::ferro::Redirect::to(#route_lit)
         };
         return expanded.into();
     }
@@ -45,7 +45,7 @@ pub fn redirect_impl(input: TokenStream) -> TokenStream {
 
     // Generate the redirect builder for named routes
     let expanded = quote! {
-        ::cancer::Redirect::route(#route_lit)
+        ::ferro::Redirect::route(#route_lit)
     };
 
     expanded.into()

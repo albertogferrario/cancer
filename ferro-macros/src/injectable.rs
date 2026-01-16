@@ -1,4 +1,4 @@
-//! Injectable attribute macro for the Cancer framework
+//! Injectable attribute macro for the Ferro framework
 //!
 //! Provides the `#[injectable]` attribute macro that auto-registers
 //! concrete types as singletons in the App container.
@@ -77,10 +77,10 @@ pub fn injectable_impl(input: TokenStream) -> TokenStream {
                         #[derive(Default, Clone)]
                         #vis struct #name #generics;
 
-                        ::cancer::inventory::submit! {
-                            ::cancer::container::provider::SingletonEntry {
+                        ::ferro::inventory::submit! {
+                            ::ferro::container::provider::SingletonEntry {
                                 register: || {
-                                    ::cancer::App::singleton(<#name as ::std::default::Default>::default());
+                                    ::ferro::App::singleton(<#name as ::std::default::Default>::default());
                                 },
                                 name: #name_str,
                             }
@@ -128,10 +128,10 @@ fn generate_for_named_struct(
                 #(#fields_without_inject),*
             }
 
-            ::cancer::inventory::submit! {
-                ::cancer::container::provider::SingletonEntry {
+            ::ferro::inventory::submit! {
+                ::ferro::container::provider::SingletonEntry {
                     register: || {
-                        ::cancer::App::singleton(<#name as ::std::default::Default>::default());
+                        ::ferro::App::singleton(<#name as ::std::default::Default>::default());
                     },
                     name: #name_str,
                 }
@@ -174,7 +174,7 @@ fn generate_with_injection(
         if has_inject_attr(field) {
             // This field needs to be resolved from the container
             field_initializations.push(quote! {
-                #field_name: ::cancer::App::resolve::<#field_ty>()
+                #field_name: ::ferro::App::resolve::<#field_ty>()
                     .expect(&format!(
                         "Failed to resolve dependency '{}' for '{}'. \
                          Make sure '{}' is registered before '{}'.",
@@ -208,10 +208,10 @@ fn generate_with_injection(
             }
         }
 
-        ::cancer::inventory::submit! {
-            ::cancer::container::provider::SingletonEntry {
+        ::ferro::inventory::submit! {
+            ::ferro::container::provider::SingletonEntry {
                 register: || {
-                    ::cancer::App::singleton(#name::__resolve_dependencies());
+                    ::ferro::App::singleton(#name::__resolve_dependencies());
                 },
                 name: #name_str,
             }

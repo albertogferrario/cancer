@@ -1,7 +1,7 @@
 //! Database configuration
 //!
-//! Uses Cancer's built-in DatabaseConfig which reads from environment variables.
-//! See cancer::DatabaseConfig for available configuration options.
+//! Uses Ferro's built-in DatabaseConfig which reads from environment variables.
+//! See ferro::DatabaseConfig for available configuration options.
 
-// Re-export Cancer's DatabaseConfig for convenience
-pub use cancer::DatabaseConfig;
+// Re-export Ferro's DatabaseConfig for convenience
+pub use ferro::DatabaseConfig;

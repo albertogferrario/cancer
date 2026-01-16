@@ -1,6 +1,6 @@
 //! Authentication middleware - checks for Authorization header
 
-use cancer::{async_trait, HttpResponse, Middleware, Next, Request, Response};
+use ferro::{async_trait, HttpResponse, Middleware, Next, Request, Response};
 
 /// Middleware that requires an Authorization header
 pub struct AuthMiddleware;

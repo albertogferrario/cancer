@@ -1,4 +1,4 @@
-//! Procedural macros for the Cancer framework
+//! Procedural macros for the Ferro framework
 //!
 //! This crate provides compile-time validated macros for:
 //! - Inertia.js responses with component validation
@@ -101,7 +101,7 @@ pub fn redirect(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::service;
+/// use ferro::service;
 ///
 /// #[service]
 /// pub trait HttpClient {
@@ -137,7 +137,7 @@ pub fn service(attr: TokenStream, input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::injectable;
+/// use ferro::injectable;
 ///
 /// #[injectable]
 /// pub struct AppState {
@@ -168,7 +168,7 @@ pub fn injectable(_attr: TokenStream, input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::domain_error;
+/// use ferro::domain_error;
 ///
 /// #[domain_error(status = 404, message = "User not found")]
 /// pub struct UserNotFoundError {
@@ -194,7 +194,7 @@ pub fn domain_error(attr: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// ## With Request parameter:
 /// ```rust,ignore
-/// use cancer::{handler, Request, Response, json_response};
+/// use ferro::{handler, Request, Response, json_response};
 ///
 /// #[handler]
 /// pub async fn index(req: Request) -> Response {
@@ -204,7 +204,7 @@ pub fn domain_error(attr: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// ## With FormRequest parameter:
 /// ```rust,ignore
-/// use cancer::{handler, Response, json_response, request};
+/// use ferro::{handler, Response, json_response, request};
 ///
 /// #[request]
 /// pub struct CreateUserRequest {
@@ -242,7 +242,7 @@ pub fn handler(attr: TokenStream, input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::{FormRequest, Deserialize, Validate};
+/// use ferro::{FormRequest, Deserialize, Validate};
 ///
 /// #[derive(Deserialize, Validate, FormRequest)]
 /// pub struct CreateUserRequest {
@@ -270,7 +270,7 @@ pub fn derive_form_request(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::request;
+/// use ferro::request;
 ///
 /// #[request]
 /// pub struct CreateUserRequest {
@@ -299,14 +299,14 @@ pub fn request(attr: TokenStream, input: TokenStream) -> TokenStream {
 /// setting up an in-memory SQLite database with migrations applied.
 ///
 /// By default, it uses `crate::migrations::Migrator` as the migrator type,
-/// following Cancer's convention for migration location.
+/// following Ferro's convention for migration location.
 ///
 /// # Examples
 ///
 /// ## Basic usage (recommended):
 /// ```rust,ignore
-/// use cancer::cancer_test;
-/// use cancer::testing::TestDatabase;
+/// use ferro::cancer_test;
+/// use ferro::testing::TestDatabase;
 ///
 /// #[cancer_test]
 /// async fn test_user_creation(db: TestDatabase) {
@@ -349,8 +349,8 @@ pub fn cancer_test(attr: TokenStream, input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::{describe, test, expect};
-/// use cancer::testing::TestDatabase;
+/// use ferro::{describe, test, expect};
+/// use ferro::testing::TestDatabase;
 ///
 /// describe!("ListTodosAction", {
 ///     test!("returns empty list when no todos exist", async fn(db: TestDatabase) {
@@ -419,7 +419,7 @@ pub fn test(input: TokenStream) -> TokenStream {
 
 /// Derive macro for reducing SeaORM model boilerplate
 ///
-/// Generates builder pattern, setters, and convenience methods for Cancer models.
+/// Generates builder pattern, setters, and convenience methods for Ferro models.
 /// Apply to a SeaORM Model struct to get:
 /// - `Model::query()` - Start a new QueryBuilder
 /// - `Model::create()` - Get a builder for inserting new records
@@ -430,7 +430,7 @@ pub fn test(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::CancerModel;
+/// use ferro::CancerModel;
 /// use sea_orm::entity::prelude::*;
 ///
 /// #[derive(Clone, Debug, DeriveEntityModel, CancerModel)]
@@ -468,18 +468,18 @@ pub fn derive_cancer_model(input: TokenStream) -> TokenStream {
     model::cancer_model_impl(input)
 }
 
-/// Derive macro for declarative struct validation using Cancer's rules
+/// Derive macro for declarative struct validation using Ferro's rules
 ///
 /// Generates `Validatable` trait implementation from field attributes.
 /// Validation rules are co-located with the struct definition.
 ///
-/// This uses Cancer's Laravel-style validation rules (required(), email(), etc.)
+/// This uses Ferro's Laravel-style validation rules (required(), email(), etc.)
 /// rather than the external `validator` crate.
 ///
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::ValidateRules;
+/// use ferro::ValidateRules;
 ///
 /// #[derive(ValidateRules)]
 /// struct CreateUserRequest {

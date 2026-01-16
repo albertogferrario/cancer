@@ -139,10 +139,10 @@ pub fn test_impl(input: TokenStream) -> TokenStream {
             // Async with TestDatabase - use cancer_test
             let db_param_name = &db_param.unwrap().name;
             let output = quote! {
-                #[::cancer::cancer_test]
-                async fn #fn_name(#db_param_name: ::cancer::testing::TestDatabase) {
+                #[::ferro::cancer_test]
+                async fn #fn_name(#db_param_name: ::ferro::testing::TestDatabase) {
                     // Set the test name for expect! macro output
-                    ::cancer::testing::set_current_test_name(Some(#name_str.to_string()));
+                    ::ferro::testing::set_current_test_name(Some(#name_str.to_string()));
 
                     // Run the test body
                     let __test_result = async {
@@ -150,7 +150,7 @@ pub fn test_impl(input: TokenStream) -> TokenStream {
                     }.await;
 
                     // Clear the test name
-                    ::cancer::testing::set_current_test_name(None);
+                    ::ferro::testing::set_current_test_name(None);
 
                     __test_result
                 }
@@ -159,10 +159,10 @@ pub fn test_impl(input: TokenStream) -> TokenStream {
         } else {
             // Async without TestDatabase - still use cancer_test for consistency
             let output = quote! {
-                #[::cancer::cancer_test]
+                #[::ferro::cancer_test]
                 async fn #fn_name() {
                     // Set the test name for expect! macro output
-                    ::cancer::testing::set_current_test_name(Some(#name_str.to_string()));
+                    ::ferro::testing::set_current_test_name(Some(#name_str.to_string()));
 
                     // Run the test body
                     let __test_result = async {
@@ -170,7 +170,7 @@ pub fn test_impl(input: TokenStream) -> TokenStream {
                     }.await;
 
                     // Clear the test name
-                    ::cancer::testing::set_current_test_name(None);
+                    ::ferro::testing::set_current_test_name(None);
 
                     __test_result
                 }
@@ -183,7 +183,7 @@ pub fn test_impl(input: TokenStream) -> TokenStream {
             #[test]
             fn #fn_name() {
                 // Set the test name for expect! macro output
-                ::cancer::testing::set_current_test_name(Some(#name_str.to_string()));
+                ::ferro::testing::set_current_test_name(Some(#name_str.to_string()));
 
                 // Run the test body
                 let __test_result = {
@@ -191,7 +191,7 @@ pub fn test_impl(input: TokenStream) -> TokenStream {
                 };
 
                 // Clear the test name
-                ::cancer::testing::set_current_test_name(None);
+                ::ferro::testing::set_current_test_name(None);
 
                 __test_result
             }

@@ -1,4 +1,4 @@
-use cancer::env;
+use ferro::env;
 
 /// Mail configuration
 #[derive(Debug, Clone)]

@@ -1,4 +1,4 @@
-use cancer::{get, group, post, resource, routes};
+use ferro::{get, group, post, resource, routes};
 
 use crate::controllers;
 use crate::middleware::AuthMiddleware;
