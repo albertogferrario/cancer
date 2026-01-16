@@ -1,8 +1,8 @@
-# Cancer Framework DX Overhaul
+# Ferro Framework DX Overhaul
 
 ## What This Is
 
-A developer experience and agent-friendliness overhaul for the Cancer web framework. The goal is to enable AI agents to build complete web applications from natural language descriptions for non-technical users — reducing boilerplate, expanding introspection, and improving scaffolding.
+A developer experience and agent-friendliness overhaul for the Ferro web framework. The goal is to enable AI agents to build complete web applications from natural language descriptions for non-technical users — reducing boilerplate, expanding introspection, and improving scaffolding.
 
 ## Core Value
 
@@ -67,7 +67,7 @@ Agents can go from "I want an app that does X" to a working, deployed applicatio
 
 ## Context
 
-This is a brownfield improvement of an existing framework. The Cancer framework already works and has a sample application demonstrating its capabilities.
+This is a brownfield improvement of an existing framework. The Ferro framework already works and has a sample application demonstrating its capabilities.
 
 The primary use case shift: from "developer builds apps" to "agent builds apps for non-technical users." This requires:
 - Patterns simple enough for agents to reliably generate
