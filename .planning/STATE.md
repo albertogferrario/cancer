@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 21 of 22 (Repository & CI)
-Plan: 01 completed
-Status: Phase 21 complete (single plan phase), ready for Phase 22
-Last activity: 2026-01-16 — Completed 21-01 (Repository & CI rebranded)
+Phase: 22 of 22 (Publishing & Announcement)
+Plan: 01 of 2 complete
+Status: In progress
+Last activity: 2026-01-16 — Completed 22-01 (crates.io metadata and dependencies)
 
-Progress: █████████████████░ 90%
+Progress: █████████████████▒ 95%
 
 ## Performance Metrics
 
@@ -52,10 +52,11 @@ Progress: █████████████████░ 90%
 | 19 | 1 | 25 min | 25 min |
 | 20 | 1 | 3 min | 3 min |
 | 21 | 1 | 8 min | 8 min |
+| 22 | 1 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 28 plans: All completed successfully
-- v2.0 rebrand in progress: Phase 21 complete
+- Last 29 plans: All completed successfully
+- v2.0 rebrand in progress: Phase 22 plan 01 complete
 
 ## Accumulated Context
 
@@ -102,6 +103,7 @@ Recent decisions affecting current work:
 36. **Rebrand to "ferro"** - Framework renamed from "cancer" to "ferro" for crates.io compatibility and public release.
 37. **Alias pattern for gradual migration** - Use `cancer = { path = "../framework", package = "ferro" }` to keep code imports working during phased rename.
 38. **Doctest crate name updates** - Doctests must use actual crate name (ferro_events) not alias, unlike runtime code which can use aliases.
+39. **Remove package= attribute pattern** - Dependencies now use their actual crate names with path for local development, no package= alias needed.
 
 ### Pending Todos
 
@@ -125,9 +127,10 @@ None.
 - Phase 19 complete: Sample app migrated to ferro imports
 - Phase 20 complete: CLI templates rebranded to ferro
 - Phase 21 complete: Repository & CI rebranded to ferroframework/ferro
+- Phase 22 in progress: Publishing & Announcement (plan 01 of 3 complete)
 
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Phase 21 plan 01 completed
+Stopped at: Phase 22 plan 01 completed
 Resume file: .planning/ROADMAP.md (check Phase 22)
