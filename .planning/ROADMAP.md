@@ -222,8 +222,8 @@ Phases execute in numeric order: 1 → 2 → ... → 12 (v1.0) → 13 → ... �
 | 10. CLI Smart Defaults | v1.0 | 1/1 | Complete | 2026-01-15 |
 | 11. CLI Component Integration | v1.0 | 3/3 | Complete | 2026-01-15 |
 | 12. Agent-First Polish | v1.0 | 5/5 | Complete | 2026-01-16 |
-| 13. Rebrand Audit | v2.0 | 0/? | Not started | - |
-| 14. Core Framework Rename | v2.0 | 0/? | Not started | - |
+| 13. Rebrand Audit | v2.0 | 1/1 | Complete | 2026-01-16 |
+| 14. Core Framework Rename | v2.0 | 0/1 | Planned | - |
 | 15. Supporting Crates Rename | v2.0 | 0/? | Not started | - |
 | 16. CLI Rebrand | v2.0 | 0/? | Not started | - |
 | 17. MCP Server Rebrand | v2.0 | 0/? | Not started | - |
