@@ -1016,11 +1016,11 @@ pub fn notifications_mod() -> &'static str {
 // AI Development Boost Templates
 // ============================================================================
 
-/// Cancer framework guidelines for AI assistants
+/// Ferro framework guidelines for AI assistants
 pub fn ferro_guidelines_template() -> &'static str {
-    r#"# Cancer Framework Guidelines
+    r#"# Ferro Framework Guidelines
 
-Cancer is a Rust web framework inspired by Laravel, providing a familiar developer experience with Rust's performance and safety.
+Ferro is a Rust web framework inspired by Laravel, providing a familiar developer experience with Rust's performance and safety.
 
 ## Project Structure
 
@@ -1168,13 +1168,13 @@ pub struct UserNotFound;
 
 /// Cursor-specific rules file
 pub fn cursor_rules_template() -> &'static str {
-    r#"# Cancer Framework - Cursor Rules
+    r#"# Ferro Framework - Cursor Rules
 
-You are working on a Cancer framework project. Cancer is a Rust web framework inspired by Laravel.
+You are working on a Ferro framework project. Ferro is a Rust web framework inspired by Laravel.
 
 ## Framework Knowledge
 
-- Cancer uses Rust with async/await for the backend
+- Ferro uses Rust with async/await for the backend
 - Frontend uses React + TypeScript with Inertia.js
 - Database layer uses SeaORM with an Eloquent-like API
 - The project follows Laravel conventions adapted for Rust
@@ -1195,7 +1195,7 @@ You are working on a Cancer framework project. Cancer is a Rust web framework in
 
 ## Available MCP Tools
 
-Use the Cancer MCP tools for introspection:
+Use the Ferro MCP tools for introspection:
 - `application_info` - Get app info, versions, crates
 - `list_routes` - See all defined routes
 - `db_schema` - Get database schema
@@ -1227,7 +1227,7 @@ Use the Cancer MCP tools for introspection:
 pub fn claude_md_template() -> &'static str {
     r#"# Project Instructions
 
-This is a Cancer framework project - a Rust web framework inspired by Laravel.
+This is a Ferro framework project - a Rust web framework inspired by Laravel.
 
 ## Quick Reference
 
@@ -1237,7 +1237,7 @@ This is a Cancer framework project - a Rust web framework inspired by Laravel.
 
 ## MCP Tools Available
 
-The Cancer MCP server provides these introspection tools:
+The Ferro MCP server provides these introspection tools:
 - `application_info`, `list_routes`, `db_schema`, `db_query`
 - `list_migrations`, `list_middleware`, `list_events`, `list_jobs`
 - `read_logs`, `last_error`, `browser_logs`, `tinker`
@@ -1249,7 +1249,7 @@ The Cancer MCP server provides these introspection tools:
 3. Use `ferro db:sync` after migrations to update models
 4. Use `ferro generate-types` to sync TypeScript types
 
-## Cancer Framework Guidelines
+## Ferro Framework Guidelines
 
 See `.ai/guidelines/ferro.md` for detailed framework conventions.
 "#
@@ -1260,13 +1260,13 @@ pub fn claude_md_ferro_section() -> &'static str {
     r#"
 ---
 
-# Cancer Framework
+# Ferro Framework
 
-This is a Cancer framework project - a Rust web framework inspired by Laravel.
+This is a Ferro framework project - a Rust web framework inspired by Laravel.
 
 ## MCP Tools Available
 
-The Cancer MCP server provides introspection tools:
+The Ferro MCP server provides introspection tools:
 - `application_info`, `list_routes`, `db_schema`, `db_query`
 - `list_migrations`, `list_middleware`, `list_events`, `list_jobs`
 - `read_logs`, `last_error`, `browser_logs`, `tinker`
@@ -1364,7 +1364,7 @@ pub fn copilot_instructions_template() -> &'static str {
     r#"# GitHub Copilot Instructions
 
 ## Project Type
-This is a Cancer framework project (Rust web framework inspired by Laravel).
+This is a Ferro framework project (Rust web framework inspired by Laravel).
 
 ## Key Files
 - `app/src/routes.rs` - Route definitions
@@ -3706,28 +3706,28 @@ mod tests {
     fn test_ferro_guidelines_template_not_empty() {
         let content = ferro_guidelines_template();
         assert!(!content.is_empty());
-        assert!(content.contains("Cancer Framework"));
+        assert!(content.contains("Ferro Framework"));
     }
 
     #[test]
     fn test_cursor_rules_template_not_empty() {
         let content = cursor_rules_template();
         assert!(!content.is_empty());
-        assert!(content.contains("Cancer"));
+        assert!(content.contains("Ferro"));
     }
 
     #[test]
     fn test_claude_md_template_not_empty() {
         let content = claude_md_template();
         assert!(!content.is_empty());
-        assert!(content.contains("Cancer"));
+        assert!(content.contains("Ferro"));
     }
 
     #[test]
     fn test_copilot_instructions_template_not_empty() {
         let content = copilot_instructions_template();
         assert!(!content.is_empty());
-        assert!(content.contains("Cancer"));
+        assert!(content.contains("Ferro"));
     }
 
     // -------------------------------------------------------------------------
