@@ -1,7 +1,7 @@
 //! List routes tool - parse and list application routes
 //!
 //! This tool tries to fetch routes from the running application first via
-//! the `/_cancer/routes` debug endpoint, falling back to static file parsing
+//! the `/_ferro/routes` debug endpoint, falling back to static file parsing
 //! when the app isn't running.
 
 use crate::error::{McpError, Result};
@@ -37,7 +37,7 @@ pub struct RouteInfo {
     pub middleware: Vec<String>,
 }
 
-/// Response format from the `/_cancer/routes` endpoint
+/// Response format from the `/_ferro/routes` endpoint
 #[derive(Debug, Deserialize)]
 struct DebugResponse {
     success: bool,
@@ -55,7 +55,7 @@ struct RuntimeRouteInfo {
 
 /// Try to fetch routes from the running application
 async fn fetch_runtime_routes(base_url: &str) -> Option<Vec<RouteInfo>> {
-    let url = format!("{}/_cancer/routes", base_url);
+    let url = format!("{}/_ferro/routes", base_url);
 
     let response = reqwest::get(&url).await.ok()?;
 

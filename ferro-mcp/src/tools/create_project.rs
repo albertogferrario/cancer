@@ -1,7 +1,7 @@
 //! Create project MCP tool
 //!
-//! This tool allows AI assistants to scaffold new Cancer projects by
-//! calling the CLI's `cancer new` command.
+//! This tool allows AI assistants to scaffold new Ferro projects by
+//! calling the CLI's `ferro new` command.
 
 use serde::Serialize;
 use std::path::Path;
@@ -15,7 +15,7 @@ pub struct CreateProjectOutput {
     pub next_steps: Vec<String>,
 }
 
-/// Execute the create_project tool by shelling out to `cancer new`
+/// Execute the create_project tool by shelling out to `ferro new`
 ///
 /// # Arguments
 /// * `target_dir` - Directory where to create the project
@@ -28,7 +28,7 @@ pub fn execute(
     _description: Option<&str>,
     no_git: bool,
 ) -> Result<CreateProjectOutput, String> {
-    let mut cmd = Command::new("cancer");
+    let mut cmd = Command::new("ferro");
     cmd.arg("new");
     cmd.arg(name);
     cmd.arg("--no-interaction");
@@ -50,7 +50,7 @@ pub fn execute(
 
     let output = cmd
         .output()
-        .map_err(|e| format!("Failed to execute cancer new: {}", e))?;
+        .map_err(|e| format!("Failed to execute ferro new: {}", e))?;
 
     if output.status.success() {
         let project_path = if target_dir == Path::new(".") {
@@ -63,7 +63,7 @@ pub fn execute(
             success: true,
             project_path: project_path.clone(),
             message: "Project created successfully".to_string(),
-            next_steps: vec![format!("cd {}", project_path), "cancer serve".to_string()],
+            next_steps: vec![format!("cd {}", project_path), "ferro serve".to_string()],
         })
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);

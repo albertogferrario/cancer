@@ -1,7 +1,7 @@
 //! Request metrics tool - show performance data per route
 //!
 //! This tool fetches metrics from the running application via
-//! the `/_cancer/metrics` debug endpoint.
+//! the `/_ferro/metrics` debug endpoint.
 
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
@@ -22,7 +22,7 @@ pub enum MetricsSource {
     Unavailable,
 }
 
-/// Response format from the `/_cancer/metrics` endpoint
+/// Response format from the `/_ferro/metrics` endpoint
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DebugResponse {
     pub success: bool,
@@ -53,7 +53,7 @@ pub struct RouteMetricsView {
 
 /// Try to fetch metrics from the running application
 async fn fetch_runtime_metrics(base_url: &str) -> Option<MetricsSnapshot> {
-    let url = format!("{}/_cancer/metrics", base_url);
+    let url = format!("{}/_ferro/metrics", base_url);
 
     let response = reqwest::get(&url).await.ok()?;
 

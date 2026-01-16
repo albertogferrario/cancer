@@ -19,7 +19,7 @@ pub struct TinkerResult {
 /// and executes the provided code snippet.
 pub fn execute(project_root: &Path, code: &str) -> Result<TinkerResult> {
     // Create temp directory for the tinker session
-    let temp_dir = std::env::temp_dir().join(format!("cancer-tinker-{}", std::process::id()));
+    let temp_dir = std::env::temp_dir().join(format!("ferro-tinker-{}", std::process::id()));
 
     if temp_dir.exists() {
         std::fs::remove_dir_all(&temp_dir).ok();

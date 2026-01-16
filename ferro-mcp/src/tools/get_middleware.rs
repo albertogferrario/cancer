@@ -248,6 +248,6 @@ impl Middleware for Throttle {
         file_path: "framework/src/middleware.rs (built-in)".to_string(),
         source_code: format!("// {}\n{}", desc, code),
         handle_method: Some(code.to_string()),
-        dependencies: vec!["cancer::Middleware".to_string()],
+        dependencies: vec!["ferro::Middleware".to_string()],
     })
 }

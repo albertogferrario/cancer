@@ -1,7 +1,7 @@
 //! List services tool - show registered DI container services
 //!
 //! This tool tries to fetch services from the running application first via
-//! the `/_cancer/services` debug endpoint, falling back to static file parsing
+//! the `/_ferro/services` debug endpoint, falling back to static file parsing
 //! when the app isn't running.
 
 use crate::error::Result;
@@ -32,7 +32,7 @@ pub struct ServiceItem {
     pub binding_type: String,
 }
 
-/// Response format from the `/_cancer/services` endpoint
+/// Response format from the `/_ferro/services` endpoint
 #[derive(Debug, Deserialize)]
 struct DebugResponse {
     success: bool,
@@ -48,7 +48,7 @@ struct RuntimeServiceInfo {
 
 /// Try to fetch services from the running application
 async fn fetch_runtime_services(base_url: &str) -> Option<Vec<ServiceItem>> {
-    let url = format!("{}/_cancer/services", base_url);
+    let url = format!("{}/_ferro/services", base_url);
 
     let response = reqwest::get(&url).await.ok()?;
 

@@ -1,4 +1,4 @@
-//! MCP Tools for Cancer Framework introspection
+//! MCP Tools for Ferro Framework introspection
 
 pub mod application_info;
 pub mod browser_logs;

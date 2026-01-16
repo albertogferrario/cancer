@@ -1,7 +1,7 @@
 //! Queue status tool - show pending, delayed, and failed jobs
 //!
 //! This tool fetches queue information from the running application via
-//! the `/_cancer/queue/jobs` and `/_cancer/queue/stats` debug endpoints.
+//! the `/_ferro/queue/jobs` and `/_ferro/queue/stats` debug endpoints.
 
 use crate::error::Result;
 use chrono::{DateTime, Utc};
@@ -30,14 +30,14 @@ pub enum QueueSource {
     NotInitialized,
 }
 
-/// Response format from the `/_cancer/queue/jobs` endpoint
+/// Response format from the `/_ferro/queue/jobs` endpoint
 #[derive(Debug, Deserialize)]
 struct DebugJobsResponse {
     success: bool,
     data: QueueJobsSnapshot,
 }
 
-/// Response format from the `/_cancer/queue/stats` endpoint
+/// Response format from the `/_ferro/queue/stats` endpoint
 #[derive(Debug, Deserialize)]
 struct DebugStatsResponse {
     success: bool,
@@ -109,7 +109,7 @@ pub struct FailedJobInfo {
 
 /// Try to fetch jobs from the running application
 async fn fetch_runtime_jobs(base_url: &str) -> Option<QueueJobsSnapshot> {
-    let url = format!("{}/_cancer/queue/jobs", base_url);
+    let url = format!("{}/_ferro/queue/jobs", base_url);
 
     let response = reqwest::get(&url).await.ok()?;
 
@@ -128,7 +128,7 @@ async fn fetch_runtime_jobs(base_url: &str) -> Option<QueueJobsSnapshot> {
 
 /// Try to fetch stats from the running application
 async fn fetch_runtime_stats(base_url: &str) -> Option<QueueStatsSnapshot> {
-    let url = format!("{}/_cancer/queue/stats", base_url);
+    let url = format!("{}/_ferro/queue/stats", base_url);
 
     let response = reqwest::get(&url).await.ok()?;
 

@@ -42,7 +42,7 @@ pub fn execute(project_root: &Path) -> Result<ApplicationInfo> {
     // Get environment from .env
     let environment = get_environment(project_root);
 
-    // Get installed cancer-* crates
+    // Get installed ferro-* crates
     let installed_crates = get_installed_crates(project_root)?;
 
     // Scan for models
@@ -157,8 +157,8 @@ fn get_installed_crates(project_root: &Path) -> Result<Vec<CrateInfo>> {
     if let Some(deps) = parsed.get("dependencies") {
         if let Some(table) = deps.as_table() {
             for (name, value) in table {
-                // Filter for cancer-* crates
-                if name.starts_with("cancer") {
+                // Filter for ferro-* crates
+                if name.starts_with("ferro") {
                     let version = match value {
                         toml::Value::String(v) => v.clone(),
                         toml::Value::Table(t) => t

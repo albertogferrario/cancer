@@ -1,7 +1,7 @@
 //! List middleware tool - scan for registered middleware
 //!
 //! This tool tries to fetch middleware from the running application first via
-//! the `/_cancer/middleware` debug endpoint, falling back to static file parsing
+//! the `/_ferro/middleware` debug endpoint, falling back to static file parsing
 //! when the app isn't running.
 
 use crate::error::Result;
@@ -25,7 +25,7 @@ pub enum MiddlewareSource {
     StaticAnalysis,
 }
 
-/// Response format from the `/_cancer/middleware` endpoint
+/// Response format from the `/_ferro/middleware` endpoint
 #[derive(Debug, Deserialize)]
 struct DebugResponse {
     success: bool,
@@ -40,7 +40,7 @@ struct RuntimeMiddlewareInfo {
 
 /// Try to fetch middleware from the running application
 async fn fetch_runtime_middleware(base_url: &str) -> Option<Vec<MiddlewareItem>> {
-    let url = format!("{}/_cancer/middleware", base_url);
+    let url = format!("{}/_ferro/middleware", base_url);
 
     let response = reqwest::get(&url).await.ok()?;
 

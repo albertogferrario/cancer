@@ -69,17 +69,17 @@ pub fn execute(project_root: &Path, key: Option<&str>) -> Result<ConfigInfo> {
         }
     }
 
-    // Also check for Cancer.toml
-    let cancer_toml = project_root.join("Cancer.toml");
-    if cancer_toml.exists() {
-        if let Ok(content) = fs::read_to_string(&cancer_toml) {
+    // Also check for Ferro.toml
+    let ferro_toml = project_root.join("Ferro.toml");
+    if ferro_toml.exists() {
+        if let Ok(content) = fs::read_to_string(&ferro_toml) {
             if let Ok(parsed) = content.parse::<toml::Table>() {
                 if key.is_none()
                     || key
-                        .map(|k| "cancer".contains(&k.to_lowercase()))
+                        .map(|k| "ferro".contains(&k.to_lowercase()))
                         .unwrap_or(false)
                 {
-                    config_values.insert("cancer".to_string(), toml::Value::Table(parsed));
+                    config_values.insert("ferro".to_string(), toml::Value::Table(parsed));
                 }
             }
         }

@@ -308,7 +308,7 @@ fn validate_props(props: &PropsStruct, actual_ts: Option<&TypeScriptMatch>) -> V
 
     if actual_ts.is_none() {
         issues.push(format!(
-            "TypeScript interface '{}' not found in type files. Run `cancer generate-types` to create it.",
+            "TypeScript interface '{}' not found in type files. Run `ferro generate-types` to create it.",
             props.name
         ));
         return issues;

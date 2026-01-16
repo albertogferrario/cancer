@@ -18,7 +18,7 @@ pub fn execute() -> CommandsInfo {
     let commands = vec![
         CommandInfo {
             name: "new".to_string(),
-            description: "Create a new Cancer project".to_string(),
+            description: "Create a new Ferro project".to_string(),
         },
         CommandInfo {
             name: "serve".to_string(),
