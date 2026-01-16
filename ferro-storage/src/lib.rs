@@ -10,7 +10,7 @@
 //! ## Example
 //!
 //! ```rust,ignore
-//! use cancer_storage::{Storage, DiskConfig};
+//! use ferro_storage::{Storage, DiskConfig};
 //!
 //! // Create storage with configuration
 //! let storage = Storage::with_config(
@@ -36,7 +36,7 @@
 //! You can configure multiple disks and switch between them:
 //!
 //! ```rust,ignore
-//! use cancer_storage::Storage;
+//! use ferro_storage::Storage;
 //!
 //! // Use specific disk
 //! let disk = storage.disk("s3")?;

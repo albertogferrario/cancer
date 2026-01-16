@@ -13,7 +13,7 @@ use crate::config::{env, env_optional};
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::{Config, CacheConfig};
+/// use ferro_rs::{Config, CacheConfig};
 ///
 /// // Register from environment
 /// Config::register(CacheConfig::from_env());

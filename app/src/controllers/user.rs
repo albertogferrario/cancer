@@ -1,4 +1,4 @@
-use ferro::{handler, json_response, redirect, route, HttpResponse, Response};
+use ferro_rs::{handler, json_response, redirect, route, HttpResponse, Response};
 
 /// GET /users - List all users
 #[handler]

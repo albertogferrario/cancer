@@ -15,7 +15,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer_rs::{Auth, AuthMiddleware, GuestMiddleware};
+//! use ferro_rs::{Auth, AuthMiddleware, GuestMiddleware};
 //!
 //! // In a controller
 //! if Auth::check() {

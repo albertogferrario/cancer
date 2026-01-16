@@ -23,7 +23,7 @@ pub enum DatabaseType {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::{Config, DatabaseConfig};
+/// use ferro_rs::{Config, DatabaseConfig};
 ///
 /// // Register from environment
 /// Config::register(DatabaseConfig::from_env());

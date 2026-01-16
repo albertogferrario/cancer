@@ -15,7 +15,7 @@ use async_trait::async_trait;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_notifications::{Notifiable, Channel};
+/// use ferro_notifications::{Notifiable, Channel};
 ///
 /// struct User {
 ///     id: i64,

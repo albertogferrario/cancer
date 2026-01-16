@@ -9,7 +9,7 @@ use std::collections::HashMap;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::validation::{Validator, rules::*};
+/// use ferro_rs::validation::{Validator, rules::*};
 ///
 /// let data = serde_json::json!({
 ///     "email": "user@example.com",
@@ -62,8 +62,8 @@ impl<'a> Validator<'a> {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_rs::validation::{Validator, rules::*};
-    /// use cancer_rs::rules;
+    /// use ferro_rs::validation::{Validator, rules::*};
+    /// use ferro_rs::rules;
     ///
     /// Validator::new(&data)
     ///     .rules("email", rules![required(), email()])
@@ -251,8 +251,8 @@ fn get_nested_value<'a>(data: &'a Value, path: &str) -> Option<&'a Value> {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::validation::{validate, rules::*};
-/// use cancer_rs::rules;
+/// use ferro_rs::validation::{validate, rules::*};
+/// use ferro_rs::rules;
 ///
 /// let data = serde_json::json!({"email": "test@example.com"});
 ///

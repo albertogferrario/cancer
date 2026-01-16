@@ -163,12 +163,12 @@ pub fn derive_inertia_props_impl(input: TokenStream) -> TokenStream {
         .collect();
 
     let expanded = quote! {
-        impl #impl_generics ::ferro::serde::Serialize for #name #ty_generics #where_clause {
+        impl #impl_generics ::ferro_rs::serde::Serialize for #name #ty_generics #where_clause {
             fn serialize<S>(&self, serializer: S) -> ::core::result::Result<S::Ok, S::Error>
             where
-                S: ::ferro::serde::Serializer,
+                S: ::ferro_rs::serde::Serializer,
             {
-                use ::ferro::serde::ser::SerializeStruct;
+                use ::ferro_rs::serde::ser::SerializeStruct;
                 let mut state = serializer.serialize_struct(stringify!(#name), #field_count)?;
                 #(
                     state.serialize_field(#field_name_strings, &self.#field_names)?;
@@ -198,14 +198,14 @@ pub fn inertia_response_impl(input: TokenStream) -> TokenStream {
         PropsKind::Typed(expr) => {
             // Typed struct: serialize using serde_json::to_value
             quote! {
-                ::ferro::serde_json::to_value(&#expr)
+                ::ferro_rs::serde_json::to_value(&#expr)
                     .expect("Failed to serialize InertiaProps")
             }
         }
         PropsKind::Json(tokens) => {
             // JSON-like syntax: use serde_json::json! macro
             quote! {
-                ::ferro::serde_json::json!({#tokens})
+                ::ferro_rs::serde_json::json!({#tokens})
             }
         }
     };
@@ -215,11 +215,11 @@ pub fn inertia_response_impl(input: TokenStream) -> TokenStream {
         let config_expr = config.expr;
         quote! {{
             let props = #props_expr;
-            let url = ::ferro::InertiaContext::current_path();
-            let response = ::ferro::InertiaResponse::new(#component_lit, props, url)
+            let url = ::ferro_rs::InertiaContext::current_path();
+            let response = ::ferro_rs::InertiaResponse::new(#component_lit, props, url)
                 .with_config(#config_expr);
 
-            if ::ferro::InertiaContext::is_inertia_request() {
+            if ::ferro_rs::InertiaContext::is_inertia_request() {
                 Ok(response.to_json_response())
             } else {
                 Ok(response.to_html_response())
@@ -228,10 +228,10 @@ pub fn inertia_response_impl(input: TokenStream) -> TokenStream {
     } else {
         quote! {{
             let props = #props_expr;
-            let url = ::ferro::InertiaContext::current_path();
-            let response = ::ferro::InertiaResponse::new(#component_lit, props, url);
+            let url = ::ferro_rs::InertiaContext::current_path();
+            let response = ::ferro_rs::InertiaResponse::new(#component_lit, props, url);
 
-            if ::ferro::InertiaContext::is_inertia_request() {
+            if ::ferro_rs::InertiaContext::is_inertia_request() {
                 Ok(response.to_json_response())
             } else {
                 Ok(response.to_html_response())

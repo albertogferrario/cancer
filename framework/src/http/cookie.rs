@@ -48,7 +48,7 @@ impl Default for CookieOptions {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::Cookie;
+/// use ferro_rs::Cookie;
 /// use std::time::Duration;
 ///
 /// let cookie = Cookie::new("session", "abc123")

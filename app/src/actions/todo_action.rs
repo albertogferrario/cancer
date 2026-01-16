@@ -1,7 +1,7 @@
 //! Todo actions
 
-use ferro::database::{Model, ModelMut};
-use ferro::injectable;
+use ferro_rs::database::{Model, ModelMut};
+use ferro_rs::injectable;
 use sea_orm::Set;
 
 use crate::models::todos;
@@ -10,7 +10,7 @@ use crate::models::todos;
 pub struct CreateRandomTodoAction;
 
 impl CreateRandomTodoAction {
-    pub async fn execute(&self) -> Result<todos::Model, ferro::error::FrameworkError> {
+    pub async fn execute(&self) -> Result<todos::Model, ferro_rs::error::FrameworkError> {
         let random_num = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
@@ -34,7 +34,7 @@ impl CreateRandomTodoAction {
 pub struct ListTodosAction;
 
 impl ListTodosAction {
-    pub async fn execute(&self) -> Result<Vec<todos::Model>, ferro::error::FrameworkError> {
+    pub async fn execute(&self) -> Result<Vec<todos::Model>, ferro_rs::error::FrameworkError> {
         todos::Entity::all().await
     }
 }

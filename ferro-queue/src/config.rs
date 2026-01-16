@@ -25,7 +25,7 @@ impl Default for QueueConfig {
         Self {
             redis_url: "redis://127.0.0.1:6379".to_string(),
             default_queue: "default".to_string(),
-            prefix: "cancer_queue".to_string(),
+            prefix: "ferro_queue".to_string(),
             block_timeout: Duration::from_secs(5),
             max_concurrent_jobs: 10,
             delayed_job_poll_interval: Duration::from_secs(1),
@@ -47,7 +47,7 @@ impl QueueConfig {
     /// Reads the following environment variables:
     /// - `QUEUE_CONNECTION`: "sync" or "redis" (defaults to "sync")
     /// - `QUEUE_DEFAULT`: Default queue name (defaults to "default")
-    /// - `QUEUE_PREFIX`: Key prefix in Redis (defaults to "cancer_queue")
+    /// - `QUEUE_PREFIX`: Key prefix in Redis (defaults to "ferro_queue")
     /// - `QUEUE_BLOCK_TIMEOUT`: Seconds to block waiting for jobs (defaults to 5)
     /// - `QUEUE_MAX_CONCURRENT`: Max concurrent jobs per worker (defaults to 10)
     /// - `REDIS_URL`: Full Redis URL (takes precedence if set)
@@ -59,7 +59,7 @@ impl QueueConfig {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_queue::QueueConfig;
+    /// use ferro_queue::QueueConfig;
     ///
     /// // In bootstrap.rs
     /// let config = QueueConfig::from_env();
@@ -71,7 +71,7 @@ impl QueueConfig {
         Self {
             redis_url,
             default_queue: env::var("QUEUE_DEFAULT").unwrap_or_else(|_| "default".to_string()),
-            prefix: env::var("QUEUE_PREFIX").unwrap_or_else(|_| "cancer_queue".to_string()),
+            prefix: env::var("QUEUE_PREFIX").unwrap_or_else(|_| "ferro_queue".to_string()),
             block_timeout: Duration::from_secs(
                 env::var("QUEUE_BLOCK_TIMEOUT")
                     .ok()
@@ -168,14 +168,14 @@ mod tests {
     fn test_default_config() {
         let config = QueueConfig::default();
         assert_eq!(config.default_queue, "default");
-        assert_eq!(config.prefix, "cancer_queue");
+        assert_eq!(config.prefix, "ferro_queue");
     }
 
     #[test]
     fn test_queue_key() {
         let config = QueueConfig::default();
-        assert_eq!(config.queue_key("emails"), "cancer_queue:emails");
-        assert_eq!(config.delayed_key("emails"), "cancer_queue:emails:delayed");
+        assert_eq!(config.queue_key("emails"), "ferro_queue:emails");
+        assert_eq!(config.delayed_key("emails"), "ferro_queue:emails:delayed");
     }
 
     #[test]
@@ -207,7 +207,7 @@ mod tests {
 
         let config = QueueConfig::from_env();
         assert_eq!(config.default_queue, "default");
-        assert_eq!(config.prefix, "cancer_queue");
+        assert_eq!(config.prefix, "ferro_queue");
         assert_eq!(config.redis_url, "redis://127.0.0.1:6379/0");
         assert_eq!(config.max_concurrent_jobs, 10);
     }

@@ -81,9 +81,9 @@ pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
         // Function has TestDatabase parameter - bind it
         quote! {
             // Bootstrap services so #[injectable] types are available
-            ::ferro::App::init();
-            ::ferro::App::boot_services();
-            let #param_name = ::ferro::testing::TestDatabase::fresh::<#migrator_type>()
+            ::ferro_rs::App::init();
+            ::ferro_rs::App::boot_services();
+            let #param_name = ::ferro_rs::testing::TestDatabase::fresh::<#migrator_type>()
                 .await
                 .expect("Failed to set up test database");
             #fn_block
@@ -92,9 +92,9 @@ pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
         // No TestDatabase parameter - still set up but don't bind
         quote! {
             // Bootstrap services so #[injectable] types are available
-            ::ferro::App::init();
-            ::ferro::App::boot_services();
-            let _db = ::ferro::testing::TestDatabase::fresh::<#migrator_type>()
+            ::ferro_rs::App::init();
+            ::ferro_rs::App::boot_services();
+            let _db = ::ferro_rs::testing::TestDatabase::fresh::<#migrator_type>()
                 .await
                 .expect("Failed to set up test database");
             #fn_block

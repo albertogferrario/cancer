@@ -9,7 +9,7 @@
 //! an in-memory cache.
 //!
 //! ```rust,ignore
-//! use cancer_rs::Cache;
+//! use ferro_rs::Cache;
 //! use std::time::Duration;
 //!
 //! // Store a value with 1 hour TTL
@@ -55,7 +55,7 @@ use std::time::Duration;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::Cache;
+/// use ferro_rs::Cache;
 /// use std::time::Duration;
 ///
 /// // Store with TTL

@@ -9,7 +9,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer_rs::{async_trait, Middleware, Next, Request, Response, HttpResponse};
+//! use ferro_rs::{async_trait, Middleware, Next, Request, Response, HttpResponse};
 //!
 //! pub struct AuthMiddleware;
 //!
@@ -27,13 +27,13 @@
 //! # Rate Limiting
 //!
 //! ```rust,ignore
-//! use cancer_rs::middleware::RateLimiter;
+//! use ferro_rs::middleware::RateLimiter;
 //!
 //! // 60 requests per minute
 //! let limiter = RateLimiter::per_minute(60);
 //!
 //! // Or use the Throttle builder
-//! use cancer_rs::middleware::Throttle;
+//! use ferro_rs::middleware::Throttle;
 //! let throttle = Throttle::requests(100).per_hour();
 //! ```
 
@@ -77,7 +77,7 @@ pub type BoxedMiddleware = Arc<dyn Fn(Request, Next) -> MiddlewareFuture + Send 
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::{async_trait, Middleware, Next, Request, Response, HttpResponse};
+/// use ferro_rs::{async_trait, Middleware, Next, Request, Response, HttpResponse};
 ///
 /// pub struct LoggingMiddleware;
 ///

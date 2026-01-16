@@ -32,7 +32,7 @@ impl InertiaRequestTrait for Request {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::{Inertia, Request, Response, SavedInertiaContext};
+/// use ferro_rs::{Inertia, Request, Response, SavedInertiaContext};
 ///
 /// pub async fn login(req: Request) -> Response {
 ///     // Save Inertia context before consuming request
@@ -114,7 +114,7 @@ impl Inertia {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer::{Inertia, Request, Response};
+    /// use ferro_rs::{Inertia, Request, Response};
     ///
     /// pub async fn index(req: Request) -> Response {
     ///     Inertia::render(&req, "Home", HomeProps {
@@ -172,7 +172,7 @@ impl Inertia {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer::{Inertia, Request, Response, SavedInertiaContext};
+    /// use ferro_rs::{Inertia, Request, Response, SavedInertiaContext};
     ///
     /// pub async fn login(req: Request) -> Response {
     ///     let ctx = SavedInertiaContext::from(&req);
@@ -253,7 +253,7 @@ impl Inertia {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer::{Inertia, Request, Response};
+    /// use ferro_rs::{Inertia, Request, Response};
     ///
     /// pub async fn login(req: Request) -> Response {
     ///     // ... validation and auth logic ...
@@ -285,7 +285,7 @@ impl Inertia {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer::{Inertia, Request, Response, SavedInertiaContext};
+    /// use ferro_rs::{Inertia, Request, Response, SavedInertiaContext};
     ///
     /// pub async fn store(req: Request) -> Response {
     ///     let ctx = SavedInertiaContext::from(&req);

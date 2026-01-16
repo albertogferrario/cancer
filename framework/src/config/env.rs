@@ -99,7 +99,7 @@ pub fn load_dotenv(project_root: &Path) -> Environment {
 ///
 /// # Example
 /// ```
-/// use cancer_rs::config::env;
+/// use ferro_rs::config::env;
 ///
 /// let port: u16 = env("SERVER_PORT", 8080);
 /// let host = env("SERVER_HOST", "127.0.0.1".to_string());
@@ -118,7 +118,7 @@ pub fn env<T: std::str::FromStr>(key: &str, default: T) -> T {
 ///
 /// # Example
 /// ```ignore
-/// use cancer_rs::config::env_required;
+/// use ferro_rs::config::env_required;
 ///
 /// let secret: String = env_required("APP_SECRET");
 /// ```
@@ -138,7 +138,7 @@ pub fn env_required<T: std::str::FromStr>(key: &str) -> T {
 ///
 /// # Example
 /// ```
-/// use cancer_rs::config::env_optional;
+/// use ferro_rs::config::env_optional;
 ///
 /// let debug: Option<bool> = env_optional("APP_DEBUG");
 /// ```

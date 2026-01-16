@@ -3,7 +3,7 @@
 //! This module provides a clean, declarative way to define routes:
 //!
 //! ```rust,ignore
-//! use cancer_rs::{routes, get, post, put, delete, group};
+//! use ferro_rs::{routes, get, post, put, delete, group};
 //!
 //! routes! {
 //!     get!("/", controllers::home::index).name("home"),
@@ -598,7 +598,7 @@ impl IntoGroupItem for GroupDef {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::{routes, get, post, group};
+/// use ferro_rs::{routes, get, post, group};
 ///
 /// routes! {
 ///     get!("/", controllers::home::index),
@@ -643,9 +643,9 @@ macro_rules! group {
 ///
 /// # Example
 /// ```rust,ignore
-/// use cancer_rs::{routes, get, post, put, delete};
-/// use cancer_rs::controllers;
-/// use cancer_rs::middleware::AuthMiddleware;
+/// use ferro_rs::{routes, get, post, put, delete};
+/// use ferro_rs::controllers;
+/// use ferro_rs::middleware::AuthMiddleware;
 ///
 /// routes! {
 ///     get!("/", controllers::home::index).name("home"),

@@ -5,11 +5,11 @@
 //! # Automatic Route Model Binding
 //!
 //! Route model binding is automatic for all SeaORM models whose Entity implements
-//! `cancer::database::Model`. Simply use the Model type as a handler parameter:
+//! `ferro_rs::database::Model`. Simply use the Model type as a handler parameter:
 //!
 //! ```rust,ignore
-//! use cancer_rs::{handler, json_response, Response};
-//! use cancer_rs::models::user;
+//! use ferro_rs::{handler, json_response, Response};
+//! use ferro_rs::models::user;
 //!
 //! // Just use the Model in your handler - binding is automatic!
 //! #[handler]
@@ -39,8 +39,8 @@ use sea_orm::{EntityTrait, ModelTrait as SeaModelTrait, PrimaryKeyTrait};
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::database::RouteBinding;
-/// use cancer_rs::FrameworkError;
+/// use ferro_rs::database::RouteBinding;
+/// use ferro_rs::FrameworkError;
 ///
 /// #[async_trait]
 /// impl RouteBinding for user::Model {
@@ -82,7 +82,7 @@ pub trait RouteBinding: Sized + Send {
 /// Trait for automatic route model binding
 ///
 /// This trait is automatically implemented for all SeaORM models whose Entity
-/// implements `cancer::database::Model`. You don't need to implement this manually.
+/// implements `ferro_rs::database::Model`. You don't need to implement this manually.
 ///
 /// Unlike [`RouteBinding`], this trait doesn't require a `param_name()` method.
 /// The parameter name is derived from the handler function signature.
@@ -114,7 +114,7 @@ pub trait AutoRouteBinding: Sized + Send {
 /// Blanket implementation of AutoRouteBinding for all SeaORM models
 ///
 /// This automatically implements route model binding for any SeaORM Model type
-/// whose Entity implements `cancer::database::Model`. Supports any primary key type
+/// whose Entity implements `ferro_rs::database::Model`. Supports any primary key type
 /// that implements `FromStr` (i32, i64, String, UUID, etc.).
 #[async_trait]
 impl<M, E> AutoRouteBinding for M
@@ -146,7 +146,7 @@ where
 /// Convenience macro to implement RouteBinding for a SeaORM model
 ///
 /// **DEPRECATED**: This macro is no longer needed. Route model binding is now
-/// automatic for any model whose Entity implements `cancer::database::Model`.
+/// automatic for any model whose Entity implements `ferro_rs::database::Model`.
 /// Simply use the Model type in your handler parameter.
 ///
 /// This macro implements the `RouteBinding` trait for a model, enabling
@@ -161,7 +161,7 @@ where
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::route_binding;
+/// use ferro_rs::route_binding;
 ///
 /// // In your model file (e.g., models/user.rs)
 /// route_binding!(Entity, Model, "user");

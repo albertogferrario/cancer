@@ -11,7 +11,7 @@ use crate::channels::{DatabaseMessage, MailMessage, SlackMessage};
 /// # Example
 ///
 /// ```rust
-/// use cancer_notifications::{Notification, Channel, MailMessage, DatabaseMessage};
+/// use ferro_notifications::{Notification, Channel, MailMessage, DatabaseMessage};
 ///
 /// struct OrderShipped {
 ///     order_id: i64,

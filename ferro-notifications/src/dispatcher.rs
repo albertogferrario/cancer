@@ -56,7 +56,7 @@ impl NotificationConfig {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_notifications::NotificationConfig;
+    /// use ferro_notifications::NotificationConfig;
     ///
     /// // In bootstrap.rs
     /// let config = NotificationConfig::from_env();
@@ -112,7 +112,7 @@ impl MailConfig {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_notifications::MailConfig;
+    /// use ferro_notifications::MailConfig;
     ///
     /// if let Some(config) = MailConfig::from_env() {
     ///     // Mail is configured

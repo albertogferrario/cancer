@@ -105,7 +105,7 @@ impl Inertia {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use inertia_rs::Inertia;
+    /// use ferro_inertia::Inertia;
     /// use serde_json::json;
     ///
     /// let response = Inertia::render(&req, "Home", json!({

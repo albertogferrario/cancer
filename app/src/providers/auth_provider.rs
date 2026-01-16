@@ -3,8 +3,8 @@
 //! This provider implements the `UserProvider` trait to fetch users from the database.
 
 use async_trait::async_trait;
-use ferro::auth::{Authenticatable, UserProvider};
-use ferro::FrameworkError;
+use ferro_rs::auth::{Authenticatable, UserProvider};
+use ferro_rs::FrameworkError;
 use sea_orm::ColumnTrait;
 use std::sync::Arc;
 
@@ -16,8 +16,8 @@ use crate::models::users::{Column, Model as User};
 /// Register it in `bootstrap.rs` to enable `Auth::user()`:
 ///
 /// ```rust,ignore
-/// use ferro::bind;
-/// use ferro::UserProvider;
+/// use ferro_rs::bind;
+/// use ferro_rs::UserProvider;
 /// use crate::providers::DatabaseUserProvider;
 ///
 /// bind!(dyn UserProvider, DatabaseUserProvider);

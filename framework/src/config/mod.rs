@@ -8,7 +8,7 @@
 //! # Example
 //!
 //! ```rust,no_run
-//! use cancer_rs::{Config, ServerConfig};
+//! use ferro_rs::{Config, ServerConfig};
 //!
 //! fn main() {
 //!     // Initialize config (loads .env files)
@@ -53,7 +53,7 @@ impl Config {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use cancer_rs::Config;
+    /// use ferro_rs::Config;
     ///
     /// let env = Config::init(std::path::Path::new("."));
     /// println!("Running in {} environment", env);
@@ -73,7 +73,7 @@ impl Config {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use cancer_rs::{Config, ServerConfig};
+    /// use ferro_rs::{Config, ServerConfig};
     ///
     /// let server_config = Config::get::<ServerConfig>().unwrap();
     /// println!("Port: {}", server_config.port);
@@ -90,7 +90,7 @@ impl Config {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use cancer_rs::Config;
+    /// use ferro_rs::Config;
     ///
     /// #[derive(Clone)]
     /// struct DatabaseConfig {

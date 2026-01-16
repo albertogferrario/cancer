@@ -1,6 +1,6 @@
 //! example_action action
 
-use ferro::injectable;
+use ferro_rs::injectable;
 
 #[injectable]
 pub struct ExampleAction {

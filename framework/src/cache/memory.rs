@@ -32,7 +32,7 @@ impl CacheEntry {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::cache::InMemoryCache;
+/// use ferro_rs::cache::InMemoryCache;
 ///
 /// let cache = InMemoryCache::new();
 /// ```

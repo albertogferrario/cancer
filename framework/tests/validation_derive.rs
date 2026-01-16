@@ -2,8 +2,8 @@
 //!
 //! Tests declarative validation using #[derive(ValidateRules)] with #[rule(...)] attributes.
 
-use ferro::validation::Validatable;
-use ferro::ValidateRules;
+use ferro_rs::validation::Validatable;
+use ferro_rs::ValidateRules;
 use serde::{Deserialize, Serialize};
 
 // ============================================================================

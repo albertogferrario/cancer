@@ -14,7 +14,7 @@
 //! Gates are simple closures that determine if a user can perform an action:
 //!
 //! ```rust,ignore
-//! use cancer::authorization::Gate;
+//! use ferro_rs::authorization::Gate;
 //!
 //! // In bootstrap.rs
 //! Gate::define("view-dashboard", |user, _| {
@@ -47,7 +47,7 @@
 //! Policies organize authorization logic around a specific model:
 //!
 //! ```rust,ignore
-//! use cancer::authorization::{Policy, AuthResponse};
+//! use ferro_rs::authorization::{Policy, AuthResponse};
 //!
 //! pub struct PostPolicy;
 //!
@@ -89,8 +89,8 @@
 //! Protect routes with authorization middleware:
 //!
 //! ```rust,ignore
-//! use cancer::authorization::Authorize;
-//! use cancer::can;
+//! use ferro_rs::authorization::Authorize;
+//! use ferro_rs::can;
 //!
 //! Route::get("/admin", admin_dashboard)
 //!     .middleware(Authorize::ability("view-admin"));

@@ -128,7 +128,7 @@ where
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_queue::{dispatch, Job, Error};
+/// use ferro_queue::{dispatch, Job, Error};
 ///
 /// #[derive(Debug, Serialize, Deserialize)]
 /// struct MyJob { data: String }

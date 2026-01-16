@@ -42,7 +42,7 @@ impl CacheConfig {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_cache::CacheConfig;
+    /// use ferro_cache::CacheConfig;
     ///
     /// let config = CacheConfig::from_env();
     /// ```
@@ -153,7 +153,7 @@ impl Cache {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_cache::Cache;
+    /// use ferro_cache::Cache;
     ///
     /// let cache = Cache::from_env().await?;
     /// ```

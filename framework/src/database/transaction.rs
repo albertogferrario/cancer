@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer::database::transaction;
+//! use ferro_rs::database::transaction;
 //!
 //! // Simple transaction
 //! let result = transaction(|txn| async move {
@@ -38,7 +38,7 @@ use crate::error::FrameworkError;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::database::transaction;
+/// use ferro_rs::database::transaction;
 ///
 /// // Create multiple records atomically
 /// transaction(|txn| async move {
@@ -88,7 +88,7 @@ where
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::database::transaction_with;
+/// use ferro_rs::database::transaction_with;
 /// use sea_orm::IsolationLevel;
 ///
 /// transaction_with(IsolationLevel::Serializable, |txn| async move {
@@ -130,7 +130,7 @@ pub trait TransactionExt {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer::database::{DB, TransactionExt};
+    /// use ferro_rs::database::{DB, TransactionExt};
     ///
     /// DB::connection()?.transaction(|txn| async move {
     ///     // Your transactional operations
@@ -211,7 +211,7 @@ impl TransactionExt for DatabaseConnection {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::txn;
+/// use ferro_rs::txn;
 ///
 /// txn! {
 ///     User::insert_one(user_data).await?;

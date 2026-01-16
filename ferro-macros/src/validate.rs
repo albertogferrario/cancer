@@ -95,15 +95,15 @@ pub fn validate_impl(input: TokenStream) -> TokenStream {
     let rules_impl = generate_rules_impl(&field_rules);
 
     let expanded = quote! {
-        impl ferro::validation::Validatable for #name
+        impl ferro_rs::validation::Validatable for #name
         where
             Self: ::serde::Serialize,
         {
-            fn validate(&self) -> ::std::result::Result<(), ferro::validation::ValidationError> {
+            fn validate(&self) -> ::std::result::Result<(), ferro_rs::validation::ValidationError> {
                 #validate_impl
             }
 
-            fn validation_rules() -> ::std::vec::Vec<(&'static str, ::std::vec::Vec<::std::boxed::Box<dyn ferro::validation::Rule>>)> {
+            fn validation_rules() -> ::std::vec::Vec<(&'static str, ::std::vec::Vec<::std::boxed::Box<dyn ferro_rs::validation::Rule>>)> {
                 #rules_impl
             }
         }
@@ -196,21 +196,21 @@ fn generate_validate_impl(field_rules: &[FieldRules]) -> TokenStream2 {
         let rule_calls: Vec<TokenStream2> = fr.rules.iter().map(generate_rule_call).collect();
 
         field_validations.push(quote! {
-            validator = validator.rules(#field_name, ferro::rules![#(#rule_calls),*]);
+            validator = validator.rules(#field_name, ferro_rs::rules![#(#rule_calls),*]);
         });
     }
 
     quote! {
         // Serialize self to JSON for validation
-        let data = ferro::serde_json::to_value(self)
+        let data = ferro_rs::serde_json::to_value(self)
             .map_err(|e| {
-                let mut err = ferro::validation::ValidationError::new();
+                let mut err = ferro_rs::validation::ValidationError::new();
                 err.add("_struct", format!("Failed to serialize: {}", e));
                 err
             })?;
 
         // Build validator with rules
-        let mut validator = ferro::validation::Validator::new(&data);
+        let mut validator = ferro_rs::validation::Validator::new(&data);
         #(#field_validations)*
 
         validator.validate()
@@ -222,10 +222,10 @@ fn generate_rule_call(rule: &ParsedRule) -> TokenStream2 {
     let rule_fn = Ident::new(&rule.name, proc_macro2::Span::call_site());
 
     if rule.args.is_empty() {
-        quote! { ferro::validation::#rule_fn() }
+        quote! { ferro_rs::validation::#rule_fn() }
     } else {
         let args = &rule.args;
-        quote! { ferro::validation::#rule_fn(#(#args),*) }
+        quote! { ferro_rs::validation::#rule_fn(#(#args),*) }
     }
 }
 
@@ -246,7 +246,7 @@ fn generate_rules_impl(field_rules: &[FieldRules]) -> TokenStream2 {
             .map(|rule| {
                 let call = generate_rule_call(rule);
                 quote! {
-                    ::std::boxed::Box::new(#call) as ::std::boxed::Box<dyn ferro::validation::Rule>
+                    ::std::boxed::Box::new(#call) as ::std::boxed::Box<dyn ferro_rs::validation::Rule>
                 }
             })
             .collect();

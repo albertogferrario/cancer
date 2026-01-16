@@ -55,7 +55,7 @@ impl StorageConfig {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_storage::{StorageConfig, Storage};
+    /// use ferro_storage::{StorageConfig, Storage};
     ///
     /// let config = StorageConfig::from_env();
     /// let storage = Storage::with_storage_config(config);

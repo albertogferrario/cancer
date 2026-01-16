@@ -20,7 +20,7 @@ use async_trait::async_trait;
 /// # Usage
 ///
 /// ```rust,ignore
-/// use cancer_rs::{global_middleware, CsrfMiddleware};
+/// use ferro_rs::{global_middleware, CsrfMiddleware};
 ///
 /// global_middleware!(CsrfMiddleware::new());
 /// ```

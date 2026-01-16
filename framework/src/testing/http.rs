@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer_rs::testing::{TestClient, TestResponse};
+//! use ferro_rs::testing::{TestClient, TestResponse};
 //!
 //! #[tokio::test]
 //! async fn test_api_endpoint() {

@@ -3399,8 +3399,8 @@ mod tests {
     fn test_globals_css_not_empty() {
         let content = globals_css();
         assert!(!content.is_empty());
-        assert!(content.contains("@tailwind"));
-        assert!(content.contains("--primary"));
+        // Tailwind CSS v4 uses @import "tailwindcss" instead of @tailwind directives
+        assert!(content.contains("tailwindcss"));
     }
 
     // -------------------------------------------------------------------------

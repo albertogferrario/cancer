@@ -1,4 +1,4 @@
-use ferro::{handler, App, Inertia, InertiaProps, Request, Response};
+use ferro_rs::{handler, App, Inertia, InertiaProps, Request, Response};
 
 use crate::actions::example_action::ExampleAction;
 

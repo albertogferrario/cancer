@@ -9,7 +9,7 @@ use crate::validation::{Rule, ValidationError};
 /// This trait is typically derived using `#[derive(Validate)]`:
 ///
 /// ```rust,ignore
-/// use cancer::Validate;
+/// use ferro_rs::Validate;
 ///
 /// #[derive(Validate)]
 /// struct CreateUserRequest {

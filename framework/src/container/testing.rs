@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer_rs::testing::{TestContainer, TestContainerGuard};
+//! use ferro_rs::testing::{TestContainer, TestContainerGuard};
 //!
 //! #[tokio::test]
 //! async fn test_with_fake_service() {

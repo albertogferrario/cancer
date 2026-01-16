@@ -8,7 +8,7 @@
 /// # Example
 ///
 /// ```rust,ignore
-/// use inertia_rs::InertiaRequest;
+/// use ferro_inertia::InertiaRequest;
 ///
 /// impl InertiaRequest for axum::extract::Request {
 ///     fn inertia_header(&self, name: &str) -> Option<&str> {

@@ -10,7 +10,7 @@
 //! ## Example
 //!
 //! ```rust,ignore
-//! use cancer_broadcast::{Broadcast, Broadcaster};
+//! use ferro_broadcast::{Broadcast, Broadcaster};
 //! use std::sync::Arc;
 //!
 //! // Create a broadcaster
@@ -37,7 +37,7 @@
 //! For private and presence channels, implement the `ChannelAuthorizer` trait:
 //!
 //! ```rust,ignore
-//! use cancer_broadcast::{AuthData, ChannelAuthorizer};
+//! use ferro_broadcast::{AuthData, ChannelAuthorizer};
 //!
 //! struct MyAuthorizer;
 //!

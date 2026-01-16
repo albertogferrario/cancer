@@ -21,7 +21,7 @@ use validator::Validate;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::FormRequest;
+/// use ferro_rs::FormRequest;
 /// use serde::Deserialize;
 /// use validator::Validate;
 ///

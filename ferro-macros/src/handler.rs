@@ -80,7 +80,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
     if params.is_empty() {
         let output = quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(_: ferro::Request) #fn_output {
+            #fn_vis #async_token fn #fn_name #fn_generics(_: ferro_rs::Request) #fn_output {
                 #fn_block
             }
         };
@@ -127,7 +127,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
         // If we have a Request param, we need to handle it specially
         quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: ferro::Request) #fn_output {
+            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: ferro_rs::Request) #fn_output {
                 let __cancer_params = __cancer_req.params().clone();
                 #(#extractions)*
                 #fn_block
@@ -136,7 +136,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
     } else {
         quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: ferro::Request) #fn_output {
+            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: ferro_rs::Request) #fn_output {
                 let __cancer_params = __cancer_req.params().clone();
                 #(#extractions)*
                 #fn_block
@@ -236,8 +236,8 @@ fn generate_extraction(
             quote! {
                 let #pat: #ty = {
                     let __value = __cancer_params.get(#param_name)
-                        .ok_or_else(|| ferro::FrameworkError::param(#param_name))?;
-                    <#ty as ferro::FromParam>::from_param(__value)?
+                        .ok_or_else(|| ferro_rs::FrameworkError::param(#param_name))?;
+                    <#ty as ferro_rs::FromParam>::from_param(__value)?
                 };
             }
         }
@@ -247,8 +247,8 @@ fn generate_extraction(
             quote! {
                 let #pat: #ty = {
                     let __value = __cancer_params.get(#param_name)
-                        .ok_or_else(|| ferro::FrameworkError::param(#param_name))?;
-                    <#ty as ferro::AutoRouteBinding>::from_route_param(__value).await?
+                        .ok_or_else(|| ferro_rs::FrameworkError::param(#param_name))?;
+                    <#ty as ferro_rs::AutoRouteBinding>::from_route_param(__value).await?
                 };
             }
         }
@@ -256,7 +256,7 @@ fn generate_extraction(
             // Use FromRequest trait (consumes request body)
             *has_consumer = true;
             quote! {
-                let #pat: #ty = <#ty as ferro::FromRequest>::from_request(__cancer_req).await?;
+                let #pat: #ty = <#ty as ferro_rs::FromRequest>::from_request(__cancer_req).await?;
             }
         }
     }

@@ -48,7 +48,7 @@ impl BroadcastConfig {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_broadcast::BroadcastConfig;
+    /// use ferro_broadcast::BroadcastConfig;
     ///
     /// let config = BroadcastConfig::from_env();
     /// let broadcaster = Broadcaster::with_config(config);

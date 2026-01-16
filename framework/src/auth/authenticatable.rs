@@ -11,7 +11,7 @@ use std::any::Any;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::auth::Authenticatable;
+/// use ferro_rs::auth::Authenticatable;
 /// use std::any::Any;
 ///
 /// impl Authenticatable for User {

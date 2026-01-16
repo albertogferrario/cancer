@@ -13,7 +13,7 @@ use crate::auth::Authenticatable;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::authorization::{Policy, AuthResponse};
+/// use ferro_rs::authorization::{Policy, AuthResponse};
 /// use crate::models::{User, Post};
 ///
 /// pub struct PostPolicy;

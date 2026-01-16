@@ -40,7 +40,7 @@ impl DayOfWeek {
 /// # Examples
 ///
 /// ```rust,ignore
-/// use cancer_rs::CronExpression;
+/// use ferro_rs::CronExpression;
 ///
 /// // Every minute
 /// let expr = CronExpression::every_minute();

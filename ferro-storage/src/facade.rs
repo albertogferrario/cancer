@@ -149,7 +149,7 @@ impl Storage {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_storage::{Storage, StorageConfig};
+    /// use ferro_storage::{Storage, StorageConfig};
     ///
     /// // Load configuration from environment variables
     /// let config = StorageConfig::from_env();

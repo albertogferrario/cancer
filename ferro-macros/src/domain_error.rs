@@ -136,7 +136,7 @@ pub fn domain_error_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
 
                 impl #impl_generics ::std::error::Error for #name #ty_generics #where_clause {}
 
-                impl #impl_generics ::ferro::HttpError for #name #ty_generics #where_clause {
+                impl #impl_generics ::ferro_rs::HttpError for #name #ty_generics #where_clause {
                     fn status_code(&self) -> u16 {
                         #status_code
                     }
@@ -146,9 +146,9 @@ pub fn domain_error_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
                     }
                 }
 
-                impl #impl_generics ::std::convert::From<#name #ty_generics> for ::ferro::FrameworkError #where_clause {
+                impl #impl_generics ::std::convert::From<#name #ty_generics> for ::ferro_rs::FrameworkError #where_clause {
                     fn from(e: #name #ty_generics) -> Self {
-                        ::ferro::FrameworkError::Domain {
+                        ::ferro_rs::FrameworkError::Domain {
                             message: e.to_string(),
                             status_code: #status_code,
                         }

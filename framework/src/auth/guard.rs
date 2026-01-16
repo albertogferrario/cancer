@@ -18,7 +18,7 @@ use super::provider::UserProvider;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::Auth;
+/// use ferro_rs::Auth;
 ///
 /// // Check if authenticated
 /// if Auth::check() {
@@ -180,7 +180,7 @@ impl Auth {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_rs::Auth;
+    /// use ferro_rs::Auth;
     ///
     /// if let Some(user) = Auth::user().await? {
     ///     println!("Logged in as user {}", user.auth_identifier());
@@ -220,8 +220,8 @@ impl Auth {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_rs::Auth;
-    /// use cancer_rs::models::users::User;
+    /// use ferro_rs::Auth;
+    /// use ferro_rs::models::users::User;
     ///
     /// if let Some(user) = Auth::user_as::<User>().await? {
     ///     println!("Welcome, user #{}!", user.id);

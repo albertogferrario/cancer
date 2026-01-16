@@ -11,7 +11,7 @@
 //! ## Example
 //!
 //! ```rust,ignore
-//! use cancer_cache::{Cache, CacheConfig};
+//! use ferro_cache::{Cache, CacheConfig};
 //! use std::time::Duration;
 //!
 //! // Create cache

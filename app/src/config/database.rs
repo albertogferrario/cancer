@@ -4,4 +4,4 @@
 //! See ferro::DatabaseConfig for available configuration options.
 
 // Re-export Ferro's DatabaseConfig for convenience
-pub use ferro::DatabaseConfig;
+pub use ferro_rs::DatabaseConfig;

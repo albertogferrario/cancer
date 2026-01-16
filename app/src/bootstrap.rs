@@ -28,7 +28,7 @@
 //! ```
 
 #[allow(unused_imports)]
-use ferro::{bind, global_middleware, singleton, App, UserProvider, DB};
+use ferro_rs::{bind, global_middleware, singleton, App, UserProvider, DB};
 
 use crate::middleware;
 use crate::providers::DatabaseUserProvider;

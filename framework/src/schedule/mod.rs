@@ -10,7 +10,7 @@
 //! ## Using Trait-Based Tasks
 //!
 //! ```rust,ignore
-//! use cancer_rs::{Task, TaskResult};
+//! use ferro_rs::{Task, TaskResult};
 //! use async_trait::async_trait;
 //!
 //! pub struct CleanupLogsTask;
@@ -37,7 +37,7 @@
 //! ## Using Closure-Based Tasks
 //!
 //! ```rust,ignore
-//! use cancer_rs::Schedule;
+//! use ferro_rs::Schedule;
 //!
 //! pub fn register(schedule: &mut Schedule) {
 //!     // Simple closure task
@@ -95,7 +95,7 @@ use crate::error::FrameworkError;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::Schedule;
+/// use ferro_rs::Schedule;
 ///
 /// pub fn register(schedule: &mut Schedule) {
 ///     // Register a struct implementing Task trait
@@ -254,7 +254,7 @@ impl Default for Schedule {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::{schedule_task, Schedule};
+/// use ferro_rs::{schedule_task, Schedule};
 ///
 /// pub fn register(schedule: &mut Schedule) {
 ///     schedule.add(

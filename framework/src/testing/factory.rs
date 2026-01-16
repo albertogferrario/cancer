@@ -5,7 +5,7 @@
 //! # Basic Usage
 //!
 //! ```rust,ignore
-//! use cancer_rs::testing::{Factory, Fake};
+//! use ferro_rs::testing::{Factory, Fake};
 //!
 //! // Define a factory for your model
 //! impl Factory for User {
@@ -138,7 +138,7 @@ pub trait Factory: Sized + Clone + Send + 'static {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::testing::{Factory, DatabaseFactory, Fake};
+/// use ferro_rs::testing::{Factory, DatabaseFactory, Fake};
 /// use sea_orm::ActiveValue::Set;
 ///
 /// impl Factory for user::Model {
@@ -524,7 +524,7 @@ impl<T: DatabaseFactory> FactoryBuilder<T> {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::testing::Fake;
+/// use ferro_rs::testing::Fake;
 ///
 /// let name = Fake::name();
 /// let email = Fake::email();

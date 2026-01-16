@@ -20,7 +20,7 @@ use std::time::Instant;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::middleware::MetricsMiddleware;
+/// use ferro_rs::middleware::MetricsMiddleware;
 ///
 /// Server::from_config(router)
 ///     .middleware(MetricsMiddleware)  // Add as first middleware

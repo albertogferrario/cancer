@@ -26,7 +26,7 @@ tokio::task_local! {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::session::session;
+/// use ferro_rs::session::session;
 ///
 /// if let Some(session) = session() {
 ///     let name: Option<String> = session.get("name");
@@ -47,7 +47,7 @@ pub fn session() -> Option<SessionData> {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::session::session_mut;
+/// use ferro_rs::session::session_mut;
 ///
 /// session_mut(|session| {
 ///     session.put("name", "John");

@@ -10,7 +10,7 @@ use serde::Serialize;
 /// # Example
 ///
 /// ```rust
-/// use inertia_rs::InertiaShared;
+/// use ferro_inertia::InertiaShared;
 /// use serde_json::json;
 ///
 /// let shared = InertiaShared::new()

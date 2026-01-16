@@ -36,7 +36,7 @@ pub trait TaskHandler: Send + Sync {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::{Task, TaskResult};
+/// use ferro_rs::{Task, TaskResult};
 /// use async_trait::async_trait;
 ///
 /// pub struct CleanupLogsTask;

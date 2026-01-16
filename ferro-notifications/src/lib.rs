@@ -10,7 +10,7 @@
 //! ## Example
 //!
 //! ```rust,ignore
-//! use cancer_notifications::{Notification, Notifiable, Channel, MailMessage};
+//! use ferro_notifications::{Notification, Notifiable, Channel, MailMessage};
 //!
 //! // Define a notification
 //! struct OrderShipped {

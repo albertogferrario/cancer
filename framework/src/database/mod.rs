@@ -5,7 +5,7 @@
 //! # Quick Start
 //!
 //! ```rust,ignore
-//! use cancer_rs::{Config, DB, DatabaseConfig};
+//! use ferro_rs::{Config, DB, DatabaseConfig};
 //!
 //! // 1. Register database config (in config/mod.rs)
 //! Config::register(DatabaseConfig::from_env());
@@ -60,7 +60,7 @@ pub use transaction::{transaction, TransactionExt};
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::{injectable, Database};
+/// use ferro_rs::{injectable, Database};
 ///
 /// #[injectable]
 /// pub struct CreateUserAction {
@@ -87,7 +87,7 @@ use crate::{App, Config};
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::{DB, DatabaseConfig, Config};
+/// use ferro_rs::{DB, DatabaseConfig, Config};
 ///
 /// // Initialize (usually in bootstrap.rs)
 /// Config::register(DatabaseConfig::from_env());
@@ -195,7 +195,7 @@ impl DB {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_rs::database::DB;
+    /// use ferro_rs::database::DB;
     /// use sea_orm::{Set, ActiveModelTrait};
     ///
     /// let new_todo = todos::ActiveModel {

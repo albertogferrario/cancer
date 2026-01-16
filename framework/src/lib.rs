@@ -225,8 +225,8 @@ macro_rules! text_response {
 ///
 /// ```rust,ignore
 /// // In bootstrap.rs
-/// use cancer_rs::global_middleware;
-/// use cancer_rs::middleware;
+/// use ferro_rs::global_middleware;
+/// use ferro_rs::middleware;
 ///
 /// pub fn register() {
 ///     global_middleware!(middleware::LoggingMiddleware);
@@ -245,7 +245,7 @@ macro_rules! global_middleware {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::expect;
+/// use ferro_rs::expect;
 ///
 /// expect!(actual).to_equal(expected);
 /// expect!(result).to_be_ok();

@@ -12,8 +12,8 @@ use async_trait::async_trait;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::authorization::Authorize;
-/// use cancer::routing::Route;
+/// use ferro_rs::authorization::Authorize;
+/// use ferro_rs::routing::Route;
 ///
 /// Route::get("/admin", admin_dashboard)
 ///     .middleware(Authorize::ability("view-admin"));
@@ -86,7 +86,7 @@ impl Middleware for Authorize {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::can;
+/// use ferro_rs::can;
 ///
 /// Route::get("/admin", admin_dashboard)
 ///     .middleware(can!("view-admin"));

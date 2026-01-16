@@ -17,8 +17,8 @@ use crate::error::FrameworkError;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::auth::{UserProvider, Authenticatable};
-/// use cancer_rs::FrameworkError;
+/// use ferro_rs::auth::{UserProvider, Authenticatable};
+/// use ferro_rs::FrameworkError;
 /// use async_trait::async_trait;
 /// use std::sync::Arc;
 ///

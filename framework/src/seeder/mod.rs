@@ -6,7 +6,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer::{async_trait, Seeder, FrameworkError};
+//! use ferro_rs::{async_trait, Seeder, FrameworkError};
 //!
 //! pub struct UsersSeeder;
 //!
@@ -28,7 +28,7 @@
 //! Register seeders in `src/seeders/mod.rs`:
 //!
 //! ```rust,ignore
-//! use cancer::SeederRegistry;
+//! use ferro_rs::SeederRegistry;
 //!
 //! pub fn register() -> SeederRegistry {
 //!     SeederRegistry::new()

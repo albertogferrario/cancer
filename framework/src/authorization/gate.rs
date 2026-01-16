@@ -46,7 +46,7 @@ impl GateRegistry {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::authorization::Gate;
+/// use ferro_rs::authorization::Gate;
 ///
 /// // Define a simple gate
 /// Gate::define("admin", |user, _| user.is_admin().into());

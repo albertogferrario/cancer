@@ -12,7 +12,7 @@
 //! ## Example
 //!
 //! ```rust,ignore
-//! use cancer_queue::{Job, Queueable, dispatch};
+//! use ferro_queue::{Job, Queueable, dispatch};
 //! use serde::{Deserialize, Serialize};
 //!
 //! #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -23,7 +23,7 @@
 //!
 //! #[async_trait::async_trait]
 //! impl Job for SendEmail {
-//!     async fn handle(&self) -> Result<(), cancer_queue::Error> {
+//!     async fn handle(&self) -> Result<(), ferro_queue::Error> {
 //!         println!("Sending email to {}: {}", self.to, self.subject);
 //!         Ok(())
 //!     }

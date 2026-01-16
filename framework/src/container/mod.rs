@@ -10,7 +10,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer_rs::{App, bind, singleton, service};
+//! use ferro_rs::{App, bind, singleton, service};
 //!
 //! // Define a service trait with auto-registration
 //! #[service(RealHttpClient)]
@@ -193,7 +193,7 @@ impl Default for Container {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::{App, bind, singleton};
+/// use ferro_rs::{App, bind, singleton};
 ///
 /// // Register services at startup using macros
 /// singleton!(DatabaseConnection::new(&url));

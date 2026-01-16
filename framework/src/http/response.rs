@@ -290,7 +290,7 @@ impl From<crate::error::AppError> for HttpResponse {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::{InertiaRedirect, Request, Response};
+/// use ferro_rs::{InertiaRedirect, Request, Response};
 ///
 /// pub async fn store(req: Request) -> Response {
 ///     // ... create record ...

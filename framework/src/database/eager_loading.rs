@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer::database::BatchLoad;
+//! use ferro_rs::database::BatchLoad;
 //!
 //! // Load animals with their shelter in 2 queries instead of N+1
 //! let animals = Animal::query().all().await?;

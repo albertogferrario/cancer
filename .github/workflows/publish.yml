@@ -1,0 +1,212 @@
+name: Publish
+
+on:
+  push:
+    branches: [master]
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+jobs:
+  check-version:
+    name: Check Version
+    runs-on: ubuntu-latest
+    outputs:
+      should_publish: ${{ steps.check.outputs.should_publish }}
+      version: ${{ steps.check.outputs.version }}
+      new_version: ${{ steps.check.outputs.new_version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if version is tagged
+        id: check
+        run: |
+          # Get current version from Cargo.toml
+          VERSION=$(grep -m1 'version = "' Cargo.toml | sed 's/.*version = "\(.*\)"/\1/')
+          echo "Current version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Check if this version is already tagged
+          if git tag | grep -q "^v$VERSION$"; then
+            echo "Version v$VERSION already tagged, will bump patch version"
+
+            # Calculate new patch version
+            IFS='.' read -r major minor patch <<< "$VERSION"
+            NEW_PATCH=$((patch + 1))
+            NEW_VERSION="$major.$minor.$NEW_PATCH"
+            echo "New version: $NEW_VERSION"
+            echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "should_publish=bump" >> $GITHUB_OUTPUT
+          else
+            echo "Version v$VERSION not yet tagged, will publish"
+            echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+            echo "should_publish=yes" >> $GITHUB_OUTPUT
+          fi
+
+  bump-version:
+    name: Bump Version
+    needs: check-version
+    if: needs.check-version.outputs.should_publish == 'bump'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ needs.check-version.outputs.new_version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version in Cargo.toml
+        run: |
+          NEW_VERSION="${{ needs.check-version.outputs.new_version }}"
+          sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" Cargo.toml
+          echo "Bumped version to $NEW_VERSION"
+
+      - name: Commit and push
+        run: |
+          git add Cargo.toml
+          git commit -m "chore: bump version to ${{ needs.check-version.outputs.new_version }}"
+          git push
+
+  test:
+    name: Test
+    needs: [check-version, bump-version]
+    if: always() && needs.check-version.outputs.should_publish != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Pull latest changes
+        run: git pull origin master
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets
+
+      - name: Test
+        run: cargo test
+
+  publish:
+    name: Publish to crates.io
+    needs: [check-version, bump-version, test]
+    if: always() && needs.test.result == 'success' && needs.check-version.outputs.should_publish != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Pull latest changes
+        run: git pull origin master
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get version to publish
+        id: version
+        run: |
+          VERSION=$(grep -m1 'version = "' Cargo.toml | sed 's/.*version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Publish Wave 1 (no internal dependencies)
+        run: |
+          echo "Publishing Wave 1 crates..."
+
+          # Wave 1: Crates with no internal dependencies
+          WAVE1_CRATES="ferro-macros ferro-events ferro-queue ferro-notifications ferro-broadcast ferro-storage ferro-cache ferro-inertia"
+
+          for crate in $WAVE1_CRATES; do
+            echo "Publishing $crate..."
+            cargo publish -p $crate --no-verify || {
+              # Check if it's because version already exists
+              if cargo publish -p $crate --no-verify 2>&1 | grep -q "already uploaded"; then
+                echo "$crate already published, skipping"
+              else
+                echo "Failed to publish $crate"
+                exit 1
+              fi
+            }
+            # Small delay to avoid rate limiting
+            sleep 5
+          done
+
+      - name: Wait for crates.io index update
+        run: |
+          echo "Waiting for crates.io to index Wave 1 crates..."
+          sleep 30
+
+      - name: Publish Wave 2 (depends on Wave 1)
+        run: |
+          echo "Publishing Wave 2 crates..."
+
+          # Wave 2: Framework and MCP
+          WAVE2_CRATES="ferro-rs ferro-mcp"
+
+          for crate in $WAVE2_CRATES; do
+            echo "Publishing $crate..."
+            cargo publish -p $crate --no-verify || {
+              if cargo publish -p $crate --no-verify 2>&1 | grep -q "already uploaded"; then
+                echo "$crate already published, skipping"
+              else
+                echo "Failed to publish $crate"
+                exit 1
+              fi
+            }
+            sleep 5
+          done
+
+      - name: Wait for crates.io index update
+        run: |
+          echo "Waiting for crates.io to index Wave 2 crates..."
+          sleep 30
+
+      - name: Publish Wave 3 (CLI)
+        run: |
+          echo "Publishing ferro-cli..."
+          cargo publish -p ferro-cli --no-verify || {
+            if cargo publish -p ferro-cli --no-verify 2>&1 | grep -q "already uploaded"; then
+              echo "ferro-cli already published, skipping"
+            else
+              echo "Failed to publish ferro-cli"
+              exit 1
+            fi
+          }
+
+      - name: Create and push tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

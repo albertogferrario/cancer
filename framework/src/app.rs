@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer_rs::Application;
+//! use ferro_rs::Application;
 //!
 //! #[tokio::main]
 //! async fn main() {

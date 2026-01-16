@@ -6,7 +6,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer_rs::test_database;
+//! use ferro_rs::test_database;
 //!
 //! #[tokio::test]
 //! async fn test_create_user() {
@@ -38,8 +38,8 @@ use crate::error::FrameworkError;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::testing::TestDatabase;
-/// use cancer_rs::migrations::Migrator;
+/// use ferro_rs::testing::TestDatabase;
+/// use ferro_rs::migrations::Migrator;
 ///
 /// #[tokio::test]
 /// async fn test_user_creation() {
@@ -82,8 +82,8 @@ impl TestDatabase {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_rs::testing::TestDatabase;
-    /// use cancer_rs::migrations::Migrator;
+    /// use ferro_rs::testing::TestDatabase;
+    /// use ferro_rs::migrations::Migrator;
     ///
     /// #[tokio::test]
     /// async fn test_example() {
@@ -152,7 +152,7 @@ impl TestDatabase {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::test_database;
+/// use ferro_rs::test_database;
 ///
 /// #[tokio::test]
 /// async fn test_user_creation() {

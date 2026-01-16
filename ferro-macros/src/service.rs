@@ -163,10 +163,10 @@ pub fn service_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     let impl_registration = args.impl_type.as_ref().map(|concrete_type| {
         quote! {
             // Auto-register this service binding at startup
-            ::ferro::inventory::submit! {
-                ::ferro::container::provider::ServiceBindingEntry {
+            ::ferro_rs::inventory::submit! {
+                ::ferro_rs::container::provider::ServiceBindingEntry {
                     register: || {
-                        ::ferro::App::bind::<dyn #trait_name>(
+                        ::ferro_rs::App::bind::<dyn #trait_name>(
                             ::std::sync::Arc::new(<#concrete_type as ::std::default::Default>::default())
                         );
                     },
@@ -192,9 +192,9 @@ pub fn service_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
                 ///     // App::make::<dyn MyService>() now returns the fake
                 /// }
                 /// ```
-                pub fn fake() -> ::ferro::container::testing::TestContainerGuard {
-                    let guard = ::ferro::container::testing::TestContainer::fake();
-                    ::ferro::container::testing::TestContainer::bind::<dyn #trait_name>(
+                pub fn fake() -> ::ferro_rs::container::testing::TestContainerGuard {
+                    let guard = ::ferro_rs::container::testing::TestContainer::fake();
+                    ::ferro_rs::container::testing::TestContainer::bind::<dyn #trait_name>(
                         ::std::sync::Arc::new(<#fake_type as ::std::default::Default>::default())
                     );
                     guard

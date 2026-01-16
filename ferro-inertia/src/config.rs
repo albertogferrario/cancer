@@ -5,7 +5,7 @@
 /// # Example
 ///
 /// ```rust
-/// use inertia_rs::InertiaConfig;
+/// use ferro_inertia::InertiaConfig;
 ///
 /// // Development configuration (default)
 /// let config = InertiaConfig::default();
@@ -91,7 +91,7 @@ impl InertiaConfig {
     /// # Example
     ///
     /// ```rust
-    /// use inertia_rs::InertiaConfig;
+    /// use ferro_inertia::InertiaConfig;
     ///
     /// let template = r#"
     /// <!DOCTYPE html>

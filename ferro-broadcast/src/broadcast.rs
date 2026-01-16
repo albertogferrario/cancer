@@ -10,7 +10,7 @@ use std::sync::Arc;
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_broadcast::Broadcast;
+/// use ferro_broadcast::Broadcast;
 ///
 /// Broadcast::channel("orders.1")
 ///     .event("OrderUpdated")

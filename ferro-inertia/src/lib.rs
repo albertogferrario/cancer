@@ -18,7 +18,7 @@
 //! ## Quick Start
 //!
 //! ```rust,ignore
-//! use inertia_rs::{Inertia, InertiaConfig, InertiaRequest};
+//! use ferro_inertia::{Inertia, InertiaConfig, InertiaRequest};
 //!
 //! // Implement InertiaRequest for your framework's request type
 //! impl InertiaRequest for MyRequest {

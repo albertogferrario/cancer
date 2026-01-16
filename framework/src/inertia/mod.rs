@@ -6,7 +6,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer::{Inertia, Request, Response, InertiaProps};
+//! use ferro_rs::{Inertia, Request, Response, InertiaProps};
 //!
 //! #[derive(InertiaProps)]
 //! pub struct HomeProps {

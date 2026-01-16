@@ -14,7 +14,7 @@ use uuid::Uuid;
 /// # Example
 ///
 /// ```rust
-/// use cancer_queue::{Job, Error, async_trait};
+/// use ferro_queue::{Job, Error, async_trait};
 /// use serde::{Deserialize, Serialize};
 ///
 /// #[derive(Debug, Clone, Serialize, Deserialize)]

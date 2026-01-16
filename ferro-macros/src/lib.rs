@@ -101,7 +101,7 @@ pub fn redirect(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ferro::service;
+/// use ferro_rs::service;
 ///
 /// #[service]
 /// pub trait HttpClient {
@@ -137,7 +137,7 @@ pub fn service(attr: TokenStream, input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ferro::injectable;
+/// use ferro_rs::injectable;
 ///
 /// #[injectable]
 /// pub struct AppState {
@@ -168,7 +168,7 @@ pub fn injectable(_attr: TokenStream, input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ferro::domain_error;
+/// use ferro_rs::domain_error;
 ///
 /// #[domain_error(status = 404, message = "User not found")]
 /// pub struct UserNotFoundError {
@@ -194,7 +194,7 @@ pub fn domain_error(attr: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// ## With Request parameter:
 /// ```rust,ignore
-/// use ferro::{handler, Request, Response, json_response};
+/// use ferro_rs::{handler, Request, Response, json_response};
 ///
 /// #[handler]
 /// pub async fn index(req: Request) -> Response {
@@ -204,7 +204,7 @@ pub fn domain_error(attr: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// ## With FormRequest parameter:
 /// ```rust,ignore
-/// use ferro::{handler, Response, json_response, request};
+/// use ferro_rs::{handler, Response, json_response, request};
 ///
 /// #[request]
 /// pub struct CreateUserRequest {
@@ -242,7 +242,7 @@ pub fn handler(attr: TokenStream, input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ferro::{FormRequest, Deserialize, Validate};
+/// use ferro_rs::{FormRequest, Deserialize, Validate};
 ///
 /// #[derive(Deserialize, Validate, FormRequest)]
 /// pub struct CreateUserRequest {
@@ -270,7 +270,7 @@ pub fn derive_form_request(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ferro::request;
+/// use ferro_rs::request;
 ///
 /// #[request]
 /// pub struct CreateUserRequest {
@@ -305,8 +305,8 @@ pub fn request(attr: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// ## Basic usage (recommended):
 /// ```rust,ignore
-/// use ferro::cancer_test;
-/// use ferro::testing::TestDatabase;
+/// use ferro_rs::cancer_test;
+/// use ferro_rs::testing::TestDatabase;
 ///
 /// #[cancer_test]
 /// async fn test_user_creation(db: TestDatabase) {
@@ -349,8 +349,8 @@ pub fn cancer_test(attr: TokenStream, input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ferro::{describe, test, expect};
-/// use ferro::testing::TestDatabase;
+/// use ferro_rs::{describe, test, expect};
+/// use ferro_rs::testing::TestDatabase;
 ///
 /// describe!("ListTodosAction", {
 ///     test!("returns empty list when no todos exist", async fn(db: TestDatabase) {
@@ -430,7 +430,7 @@ pub fn test(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ferro::CancerModel;
+/// use ferro_rs::CancerModel;
 /// use sea_orm::entity::prelude::*;
 ///
 /// #[derive(Clone, Debug, DeriveEntityModel, CancerModel)]
@@ -479,7 +479,7 @@ pub fn derive_cancer_model(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ferro::ValidateRules;
+/// use ferro_rs::ValidateRules;
 ///
 /// #[derive(ValidateRules)]
 /// struct CreateUserRequest {

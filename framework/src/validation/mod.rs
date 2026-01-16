@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use cancer_rs::validation::{Validator, rules};
+//! use ferro_rs::validation::{Validator, rules};
 //!
 //! let data = serde_json::json!({
 //!     "email": "user@example.com",
@@ -43,8 +43,8 @@ pub use validator::{validate, Validator};
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_rs::validation::{Validator, rules::*};
-/// use cancer_rs::rules;
+/// use ferro_rs::validation::{Validator, rules::*};
+/// use ferro_rs::rules;
 ///
 /// let validator = Validator::new(&data)
 ///     .rules("email", rules![required(), email()])
