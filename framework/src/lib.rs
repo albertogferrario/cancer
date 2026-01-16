@@ -38,8 +38,8 @@ pub use database::{
 pub use error::{AppError, FrameworkError, HttpError, ValidationErrors};
 pub use hashing::{hash, needs_rehash, verify, DEFAULT_COST as HASH_DEFAULT_COST};
 pub use http::{
-    json, text, Cookie, CookieOptions, FormRequest, FromParam, FromRequest, HttpResponse, Redirect,
-    Request, Response, ResponseExt, SameSite,
+    json, text, Cookie, CookieOptions, FormRequest, FromParam, FromRequest, HttpResponse,
+    InertiaRedirect, Redirect, Request, Response, ResponseExt, SameSite,
 };
 pub use inertia::{Inertia, InertiaConfig, InertiaResponse, InertiaShared, SavedInertiaContext};
 pub use sea_orm::{
