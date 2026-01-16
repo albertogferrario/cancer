@@ -1,8 +1,8 @@
-# Ferro Framework DX Overhaul
+# Ferro Framework
 
 ## What This Is
 
-A developer experience and agent-friendliness overhaul for the Ferro web framework. The goal is to enable AI agents to build complete web applications from natural language descriptions for non-technical users — reducing boilerplate, expanding introspection, and improving scaffolding.
+A developer experience and agent-friendliness optimized web framework for Rust. Ferro enables AI agents to build complete web applications from natural language descriptions — with reduced boilerplate, deep introspection via MCP, and intelligent CLI scaffolding.
 
 ## Core Value
 
@@ -12,8 +12,9 @@ Agents can go from "I want an app that does X" to a working, deployed applicatio
 
 ### Validated
 
-<!-- Shipped and confirmed valuable — existing framework capabilities. -->
+<!-- Shipped and confirmed valuable -->
 
+**Existing Framework Capabilities:**
 - ✓ Laravel-inspired architecture with handlers, middleware, routing — existing
 - ✓ SeaORM database layer with migrations and model abstraction — existing
 - ✓ Session-based authentication with pluggable providers — existing
@@ -30,46 +31,56 @@ Agents can go from "I want an app that does X" to a working, deployed applicatio
 - ✓ File storage abstraction (local, S3) — existing
 - ✓ Tag-based caching — existing
 
+**v1.0 DX Overhaul (shipped 2026-01-16):**
+- ✓ Simplified handler definitions with #[handler] macro — v1.0
+- ✓ FerroModel derive macro for automatic SeaORM trait implementations — v1.0
+- ✓ ValidateRules derive macro for concise validation rule definitions — v1.0
+- ✓ Convention-over-configuration for common scenarios — v1.0
+- ✓ MCP intent understanding (domain glossary, app overview) — v1.0
+- ✓ Better error context for agent diagnosis — v1.0
+- ✓ Relationship and data flow visibility through MCP — v1.0
+- ✓ Generation hints embedded in introspection responses — v1.0
+- ✓ CLI feature scaffolding with smart defaults and FK detection — v1.0
+- ✓ Actionable error messages with fix suggestions — v1.0
+
+**v2.0 Rebrand (shipped 2026-01-16):**
+- ✓ Framework renamed from "cancer" to "ferro" for crates.io publication — v2.0
+- ✓ All 11 crates rebranded (ferro, ferro-*, ferro-cli, ferro-mcp) — v2.0
+- ✓ Documentation and READMEs updated with ferro branding — v2.0
+- ✓ Migration guide for existing users — v2.0
+- ✓ Publishing checklist for crates.io — v2.0
+
 ### Active
 
 <!-- Current scope. Building toward these. -->
 
-**Boilerplate Reduction:**
-- [ ] Simplify handler definitions — less ceremony for common patterns
-- [ ] Reduce model boilerplate — derive more, write less
-- [ ] Streamline validation syntax — more concise rule definitions
-- [ ] Convention-over-configuration for common scenarios
-
-**MCP Introspection Expansion:**
-- [ ] Agent can understand full app intent, not just structure
-- [ ] Better error context for agent diagnosis
-- [ ] Relationship and data flow visibility
-- [ ] Generation hints embedded in introspection responses
-
-**CLI Scaffolding Improvements:**
-- [ ] Higher-level scaffolding (full features, not just files)
-- [ ] Smarter defaults based on existing patterns
-- [ ] Interactive scaffolding with context awareness
-- [ ] Better integration between generated components
-
-**Agent-First Design:**
-- [ ] Clear, predictable patterns agents can learn and apply
-- [ ] Self-documenting code structure
-- [ ] Errors that explain what to do, not just what went wrong
+- [ ] Publish to crates.io (manual step using PUBLISHING.md)
+- [ ] Public announcement and marketing
 
 ### Out of Scope
 
 <!-- Explicit boundaries. Includes reasoning to prevent re-adding. -->
 
-- New major features (payments, subscriptions, etc.) — focus is DX, not feature expansion
+- New major features (payments, subscriptions, etc.) — focus is publishing, not feature expansion
 - Frontend framework changes — React/Inertia stack stays as-is
 - Database driver changes — SeaORM works, no need to replace
 
 ## Context
 
-This is a brownfield improvement of an existing framework. The Ferro framework already works and has a sample application demonstrating its capabilities.
+**Current State:**
+- 60,000 lines of Rust across 11 crates
+- Framework ready for crates.io publication
+- Sample application demonstrating all capabilities
+- Comprehensive MCP introspection (30+ tools)
 
-The primary use case shift: from "developer builds apps" to "agent builds apps for non-technical users." This requires:
+**Tech Stack:**
+- Rust 2021 edition
+- Axum web framework
+- SeaORM database layer
+- React/Inertia.js frontend
+- Redis for queue/cache/broadcast
+
+**Primary use case:** Agent-built applications for non-technical users. This requires:
 - Patterns simple enough for agents to reliably generate
 - Introspection deep enough for agents to understand existing code
 - Error messages clear enough for agents to self-correct
@@ -81,7 +92,7 @@ Reference codebase documentation in `.planning/codebase/`:
 
 ## Constraints
 
-- **Compatibility**: Existing sample app should work after changes (may need migration)
+- **Compatibility**: Existing sample app works with framework
 - **Rust Edition**: 2021 edition, no nightly-only features
 
 ## Key Decisions
@@ -90,8 +101,13 @@ Reference codebase documentation in `.planning/codebase/`:
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Agent-first over developer-first | Non-technical users via agents is the target market | — Pending |
-| Breaking changes acceptable | No backwards compatibility constraint allows cleaner APIs | — Pending |
+| Agent-first over developer-first | Non-technical users via agents is the target market | ✓ Good |
+| Breaking changes acceptable | No backwards compatibility constraint allows cleaner APIs | ✓ Good |
+| FerroModel derive on entities | Apply derive to entity files (auto-generated) not model files | ✓ Good |
+| ValidateRules not Validate | Avoid conflict with validator crate's `Validate` derive | ✓ Good |
+| Tool vs Resource for MCP | Implemented features as tools rather than MCP resources for simpler agent consumption | ✓ Good |
+| Rebrand to "ferro" | Name appropriate for crates.io publication and public release | ✓ Good |
+| Alias pattern for migration | Keep code imports working during phased rename | ✓ Good |
 
 ---
-*Last updated: 2026-01-15 after initialization*
+*Last updated: 2026-01-16 after v2.0 Rebrand milestone*
