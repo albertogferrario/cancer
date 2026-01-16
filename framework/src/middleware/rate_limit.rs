@@ -30,6 +30,9 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+/// Type alias for key resolver function to reduce type complexity
+type KeyResolver = Arc<dyn Fn(&Request) -> String + Send + Sync>;
+
 /// Configuration for rate limiting
 #[derive(Clone)]
 pub struct RateLimitConfig {
@@ -190,7 +193,7 @@ impl RateLimitStore {
 pub struct RateLimiter {
     config: RateLimitConfig,
     store: Arc<RateLimitStore>,
-    key_resolver: Option<Arc<dyn Fn(&Request) -> String + Send + Sync>>,
+    key_resolver: Option<KeyResolver>,
 }
 
 impl RateLimiter {
@@ -306,9 +309,9 @@ impl Middleware for RateLimiter {
                 match response {
                     Ok(mut http_response) => {
                         http_response = http_response
-                            .header("X-RateLimit-Limit", &limit.to_string())
-                            .header("X-RateLimit-Remaining", &remaining.to_string())
-                            .header("X-RateLimit-Reset", &retry_after.to_string());
+                            .header("X-RateLimit-Limit", limit.to_string())
+                            .header("X-RateLimit-Remaining", remaining.to_string())
+                            .header("X-RateLimit-Reset", retry_after.to_string());
                         Ok(http_response)
                     }
                     err => err,
@@ -322,10 +325,10 @@ impl Middleware for RateLimiter {
                     "retry_after": retry_after
                 }))
                 .status(429)
-                .header("X-RateLimit-Limit", &limit.to_string())
+                .header("X-RateLimit-Limit", limit.to_string())
                 .header("X-RateLimit-Remaining", "0")
-                .header("X-RateLimit-Reset", &retry_after.to_string())
-                .header("Retry-After", &retry_after.to_string()))
+                .header("X-RateLimit-Reset", retry_after.to_string())
+                .header("Retry-After", retry_after.to_string()))
             }
             RateLimitResult::WindowExpired => {
                 // Should not happen due to loop in check(), but handle gracefully

@@ -9,6 +9,7 @@
 pub use super::entities::todos::*;
 
 /// Type alias for convenient access
+#[allow(dead_code)]
 pub type Todo = Model;
 
 // ============================================================================

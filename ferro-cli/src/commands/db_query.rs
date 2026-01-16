@@ -194,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_separator_generation() {
-        let col_widths = vec![3, 5, 10];
+        let col_widths = [3, 5, 10];
         let separator: String = col_widths
             .iter()
             .map(|w| "-".repeat(*w + 2))
@@ -206,8 +206,8 @@ mod tests {
 
     #[test]
     fn test_row_formatting() {
-        let row = vec!["1".to_string(), "Alice".to_string()];
-        let col_widths = vec![3, 10];
+        let row = ["1".to_string(), "Alice".to_string()];
+        let col_widths = [3, 10];
 
         let formatted: Vec<String> = row
             .iter()

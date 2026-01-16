@@ -164,15 +164,12 @@ impl<'a> TestRequestBuilder<'a> {
 
     /// Set the request body as JSON
     pub fn json<T: serde::Serialize>(mut self, data: &T) -> Self {
-        match serde_json::to_vec(data) {
-            Ok(bytes) => {
-                self.body = Some(Bytes::from(bytes));
-                self.headers.insert(
-                    HeaderName::from_static("content-type"),
-                    HeaderValue::from_static("application/json"),
-                );
-            }
-            Err(_) => {}
+        if let Ok(bytes) = serde_json::to_vec(data) {
+            self.body = Some(Bytes::from(bytes));
+            self.headers.insert(
+                HeaderName::from_static("content-type"),
+                HeaderValue::from_static("application/json"),
+            );
         }
         self
     }

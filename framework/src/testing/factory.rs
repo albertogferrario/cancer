@@ -189,9 +189,15 @@ pub trait DatabaseFactory: Factory + IntoActiveModel<Self::ActiveModel> {
     }
 }
 
+/// Type alias for state modifier function
+type StateModifier<T> = Arc<dyn Fn(&mut T) + Send + Sync>;
+
+/// Type alias for after-make callback
+type AfterMakeCallback<T> = Arc<dyn Fn(&T) + Send + Sync>;
+
 /// Collection of named traits (states) for a factory
 pub struct FactoryTraits<T> {
-    traits: HashMap<&'static str, Arc<dyn Fn(&mut T) + Send + Sync>>,
+    traits: HashMap<&'static str, StateModifier<T>>,
 }
 
 impl<T> FactoryTraits<T> {
@@ -212,7 +218,7 @@ impl<T> FactoryTraits<T> {
     }
 
     /// Get a trait by name
-    pub fn get(&self, name: &str) -> Option<Arc<dyn Fn(&mut T) + Send + Sync>> {
+    pub fn get(&self, name: &str) -> Option<StateModifier<T>> {
         self.traits.get(name).cloned()
     }
 }
@@ -230,9 +236,9 @@ type AfterCreateCallback<T> =
 /// Builder for creating model instances with customizations
 pub struct FactoryBuilder<T: Factory> {
     count: usize,
-    states: Vec<Arc<dyn Fn(&mut T) + Send + Sync>>,
+    states: Vec<StateModifier<T>>,
     trait_names: Vec<&'static str>,
-    after_make_callbacks: Vec<Arc<dyn Fn(&T) + Send + Sync>>,
+    after_make_callbacks: Vec<AfterMakeCallback<T>>,
     after_create_callbacks: Vec<AfterCreateCallback<T>>,
 }
 
@@ -1077,6 +1083,7 @@ impl Sequence {
     }
 
     /// Get the next value in the sequence
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> usize {
         self.current += 1;
         self.current
@@ -1131,7 +1138,7 @@ mod tests {
     #[test]
     fn test_fake_number() {
         let num = Fake::number(1, 10);
-        assert!(num >= 1 && num <= 10);
+        assert!((1..=10).contains(&num));
     }
 
     #[test]

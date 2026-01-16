@@ -170,6 +170,7 @@ impl TestDatabase {
 /// let db = test_database!(my_crate::CustomMigrator);
 /// ```
 #[macro_export]
+#[allow(clippy::crate_in_macro_def)]
 macro_rules! test_database {
     () => {
         $crate::testing::TestDatabase::fresh::<crate::migrations::Migrator>()

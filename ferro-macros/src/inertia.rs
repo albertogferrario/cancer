@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::quote;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use syn::{parse::Parse, parse::ParseStream, parse_macro_input, DeriveInput, Expr, LitStr, Token};
 
 use crate::utils::levenshtein_distance;
@@ -107,9 +107,8 @@ fn parse_rename_all(attrs: &[syn::Attribute]) -> RenameAll {
                         ..
                     }) = &nested.value
                     {
-                        match lit_str.value().as_str() {
-                            "camelCase" => return RenameAll::CamelCase,
-                            _ => {}
+                        if lit_str.value().as_str() == "camelCase" {
+                            return RenameAll::CamelCase;
                         }
                     }
                 }
@@ -294,7 +293,7 @@ fn validate_component_exists(component_name: &str, span: Span) -> Result<(), syn
     Ok(())
 }
 
-fn list_available_components(project_root: &PathBuf) -> Vec<String> {
+fn list_available_components(project_root: &Path) -> Vec<String> {
     let pages_dir = project_root.join("frontend").join("src").join("pages");
 
     let mut components = Vec::new();
@@ -303,11 +302,7 @@ fn list_available_components(project_root: &PathBuf) -> Vec<String> {
     components
 }
 
-fn collect_components_recursive(
-    base_dir: &PathBuf,
-    current_dir: &PathBuf,
-    components: &mut Vec<String>,
-) {
+fn collect_components_recursive(base_dir: &Path, current_dir: &Path, components: &mut Vec<String>) {
     if let Ok(entries) = std::fs::read_dir(current_dir) {
         for entry in entries.filter_map(|e| e.ok()) {
             let path = entry.path();
@@ -346,10 +341,10 @@ fn find_similar_component(target: &str, available: &[String]) -> Option<String> 
         let distance = levenshtein_distance(&target_lower, &comp.to_lowercase());
         // Allow up to 2 character differences for short names, more for longer names
         let threshold = std::cmp::max(2, target.len() / 3);
-        if distance <= threshold {
-            if best_match.is_none() || distance < best_match.as_ref().unwrap().1 {
-                best_match = Some((comp.clone(), distance));
-            }
+        if distance <= threshold
+            && (best_match.is_none() || distance < best_match.as_ref().unwrap().1)
+        {
+            best_match = Some((comp.clone(), distance));
         }
     }
 

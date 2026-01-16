@@ -163,7 +163,7 @@ pub fn parse_routes_file(content: &str) -> Vec<RouteDefinition> {
     routes
 }
 
-/// Visitor that collects handler functions with #[handler] attribute
+/// Visitor that collects handler functions with `#[handler]` attribute
 struct HandlerVisitor {
     handlers: Vec<HandlerInfo>,
 }
@@ -230,7 +230,7 @@ impl<'ast> Visit<'ast> for HandlerVisitor {
     }
 }
 
-/// Visitor that collects #[form_request] structs
+/// Visitor that collects `#[form_request]` structs
 struct FormRequestVisitor {
     structs: Vec<FormRequestStruct>,
 }

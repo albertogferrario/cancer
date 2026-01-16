@@ -52,7 +52,7 @@ impl AuthorizationError {
     pub fn message_or_default(&self) -> String {
         self.message
             .clone()
-            .unwrap_or_else(|| format!("This action is unauthorized."))
+            .unwrap_or_else(|| "This action is unauthorized.".to_string())
     }
 }
 

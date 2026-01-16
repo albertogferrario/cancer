@@ -260,7 +260,7 @@ fn get_nested_value<'a>(data: &'a Value, path: &str) -> Option<&'a Value> {
 ///     println!("Validation failed: {:?}", errors);
 /// }
 /// ```
-pub fn validate<'a, I, F>(data: &'a Value, rules: I) -> Result<(), ValidationError>
+pub fn validate<I, F>(data: &Value, rules: I) -> Result<(), ValidationError>
 where
     I: IntoIterator<Item = (F, Vec<Box<dyn Rule>>)>,
     F: Into<String>,

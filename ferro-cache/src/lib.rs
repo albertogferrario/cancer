@@ -61,12 +61,3 @@ pub use stores::RedisStore;
 /// Re-export for convenience.
 pub use async_trait::async_trait;
 pub use serde;
-
-#[cfg(test)]
-mod tests {
-    #[tokio::test]
-    async fn test_placeholder() {
-        // Placeholder test
-        assert!(true);
-    }
-}

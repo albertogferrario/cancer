@@ -41,9 +41,9 @@ impl CacheStore for RedisStore {
         let seconds = ttl.as_secs() as i64;
 
         if seconds > 0 {
-            conn.set_ex(key, value, seconds as u64).await?;
+            conn.set_ex::<_, _, ()>(key, value, seconds as u64).await?;
         } else {
-            conn.set(key, value).await?;
+            conn.set::<_, _, ()>(key, value).await?;
         }
 
         Ok(())
@@ -63,7 +63,7 @@ impl CacheStore for RedisStore {
 
     async fn flush(&self) -> Result<(), Error> {
         let mut conn = self.client.clone();
-        redis::cmd("FLUSHDB").query_async(&mut conn).await?;
+        redis::cmd("FLUSHDB").query_async::<()>(&mut conn).await?;
         Ok(())
     }
 
@@ -81,7 +81,7 @@ impl CacheStore for RedisStore {
 
     async fn tag_add(&self, tag: &str, key: &str) -> Result<(), Error> {
         let mut conn = self.client.clone();
-        conn.sadd(tag, key).await?;
+        conn.sadd::<_, _, ()>(tag, key).await?;
         Ok(())
     }
 

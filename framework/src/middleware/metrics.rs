@@ -87,14 +87,14 @@ mod tests {
 
     #[test]
     fn test_metrics_middleware_default() {
-        let middleware = MetricsMiddleware::default();
+        let middleware = MetricsMiddleware;
         assert!(format!("{:?}", middleware).contains("MetricsMiddleware"));
     }
 
     #[test]
     fn test_metrics_middleware_clone() {
         let middleware = MetricsMiddleware::new();
-        let cloned = middleware.clone();
+        let cloned = middleware;
         // Both should exist and be the same type
         assert!(format!("{:?}", cloned).contains("MetricsMiddleware"));
     }

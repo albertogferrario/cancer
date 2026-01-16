@@ -413,6 +413,7 @@ impl GroupDef {
     /// This is the primary method for adding items to a group. It accepts
     /// anything that implements `IntoGroupItem`, including routes created
     /// with `get!`, `post!`, etc., and nested groups created with `group!`.
+    #[allow(clippy::should_implement_trait)]
     pub fn add<I: IntoGroupItem>(mut self, item: I) -> Self {
         self.items.push(item.into_group_item());
         self

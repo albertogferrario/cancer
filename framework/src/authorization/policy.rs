@@ -153,6 +153,7 @@ mod tests {
     // Test model
     #[derive(Debug)]
     struct TestPost {
+        #[allow(dead_code)]
         id: i64,
         user_id: i64,
     }

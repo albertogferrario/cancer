@@ -57,7 +57,7 @@ enum Binding {
 /// The main service container
 ///
 /// Stores type-erased bindings keyed by TypeId. Supports both concrete types
-/// and trait objects (via Arc<dyn Trait>).
+/// and trait objects (via `Arc<dyn Trait>`).
 pub struct Container {
     /// Type bindings: TypeId -> Binding
     bindings: HashMap<TypeId, Binding>,
@@ -148,7 +148,7 @@ impl Container {
         }
     }
 
-    /// Resolve a trait binding - returns Arc<T>
+    /// Resolve a trait binding - returns `Arc<T>`
     ///
     /// # Example
     /// ```rust,ignore
@@ -298,7 +298,7 @@ impl App {
         container.read().ok()?.get::<T>()
     }
 
-    /// Resolve a trait binding - returns Arc<T>
+    /// Resolve a trait binding - returns `Arc<T>`
     ///
     /// Checks test overrides first, then falls back to global container.
     ///

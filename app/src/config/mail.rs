@@ -2,6 +2,7 @@ use ferro_rs::env;
 
 /// Mail configuration
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct MailConfig {
     /// Mail driver (smtp, resend, sendgrid, etc.)
     pub driver: String,

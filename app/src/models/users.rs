@@ -12,6 +12,7 @@ use ferro_rs::Authenticatable;
 use std::any::Any;
 
 /// Type alias for convenient access
+#[allow(dead_code)]
 pub type User = Model;
 
 // ============================================================================

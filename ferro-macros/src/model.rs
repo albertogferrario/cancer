@@ -51,13 +51,8 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
 
         // Builder field - wrap in Option for builder pattern
         if !is_id {
-            let builder_field_ty = if is_option {
-                quote! { Option<#field_ty> }
-            } else {
-                quote! { Option<#field_ty> }
-            };
             builder_fields.push(quote! {
-                #field_name: #builder_field_ty
+                #field_name: Option<#field_ty>
             });
 
             builder_default_fields.push(quote! {

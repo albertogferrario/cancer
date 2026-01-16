@@ -423,6 +423,7 @@ impl<T: Debug + PartialEq> Expect<Vec<T>> {
 }
 
 // Numeric comparison matchers using PartialOrd
+#[allow(clippy::neg_cmp_op_on_partial_ord)]
 impl<T: Debug + PartialOrd> Expect<T> {
     /// Assert that the value is greater than the expected value
     ///

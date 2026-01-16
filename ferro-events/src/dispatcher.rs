@@ -191,10 +191,7 @@ impl EventDispatcher {
     /// Dispatch an event without waiting for listeners to complete.
     ///
     /// This spawns the event handling as a background task.
-    pub fn dispatch_async<E: Event>(&self, event: E)
-    where
-        E: 'static,
-    {
+    pub fn dispatch_async<E: Event + 'static>(&self, event: E) {
         let type_id = TypeId::of::<E>();
         let event_name = event.name();
 

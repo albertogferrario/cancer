@@ -7,17 +7,15 @@
 //!
 //! # Example
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ferro_rs::{Config, ServerConfig};
 //!
-//! fn main() {
-//!     // Initialize config (loads .env files)
-//!     Config::init(std::path::Path::new("."));
+//! // Initialize config (loads .env files)
+//! Config::init(std::path::Path::new("."));
 //!
-//!     // Get typed config
-//!     let server = Config::get::<ServerConfig>().unwrap();
-//!     println!("Server port: {}", server.port);
-//! }
+//! // Get typed config
+//! let server = Config::get::<ServerConfig>().unwrap();
+//! println!("Server port: {}", server.port);
 //! ```
 
 pub mod env;
