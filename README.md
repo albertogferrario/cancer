@@ -56,6 +56,36 @@ async fn store(_req: Request) -> Response {
 - **Modern frontend** — First-class Inertia.js + React with automatic TypeScript types
 - **Rust performance** — All the safety and speed, none of the ceremony
 
+## Roadmap
+
+### 🚧 JSON-UI (Work in Progress)
+
+An alternative to Inertia for building UIs without a frontend build step. Define views as JSON, render to HTML with Tailwind on the server.
+
+```json
+{
+  "layout": "app",
+  "components": [
+    {
+      "type": "Table",
+      "props": {
+        "columns": ["name", "email"],
+        "dataPath": "/data/users"
+      },
+      "actions": [
+        { "name": "edit", "handler": "users.edit" },
+        { "name": "delete", "handler": "users.destroy", "confirm": true }
+      ]
+    }
+  ]
+}
+```
+
+- Server-side rendering (no JS bundle required)
+- Predefined components: Table, Form, Card, Button, Input, Alert, Modal
+- Actions map directly to Ferro handlers
+- Coexists with Inertia (use JSON-UI for CRUD, Inertia for custom UIs)
+
 ## End-to-End Type Safety
 
 Ferro provides automatic TypeScript type generation from your Rust structs. Define your props once in Rust, and use them with full type safety in React.
