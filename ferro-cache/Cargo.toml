@@ -4,6 +4,10 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Caching with tags for the Ferro framework"
+repository = "https://github.com/ferroframework/ferro"
+keywords = ["cache", "redis", "memory", "ferro", "web"]
+categories = ["caching", "web-programming"]
+readme = "README.md"
 
 [dependencies]
 async-trait = "0.1"

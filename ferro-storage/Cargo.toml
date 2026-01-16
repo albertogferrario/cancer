@@ -4,6 +4,10 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "File storage abstraction for the Ferro framework"
+repository = "https://github.com/ferroframework/ferro"
+keywords = ["storage", "files", "s3", "ferro", "web"]
+categories = ["web-programming", "filesystem"]
+readme = "README.md"
 
 [dependencies]
 async-trait = "0.1"
