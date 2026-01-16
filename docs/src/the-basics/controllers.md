@@ -5,13 +5,13 @@ Controllers group related request handling logic.
 ## Creating Controllers
 
 ```bash
-cancer make:controller Users
+ferro make:controller Users
 ```
 
 This creates `src/controllers/users_controller.rs`:
 
 ```rust
-use cancer_rs::*;
+use ferro::*;
 
 #[handler]
 pub async fn index(req: Request) -> Response {
@@ -86,7 +86,7 @@ pub fn routes() -> Router {
 For Inertia.js responses:
 
 ```rust
-use cancer::{Inertia, InertiaProps, Request, Response};
+use ferro::{Inertia, InertiaProps, Request, Response};
 use crate::models::users::Entity as User;
 
 #[handler]
@@ -108,7 +108,7 @@ pub struct UsersIndexProps {
 When handling forms, you need to call `req.input()` which consumes the request. To render validation errors with Inertia, save the context first:
 
 ```rust
-use cancer::{
+use ferro::{
     Inertia, InertiaProps, Request, Response, SavedInertiaContext, Validate, serde_json,
 };
 
@@ -157,7 +157,7 @@ Key points:
 Use form requests for validation:
 
 ```rust
-use cancer_rs::*;
+use ferro::*;
 
 #[derive(FormRequest)]
 pub struct CreateUserRequest {
@@ -200,12 +200,12 @@ pub async fn store(
 For complex operations, use Actions:
 
 ```bash
-cancer make:action CreateUser
+ferro make:action CreateUser
 ```
 
 ```rust
 // src/actions/create_user.rs
-use cancer_rs::*;
+use ferro::*;
 
 #[derive(Action)]
 pub struct CreateUser {

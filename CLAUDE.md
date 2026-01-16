@@ -1,8 +1,8 @@
-# Claude Instructions for Cancer Framework
+# Claude Instructions for Ferro Framework
 
 ## Quick Start
 
-**Use cancer-mcp first.** The MCP tools provide instant introspection:
+**Use ferro-mcp first.** The MCP tools provide instant introspection:
 - `application_info` - Project state, models, installed crates
 - `list_routes` - All endpoints
 - `database_schema` - Table structure
@@ -13,15 +13,15 @@
 | Crate | Purpose | Key Files |
 |-------|---------|-----------|
 | `framework` | Core web framework | `src/lib.rs` (public API) |
-| `cancer-cli` | CLI tool | `src/commands/` |
-| `cancer-events` | Event dispatcher | `src/lib.rs` |
-| `cancer-queue` | Background jobs | `src/lib.rs` |
-| `cancer-notifications` | Multi-channel notifications | `src/lib.rs` |
-| `cancer-broadcast` | WebSocket broadcasting | `src/lib.rs` |
-| `cancer-storage` | File storage abstraction | `src/lib.rs` |
-| `cancer-cache` | Caching with tags | `src/lib.rs` |
-| `cancer-macros` | Proc macros | `src/lib.rs` |
-| `cancer-mcp` | MCP introspection server | `src/tools/` |
+| `ferro-cli` | CLI tool | `src/commands/` |
+| `ferro-events` | Event dispatcher | `src/lib.rs` |
+| `ferro-queue` | Background jobs | `src/lib.rs` |
+| `ferro-notifications` | Multi-channel notifications | `src/lib.rs` |
+| `ferro-broadcast` | WebSocket broadcasting | `src/lib.rs` |
+| `ferro-storage` | File storage abstraction | `src/lib.rs` |
+| `ferro-cache` | Caching with tags | `src/lib.rs` |
+| `ferro-macros` | Proc macros | `src/lib.rs` |
+| `ferro-mcp` | MCP introspection server | `src/tools/` |
 | `inertia-rs` | Inertia.js adapter | `src/lib.rs` |
 | `app` | Sample application | Reference implementation |
 
@@ -72,7 +72,7 @@ Component paths validated at compile-time.
 2. Export from `lib.rs`
 3. Add to `framework/src/lib.rs` re-exports if user-facing
 4. **Update documentation** in `docs/src/` (required)
-5. **Update cancer-mcp** if the feature affects introspection (new commands, routes, models, etc.)
+5. **Update ferro-mcp** if the feature affects introspection (new commands, routes, models, etc.)
 
 ### Testing
 ```bash
@@ -90,13 +90,13 @@ cargo clippy
 | Need | Location |
 |------|----------|
 | Public API | `framework/src/lib.rs` |
-| Route macros | `cancer-macros/src/routing.rs` |
-| Handler macro | `cancer-macros/src/handler.rs` |
+| Route macros | `ferro-macros/src/routing.rs` |
+| Handler macro | `ferro-macros/src/handler.rs` |
 | Validation rules | `framework/src/validation/rules/` |
 | HTTP types | `framework/src/http/` |
 | Database | `framework/src/database/` |
 | Middleware | `framework/src/middleware/` |
-| CLI commands | `cancer-cli/src/commands/` |
+| CLI commands | `ferro-cli/src/commands/` |
 
 ## Notes
 
@@ -105,4 +105,4 @@ cargo clippy
 - Prefer editing existing files over creating new ones
 - Keep changes focused and minimal
 - **Always update docs when framework changes** - `docs/src/` must reflect current features
-- **Update cancer-mcp when needed** - New CLI commands, routes, models, or introspectable features require MCP tool updates
+- **Update ferro-mcp when needed** - New CLI commands, routes, models, or introspectable features require MCP tool updates

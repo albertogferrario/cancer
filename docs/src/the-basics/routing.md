@@ -1,13 +1,13 @@
 # Routing
 
-Cancer provides an expressive routing API similar to Laravel.
+Ferro provides an expressive routing API similar to Laravel.
 
 ## Basic Routes
 
 Define routes in `src/routes.rs`:
 
 ```rust
-use cancer_rs::*;
+use ferro::*;
 
 pub fn routes() -> Router {
     Router::new()

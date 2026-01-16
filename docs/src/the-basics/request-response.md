@@ -285,4 +285,4 @@ pub async fn store(req: Request, form: CreateUserRequest) -> Response {
 }
 ```
 
-If validation fails, Cancer automatically returns a 422 response with errors.
+If validation fails, Ferro automatically returns a 422 response with errors.

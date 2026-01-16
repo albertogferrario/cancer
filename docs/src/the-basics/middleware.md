@@ -1,13 +1,13 @@
 # Middleware
 
-Cancer provides a powerful middleware system for intercepting and processing HTTP requests before they reach your route handlers. Middleware can inspect, modify, or short-circuit requests, and also post-process responses.
+Ferro provides a powerful middleware system for intercepting and processing HTTP requests before they reach your route handlers. Middleware can inspect, modify, or short-circuit requests, and also post-process responses.
 
 ## Generating Middleware
 
-The fastest way to create a new middleware is using the Cancer CLI:
+The fastest way to create a new middleware is using the Ferro CLI:
 
 ```bash
-cancer make:middleware Auth
+ferro make:middleware Auth
 ```
 
 This command will:
@@ -18,13 +18,13 @@ This command will:
 
 ```bash
 # Creates AuthMiddleware in src/middleware/auth.rs
-cancer make:middleware Auth
+ferro make:middleware Auth
 
 # Creates RateLimitMiddleware in src/middleware/rate_limit.rs
-cancer make:middleware RateLimit
+ferro make:middleware RateLimit
 
 # You can also include "Middleware" suffix (same result)
-cancer make:middleware CorsMiddleware
+ferro make:middleware CorsMiddleware
 ```
 
 **Generated file:**
@@ -32,7 +32,7 @@ cancer make:middleware CorsMiddleware
 ```rust
 //! Auth middleware
 
-use cancer::{async_trait, Middleware, Next, Request, Response};
+use ferro::{async_trait, Middleware, Next, Request, Response};
 
 /// Auth middleware
 pub struct AuthMiddleware;
@@ -62,7 +62,7 @@ Middleware sits between the incoming request and your route handlers, allowing y
 To create middleware, define a struct and implement the `Middleware` trait:
 
 ```rust
-use cancer::{async_trait, HttpResponse, Middleware, Next, Request, Response};
+use ferro::{async_trait, HttpResponse, Middleware, Next, Request, Response};
 
 pub struct LoggingMiddleware;
 
@@ -100,7 +100,7 @@ You can:
 Return early to block a request from reaching the route handler:
 
 ```rust
-use cancer::{async_trait, HttpResponse, Middleware, Next, Request, Response};
+use ferro::{async_trait, HttpResponse, Middleware, Next, Request, Response};
 
 pub struct AuthMiddleware;
 
@@ -121,7 +121,7 @@ impl Middleware for AuthMiddleware {
 
 ## Registering Middleware
 
-Cancer supports three levels of middleware:
+Ferro supports three levels of middleware:
 
 ### 1. Global Middleware
 
@@ -129,7 +129,7 @@ Global middleware runs on **every request**. Register it in `bootstrap.rs` using
 
 ```rust
 // src/bootstrap.rs
-use cancer::{global_middleware, DB};
+use ferro::{global_middleware, DB};
 use crate::middleware;
 
 pub async fn register() {
@@ -148,7 +148,7 @@ Apply middleware to individual routes using the `.middleware()` method:
 
 ```rust
 // src/routes.rs
-use cancer::{routes, get, post};
+use ferro::{routes, get, post};
 use crate::controllers;
 use crate::middleware::AuthMiddleware;
 
@@ -167,7 +167,7 @@ routes! {
 Apply middleware to a group of routes that share a common prefix:
 
 ```rust
-use cancer::Router;
+use ferro::Router;
 use crate::middleware::{AuthMiddleware, ApiMiddleware};
 
 Router::new()
@@ -213,7 +213,7 @@ Response ← Global MW ← Group MW ← Route MW ← Handler
 ### CORS Middleware
 
 ```rust
-use cancer::{async_trait, Middleware, Next, Request, Response, HttpResponse};
+use ferro::{async_trait, Middleware, Next, Request, Response, HttpResponse};
 
 pub struct CorsMiddleware;
 
@@ -244,7 +244,7 @@ impl Middleware for CorsMiddleware {
 ### Rate Limiting Middleware
 
 ```rust
-use cancer::{async_trait, Middleware, Next, Request, Response, HttpResponse};
+use ferro::{async_trait, Middleware, Next, Request, Response, HttpResponse};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
@@ -279,7 +279,7 @@ impl Middleware for RateLimitMiddleware {
 ### Request Timing Middleware
 
 ```rust
-use cancer::{async_trait, Middleware, Next, Request, Response};
+use ferro::{async_trait, Middleware, Next, Request, Response};
 use std::time::Instant;
 
 pub struct TimingMiddleware;
