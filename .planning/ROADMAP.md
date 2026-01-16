@@ -17,9 +17,9 @@ Complete rebrand of the framework, including all crates, CLI tools, MCP server, 
 
 ### Phases
 
-- [ ] **Phase 13: Rebrand Audit** - Document all name occurrences and plan rename strategy
-- [ ] **Phase 14: Core Framework Rename** - Rename main `cancer` crate to `ferro`
-- [ ] **Phase 15: Supporting Crates Rename** - Rename all `cancer-*` crates to `ferro-*`
+- [x] **Phase 13: Rebrand Audit** - Document all name occurrences and plan rename strategy
+- [x] **Phase 14: Core Framework Rename** - Rename main `cancer` crate to `ferro`
+- [x] **Phase 15: Supporting Crates Rename** - Rename all `cancer-*` crates to `ferro-*`
 - [ ] **Phase 16: CLI Rebrand** - Rename `cancer-cli` to `ferro-cli` and update commands
 - [ ] **Phase 17: MCP Server Rebrand** - Rename `cancer-mcp` to `ferro-mcp` and update tools
 - [ ] **Phase 18: Documentation Update** - Update all docs, READMEs, and code comments
@@ -224,7 +224,7 @@ Phases execute in numeric order: 1 → 2 → ... → 12 (v1.0) → 13 → ... �
 | 12. Agent-First Polish | v1.0 | 5/5 | Complete | 2026-01-16 |
 | 13. Rebrand Audit | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 14. Core Framework Rename | v2.0 | 1/1 | Complete | 2026-01-16 |
-| 15. Supporting Crates Rename | v2.0 | 0/1 | Planned | - |
+| 15. Supporting Crates Rename | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 16. CLI Rebrand | v2.0 | 0/? | Not started | - |
 | 17. MCP Server Rebrand | v2.0 | 0/? | Not started | - |
 | 18. Documentation Update | v2.0 | 0/? | Not started | - |

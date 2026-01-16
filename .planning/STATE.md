@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 ## Current Position
 
 Phase: 15 of 22 (Supporting Crates Rename)
-Plan: 01 planned
-Status: Ready for execution
-Last activity: 2026-01-16 — Created 15-01-PLAN.md (Supporting Crates Rename)
+Plan: 01 completed
+Status: Ready for phase 16
+Last activity: 2026-01-16 — Completed 15-01 (Supporting Crates Rename)
 
-Progress: ██░░░░░░░░░░░░░░░░ 10%
+Progress: ███░░░░░░░░░░░░░░░ 15%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18 (v1.0)
-- Average duration: 24 min
-- Total execution time: 7 hours 5 min
+- Total plans completed: 19 (v1.0 + 15-01)
+- Average duration: 23 min
+- Total execution time: 7 hours 20 min
 
 **By Phase (v1.0):**
 
@@ -40,9 +40,16 @@ Progress: ██░░░░░░░░░░░░░░░░ 10%
 | 11 | 3 | 75 min | 25 min |
 | 12 | 5 | 50 min | 10 min |
 
+**v2.0 Rebrand:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 14 | 1 | (part of prev session) | - |
+| 15 | 1 | 15 min | 15 min |
+
 **Recent Trend:**
-- Last 18 plans: All completed successfully
-- v1.0 complete: Framework ready for rebrand
+- Last 19 plans: All completed successfully
+- v2.0 rebrand in progress: Phase 15 complete
 
 ## Accumulated Context
 
@@ -88,6 +95,7 @@ Recent decisions affecting current work:
 35. **Inertia::redirect() over redirect!()** - For Inertia pages, use Inertia::redirect() which returns 303 for POST-like methods and includes X-Inertia header.
 36. **Rebrand to "ferro"** - Framework renamed from "cancer" to "ferro" for crates.io compatibility and public release.
 37. **Alias pattern for gradual migration** - Use `cancer = { path = "../framework", package = "ferro" }` to keep code imports working during phased rename.
+38. **Doctest crate name updates** - Doctests must use actual crate name (ferro_events) not alias, unlike runtime code which can use aliases.
 
 ### Pending Todos
 
@@ -95,17 +103,19 @@ None.
 
 ### Blockers/Concerns
 
-1. **Pre-existing test failures**: cancer-storage has unimplemented trait methods. Unrelated to current work but blocks full test suite.
-2. **Pre-existing metrics test failure**: Flaky shared state issue in test_record_request_increments_count.
-3. **Pre-existing clippy warnings**: cancer-macros and cancer-events have clippy warnings unrelated to MCP work.
+1. **Pre-existing test failures**: ferro-storage has unimplemented trait methods. Unrelated to current work but blocks full test suite.
+2. **Pre-existing metrics test failure**: Flaky shared state issue in test_different_methods_tracked_separately.
+3. **Pre-existing CSS test failure**: test_globals_css_not_empty expects tailwind in CSS.
 
 ### Roadmap Evolution
 
 - v1.0 DX Overhaul complete: 12 phases, 18 plans (2026-01-15 to 2026-01-16)
-- v2.0 Rebrand created: cancer → ferro, 10 phases (Phase 13-22)
+- v2.0 Rebrand in progress: cancer → ferro, 10 phases (Phase 13-22)
+- Phase 14 complete: Core framework renamed
+- Phase 15 complete: Supporting crates renamed
 
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Phase 15 plan 01 planned
-Resume file: .planning/phases/15-supporting-crates-rename/15-01-PLAN.md
+Stopped at: Phase 15 plan 01 completed
+Resume file: .planning/ROADMAP.md (check next phase)
