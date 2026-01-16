@@ -1,8 +1,7 @@
 //! Profile controller
 
 use cancer::{
-    redirect, serde_json, Auth, Inertia, InertiaProps, Request, Response,
-    SavedInertiaContext, Validate,
+    serde_json, Auth, Inertia, InertiaProps, Request, Response, SavedInertiaContext, Validate,
 };
 use serde::Deserialize;
 
@@ -74,7 +73,7 @@ pub async fn update(req: Request) -> Response {
     // Update user
     user.update_profile(&form.name, &form.email).await?;
 
-    redirect!("/profile").into()
+    Inertia::redirect_ctx(&ctx, "/profile")
 }
 
 // ============================================================================
@@ -143,14 +142,14 @@ pub async fn update_password(req: Request) -> Response {
     // Update password
     user.update_password(&form.password).await?;
 
-    redirect!("/profile").into()
+    Inertia::redirect_ctx(&ctx, "/profile")
 }
 
 // ============================================================================
 // Delete Account
 // ============================================================================
 
-pub async fn destroy(_req: Request) -> Response {
+pub async fn destroy(req: Request) -> Response {
     let user_id = Auth::user_id().ok_or_else(|| cancer::FrameworkError::AuthenticationRequired)?;
 
     // Get current user
@@ -164,5 +163,5 @@ pub async fn destroy(_req: Request) -> Response {
     // Logout
     Auth::logout();
 
-    redirect!("/").into()
+    Inertia::redirect(&req, "/")
 }
