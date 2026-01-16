@@ -12,15 +12,15 @@ cancer/
 │   └── public/            # Static assets (Vite output)
 ├── framework/             # Core web framework crate
 │   └── src/               # Framework implementation
-├── cancer-cli/            # CLI scaffolding tool
-├── cancer-macros/         # Procedural macros
-├── cancer-events/         # Event dispatcher
-├── cancer-queue/          # Background job queue
-├── cancer-notifications/  # Multi-channel notifications
-├── cancer-broadcast/      # WebSocket broadcasting
-├── cancer-storage/        # File storage abstraction
-├── cancer-cache/          # Caching layer
-├── cancer-mcp/            # MCP introspection server
+├── ferro-cli/            # CLI scaffolding tool
+├── ferro-macros/         # Procedural macros
+├── ferro-events/         # Event dispatcher
+├── ferro-queue/          # Background job queue
+├── ferro-notifications/  # Multi-channel notifications
+├── ferro-broadcast/      # WebSocket broadcasting
+├── ferro-storage/        # File storage abstraction
+├── ferro-cache/          # Caching layer
+├── ferro-mcp/            # MCP introspection server
 ├── inertia-rs/            # Inertia.js adapter
 ├── docs/                  # User documentation (mdBook)
 ├── scripts/               # Helper scripts
@@ -49,51 +49,51 @@ cancer/
 - Key files: `lib.rs` (public API), `app.rs` (application builder), `server.rs` (HTTP server)
 - Subdirectories: `http/`, `routing/`, `database/`, `auth/`, `authorization/`, `validation/`, `middleware/`, `session/`, `cache/`, `config/`, `container/`, `testing/`
 
-**cancer-cli/src/**
+**ferro-cli/src/**
 - Purpose: CLI code generators and project scaffolding
 - Contains: Commands for creating controllers, models, migrations, etc.
 - Key files: `main.rs` (CLI entry), `templates/mod.rs` (code templates)
 - Subdirectories: `commands/` (33 generator commands), `templates/`
 
-**cancer-macros/src/**
+**ferro-macros/src/**
 - Purpose: Procedural macros for framework
 - Contains: Handler, routing, service, model macros
 - Key files: `lib.rs`, `handler.rs`, `routing.rs`, `service.rs`, `model.rs`, `inertia.rs`
 
-**cancer-events/src/**
+**ferro-events/src/**
 - Purpose: Event dispatcher system
 - Contains: Event traits, dispatcher, listener registration
 - Key files: `lib.rs`, `dispatcher.rs`
 
-**cancer-queue/src/**
+**ferro-queue/src/**
 - Purpose: Background job queue (Redis-backed)
 - Contains: Job definitions, queue management, workers
 - Key files: `lib.rs`, `queue.rs`, `job.rs`, `worker.rs`, `dispatcher.rs`
 
-**cancer-notifications/src/**
+**ferro-notifications/src/**
 - Purpose: Multi-channel notification system
 - Contains: Mail, database, Slack channels
 - Key files: `lib.rs`, `dispatcher.rs`, `notification.rs`
 - Subdirectories: `channels/` (database, mail)
 
-**cancer-broadcast/src/**
+**ferro-broadcast/src/**
 - Purpose: WebSocket real-time broadcasting
 - Contains: Broadcaster, channel management
 - Key files: `lib.rs`, `broadcaster.rs`, `channel.rs`, `config.rs`
 
-**cancer-storage/src/**
+**ferro-storage/src/**
 - Purpose: File storage abstraction
 - Contains: Local and S3 drivers
 - Key files: `lib.rs`, `facade.rs`
 - Subdirectories: `drivers/` (local, s3)
 
-**cancer-cache/src/**
+**ferro-cache/src/**
 - Purpose: Cache abstraction
 - Contains: Memory and Redis stores
 - Key files: `lib.rs`, `cache.rs`
 - Subdirectories: `stores/` (redis, memory)
 
-**cancer-mcp/src/**
+**ferro-mcp/src/**
 - Purpose: Model Context Protocol introspection server
 - Contains: Debug tools for AI-assisted development
 - Key files: `lib.rs`
@@ -112,7 +112,7 @@ cancer/
 ## Key File Locations
 
 **Entry Points:**
-- `cancer-cli/src/main.rs` - CLI tool entry (binary: `cancer`)
+- `ferro-cli/src/main.rs` - CLI tool entry (binary: `ferro`)
 - `app/src/main.rs` - Application entry (binary: `app`)
 - `framework/src/lib.rs` - Framework library root
 
@@ -150,11 +150,11 @@ cancer/
 
 **Directories:**
 - `snake_case` - Rust directories
-- `kebab-case` - Crate names (cancer-events, cancer-queue)
+- `kebab-case` - Crate names (ferro-events, ferro-queue)
 - Plural for collections: `controllers/`, `models/`, `commands/`
 
 **Special Patterns:**
-- `cancer-*` - Framework addon crates
+- `ferro-*` - Framework addon crates
 - `make_*.rs` - Generator command files
 - `*.test.rs` - Test modules (inline, not separate files)
 
@@ -174,12 +174,12 @@ cancer/
 - Frontend page: `app/frontend/src/pages/{Name}.tsx`
 
 **New CLI Command:**
-- Implementation: `cancer-cli/src/commands/{command}.rs`
-- Registration: Add to `cancer-cli/src/main.rs`
-- Templates: Add to `cancer-cli/src/templates/mod.rs`
+- Implementation: `ferro-cli/src/commands/{command}.rs`
+- Registration: Add to `ferro-cli/src/main.rs`
+- Templates: Add to `ferro-cli/src/templates/mod.rs`
 
 **New Addon Crate:**
-- Create: `cancer-{name}/` directory
+- Create: `ferro-{name}/` directory
 - Add to: Workspace members in `Cargo.toml`
 - Export: Re-export from `framework/src/lib.rs` if user-facing
 

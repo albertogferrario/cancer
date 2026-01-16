@@ -9,7 +9,7 @@
 - mod.rs for module roots
 - lib.rs for library crate roots
 - PascalCase.tsx for React components (`Home.tsx`, `App.tsx`)
-- kebab-case for crate names (`cancer-events`, `cancer-queue`)
+- kebab-case for crate names (`ferro-events`, `ferro-queue`)
 
 **Functions:**
 - snake_case for all functions (`dispatch()`, `validate()`, `with_params()`)

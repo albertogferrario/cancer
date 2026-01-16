@@ -9,14 +9,14 @@
 
 **Email/SMS:**
 - SMTP - Generic mail provider support via Lettre
-  - SDK/Client: lettre 0.11 (`cancer-notifications/Cargo.toml`)
+  - SDK/Client: lettre 0.11 (`ferro-notifications/Cargo.toml`)
   - Auth: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` env vars
   - Configuration: `app/src/config/mail.rs`
   - Drivers supported: smtp, resend, sendgrid (`MAIL_DRIVER` env var)
 
 **Webhook Notifications:**
 - Slack - Webhook-based notifications
-  - Integration: HTTP POST via reqwest (`cancer-notifications/src/dispatcher.rs`)
+  - Integration: HTTP POST via reqwest (`ferro-notifications/src/dispatcher.rs`)
   - Auth: `SLACK_WEBHOOK_URL` env var
 
 ## Data Storage
@@ -34,12 +34,12 @@
 
 **File Storage:**
 - Local filesystem - Default storage driver
-  - Client: Built-in (`cancer-storage/src/drivers/local.rs`)
+  - Client: Built-in (`ferro-storage/src/drivers/local.rs`)
 
 - AWS S3 - Optional cloud storage (feature-gated)
-  - SDK/Client: aws-sdk-s3 1.x, aws-config 1.x (`cancer-storage/Cargo.toml`)
+  - SDK/Client: aws-sdk-s3 1.x, aws-config 1.x (`ferro-storage/Cargo.toml`)
   - Auth: Standard AWS credentials (IAM, env vars, profile)
-  - Feature flag: `s3` feature in `cancer-storage`
+  - Feature flag: `s3` feature in `ferro-storage`
 
 **Caching:**
 - Redis - Distributed cache backend
@@ -48,7 +48,7 @@
   - Config: `framework/src/cache/config.rs`
 
 - In-memory (Moka) - Local cache option
-  - Client: moka 0.12 (`cancer-cache/Cargo.toml`)
+  - Client: moka 0.12 (`ferro-cache/Cargo.toml`)
   - Use case: Single-instance deployments
 
 ## Authentication & Identity
@@ -79,7 +79,7 @@
 **Metrics:**
 - Built-in metrics collection
   - Location: `framework/src/metrics/mod.rs`
-  - Endpoints: `/_cancer/metrics` (debug mode only)
+  - Endpoints: `/_ferro/metrics` (debug mode only)
 
 ## CI/CD & Deployment
 
@@ -105,7 +105,7 @@
 - Required: `DATABASE_URL`, `APP_URL`
 - Optional: `REDIS_URL` for distributed cache/queue
 - Mail: `MAIL_DRIVER`, `MAIL_HOST`, `MAIL_PORT`, etc.
-- Debug: `CANCER_DEBUG_ENDPOINTS=true` to enable debug routes
+- Debug: `FERRO_DEBUG_ENDPOINTS=true` to enable debug routes
 
 ## Webhooks & Callbacks
 
@@ -114,7 +114,7 @@
 
 **Outgoing:**
 - Slack notifications - Webhook POST to `SLACK_WEBHOOK_URL`
-  - Trigger: Via notification dispatcher (`cancer-notifications/src/dispatcher.rs`)
+  - Trigger: Via notification dispatcher (`ferro-notifications/src/dispatcher.rs`)
   - Events: Custom notifications routed to Slack channel
 
 ## Queue System
@@ -123,15 +123,15 @@
 - Redis-backed queue
   - Connection: Same as cache (`REDIS_URL`)
   - Configuration: `QUEUE_CONNECTION`, `QUEUE_DEFAULT`, `QUEUE_PREFIX`, `QUEUE_BLOCK_TIMEOUT`, `QUEUE_MAX_CONCURRENT`
-  - Location: `cancer-queue/src/`
-  - Worker: `cancer-queue/src/worker.rs`
+  - Location: `ferro-queue/src/`
+  - Worker: `ferro-queue/src/worker.rs`
 
 ## WebSocket/Real-time
 
 **Broadcasting:**
 - Tokio-tungstenite WebSocket
-  - Location: `cancer-broadcast/src/`
-  - Config: `cancer-broadcast/src/config.rs`
+  - Location: `ferro-broadcast/src/`
+  - Config: `ferro-broadcast/src/config.rs`
   - Use case: Real-time updates to frontend
 
 ---

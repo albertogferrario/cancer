@@ -33,7 +33,7 @@ framework/src/schedule/expression.rs:100-150 - Cron parsing unwraps
 - `REDIS_URL` - Optional but affects functionality
 - `MAIL_*` - Mail configuration
 - `APP_URL` - Application URL
-- `CANCER_DEBUG_ENDPOINTS` - Debug routes toggle
+- `FERRO_DEBUG_ENDPOINTS` - Debug routes toggle
 
 **Recommendation:** Create `.env.example` with all variables and defaults
 
@@ -54,14 +54,14 @@ framework/src/schedule/expression.rs:100-150 - Cron parsing unwraps
 
 | File | Lines | Concern |
 |------|-------|---------|
-| `cancer-cli/src/templates/mod.rs` | 2,713 | Large, consider splitting |
+| `ferro-cli/src/templates/mod.rs` | 2,713 | Large, consider splitting |
 | `framework/src/testing/factory.rs` | 1,274 | Complex test factories |
 | `framework/src/testing/http.rs` | 739 | Could be modularized |
 
 **Recommendation:** Split large files into focused modules
 
 **Documentation Gaps:**
-- `cancer-cli/src/templates/mod.rs` - Minimal documentation for template system
+- `ferro-cli/src/templates/mod.rs` - Minimal documentation for template system
 - Internal framework modules lack comprehensive doc comments
 
 ## Security Considerations
@@ -126,7 +126,7 @@ framework/src/schedule/expression.rs:100-150 - Cron parsing unwraps
 
 **Current State:**
 - Basic tracing infrastructure exists
-- Debug endpoints at `/_cancer/metrics`
+- Debug endpoints at `/_ferro/metrics`
 - No external monitoring integration
 
 ---

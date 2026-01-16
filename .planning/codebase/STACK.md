@@ -49,7 +49,7 @@
 
 **Critical:**
 - sea-orm 1.0 - Database ORM (`framework/Cargo.toml`)
-- redis 0.25 - Cache and queue backend (`framework/Cargo.toml`, `cancer-queue/Cargo.toml`)
+- redis 0.25 - Cache and queue backend (`framework/Cargo.toml`, `ferro-queue/Cargo.toml`)
 - tokio 1.x - Async runtime (`framework/Cargo.toml`)
 - serde 1.x - Serialization (`framework/Cargo.toml`)
 
@@ -60,16 +60,16 @@
 **Infrastructure:**
 - hyper 1.x - HTTP routing (`framework/Cargo.toml`)
 - matchit 0.8 - Fast route matching (`framework/Cargo.toml`)
-- lettre 0.11 - SMTP mail transport (`cancer-notifications/Cargo.toml`)
-- tokio-tungstenite 0.26 - WebSocket support (`cancer-broadcast/Cargo.toml`)
+- lettre 0.11 - SMTP mail transport (`ferro-notifications/Cargo.toml`)
+- tokio-tungstenite 0.26 - WebSocket support (`ferro-broadcast/Cargo.toml`)
 
 **Macros & Code Generation:**
-- proc-macro2, quote, syn 2.x - Procedural macros (`cancer-macros/Cargo.toml`)
-- clap 4.x - CLI parsing (`cancer-cli/Cargo.toml`)
+- proc-macro2, quote, syn 2.x - Procedural macros (`ferro-macros/Cargo.toml`)
+- clap 4.x - CLI parsing (`ferro-cli/Cargo.toml`)
 
 **Optional:**
-- aws-sdk-s3 1.x - S3 file storage (feature-gated) (`cancer-storage/Cargo.toml`)
-- moka 0.12 - In-memory cache (`cancer-cache/Cargo.toml`)
+- aws-sdk-s3 1.x - S3 file storage (feature-gated) (`ferro-storage/Cargo.toml`)
+- moka 0.12 - In-memory cache (`ferro-cache/Cargo.toml`)
 
 ## Configuration
 

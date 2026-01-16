@@ -162,7 +162,7 @@ cargo tarpaulin
 - Scope: Single function/method in isolation
 - Location: Inline `#[cfg(test)]` modules
 - Speed: Fast (<100ms per test)
-- Examples: `cancer-events/src/dispatcher.rs`, `framework/src/validation/error.rs`
+- Examples: `ferro-events/src/dispatcher.rs`, `framework/src/validation/error.rs`
 
 **Integration Tests:**
 - Scope: Multiple modules together

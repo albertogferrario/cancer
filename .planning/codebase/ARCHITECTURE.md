@@ -46,7 +46,7 @@
 **Cross-Cutting Concerns:**
 - Purpose: Shared functionality across layers
 - Contains: Auth, sessions, cache, queue, events, notifications, broadcasting, storage
-- Location: `framework/src/auth/`, `framework/src/session/`, `cancer-cache/`, `cancer-queue/`, `cancer-events/`, `cancer-notifications/`, `cancer-broadcast/`, `cancer-storage/`
+- Location: `framework/src/auth/`, `framework/src/session/`, `ferro-cache/`, `ferro-queue/`, `ferro-events/`, `ferro-notifications/`, `ferro-broadcast/`, `ferro-storage/`
 - Depends on: Configuration, external services
 - Used by: All layers
 
@@ -89,7 +89,7 @@
 
 **Handler Functions:**
 - Purpose: HTTP request handlers with auto parameter extraction
-- Location: `cancer-macros/src/handler.rs`
+- Location: `ferro-macros/src/handler.rs`
 - Pattern: Attribute macro with FromRequest trait
 - Usage: `#[handler] async fn show(req: Request, user: User) -> Response`
 
@@ -113,21 +113,21 @@
 
 **Event Dispatcher:**
 - Purpose: Decoupled event handling
-- Location: `cancer-events/src/dispatcher.rs`
+- Location: `ferro-events/src/dispatcher.rs`
 - Pattern: Observer pattern with async listeners
 - Usage: `dispatch_event(UserCreated { ... })`
 
 **Job Queue:**
 - Purpose: Background task execution
-- Location: `cancer-queue/src/`
+- Location: `ferro-queue/src/`
 - Pattern: Redis-backed job queue with workers
 - Usage: `queue_dispatch(SendEmail::new(...))`
 
 ## Entry Points
 
 **CLI Tool:**
-- Location: `cancer-cli/src/main.rs`
-- Triggers: `cancer new`, `cancer make:*`, `cancer migrate`, `cancer serve`
+- Location: `ferro-cli/src/main.rs`
+- Triggers: `ferro new`, `ferro make:*`, `ferro migrate`, `ferro serve`
 - Responsibilities: Project scaffolding, code generation, migrations
 
 **Application Server:**
@@ -137,11 +137,11 @@
 
 **Framework Library:**
 - Location: `framework/src/lib.rs`
-- Triggers: `use cancer::*` in application code
+- Triggers: `use ferro::*` in application code
 - Responsibilities: Export public API (Request, Response, Router, DB, etc.)
 
 **Proc Macros:**
-- Location: `cancer-macros/src/lib.rs`
+- Location: `ferro-macros/src/lib.rs`
 - Triggers: `#[handler]`, `routes!()`, `#[service]`, `#[derive(InertiaProps)]`
 - Responsibilities: Code generation, compile-time validation
 
