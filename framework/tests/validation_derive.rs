@@ -2,8 +2,8 @@
 //!
 //! Tests declarative validation using #[derive(ValidateRules)] with #[rule(...)] attributes.
 
-use cancer_rs::validation::Validatable;
-use cancer_rs::ValidateRules;
+use ferro::validation::Validatable;
+use ferro::ValidateRules;
 use serde::{Deserialize, Serialize};
 
 // ============================================================================

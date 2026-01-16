@@ -40,7 +40,7 @@ pub fn derive_request_impl(input: TokenStream) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let output = quote! {
-        impl #impl_generics cancer_rs::FormRequest for #name #ty_generics #where_clause {}
+        impl #impl_generics ferro::FormRequest for #name #ty_generics #where_clause {}
     };
 
     output.into()
@@ -76,7 +76,7 @@ pub fn derive_request_impl(input: TokenStream) -> TokenStream {
 ///     pub password: String,
 /// }
 ///
-/// impl cancer_rs::FormRequest for CreateUserRequest {}
+/// impl ferro::FormRequest for CreateUserRequest {}
 /// ```
 ///
 /// ## Content Type Support
@@ -111,7 +111,7 @@ pub fn request_attr_impl(_attr: TokenStream, input: TokenStream) -> TokenStream 
         #[derive(serde::Deserialize, validator::Validate)]
         #vis struct #name #generics #fields
 
-        impl #impl_generics cancer_rs::FormRequest for #name #ty_generics #where_clause {}
+        impl #impl_generics ferro::FormRequest for #name #ty_generics #where_clause {}
     };
 
     output.into()

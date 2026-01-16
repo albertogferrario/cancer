@@ -116,10 +116,10 @@ name = "app"
 version = "0.1.67"
 dependencies = [
  "async-trait",
- "cancer-rs",
  "chrono",
  "clap",
  "dotenvy",
+ "ferro",
  "sea-orm",
  "sea-orm-migration",
  "serde",
@@ -972,47 +972,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cancer-rs"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "base64",
- "bcrypt",
- "bytes",
- "cancer-broadcast",
- "cancer-cache",
- "cancer-events",
- "cancer-macros",
- "cancer-notifications",
- "cancer-queue",
- "cancer-storage",
- "chrono",
- "clap",
- "dashmap",
- "dotenvy",
- "form_urlencoded",
- "http 1.4.0",
- "http-body-util",
- "hyper 1.8.1",
- "hyper-util",
- "inertia-rs",
- "inventory",
- "matchit",
- "pretty_assertions",
- "rand 0.8.5",
- "redis",
- "regex",
- "sea-orm",
- "sea-orm-migration",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "thiserror 1.0.69",
- "tokio",
- "validator",
-]
-
-[[package]]
 name = "cancer-storage"
 version = "0.1.67"
 dependencies = [
@@ -1672,6 +1631,47 @@ name = "fastrand"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
+
+[[package]]
+name = "ferro"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "base64",
+ "bcrypt",
+ "bytes",
+ "cancer-broadcast",
+ "cancer-cache",
+ "cancer-events",
+ "cancer-macros",
+ "cancer-notifications",
+ "cancer-queue",
+ "cancer-storage",
+ "chrono",
+ "clap",
+ "dashmap",
+ "dotenvy",
+ "form_urlencoded",
+ "http 1.4.0",
+ "http-body-util",
+ "hyper 1.8.1",
+ "hyper-util",
+ "inertia-rs",
+ "inventory",
+ "matchit",
+ "pretty_assertions",
+ "rand 0.8.5",
+ "redis",
+ "regex",
+ "sea-orm",
+ "sea-orm-migration",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "thiserror 1.0.69",
+ "tokio",
+ "validator",
+]
 
 [[package]]
 name = "ff"
