@@ -1,4 +1,4 @@
-//! Cancer Application Entry Point
+//! Ferro Application Entry Point
 
 use ferro::{Config, Server};
 use clap::{Parser, Subcommand};
@@ -26,7 +26,7 @@ use migrations::Migrator;
 
 #[derive(Parser)]
 #[command(name = "{package_name}")]
-#[command(about = "Cancer application server and utilities")]
+#[command(about = "Ferro application server and utilities")]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,

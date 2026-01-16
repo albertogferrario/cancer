@@ -40,7 +40,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
             </h1>
 
             <p className="mb-10 text-lg leading-relaxed text-muted-foreground">
-              A modern web application built with Cancer framework. Fast, secure, and scalable.
+              A modern web application built with Ferro framework. Fast, secure, and scalable.
             </p>
 
             <div className="space-y-3">

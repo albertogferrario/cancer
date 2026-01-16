@@ -1,4 +1,4 @@
-APP_NAME="Cancer Application"
+APP_NAME="Ferro Application"
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost:8080
@@ -26,4 +26,4 @@ MAIL_PORT=587
 MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_FROM_ADDRESS=hello@example.com
-MAIL_FROM_NAME="Cancer App"
+MAIL_FROM_NAME="Ferro App"
