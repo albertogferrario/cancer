@@ -119,7 +119,7 @@ dependencies = [
  "chrono",
  "clap",
  "dotenvy",
- "ferro",
+ "ferro-rs",
  "sea-orm",
  "sea-orm-migration",
  "serde",
@@ -1478,47 +1478,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
 
 [[package]]
-name = "ferro"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "base64",
- "bcrypt",
- "bytes",
- "chrono",
- "clap",
- "dashmap",
- "dotenvy",
- "ferro-broadcast",
- "ferro-cache",
- "ferro-events",
- "ferro-inertia",
- "ferro-macros",
- "ferro-notifications",
- "ferro-queue",
- "ferro-storage",
- "form_urlencoded",
- "http 1.4.0",
- "http-body-util",
- "hyper 1.8.1",
- "hyper-util",
- "inventory",
- "matchit",
- "pretty_assertions",
- "rand 0.8.5",
- "redis",
- "regex",
- "sea-orm",
- "sea-orm-migration",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "thiserror 1.0.69",
- "tokio",
- "validator",
-]
-
-[[package]]
 name = "ferro-broadcast"
 version = "0.1.67"
 dependencies = [
@@ -1662,6 +1621,47 @@ dependencies = [
  "tokio",
  "tracing",
  "uuid",
+]
+
+[[package]]
+name = "ferro-rs"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "base64",
+ "bcrypt",
+ "bytes",
+ "chrono",
+ "clap",
+ "dashmap",
+ "dotenvy",
+ "ferro-broadcast",
+ "ferro-cache",
+ "ferro-events",
+ "ferro-inertia",
+ "ferro-macros",
+ "ferro-notifications",
+ "ferro-queue",
+ "ferro-storage",
+ "form_urlencoded",
+ "http 1.4.0",
+ "http-body-util",
+ "hyper 1.8.1",
+ "hyper-util",
+ "inventory",
+ "matchit",
+ "pretty_assertions",
+ "rand 0.8.5",
+ "redis",
+ "regex",
+ "sea-orm",
+ "sea-orm-migration",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "thiserror 1.0.69",
+ "tokio",
+ "validator",
 ]
 
 [[package]]

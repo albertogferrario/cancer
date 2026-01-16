@@ -8,7 +8,7 @@ name = "app"
 path = "src/main.rs"
 
 [dependencies]
-ferro = { path = "../framework" }
+ferro = { path = "../framework", package = "ferro-rs" }
 tokio = { version = "1", features = ["full"] }
 sea-orm-migration = { version = "1.0", features = ["sqlx-sqlite", "sqlx-postgres", "runtime-tokio-native-tls"] }
 sea-orm = { version = "1.0", features = ["sqlx-sqlite", "sqlx-postgres", "runtime-tokio-native-tls", "macros"] }

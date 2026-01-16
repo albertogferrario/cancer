@@ -1,5 +1,5 @@
 [package]
-name = "ferro"
+name = "ferro-rs"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
