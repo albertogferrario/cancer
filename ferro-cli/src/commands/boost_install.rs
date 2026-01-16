@@ -201,7 +201,7 @@ fn generate_ai_guidelines(editor: &str) {
     // Generate Ferro framework guidelines
     let cancer_md_path = guidelines_dir.join("cancer.md");
     if !cancer_md_path.exists() {
-        let content = templates::cancer_guidelines_template();
+        let content = templates::ferro_guidelines_template();
         if let Err(e) = fs::write(&cancer_md_path, content) {
             eprintln!(
                 "{} Failed to write cancer.md: {}",
@@ -254,7 +254,7 @@ fn generate_ai_guidelines(editor: &str) {
                 // Append Ferro-specific instructions if not already present
                 let existing = fs::read_to_string(claude_md_path).unwrap_or_default();
                 if !existing.contains("Ferro Framework") {
-                    let cancer_section = templates::claude_md_cancer_section();
+                    let cancer_section = templates::claude_md_ferro_section();
                     if let Err(e) = fs::write(
                         claude_md_path,
                         format!("{}\n\n{}", existing.trim(), cancer_section),
