@@ -224,7 +224,7 @@ Phases execute in numeric order: 1 → 2 → ... → 12 (v1.0) → 13 → ... �
 | 12. Agent-First Polish | v1.0 | 5/5 | Complete | 2026-01-16 |
 | 13. Rebrand Audit | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 14. Core Framework Rename | v2.0 | 1/1 | Complete | 2026-01-16 |
-| 15. Supporting Crates Rename | v2.0 | 0/? | Not started | - |
+| 15. Supporting Crates Rename | v2.0 | 0/1 | Planned | - |
 | 16. CLI Rebrand | v2.0 | 0/? | Not started | - |
 | 17. MCP Server Rebrand | v2.0 | 0/? | Not started | - |
 | 18. Documentation Update | v2.0 | 0/? | Not started | - |

@@ -1,6 +1,6 @@
-//! # Cancer Events
+//! # Ferro Events
 //!
-//! Event dispatcher and listener system for the Cancer framework.
+//! Event dispatcher and listener system for the Ferro framework.
 //!
 //! Provides a Laravel-inspired event system with support for:
 //! - Synchronous listeners
@@ -11,7 +11,7 @@
 //! ## Example
 //!
 //! ```rust,ignore
-//! use cancer_events::{Event, Listener, Error};
+//! use ferro_events::{Event, Listener, Error};
 //!
 //! #[derive(Clone)]
 //! struct UserRegistered {

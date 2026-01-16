@@ -13,7 +13,7 @@ use std::any::Any;
 /// # Example
 ///
 /// ```rust
-/// use cancer_events::Event;
+/// use ferro_events::Event;
 ///
 /// #[derive(Clone)]
 /// struct OrderPlaced {
@@ -50,7 +50,7 @@ pub trait Event: Clone + Send + Sync + 'static {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_events::Event;
+    /// use ferro_events::Event;
     ///
     /// #[derive(Clone)]
     /// struct UserRegistered { user_id: i64 }
@@ -58,7 +58,7 @@ pub trait Event: Clone + Send + Sync + 'static {
     ///     fn name(&self) -> &'static str { "UserRegistered" }
     /// }
     ///
-    /// async fn register_user() -> Result<(), cancer_events::Error> {
+    /// async fn register_user() -> Result<(), ferro_events::Error> {
     ///     // ... registration logic ...
     ///     UserRegistered { user_id: 123 }.dispatch().await?;
     ///     Ok(())
@@ -81,7 +81,7 @@ pub trait Event: Clone + Send + Sync + 'static {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use cancer_events::Event;
+    /// use ferro_events::Event;
     ///
     /// #[derive(Clone)]
     /// struct PageViewed { page: String }
@@ -109,7 +109,7 @@ pub trait Event: Clone + Send + Sync + 'static {
 /// # Example
 ///
 /// ```rust
-/// use cancer_events::{Event, Listener, Error, async_trait};
+/// use ferro_events::{Event, Listener, Error, async_trait};
 ///
 /// #[derive(Clone)]
 /// struct UserRegistered { email: String }
@@ -159,7 +159,7 @@ pub trait Listener<E: Event>: Send + Sync + 'static {
 /// # Example
 ///
 /// ```rust
-/// use cancer_events::{Event, Listener, ShouldQueue, Error, async_trait};
+/// use ferro_events::{Event, Listener, ShouldQueue, Error, async_trait};
 ///
 /// #[derive(Clone)]
 /// struct LargeFileUploaded { path: String }

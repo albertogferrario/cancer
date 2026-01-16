@@ -50,7 +50,7 @@ impl EventDispatcher {
     /// # Example
     ///
     /// ```rust
-    /// use cancer_events::{EventDispatcher, Event, Listener, Error, async_trait};
+    /// use ferro_events::{EventDispatcher, Event, Listener, Error, async_trait};
     ///
     /// #[derive(Clone)]
     /// struct MyEvent;
@@ -111,7 +111,7 @@ impl EventDispatcher {
     /// # Example
     ///
     /// ```rust
-    /// use cancer_events::{EventDispatcher, Event, Error};
+    /// use ferro_events::{EventDispatcher, Event, Error};
     ///
     /// #[derive(Clone)]
     /// struct UserCreated { id: i64 }
@@ -252,7 +252,7 @@ pub fn global_dispatcher() -> &'static EventDispatcher {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer_events::{dispatch, Event};
+/// use ferro_events::{dispatch, Event};
 ///
 /// #[derive(Clone)]
 /// struct UserLoggedIn { user_id: i64 }

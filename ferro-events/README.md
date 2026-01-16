@@ -1,6 +1,6 @@
-# cancer-events
+# ferro-events
 
-Event dispatcher and listener system for the Cancer framework.
+Event dispatcher and listener system for the Ferro framework.
 
 ## Features
 
@@ -12,7 +12,7 @@ Event dispatcher and listener system for the Cancer framework.
 ## Usage
 
 ```rust
-use cancer_events::{Event, Listener, dispatch};
+use ferro_events::{Event, Listener, dispatch};
 
 // Define an event
 #[derive(Clone)]
@@ -32,7 +32,7 @@ struct SendWelcomeEmail;
 
 #[async_trait::async_trait]
 impl Listener<UserRegistered> for SendWelcomeEmail {
-    async fn handle(&self, event: &UserRegistered) -> Result<(), cancer_events::Error> {
+    async fn handle(&self, event: &UserRegistered) -> Result<(), ferro_events::Error> {
         println!("Sending welcome email to {}", event.email);
         Ok(())
     }
