@@ -719,6 +719,52 @@ pub async fn destroy(post: Post, _req: Request) -> Response {
 }
 ```
 
+## Redirects
+
+For form submissions (POST, PUT, PATCH, DELETE) that should redirect after success, use `Inertia::redirect()`:
+
+```rust
+use cancer::{Inertia, Request, Response, Auth};
+
+pub async fn login(req: Request) -> Response {
+    // ... validation and auth logic ...
+
+    Auth::login(user.id);
+    Inertia::redirect(&req, "/dashboard")
+}
+
+pub async fn logout(req: Request) -> Response {
+    Auth::logout();
+    Inertia::redirect(&req, "/")
+}
+```
+
+### Why Not `redirect!()`?
+
+The `redirect!()` macro doesn't have access to the request context, so it can't detect Inertia XHR requests. For non-Inertia routes (API endpoints, traditional forms), `redirect!()` works fine.
+
+For Inertia pages, always use `Inertia::redirect()` which:
+- Detects Inertia XHR requests via the `X-Inertia` header
+- Uses 303 status for POST/PUT/PATCH/DELETE (forces GET on redirect)
+- Includes proper `X-Inertia: true` response header
+
+### With Saved Context
+
+If you've consumed the request with `req.input()`, use the saved context:
+
+```rust
+use cancer::{Inertia, Request, Response, SavedInertiaContext};
+
+pub async fn store(req: Request) -> Response {
+    let ctx = SavedInertiaContext::from(&req);
+    let form: CreateForm = req.input().await?;
+
+    // ... create record ...
+
+    Inertia::redirect_ctx(&ctx, "/items")
+}
+```
+
 ## Best Practices
 
 1. **Use InertiaProps derive** - Automatic camelCase conversion matches JavaScript conventions
@@ -729,3 +775,4 @@ pub async fn destroy(post: Post, _req: Request) -> Response {
 6. **Handle version conflicts** - Ensure smooth deployments with version checking
 7. **Keep props minimal** - Only send what the page needs
 8. **Use partial reloads** - Optimize updates by requesting only changed data
+9. **Use `Inertia::redirect()` for form success** - Ensures proper 303 status for Inertia XHR requests
