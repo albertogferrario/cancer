@@ -1,21 +1,21 @@
-# Cancer
+# Ferro
 
 **A Laravel-inspired web framework for Rust**
 
-[![Crates.io](https://img.shields.io/crates/v/cancer-rs.svg)](https://crates.io/crates/cancer-rs)
+[![Crates.io](https://img.shields.io/crates/v/ferro-rs.svg)](https://crates.io/crates/ferro-rs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Build web applications in Rust with the developer experience you love from Laravel and Rails. Cancer gives you expressive routing, powerful tooling, and batteries-included features—without sacrificing Rust's performance.
+Build web applications in Rust with the developer experience you love from Laravel and Rails. Ferro gives you expressive routing, powerful tooling, and batteries-included features—without sacrificing Rust's performance.
 
-[Website](https://cancer-rs.dev/) | [Documentation](https://cancer-rs.dev/)
+[Website](https://ferro-rs.dev/) | [Documentation](https://ferro-rs.dev/)
 
 ## Quick Start
 
 ```bash
-cargo install cancer-cli
-cancer new myapp
+cargo install ferro-cli
+ferro new myapp
 cd myapp
-cancer serve
+ferro serve
 ```
 
 Your app is now running at `http://localhost:8000`
@@ -25,7 +25,7 @@ Your app is now running at `http://localhost:8000`
 If you've used Laravel or Rails, this will feel familiar:
 
 ```rust
-use cancer::{get, post, routes, json_response, Request, Response};
+use ferro::{get, post, routes, json_response, Request, Response};
 
 routes! {
     get("/", index),
@@ -34,7 +34,7 @@ routes! {
 }
 
 async fn index(_req: Request) -> Response {
-    json_response!({ "message": "Welcome to Cancer!" })
+    json_response!({ "message": "Welcome to Ferro!" })
 }
 
 async fn show(req: Request) -> Response {
@@ -48,22 +48,22 @@ async fn store(_req: Request) -> Response {
 }
 ```
 
-## Why Cancer?
+## Why Ferro?
 
 - **Familiar patterns** — Routes, controllers, middleware, service container
-- **CLI generators** — `cancer make:controller`, `cancer make:model`, `cancer migrate`
+- **CLI generators** — `ferro make:controller`, `ferro make:model`, `ferro migrate`
 - **Database built-in** — Migrations, ORM, query builder
 - **Modern frontend** — First-class Inertia.js + React with automatic TypeScript types
 - **Rust performance** — All the safety and speed, none of the ceremony
 
 ## End-to-End Type Safety
 
-Cancer provides automatic TypeScript type generation from your Rust structs. Define your props once in Rust, and use them with full type safety in React.
+Ferro provides automatic TypeScript type generation from your Rust structs. Define your props once in Rust, and use them with full type safety in React.
 
 **Define props in Rust:**
 
 ```rust
-use cancer::{InertiaProps, inertia_response, Request, Response};
+use ferro::{InertiaProps, inertia_response, Request, Response};
 
 #[derive(InertiaProps)]
 pub struct User {
@@ -91,7 +91,7 @@ pub async fn index(_req: Request) -> Response {
 **Run type generation:**
 
 ```bash
-cancer generate-types
+ferro generate-types
 ```
 
 **TypeScript types are auto-generated:**
@@ -129,7 +129,7 @@ Change a field in Rust, regenerate types, and TypeScript will catch any mismatch
 
 ## Documentation
 
-Ready to build something? Check out the [full documentation](https://cancer-rs.dev/) to get started.
+Ready to build something? Check out the [full documentation](https://ferro-rs.dev/) to get started.
 
 ## License
 
