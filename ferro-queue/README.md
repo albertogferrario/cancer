@@ -1,6 +1,6 @@
-# cancer-queue
+# ferro-queue
 
-Background job queue system for the Cancer framework.
+Background job queue system for the Ferro framework.
 
 ## Features
 
@@ -17,17 +17,17 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cancer-queue = "0.1"
+ferro-queue = "0.1"
 ```
 
-Or use it through the main Cancer framework which re-exports all queue types.
+Or use it through the main Ferro framework which re-exports all queue types.
 
 ## Configuration
 
 ### From Environment Variables
 
 ```rust
-use cancer_queue::{Queue, QueueConfig};
+use ferro_queue::{Queue, QueueConfig};
 
 // Load configuration from environment
 let config = QueueConfig::from_env();
@@ -40,7 +40,7 @@ Environment variables:
 |----------|-------------|---------|
 | `QUEUE_CONNECTION` | "sync" or "redis" | sync |
 | `QUEUE_DEFAULT` | Default queue name | default |
-| `QUEUE_PREFIX` | Redis key prefix | cancer_queue |
+| `QUEUE_PREFIX` | Redis key prefix | ferro_queue |
 | `QUEUE_BLOCK_TIMEOUT` | Seconds to block waiting for jobs | 5 |
 | `QUEUE_MAX_CONCURRENT` | Max concurrent jobs per worker | 10 |
 | `REDIS_URL` | Full Redis URL (takes precedence) | - |
@@ -52,7 +52,7 @@ Environment variables:
 ### Programmatic Configuration
 
 ```rust
-use cancer_queue::QueueConfig;
+use ferro_queue::QueueConfig;
 use std::time::Duration;
 
 let config = QueueConfig::new("redis://localhost:6379")
@@ -65,7 +65,7 @@ let config = QueueConfig::new("redis://localhost:6379")
 ## Defining Jobs
 
 ```rust
-use cancer_queue::{Job, Queueable, Error};
+use ferro_queue::{Job, Queueable, Error};
 use serde::{Deserialize, Serialize};
 use async_trait::async_trait;
 
@@ -134,7 +134,7 @@ SendEmail { /* ... */ }
 ## Running Workers
 
 ```rust
-use cancer_queue::{Worker, WorkerConfig};
+use ferro_queue::{Worker, WorkerConfig};
 
 // Create worker for default queue
 let worker = Worker::new(WorkerConfig::default());
@@ -157,7 +157,7 @@ QUEUE_CONNECTION=sync
 Check if sync mode is enabled:
 
 ```rust
-use cancer_queue::QueueConfig;
+use ferro_queue::QueueConfig;
 
 if QueueConfig::is_sync_mode() {
     // Jobs will be processed synchronously
@@ -169,7 +169,7 @@ if QueueConfig::is_sync_mode() {
 Generate a new job with the CLI:
 
 ```bash
-cancer make:job SendWelcomeEmail
+ferro make:job SendWelcomeEmail
 ```
 
 This creates `src/jobs/send_welcome_email.rs` with boilerplate code.

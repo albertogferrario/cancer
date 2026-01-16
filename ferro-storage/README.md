@@ -1,6 +1,6 @@
-# cancer-storage
+# ferro-storage
 
-File storage abstraction for the Cancer framework.
+File storage abstraction for the Ferro framework.
 
 ## Features
 
@@ -12,7 +12,7 @@ File storage abstraction for the Cancer framework.
 ## Usage
 
 ```rust
-use cancer_storage::{Storage, DiskConfig};
+use ferro_storage::{Storage, DiskConfig};
 
 // Create storage with configuration
 let storage = Storage::with_config(
@@ -64,7 +64,7 @@ Enable the `s3` feature:
 
 ```toml
 [dependencies]
-cancer-storage = { version = "0.1", features = ["s3"] }
+ferro-storage = { version = "0.1", features = ["s3"] }
 ```
 
 ## License

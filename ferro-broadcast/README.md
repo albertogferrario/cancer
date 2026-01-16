@@ -1,6 +1,6 @@
-# cancer-broadcast
+# ferro-broadcast
 
-WebSocket broadcasting and real-time channels for the Cancer framework.
+WebSocket broadcasting and real-time channels for the Ferro framework.
 
 ## Features
 
@@ -12,7 +12,7 @@ WebSocket broadcasting and real-time channels for the Cancer framework.
 ## Usage
 
 ```rust
-use cancer_broadcast::{Broadcast, Broadcaster};
+use ferro_broadcast::{Broadcast, Broadcaster};
 use std::sync::Arc;
 
 // Create a broadcaster
@@ -45,7 +45,7 @@ Channels are determined by their name prefix:
 ## Authorization
 
 ```rust
-use cancer_broadcast::{AuthData, ChannelAuthorizer};
+use ferro_broadcast::{AuthData, ChannelAuthorizer};
 
 struct MyAuthorizer;
 

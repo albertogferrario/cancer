@@ -1,6 +1,6 @@
-# cancer-cache
+# ferro-cache
 
-Caching with tags for the Cancer framework.
+Caching with tags for the Ferro framework.
 
 ## Features
 
@@ -12,7 +12,7 @@ Caching with tags for the Cancer framework.
 ## Usage
 
 ```rust
-use cancer_cache::{Cache, CacheConfig};
+use ferro_cache::{Cache, CacheConfig};
 use std::time::Duration;
 
 // Create in-memory cache
@@ -63,7 +63,7 @@ Enable the `redis-backend` feature:
 
 ```toml
 [dependencies]
-cancer-cache = { version = "0.1", features = ["redis-backend"] }
+ferro-cache = { version = "0.1", features = ["redis-backend"] }
 ```
 
 ```rust

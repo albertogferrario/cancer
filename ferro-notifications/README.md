@@ -1,6 +1,6 @@
-# cancer-notifications
+# ferro-notifications
 
-Multi-channel notification system for the Cancer framework.
+Multi-channel notification system for the Ferro framework.
 
 ## Features
 
@@ -12,7 +12,7 @@ Multi-channel notification system for the Cancer framework.
 ## Usage
 
 ```rust
-use cancer_notifications::{Notification, Notifiable, Channel, MailMessage};
+use ferro_notifications::{Notification, Notifiable, Channel, MailMessage};
 
 // Define a notification
 struct OrderShipped {

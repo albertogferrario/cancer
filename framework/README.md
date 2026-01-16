@@ -1,21 +1,21 @@
-# Cancer-RS
+# Ferro
 
 A Laravel-inspired web framework for Rust.
 
 ## Installation
 
-Add Cancer to your `Cargo.toml`:
+Add Ferro to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cancer = { package = "cancer-rs", version = "0.1" }
+ferro = { package = "ferro-rs", version = "0.1" }
 tokio = { version = "1", features = ["full"] }
 ```
 
 ## Quick Start
 
 ```rust
-use cancer::{json_response, text, Router, Server, Request, Response};
+use ferro::{json_response, text, Router, Server, Request, Response};
 
 #[tokio::main]
 async fn main() {
@@ -31,7 +31,7 @@ async fn main() {
 }
 
 async fn index(_req: Request) -> Response {
-    text("Welcome to Cancer!")
+    text("Welcome to Ferro!")
 }
 
 async fn show_user(req: Request) -> Response {
@@ -53,11 +53,11 @@ async fn show_user(req: Request) -> Response {
 
 ## CLI Tool
 
-Use the Cancer CLI to scaffold new projects:
+Use the Ferro CLI to scaffold new projects:
 
 ```bash
-cargo install cancer-cli
-cancer new myapp
+cargo install ferro-cli
+ferro new myapp
 ```
 
 ## License

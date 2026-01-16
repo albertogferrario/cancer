@@ -1,8 +1,8 @@
-# cancer-mcp
+# ferro-mcp
 
-MCP (Model Context Protocol) server for AI-assisted Cancer framework development.
+MCP (Model Context Protocol) server for AI-assisted Ferro framework development.
 
-Similar to Laravel Boost, this crate provides introspection tools that AI agents can use to understand and work with Cancer applications.
+Similar to Laravel Boost, this crate provides introspection tools that AI agents can use to understand and work with Ferro applications.
 
 ## Features
 
@@ -37,13 +37,13 @@ Similar to Laravel Boost, this crate provides introspection tools that AI agents
 ### Start MCP Server
 
 ```bash
-cancer mcp
+ferro mcp
 ```
 
 ### Install for AI Editor
 
 ```bash
-cancer boost:install
+ferro boost:install
 ```
 
 This configures the MCP server for your editor (Cursor, VS Code, Claude).
@@ -55,9 +55,9 @@ Add to your MCP configuration:
 ```json
 {
   "mcpServers": {
-    "cancer": {
+    "ferro": {
       "command": "cargo",
-      "args": ["run", "--package", "cancer-mcp"],
+      "args": ["run", "--package", "ferro-mcp"],
       "cwd": "/path/to/your/project"
     }
   }
@@ -75,8 +75,8 @@ Add to your MCP configuration:
   "database_engine": "sqlite",
   "environment": "local",
   "installed_crates": [
-    {"name": "cancer-rs", "version": "0.1.0"},
-    {"name": "cancer-events", "version": "0.1.0"}
+    {"name": "ferro-rs", "version": "0.1.0"},
+    {"name": "ferro-events", "version": "0.1.0"}
   ],
   "models": [
     {"name": "User", "table": "users", "path": "src/models/users.rs"}

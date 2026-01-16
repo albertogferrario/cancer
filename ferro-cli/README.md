@@ -1,11 +1,11 @@
-# Cancer CLI
+# Ferro CLI
 
-A CLI tool for scaffolding Cancer web applications.
+A CLI tool for scaffolding Ferro web applications.
 
 ## Installation
 
 ```bash
-cargo install cancer-cli
+cargo install ferro-cli
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ cargo install cancer-cli
 ### Create a new project
 
 ```bash
-cancer new myapp
+ferro new myapp
 ```
 
 This will interactively prompt you for:
@@ -24,13 +24,13 @@ This will interactively prompt you for:
 ### Non-interactive mode
 
 ```bash
-cancer new myapp --no-interaction
+ferro new myapp --no-interaction
 ```
 
 ### Skip git initialization
 
 ```bash
-cancer new myapp --no-git
+ferro new myapp --no-git
 ```
 
 ## Generated Project Structure

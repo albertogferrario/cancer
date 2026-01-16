@@ -1,6 +1,6 @@
-# cancer-macros
+# ferro-macros
 
-Procedural macros for the Cancer framework.
+Procedural macros for the Ferro framework.
 
 ## Macros
 
@@ -9,7 +9,7 @@ Procedural macros for the Cancer framework.
 Transform functions into HTTP handlers with automatic parameter extraction:
 
 ```rust
-use cancer::{handler, Request, Response};
+use ferro::{handler, Request, Response};
 
 #[handler]
 pub async fn show(req: Request, id: i64) -> Response {
@@ -23,7 +23,7 @@ pub async fn show(req: Request, id: i64) -> Response {
 Define validated request data:
 
 ```rust
-use cancer::request;
+use ferro::request;
 
 #[request]
 pub struct CreateUserRequest {
@@ -40,7 +40,7 @@ pub struct CreateUserRequest {
 Mark traits for dependency injection:
 
 ```rust
-use cancer::service;
+use ferro::service;
 
 #[service]
 pub trait UserService: Send + Sync {
@@ -53,7 +53,7 @@ pub trait UserService: Send + Sync {
 Auto-register implementations as singletons:
 
 ```rust
-use cancer::injectable;
+use ferro::injectable;
 
 #[injectable]
 pub struct AppState {
@@ -66,7 +66,7 @@ pub struct AppState {
 Define domain errors with HTTP response conversion:
 
 ```rust
-use cancer::domain_error;
+use ferro::domain_error;
 
 #[domain_error(status = 404, message = "User not found")]
 pub struct UserNotFoundError {
@@ -79,7 +79,7 @@ pub struct UserNotFoundError {
 Create Inertia.js responses with compile-time component validation:
 
 ```rust
-use cancer::inertia_response;
+use ferro::inertia_response;
 
 inertia_response!("Users/Index", UsersProps { users })
 ```
@@ -89,7 +89,7 @@ inertia_response!("Users/Index", UsersProps { users })
 Jest-like testing macros:
 
 ```rust
-use cancer::{describe, test, expect};
+use ferro::{describe, test, expect};
 
 describe!("UserService", {
     test!("finds user by id", async fn(db: TestDatabase) {
