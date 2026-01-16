@@ -1,5 +1,5 @@
 [book]
-title = "Cancer Framework"
+title = "Ferro Framework"
 description = "A Laravel-inspired web framework for Rust"
 authors = ["Alberto G. Ferrario"]
 language = "en"
@@ -12,10 +12,10 @@ create-missing = false
 [output.html]
 default-theme = "rust"
 preferred-dark-theme = "coal"
-git-repository-url = "https://github.com/albertogferrario/cancer"
-edit-url-template = "https://github.com/albertogferrario/cancer/edit/main/docs/{path}"
-site-url = "https://cancer-rs.dev/"
-cname = "cancer-rs.dev"
+git-repository-url = "https://github.com/ferroframework/ferro"
+edit-url-template = "https://github.com/ferroframework/ferro/edit/main/docs/{path}"
+site-url = "https://ferro-rs.dev/"
+cname = "ferro-rs.dev"
 no-section-label = false
 
 [output.html.search]
