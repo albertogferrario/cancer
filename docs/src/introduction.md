@@ -1,8 +1,8 @@
-# Cancer Framework
+# Ferro Framework
 
 A Laravel-inspired web framework for Rust.
 
-Cancer brings the developer experience of Laravel to Rust, providing familiar patterns and conventions while leveraging Rust's safety and performance.
+Ferro brings the developer experience of Laravel to Rust, providing familiar patterns and conventions while leveraging Rust's safety and performance.
 
 ## Features
 
@@ -22,7 +22,7 @@ Cancer brings the developer experience of Laravel to Rust, providing familiar pa
 ## Quick Example
 
 ```rust
-use cancer_rs::*;
+use ferro::*;
 
 #[handler]
 pub async fn index(req: Request) -> Response {
@@ -40,7 +40,7 @@ pub fn routes() -> Router {
 
 ## Philosophy
 
-Cancer aims to be the "Laravel of Rust" - a batteries-included framework that lets you build web applications quickly without sacrificing Rust's guarantees.
+Ferro aims to be the "Laravel of Rust" - a batteries-included framework that lets you build web applications quickly without sacrificing Rust's guarantees.
 
 **Convention over configuration** - Sensible defaults that work out of the box.
 

@@ -5,7 +5,7 @@ Build a simple user listing feature in 5 minutes.
 ## 1. Create Migration
 
 ```bash
-cancer make:migration create_users_table
+ferro make:migration create_users_table
 ```
 
 Edit `src/migrations/m_YYYYMMDD_create_users_table.rs`:
@@ -50,13 +50,13 @@ enum Users {
 Run the migration:
 
 ```bash
-cancer migrate
+ferro migrate
 ```
 
 ## 2. Sync Database to Models
 
 ```bash
-cancer db:sync
+ferro db:sync
 ```
 
 This generates `src/models/users.rs` with SeaORM entity definitions.
@@ -64,13 +64,13 @@ This generates `src/models/users.rs` with SeaORM entity definitions.
 ## 3. Create Controller
 
 ```bash
-cancer make:controller users
+ferro make:controller users
 ```
 
 Edit `src/controllers/users_controller.rs`:
 
 ```rust
-use cancer_rs::*;
+use ferro::*;
 use crate::models::users::Entity as User;
 
 #[handler]
@@ -90,7 +90,7 @@ pub struct UsersIndexProps {
 ## 4. Create Inertia Page
 
 ```bash
-cancer make:inertia Users/Index
+ferro make:inertia Users/Index
 ```
 
 Edit `frontend/src/pages/Users/Index.tsx`:
@@ -129,7 +129,7 @@ export default function UsersIndex({ users }: Props) {
 Edit `src/routes.rs`:
 
 ```rust
-use cancer_rs::*;
+use ferro::*;
 use crate::controllers::users_controller;
 
 pub fn routes() -> Router {
@@ -141,7 +141,7 @@ pub fn routes() -> Router {
 ## 6. Generate TypeScript Types
 
 ```bash
-cancer generate-types
+ferro generate-types
 ```
 
 This creates `frontend/src/types/inertia-props.ts` from your Rust props.
@@ -149,7 +149,7 @@ This creates `frontend/src/types/inertia-props.ts` from your Rust props.
 ## 7. Run the Server
 
 ```bash
-cancer serve
+ferro serve
 ```
 
 Visit `http://localhost:5173/users` to see your user listing.

@@ -8,24 +8,24 @@
 
 ## Installing the CLI
 
-Install the Cancer CLI globally:
+Install the Ferro CLI globally:
 
 ```bash
-cargo install cancer-cli
+cargo install ferro-cli
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/albertogferrario/cancer.git
-cd cancer
-cargo install --path cancer-cli
+git clone https://github.com/albertogferrario/ferro.git
+cd ferro
+cargo install --path ferro-cli
 ```
 
 ## Creating a New Project
 
 ```bash
-cancer new my-app
+ferro new my-app
 ```
 
 This will:
@@ -39,17 +39,17 @@ This will:
 
 ```bash
 # Skip interactive prompts
-cancer new my-app --no-interaction
+ferro new my-app --no-interaction
 
 # Skip git initialization
-cancer new my-app --no-git
+ferro new my-app --no-git
 ```
 
 ## Starting Development
 
 ```bash
 cd my-app
-cancer serve
+ferro serve
 ```
 
 This starts both the backend (port 8000) and frontend (port 5173) servers.
@@ -58,16 +58,16 @@ This starts both the backend (port 8000) and frontend (port 5173) servers.
 
 ```bash
 # Custom ports
-cancer serve --port 3000 --frontend-port 3001
+ferro serve --port 3000 --frontend-port 3001
 
 # Backend only
-cancer serve --backend-only
+ferro serve --backend-only
 
 # Frontend only
-cancer serve --frontend-only
+ferro serve --frontend-only
 
 # Skip TypeScript generation
-cancer serve --skip-types
+ferro serve --skip-types
 ```
 
 ## AI Development Setup
@@ -75,7 +75,7 @@ cancer serve --skip-types
 For AI-assisted development with Claude, Cursor, or VS Code:
 
 ```bash
-cancer boost:install
+ferro boost:install
 ```
 
 This configures the MCP server and adds project guidelines for your editor.

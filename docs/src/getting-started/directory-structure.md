@@ -1,6 +1,6 @@
 # Directory Structure
 
-A Cancer project follows a convention-based structure inspired by Laravel.
+A Ferro project follows a convention-based structure inspired by Laravel.
 
 ```
 my-app/
@@ -59,7 +59,7 @@ impl CreateUser {
 
 ### `src/controllers/`
 
-HTTP handlers grouped by resource. Generated with `cancer make:controller`.
+HTTP handlers grouped by resource. Generated with `ferro make:controller`.
 
 ```rust
 // src/controllers/users_controller.rs
@@ -72,7 +72,7 @@ pub async fn store(req: Request, form: CreateUserForm) -> Response { ... }
 
 ### `src/models/`
 
-SeaORM entity definitions. Generated with `cancer db:sync`.
+SeaORM entity definitions. Generated with `ferro db:sync`.
 
 ### `src/middleware/`
 
@@ -110,7 +110,7 @@ REDIS_URL=redis://localhost:6379
 
 ### `Cargo.toml`
 
-Rust dependencies. Cancer crates are added here.
+Rust dependencies. Ferro crates are added here.
 
 ### `frontend/package.json`
 
@@ -130,7 +130,7 @@ The `storage/` directory holds application files:
 
 ```bash
 # Create public storage symlink
-cancer storage:link
+ferro storage:link
 ```
 
 This links `public/storage` → `storage/app/public` for publicly accessible files.
