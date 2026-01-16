@@ -3,11 +3,11 @@
 ## Milestones
 
 - ✅ **v1.0 DX Overhaul** - Phases 1-12 (completed 2026-01-16)
-- 🚧 **v2.0 Rebrand** - Phases 13-22 (in progress)
+- ✅ **v2.0 Rebrand** - Phases 13-22 (completed 2026-01-16)
 
 ---
 
-## 🚧 v2.0 Rebrand (In Progress)
+## ✅ v2.0 Rebrand (Completed)
 
 **Milestone Goal:** Rename the framework from "cancer" to "ferro" for crates.io publication and public release.
 
@@ -26,7 +26,7 @@ Complete rebrand of the framework, including all crates, CLI tools, MCP server, 
 - [x] **Phase 19: Sample App Migration** - Update sample app to use new names
 - [x] **Phase 20: Templates & Scaffolding** - Update all CLI templates with new names
 - [x] **Phase 21: Repository & CI** - Update repo name, CI/CD, badges, GitHub config
-- [ ] **Phase 22: Publishing & Announcement** - Prepare for crates.io, migration guide
+- [x] **Phase 22: Publishing & Announcement** - Prepare for crates.io, migration guide
 
 ### Phase Details
 
@@ -231,4 +231,4 @@ Phases execute in numeric order: 1 → 2 → ... → 12 (v1.0) → 13 → ... �
 | 19. Sample App Migration | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 20. Templates & Scaffolding | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 21. Repository & CI | v2.0 | 1/1 | Complete | 2026-01-16 |
-| 22. Publishing & Announcement | v2.0 | 0/? | Not started | - |
+| 22. Publishing & Announcement | v2.0 | 2/2 | Complete | 2026-01-16 |
