@@ -263,10 +263,7 @@ impl Inertia {
     pub fn redirect(req: &Request, path: impl Into<String>) -> Response {
         let url = path.into();
         let is_inertia = req.is_inertia();
-        let is_post_like = matches!(
-            req.method().as_str(),
-            "POST" | "PUT" | "PATCH" | "DELETE"
-        );
+        let is_post_like = matches!(req.method().as_str(), "POST" | "PUT" | "PATCH" | "DELETE");
 
         if is_inertia {
             // 303 See Other forces browser to GET the redirect location

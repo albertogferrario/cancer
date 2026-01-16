@@ -30,7 +30,7 @@ sea-orm = { version = "1.0", features = ["sqlx-sqlite", "sqlx-postgres", "runtim
 chrono = "0.4"
 toml = "0.8"
 regex = "1"
-ferro-mcp = { path = "../ferro-mcp" }
+ferro-mcp = { path = "../ferro-mcp", version = "0.1" }
 
 [dev-dependencies]
 tempfile = "3.24.0"
