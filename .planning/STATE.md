@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 15 of 22 (Supporting Crates Rename)
+Phase: 16 of 22 (CLI Rebrand)
 Plan: 01 completed
-Status: Ready for phase 16
-Last activity: 2026-01-16 — Completed 15-01 (Supporting Crates Rename)
+Status: Ready for phase 17
+Last activity: 2026-01-16 — Completed 16-01 (CLI binary renamed to ferro)
 
-Progress: ███░░░░░░░░░░░░░░░ 15%
+Progress: ████░░░░░░░░░░░░░░ 20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19 (v1.0 + 15-01)
+- Total plans completed: 20 (v1.0 + 15-01 + 16-01)
 - Average duration: 23 min
-- Total execution time: 7 hours 20 min
+- Total execution time: 7 hours 45 min
 
 **By Phase (v1.0):**
 
@@ -46,10 +46,11 @@ Progress: ███░░░░░░░░░░░░░░░ 15%
 |-------|-------|-------|----------|
 | 14 | 1 | (part of prev session) | - |
 | 15 | 1 | 15 min | 15 min |
+| 16 | 1 | 25 min | 25 min |
 
 **Recent Trend:**
-- Last 19 plans: All completed successfully
-- v2.0 rebrand in progress: Phase 15 complete
+- Last 20 plans: All completed successfully
+- v2.0 rebrand in progress: Phase 16 complete
 
 ## Accumulated Context
 
@@ -113,9 +114,10 @@ None.
 - v2.0 Rebrand in progress: cancer → ferro, 10 phases (Phase 13-22)
 - Phase 14 complete: Core framework renamed
 - Phase 15 complete: Supporting crates renamed
+- Phase 16 complete: CLI binary renamed to ferro
 
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Phase 15 plan 01 completed
+Stopped at: Phase 16 plan 01 completed
 Resume file: .planning/ROADMAP.md (check next phase)
