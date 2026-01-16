@@ -1,39 +1,39 @@
 # CLI Reference
 
-Cancer provides a powerful CLI tool for project scaffolding, code generation, database management, and development workflow automation.
+Ferro provides a powerful CLI tool for project scaffolding, code generation, database management, and development workflow automation.
 
 ## Installation
 
 ```bash
-cargo install cancer-cli
+cargo install ferro-cli
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/albertogferrario/cancer
-cd cancer/cancer-cli
+git clone https://github.com/ferroframework/ferro
+cd ferro/ferro-cli
 cargo install --path .
 ```
 
 ## Project Commands
 
-### `cancer new`
+### `ferro new`
 
-Create a new Cancer project with the complete directory structure.
+Create a new Ferro project with the complete directory structure.
 
 ```bash
 # Interactive mode (prompts for project name)
-cancer new
+ferro new
 
 # Direct creation
-cancer new my-app
+ferro new my-app
 
 # Skip git initialization
-cancer new my-app --no-git
+ferro new my-app --no-git
 
 # Non-interactive mode (uses defaults)
-cancer new my-app --no-interaction
+ferro new my-app --no-interaction
 ```
 
 **Options:**
@@ -96,25 +96,25 @@ my-app/
 
 ## Development Commands
 
-### `cancer serve`
+### `ferro serve`
 
 Start the development server with hot reloading for both backend and frontend.
 
 ```bash
 # Start both backend and frontend
-cancer serve
+ferro serve
 
 # Custom ports
-cancer serve --port 8080 --frontend-port 5173
+ferro serve --port 8080 --frontend-port 5173
 
 # Backend only (no frontend dev server)
-cancer serve --backend-only
+ferro serve --backend-only
 
 # Frontend only (no Rust compilation)
-cancer serve --frontend-only
+ferro serve --frontend-only
 
 # Skip TypeScript type generation
-cancer serve --skip-types
+ferro serve --skip-types
 ```
 
 **Options:**
@@ -134,33 +134,33 @@ cancer serve --skip-types
 3. Watches Rust files to regenerate TypeScript types automatically
 4. Proxies frontend requests to the backend
 
-### `cancer generate-types`
+### `ferro generate-types`
 
 Generate TypeScript type definitions from Rust `InertiaProps` structs.
 
 ```bash
-cancer generate-types
+ferro generate-types
 ```
 
 This scans your Rust code for structs deriving `InertiaProps` and generates corresponding TypeScript interfaces in `frontend/src/types/`.
 
 ## Code Generators
 
-All generators follow the pattern `cancer make:<type> <name> [options]`.
+All generators follow the pattern `ferro make:<type> <name> [options]`.
 
-### `cancer make:controller`
+### `ferro make:controller`
 
 Generate a controller with handler methods.
 
 ```bash
 # Basic controller
-cancer make:controller UserController
+ferro make:controller UserController
 
 # Resource controller with CRUD methods
-cancer make:controller PostController --resource
+ferro make:controller PostController --resource
 
 # API controller (JSON responses)
-cancer make:controller Api/ProductController --api
+ferro make:controller Api/ProductController --api
 ```
 
 **Options:**
@@ -173,7 +173,7 @@ cancer make:controller Api/ProductController --api
 **Generated file:** `src/controllers/user_controller.rs`
 
 ```rust
-use cancer::{handler, Request, Response, json_response};
+use ferro::{handler, Request, Response, json_response};
 
 #[handler]
 pub async fn index(req: Request) -> Response {
@@ -190,19 +190,19 @@ pub async fn show(req: Request) -> Response {
 // ... additional methods for --resource
 ```
 
-### `cancer make:middleware`
+### `ferro make:middleware`
 
 Generate middleware for request/response processing.
 
 ```bash
-cancer make:middleware Auth
-cancer make:middleware RateLimit
+ferro make:middleware Auth
+ferro make:middleware RateLimit
 ```
 
 **Generated file:** `src/middleware/auth.rs`
 
 ```rust
-use cancer::{Middleware, Request, Response, Next};
+use ferro::{Middleware, Request, Response, Next};
 use async_trait::async_trait;
 
 pub struct Auth;
@@ -216,19 +216,19 @@ impl Middleware for Auth {
 }
 ```
 
-### `cancer make:action`
+### `ferro make:action`
 
 Generate a single-action class for complex business logic.
 
 ```bash
-cancer make:action CreateOrder
-cancer make:action ProcessPayment
+ferro make:action CreateOrder
+ferro make:action ProcessPayment
 ```
 
 **Generated file:** `src/actions/create_order.rs`
 
 ```rust
-use cancer::FrameworkError;
+use ferro::FrameworkError;
 
 pub struct CreateOrder;
 
@@ -240,19 +240,19 @@ impl CreateOrder {
 }
 ```
 
-### `cancer make:event`
+### `ferro make:event`
 
 Generate an event struct for the event dispatcher.
 
 ```bash
-cancer make:event UserRegistered
-cancer make:event OrderPlaced
+ferro make:event UserRegistered
+ferro make:event OrderPlaced
 ```
 
 **Generated file:** `src/events/user_registered.rs`
 
 ```rust
-use cancer_events::Event;
+use ferro_events::Event;
 
 #[derive(Debug, Clone, Event)]
 pub struct UserRegistered {
@@ -260,19 +260,19 @@ pub struct UserRegistered {
 }
 ```
 
-### `cancer make:listener`
+### `ferro make:listener`
 
 Generate a listener that responds to events.
 
 ```bash
-cancer make:listener SendWelcomeEmail
-cancer make:listener NotifyAdmins
+ferro make:listener SendWelcomeEmail
+ferro make:listener NotifyAdmins
 ```
 
 **Generated file:** `src/listeners/send_welcome_email.rs`
 
 ```rust
-use cancer_events::{Listener, Event};
+use ferro_events::{Listener, Event};
 use async_trait::async_trait;
 
 pub struct SendWelcomeEmail;
@@ -286,19 +286,19 @@ impl<E: Event + Send + Sync> Listener<E> for SendWelcomeEmail {
 }
 ```
 
-### `cancer make:job`
+### `ferro make:job`
 
 Generate a background job for queue processing.
 
 ```bash
-cancer make:job ProcessImage
-cancer make:job SendEmail
+ferro make:job ProcessImage
+ferro make:job SendEmail
 ```
 
 **Generated file:** `src/jobs/process_image.rs`
 
 ```rust
-use cancer_queue::{Job, JobContext};
+use ferro_queue::{Job, JobContext};
 use serde::{Deserialize, Serialize};
 use async_trait::async_trait;
 
@@ -316,19 +316,19 @@ impl Job for ProcessImage {
 }
 ```
 
-### `cancer make:notification`
+### `ferro make:notification`
 
 Generate a multi-channel notification.
 
 ```bash
-cancer make:notification OrderShipped
-cancer make:notification InvoiceGenerated
+ferro make:notification OrderShipped
+ferro make:notification InvoiceGenerated
 ```
 
 **Generated file:** `src/notifications/order_shipped.rs`
 
 ```rust
-use cancer_notifications::{Notification, Notifiable, Channel};
+use ferro_notifications::{Notification, Notifiable, Channel};
 
 pub struct OrderShipped {
     pub order_id: i64,
@@ -341,13 +341,13 @@ impl Notification for OrderShipped {
 }
 ```
 
-### `cancer make:migration`
+### `ferro make:migration`
 
 Generate a database migration file.
 
 ```bash
-cancer make:migration create_posts_table
-cancer make:migration add_status_to_orders
+ferro make:migration create_posts_table
+ferro make:migration add_status_to_orders
 ```
 
 **Generated file:** `src/migrations/m20240115_143052_create_posts_table.rs`
@@ -372,32 +372,32 @@ impl MigrationTrait for Migration {
 }
 ```
 
-### `cancer make:inertia`
+### `ferro make:inertia`
 
 Generate an Inertia.js page component with TypeScript types.
 
 ```bash
-cancer make:inertia Dashboard
-cancer make:inertia Users/Profile
+ferro make:inertia Dashboard
+ferro make:inertia Users/Profile
 ```
 
 **Generated files:**
 - `frontend/src/pages/Dashboard.tsx`
 - `src/controllers/` (props struct)
 
-### `cancer make:task`
+### `ferro make:task`
 
 Generate a scheduled task.
 
 ```bash
-cancer make:task CleanupExpiredSessions
-cancer make:task SendDailyReport
+ferro make:task CleanupExpiredSessions
+ferro make:task SendDailyReport
 ```
 
 **Generated file:** `src/tasks/cleanup_expired_sessions.rs`
 
 ```rust
-use cancer::scheduling::{Task, Schedule};
+use ferro::scheduling::{Task, Schedule};
 use async_trait::async_trait;
 
 pub struct CleanupExpiredSessions;
@@ -415,19 +415,19 @@ impl Task for CleanupExpiredSessions {
 }
 ```
 
-### `cancer make:seeder`
+### `ferro make:seeder`
 
 Generate a database seeder.
 
 ```bash
-cancer make:seeder UserSeeder
-cancer make:seeder ProductSeeder
+ferro make:seeder UserSeeder
+ferro make:seeder ProductSeeder
 ```
 
 **Generated file:** `src/seeders/user_seeder.rs`
 
 ```rust
-use cancer::database::Seeder;
+use ferro::database::Seeder;
 use async_trait::async_trait;
 
 pub struct UserSeeder;
@@ -441,19 +441,19 @@ impl Seeder for UserSeeder {
 }
 ```
 
-### `cancer make:factory`
+### `ferro make:factory`
 
 Generate a model factory for testing.
 
 ```bash
-cancer make:factory UserFactory
-cancer make:factory PostFactory
+ferro make:factory UserFactory
+ferro make:factory PostFactory
 ```
 
 **Generated file:** `src/factories/user_factory.rs`
 
 ```rust
-use cancer::testing::Factory;
+use ferro::testing::Factory;
 use fake::{Fake, Faker};
 
 pub struct UserFactory;
@@ -468,28 +468,28 @@ impl Factory for UserFactory {
 }
 ```
 
-### `cancer make:error`
+### `ferro make:error`
 
 Generate a custom error type.
 
 ```bash
-cancer make:error PaymentFailed
-cancer make:error ValidationError
+ferro make:error PaymentFailed
+ferro make:error ValidationError
 ```
 
-### `cancer make:scaffold`
+### `ferro make:scaffold`
 
 Generate a complete CRUD scaffold: model, migration, controller, and Inertia pages.
 
 ```bash
 # Basic scaffold
-cancer make:scaffold Post
+ferro make:scaffold Post
 
 # With field definitions
-cancer make:scaffold Post title:string content:text published:bool
+ferro make:scaffold Post title:string content:text published:bool
 
 # Complex example
-cancer make:scaffold Product name:string description:text price:float stock:integer
+ferro make:scaffold Product name:string description:text price:float stock:integer
 ```
 
 **Field Types:**
@@ -523,28 +523,28 @@ frontend/src/pages/
 
 ## Database Commands
 
-### `cancer migrate`
+### `ferro migrate`
 
 Run all pending migrations.
 
 ```bash
-cancer migrate
+ferro migrate
 ```
 
-### `cancer migrate:rollback`
+### `ferro migrate:rollback`
 
 Rollback the last batch of migrations.
 
 ```bash
-cancer migrate:rollback
+ferro migrate:rollback
 ```
 
-### `cancer migrate:status`
+### `ferro migrate:status`
 
 Show the status of all migrations.
 
 ```bash
-cancer migrate:status
+ferro migrate:status
 ```
 
 Output:
@@ -559,26 +559,26 @@ Output:
 +------+------------------------------------------------+-------+
 ```
 
-### `cancer migrate:fresh`
+### `ferro migrate:fresh`
 
 Drop all tables and re-run all migrations.
 
 ```bash
-cancer migrate:fresh
+ferro migrate:fresh
 ```
 
 **Warning:** This is destructive and will delete all data.
 
-### `cancer db:sync`
+### `ferro db:sync`
 
 Synchronize the database schema and generate entity files.
 
 ```bash
 # Sync entities from existing database
-cancer db:sync
+ferro db:sync
 
 # Run migrations first, then sync
-cancer db:sync --migrate
+ferro db:sync --migrate
 ```
 
 **Options:**
@@ -590,21 +590,21 @@ cancer db:sync --migrate
 This command:
 1. Discovers the database schema (tables, columns, types)
 2. Generates SeaORM entity files in `src/models/entities/`
-3. Creates user-friendly model wrappers with the Cancer Model API
+3. Creates user-friendly model wrappers with the Ferro Model API
 
-### `cancer db:query`
+### `ferro db:query`
 
 Execute a raw SQL query against the database.
 
 ```bash
 # Simple SELECT query
-cancer db:query "SELECT * FROM users LIMIT 5"
+ferro db:query "SELECT * FROM users LIMIT 5"
 
 # Query with conditions
-cancer db:query "SELECT id, name, email FROM users WHERE active = true"
+ferro db:query "SELECT id, name, email FROM users WHERE active = true"
 
 # Count query
-cancer db:query "SELECT COUNT(*) FROM posts"
+ferro db:query "SELECT COUNT(*) FROM posts"
 ```
 
 **Features:**
@@ -635,12 +635,12 @@ cancer db:query "SELECT COUNT(*) FROM posts"
 
 ## Docker Commands
 
-### `cancer docker:init`
+### `ferro docker:init`
 
 Initialize Docker configuration files.
 
 ```bash
-cancer docker:init
+ferro docker:init
 ```
 
 **Generated files:**
@@ -648,53 +648,53 @@ cancer docker:init
 - `docker-compose.yml`
 - `.dockerignore`
 
-### `cancer docker:compose`
+### `ferro docker:compose`
 
 Manage Docker Compose services.
 
 ```bash
 # Start services
-cancer docker:compose up
+ferro docker:compose up
 
 # Stop services
-cancer docker:compose down
+ferro docker:compose down
 
 # Rebuild and start
-cancer docker:compose up --build
+ferro docker:compose up --build
 ```
 
 ## Scheduling Commands
 
-### `cancer schedule:run`
+### `ferro schedule:run`
 
 Run scheduled tasks that are due.
 
 ```bash
-cancer schedule:run
+ferro schedule:run
 ```
 
 This executes all tasks whose schedule indicates they should run now. Typically called by a system cron job every minute:
 
 ```cron
-* * * * * cd /path/to/project && cancer schedule:run >> /dev/null 2>&1
+* * * * * cd /path/to/project && ferro schedule:run >> /dev/null 2>&1
 ```
 
-### `cancer schedule:work`
+### `ferro schedule:work`
 
 Start the scheduler worker for continuous task execution.
 
 ```bash
-cancer schedule:work
+ferro schedule:work
 ```
 
 This runs in the foreground and checks for due tasks every minute. Useful for development or container deployments.
 
-### `cancer schedule:list`
+### `ferro schedule:list`
 
 Display all registered scheduled tasks.
 
 ```bash
-cancer schedule:list
+ferro schedule:list
 ```
 
 Output:
@@ -711,34 +711,34 @@ Output:
 
 ## Storage Commands
 
-### `cancer storage:link`
+### `ferro storage:link`
 
 Create a symbolic link from `public/storage` to `storage/app/public`.
 
 ```bash
-cancer storage:link
+ferro storage:link
 ```
 
 This allows publicly accessible files stored in `storage/app/public` to be served via the web server.
 
 ## AI-Assisted Development
 
-### `cancer mcp`
+### `ferro mcp`
 
 Start the Model Context Protocol (MCP) server for AI-assisted development.
 
 ```bash
-cancer mcp
+ferro mcp
 ```
 
-The MCP server provides introspection tools that help AI assistants understand your Cancer application structure, including routes, models, controllers, and configuration.
+The MCP server provides introspection tools that help AI assistants understand your Ferro application structure, including routes, models, controllers, and configuration.
 
-### `cancer boost:install`
+### `ferro boost:install`
 
 Install AI development boost features.
 
 ```bash
-cancer boost:install
+ferro boost:install
 ```
 
 This sets up configuration for enhanced AI-assisted development workflows.
@@ -747,7 +747,7 @@ This sets up configuration for enhanced AI-assisted development workflows.
 
 | Command | Description |
 |---------|-------------|
-| `new` | Create a new Cancer project |
+| `new` | Create a new Ferro project |
 | `serve` | Start development server |
 | `generate-types` | Generate TypeScript types |
 | `make:controller` | Create a controller |
