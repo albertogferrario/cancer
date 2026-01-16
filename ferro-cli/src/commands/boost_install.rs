@@ -104,11 +104,11 @@ fn generate_mcp_config(editor: &str) {
     };
 
     // Try to find the ferro binary path
-    let cancer_command = find_cancer_binary();
+    let ferro_command = find_ferro_binary();
     let config_content = format!(
         r#"{{
   "mcpServers": {{
-    "cancer": {{
+    "ferro": {{
       "command": "{}",
       "args": ["mcp"],
       "env": {{}}
@@ -116,7 +116,7 @@ fn generate_mcp_config(editor: &str) {
   }}
 }}
 "#,
-        cancer_command.replace('\\', "\\\\").replace('"', "\\\"")
+        ferro_command.replace('\\', "\\\\").replace('"', "\\\"")
     );
 
     if Path::new(config_path).exists() {
@@ -139,9 +139,9 @@ fn generate_mcp_config(editor: &str) {
     }
 }
 
-fn find_cancer_binary() -> String {
+fn find_ferro_binary() -> String {
     // First, check if ferro is in PATH
-    if let Ok(output) = std::process::Command::new("which").arg("cancer").output() {
+    if let Ok(output) = std::process::Command::new("which").arg("ferro").output() {
         if output.status.success() {
             if let Ok(path) = String::from_utf8(output.stdout) {
                 let path = path.trim();
@@ -154,7 +154,7 @@ fn find_cancer_binary() -> String {
 
     // On Windows, try where instead
     #[cfg(windows)]
-    if let Ok(output) = std::process::Command::new("where").arg("cancer").output() {
+    if let Ok(output) = std::process::Command::new("where").arg("ferro").output() {
         if output.status.success() {
             if let Ok(path) = String::from_utf8(output.stdout) {
                 if let Some(first_line) = path.lines().next() {
@@ -167,23 +167,23 @@ fn find_cancer_binary() -> String {
     // Try to get the current executable's directory
     if let Ok(current_exe) = std::env::current_exe() {
         if let Some(exe_dir) = current_exe.parent() {
-            let cancer_in_same_dir = exe_dir.join("cancer");
-            if cancer_in_same_dir.exists() {
-                return cancer_in_same_dir.to_string_lossy().to_string();
+            let ferro_in_same_dir = exe_dir.join("ferro");
+            if ferro_in_same_dir.exists() {
+                return ferro_in_same_dir.to_string_lossy().to_string();
             }
         }
         // If this IS the ferro binary, use its path
         if current_exe
             .file_name()
-            .map(|n| n == "cancer")
+            .map(|n| n == "ferro")
             .unwrap_or(false)
         {
             return current_exe.to_string_lossy().to_string();
         }
     }
 
-    // Fall back to just "cancer" and hope it's in PATH
-    "cancer".to_string()
+    // Fall back to just "ferro" and hope it's in PATH
+    "ferro".to_string()
 }
 
 fn generate_ai_guidelines(editor: &str) {
@@ -199,21 +199,21 @@ fn generate_ai_guidelines(editor: &str) {
     }
 
     // Generate Ferro framework guidelines
-    let cancer_md_path = guidelines_dir.join("cancer.md");
-    if !cancer_md_path.exists() {
+    let ferro_md_path = guidelines_dir.join("ferro.md");
+    if !ferro_md_path.exists() {
         let content = templates::ferro_guidelines_template();
-        if let Err(e) = fs::write(&cancer_md_path, content) {
+        if let Err(e) = fs::write(&ferro_md_path, content) {
             eprintln!(
-                "{} Failed to write cancer.md: {}",
+                "{} Failed to write ferro.md: {}",
                 style("Error:").red().bold(),
                 e
             );
         } else {
-            println!("{} Created .ai/guidelines/cancer.md", style("✓").green());
+            println!("{} Created .ai/guidelines/ferro.md", style("✓").green());
         }
     } else {
         println!(
-            "{} .ai/guidelines/cancer.md already exists, skipping",
+            "{} .ai/guidelines/ferro.md already exists, skipping",
             style("→").dim()
         );
     }
@@ -254,10 +254,10 @@ fn generate_ai_guidelines(editor: &str) {
                 // Append Ferro-specific instructions if not already present
                 let existing = fs::read_to_string(claude_md_path).unwrap_or_default();
                 if !existing.contains("Ferro Framework") {
-                    let cancer_section = templates::claude_md_ferro_section();
+                    let ferro_section = templates::claude_md_ferro_section();
                     if let Err(e) = fs::write(
                         claude_md_path,
-                        format!("{}\n\n{}", existing.trim(), cancer_section),
+                        format!("{}\n\n{}", existing.trim(), ferro_section),
                     ) {
                         eprintln!(
                             "{} Failed to update CLAUDE.md: {}",
