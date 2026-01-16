@@ -96,7 +96,7 @@ pub async fn index(req: Request) -> Response {
 }"#
             .to_string(),
             imports: vec![
-                "use cancer::prelude::*;".to_string(),
+                "use ferro::prelude::*;".to_string(),
                 "use crate::entities::{{entity}};".to_string(),
                 "use crate::entities::{{entity}}::Entity as {{Entity}};".to_string(),
             ],
@@ -129,7 +129,7 @@ pub async fn show(req: Request, id: Path<i32>) -> Response {
 }"#
             .to_string(),
             imports: vec![
-                "use cancer::prelude::*;".to_string(),
+                "use ferro::prelude::*;".to_string(),
                 "use crate::entities::{{entity}}::Entity as {{Entity}};".to_string(),
             ],
             placeholders: vec![
@@ -171,8 +171,8 @@ pub async fn create(req: Request) -> Response {
 }"#
             .to_string(),
             imports: vec![
-                "use cancer::prelude::*;".to_string(),
-                "use cancer::validation::{Validator, rules};".to_string(),
+                "use ferro::prelude::*;".to_string(),
+                "use ferro::validation::{Validator, rules};".to_string(),
                 "use crate::entities::{{entity}};".to_string(),
                 "use sea_orm::ActiveModelTrait;".to_string(),
                 "use sea_orm::Set;".to_string(),
@@ -219,8 +219,8 @@ pub async fn update(req: Request, id: Path<i32>) -> Response {
 }"#
             .to_string(),
             imports: vec![
-                "use cancer::prelude::*;".to_string(),
-                "use cancer::validation::{Validator, rules};".to_string(),
+                "use ferro::prelude::*;".to_string(),
+                "use ferro::validation::{Validator, rules};".to_string(),
                 "use crate::entities::{{entity}};".to_string(),
                 "use crate::entities::{{entity}}::Entity as {{Entity}};".to_string(),
                 "use sea_orm::ActiveModelTrait;".to_string(),
@@ -257,7 +257,7 @@ pub async fn destroy(req: Request, id: Path<i32>) -> Response {
 }"#
             .to_string(),
             imports: vec![
-                "use cancer::prelude::*;".to_string(),
+                "use ferro::prelude::*;".to_string(),
                 "use crate::entities::{{entity}}::Entity as {{Entity}};".to_string(),
                 "use sea_orm::ModelTrait;".to_string(),
             ],
@@ -305,8 +305,8 @@ pub async fn store(req: Request) -> Response {
 }"#
             .to_string(),
             imports: vec![
-                "use cancer::prelude::*;".to_string(),
-                "use cancer::inertia::{Inertia, SavedInertiaContext};".to_string(),
+                "use ferro::prelude::*;".to_string(),
+                "use ferro::inertia::{Inertia, SavedInertiaContext};".to_string(),
                 "use crate::entities::{{entity}}::Entity as {{Entity}};".to_string(),
             ],
             placeholders: vec![
@@ -755,8 +755,8 @@ fn middleware_templates() -> Vec<CodeTemplate> {
             name: "auth_middleware".to_string(),
             category: "middleware".to_string(),
             description: "Authentication check middleware".to_string(),
-            code: r#"use cancer::middleware::{Middleware, Next};
-use cancer::prelude::*;
+            code: r#"use ferro::middleware::{Middleware, Next};
+use ferro::prelude::*;
 
 pub struct AuthMiddleware;
 
@@ -774,8 +774,8 @@ impl Middleware for AuthMiddleware {
 }"#
             .to_string(),
             imports: vec![
-                "use cancer::middleware::{Middleware, Next};".to_string(),
-                "use cancer::prelude::*;".to_string(),
+                "use ferro::middleware::{Middleware, Next};".to_string(),
+                "use ferro::prelude::*;".to_string(),
                 "use crate::models::User;".to_string(),
             ],
             placeholders: vec![],
@@ -784,8 +784,8 @@ impl Middleware for AuthMiddleware {
             name: "basic_middleware".to_string(),
             category: "middleware".to_string(),
             description: "Basic middleware structure".to_string(),
-            code: r#"use cancer::middleware::{Middleware, Next};
-use cancer::prelude::*;
+            code: r#"use ferro::middleware::{Middleware, Next};
+use ferro::prelude::*;
 
 pub struct {{Name}}Middleware;
 
@@ -806,8 +806,8 @@ impl Middleware for {{Name}}Middleware {
 }"#
             .to_string(),
             imports: vec![
-                "use cancer::middleware::{Middleware, Next};".to_string(),
-                "use cancer::prelude::*;".to_string(),
+                "use ferro::middleware::{Middleware, Next};".to_string(),
+                "use ferro::prelude::*;".to_string(),
             ],
             placeholders: vec![Placeholder {
                 name: "{{Name}}".to_string(),
@@ -824,8 +824,8 @@ fn validation_templates() -> Vec<CodeTemplate> {
             name: "form_validation".to_string(),
             category: "validation".to_string(),
             description: "Full form validation with multiple fields".to_string(),
-            code: r#"use cancer::validation::{Validator, rules};
-use cancer::validation::rules::*;
+            code: r#"use ferro::validation::{Validator, rules};
+use ferro::validation::rules::*;
 
 #[derive(Debug, Deserialize)]
 pub struct {{Form}}Request {
@@ -848,8 +848,8 @@ Validator::new(&data)
 // Validation passes, data is valid"#
                 .to_string(),
             imports: vec![
-                "use cancer::validation::{Validator, rules};".to_string(),
-                "use cancer::validation::rules::*;".to_string(),
+                "use ferro::validation::{Validator, rules};".to_string(),
+                "use ferro::validation::rules::*;".to_string(),
                 "use serde::Deserialize;".to_string(),
             ],
             placeholders: vec![Placeholder {
@@ -862,7 +862,7 @@ Validator::new(&data)
             name: "field_rules".to_string(),
             category: "validation".to_string(),
             description: "Common validation rule combinations".to_string(),
-            code: r#"use cancer::validation::rules::*;
+            code: r#"use ferro::validation::rules::*;
 
 // String fields
 rules![required(), min(1.0), max(255.0)]  // Required string
@@ -885,7 +885,7 @@ rules![required_unless("status", "draft")]  // Required unless draft
 // Array/List
 rules![required(), min(1.0)]  // At least one item"#
                 .to_string(),
-            imports: vec!["use cancer::validation::rules::*;".to_string()],
+            imports: vec!["use ferro::validation::rules::*;".to_string()],
             placeholders: vec![],
         },
     ]
