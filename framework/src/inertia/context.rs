@@ -242,6 +242,78 @@ impl Inertia {
         inertia_rs::Inertia::check_version(req, current_version, redirect_url)
             .map(|http_response| Ok(Self::convert_response(http_response)))
     }
+
+    /// Create an Inertia-aware redirect.
+    ///
+    /// This properly handles the Inertia protocol:
+    /// - For POST/PUT/PATCH/DELETE requests, uses 303 status to force GET
+    /// - Includes X-Inertia header for Inertia XHR requests
+    /// - Falls back to standard 302 for non-Inertia requests
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer::{Inertia, Request, Response};
+    ///
+    /// pub async fn login(req: Request) -> Response {
+    ///     // ... validation and auth logic ...
+    ///     Inertia::redirect(&req, "/dashboard")
+    /// }
+    /// ```
+    pub fn redirect(req: &Request, path: impl Into<String>) -> Response {
+        let url = path.into();
+        let is_inertia = req.is_inertia();
+        let is_post_like = matches!(
+            req.method().as_str(),
+            "POST" | "PUT" | "PATCH" | "DELETE"
+        );
+
+        if is_inertia {
+            // 303 See Other forces browser to GET the redirect location
+            let status = if is_post_like { 303 } else { 302 };
+            Ok(HttpResponse::new()
+                .status(status)
+                .header("X-Inertia", "true")
+                .header("Location", url))
+        } else {
+            // Standard redirect for non-Inertia requests
+            Ok(HttpResponse::new().status(302).header("Location", url))
+        }
+    }
+
+    /// Create an Inertia-aware redirect using saved context.
+    ///
+    /// Use when you've consumed the Request but need to redirect.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use cancer::{Inertia, Request, Response, SavedInertiaContext};
+    ///
+    /// pub async fn store(req: Request) -> Response {
+    ///     let ctx = SavedInertiaContext::from(&req);
+    ///     let form: CreateForm = req.input().await?;
+    ///
+    ///     // ... create record ...
+    ///
+    ///     Inertia::redirect_ctx(&ctx, "/items")
+    /// }
+    /// ```
+    pub fn redirect_ctx(ctx: &SavedInertiaContext, path: impl Into<String>) -> Response {
+        let url = path.into();
+        let is_inertia = ctx.headers.contains_key("X-Inertia");
+
+        // When using saved context, we assume POST-like (form submissions)
+        // because that's the common case for needing SavedInertiaContext
+        if is_inertia {
+            Ok(HttpResponse::new()
+                .status(303)
+                .header("X-Inertia", "true")
+                .header("Location", url))
+        } else {
+            Ok(HttpResponse::new().status(302).header("Location", url))
+        }
+    }
 }
 
 // Keep deprecated InertiaContext for backward compatibility during migration
