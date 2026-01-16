@@ -3,7 +3,7 @@
 //! This file contains custom implementations for the Todo model.
 //! The base entity is auto-generated in src/models/entities/todos.rs
 //!
-//! This file is NEVER overwritten by `cancer db:sync` - your custom code is safe here.
+//! This file is NEVER overwritten by `ferro db:sync` - your custom code is safe here.
 
 // Re-export the auto-generated entity (includes CancerModel-generated boilerplate)
 pub use super::entities::todos::*;
@@ -18,7 +18,7 @@ pub type Todo = Model;
 
 // Example custom finder:
 // impl Model {
-//     pub async fn find_by_email(email: &str) -> Result<Option<Self>, cancer::FrameworkError> {
+//     pub async fn find_by_email(email: &str) -> Result<Option<Self>, ferro::FrameworkError> {
 //         Self::query().filter(Column::Email.eq(email)).first().await
 //     }
 // }
