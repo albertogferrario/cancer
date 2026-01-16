@@ -52,33 +52,33 @@ jobs:
 
       - name: Build (cross)
         if: matrix.cross
-        run: cross build --release --target ${{ matrix.target }} -p cancer-cli
+        run: cross build --release --target ${{ matrix.target }} -p ferro-cli
 
       - name: Build (native)
         if: '!matrix.cross'
-        run: cargo build --release --target ${{ matrix.target }} -p cancer-cli
+        run: cargo build --release --target ${{ matrix.target }} -p ferro-cli
 
       - name: Prepare artifact (Unix)
         if: matrix.os != 'windows-latest'
         run: |
           mkdir -p dist
-          cp target/${{ matrix.target }}/release/cancer dist/
+          cp target/${{ matrix.target }}/release/ferro dist/
           cd dist
-          tar -czvf ../cancer-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }} cancer
+          tar -czvf ../ferro-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }} ferro
 
       - name: Prepare artifact (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist
-          Copy-Item target/${{ matrix.target }}/release/cancer.exe dist/
-          Compress-Archive -Path dist/cancer.exe -DestinationPath cancer-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }}
+          Copy-Item target/${{ matrix.target }}/release/ferro.exe dist/
+          Compress-Archive -Path dist/ferro.exe -DestinationPath ferro-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cancer-${{ matrix.target }}
-          path: cancer-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }}
+          name: ferro-${{ matrix.target }}
+          path: ferro-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.archive }}
 
   release:
     name: Create Release
@@ -119,8 +119,8 @@ jobs:
       - name: Update repo in install script
         run: |
           REPO="${{ github.repository }}"
-          sed -i "s|REPO=\"albertogferrario/cancer\"|REPO=\"$REPO\"|g" scripts/install.sh
-          sed -i "s|REPO=\"albertogferrario/cancer\"|REPO=\"$REPO\"|g" scripts/create-app.sh
+          sed -i "s|REPO=\"ferroframework/ferro\"|REPO=\"$REPO\"|g" scripts/install.sh
+          sed -i "s|REPO=\"ferroframework/ferro\"|REPO=\"$REPO\"|g" scripts/create-app.sh
 
       - name: Commit changes
         run: |
