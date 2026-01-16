@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** Phase 12 in progress — Agent-first polish with actionable errors
+**Current focus:** All phases complete — Cancer framework ready for production use
 
 ## Current Position
 
-Phase: 12 of 12 (Agent-First Polish)
-Plan: 4 of 5 in phase - COMPLETE
-Status: Plan 04 complete - Cargo-sweep integration for automatic build cleanup
-Last activity: 2026-01-16 — Completed Phase 12 Plan 04 (Cargo-sweep Integration)
+Phase: 12 of 12 (Agent-First Polish) - COMPLETE
+Plan: 5 of 5 in phase - COMPLETE
+Status: Plan 05 complete - Inertia.js redirect handling fix
+Last activity: 2026-01-16 — Completed Phase 12 Plan 05 (Inertia Redirects)
 
-Progress: █████████████████ 98%
+Progress: ██████████████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: 24 min
-- Total execution time: 6 hours 50 min
+- Total execution time: 7 hours 5 min
 
 **By Phase:**
 
@@ -38,10 +38,10 @@ Progress: █████████████████ 98%
 | 9 | 1 | 35 min | 35 min |
 | 10 | 1 | 30 min | 30 min |
 | 11 | 3 | 75 min | 25 min |
-| 12 | 4/5 | 35 min | 9 min |
+| 12 | 5/5 | 50 min | 10 min |
 
 **Recent Trend:**
-- Last 17 plans: All completed successfully
+- Last 18 plans: All completed successfully
 - Trend: Stable velocity with growing codebase complexity
 
 ## Accumulated Context
@@ -85,6 +85,7 @@ Recent decisions affecting current work:
 32. **fail_with helper pattern** - Centralized error formatting in main.rs with context + cause + fix list format.
 33. **ENV precedence for ports** - CLI default (8000) triggers env lookup, explicit CLI arg overrides .env values.
 34. **Self-documenting .env.example** - All environment variables documented with comments explaining purpose, format, and defaults.
+35. **Inertia::redirect() over redirect!()** - For Inertia pages, use Inertia::redirect() which returns 303 for POST-like methods and includes X-Inertia header.
 
 ### Pending Todos
 
@@ -99,5 +100,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Completed Phase 12 Plan 04 (Cargo-sweep Integration)
+Stopped at: Completed Phase 12 Plan 05 (Inertia Redirects) - Phase 12 COMPLETE
 Resume file: None
