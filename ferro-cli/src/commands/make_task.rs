@@ -168,10 +168,7 @@ pub fn run(name: String) {
     );
     println!();
     println!("  {} Run the scheduler:", style("3.").dim());
-    println!(
-        "     ferro schedule:work  {} Daemon mode",
-        style("#").dim()
-    );
+    println!("     ferro schedule:work  {} Daemon mode", style("#").dim());
     println!("     ferro schedule:run   {} Run once", style("#").dim());
     println!("     ferro schedule:list  {} List tasks", style("#").dim());
     println!();

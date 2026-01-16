@@ -230,9 +230,7 @@ pub fn run(
     println!();
     println!(
         "{}",
-        style("Starting Ferro development servers...")
-            .cyan()
-            .bold()
+        style("Starting Ferro development servers...").cyan().bold()
     );
     println!();
 
