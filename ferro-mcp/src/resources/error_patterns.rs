@@ -91,7 +91,7 @@ pub fn get_error_patterns() -> ErrorPatternsCatalog {
             pattern: r"(?i)pending migration|migration.*failed|table.*not exist",
             category: ErrorCategory::Database,
             description: "Database schema is out of sync with code. Migrations may be pending.",
-            resolution: "Run `cancer migrate` to apply pending migrations. Check list_migrations for status.",
+            resolution: "Run `ferro migrate` to apply pending migrations. Check list_migrations for status.",
             example: "Database error: relation \"users\" does not exist",
         },
         ErrorPattern {

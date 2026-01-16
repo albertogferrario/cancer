@@ -1,4 +1,4 @@
-//! Code introspection utilities for Cancer projects
+//! Code introspection utilities for Ferro projects
 
 pub mod events;
 pub mod jobs;

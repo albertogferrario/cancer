@@ -1,4 +1,4 @@
-//! MCP Resources for Cancer Framework introspection
+//! MCP Resources for Ferro Framework introspection
 
 pub mod error_patterns;
 pub mod glossary;

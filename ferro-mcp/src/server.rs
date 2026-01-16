@@ -1,6 +1,6 @@
 //! MCP Server implementation
 
-use crate::service::CancerMcpService;
+use crate::service::FerroMcpService;
 use rmcp::ServiceExt;
 
 pub struct McpServer {
@@ -19,7 +19,7 @@ impl McpServer {
     }
 
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let service = CancerMcpService::new(self.project_root.clone());
+        let service = FerroMcpService::new(self.project_root.clone());
 
         let stdin = tokio::io::stdin();
         let stdout = tokio::io::stdout();

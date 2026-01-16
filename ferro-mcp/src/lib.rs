@@ -1,4 +1,4 @@
-//! Cancer MCP - Model Context Protocol server for AI-assisted Cancer Framework development
+//! Ferro MCP - Model Context Protocol server for AI-assisted Ferro Framework development
 
 pub mod error;
 pub mod introspection;
