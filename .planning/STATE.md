@@ -5,25 +5,25 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** All phases complete — Cancer framework ready for production use
+**Current focus:** v2.0 Rebrand — Rename framework from "cancer" to "ferro" for crates.io publication
 
 ## Current Position
 
-Phase: 12 of 12 (Agent-First Polish) - COMPLETE
-Plan: 5 of 5 in phase - COMPLETE
-Status: Plan 05 complete - Inertia.js redirect handling fix
-Last activity: 2026-01-16 — Completed Phase 12 Plan 05 (Inertia Redirects)
+Phase: 13 of 22 (Rebrand Audit)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-16 — Milestone v2.0 Rebrand created
 
-Progress: ██████████████████ 100%
+Progress: ░░░░░░░░░░░░░░░░░░ 0%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 18 (v1.0)
 - Average duration: 24 min
 - Total execution time: 7 hours 5 min
 
-**By Phase:**
+**By Phase (v1.0):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
@@ -38,11 +38,11 @@ Progress: ██████████████████ 100%
 | 9 | 1 | 35 min | 35 min |
 | 10 | 1 | 30 min | 30 min |
 | 11 | 3 | 75 min | 25 min |
-| 12 | 5/5 | 50 min | 10 min |
+| 12 | 5 | 50 min | 10 min |
 
 **Recent Trend:**
 - Last 18 plans: All completed successfully
-- Trend: Stable velocity with growing codebase complexity
+- v1.0 complete: Framework ready for rebrand
 
 ## Accumulated Context
 
@@ -86,6 +86,7 @@ Recent decisions affecting current work:
 33. **ENV precedence for ports** - CLI default (8000) triggers env lookup, explicit CLI arg overrides .env values.
 34. **Self-documenting .env.example** - All environment variables documented with comments explaining purpose, format, and defaults.
 35. **Inertia::redirect() over redirect!()** - For Inertia pages, use Inertia::redirect() which returns 303 for POST-like methods and includes X-Inertia header.
+36. **Rebrand to "ferro"** - Framework renamed from "cancer" to "ferro" for crates.io compatibility and public release.
 
 ### Pending Todos
 
@@ -97,8 +98,13 @@ None.
 2. **Pre-existing metrics test failure**: Flaky shared state issue in test_record_request_increments_count.
 3. **Pre-existing clippy warnings**: cancer-macros and cancer-events have clippy warnings unrelated to MCP work.
 
+### Roadmap Evolution
+
+- v1.0 DX Overhaul complete: 12 phases, 18 plans (2026-01-15 to 2026-01-16)
+- v2.0 Rebrand created: cancer → ferro, 10 phases (Phase 13-22)
+
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Completed Phase 12 Plan 05 (Inertia Redirects) - Phase 12 COMPLETE
+Stopped at: Milestone v2.0 Rebrand initialization
 Resume file: None
