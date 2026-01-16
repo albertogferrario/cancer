@@ -1,6 +1,6 @@
 # Caching
 
-Cancer provides a unified caching API with support for multiple backends, cache tags for bulk invalidation, and the convenient "remember" pattern for lazy caching.
+Ferro provides a unified caching API with support for multiple backends, cache tags for bulk invalidation, and the convenient "remember" pattern for lazy caching.
 
 ## Configuration
 
@@ -30,7 +30,7 @@ REDIS_URL=redis://127.0.0.1:6379
 In `src/bootstrap.rs`, configure caching:
 
 ```rust
-use cancer::{App, Cache};
+use ferro::{App, Cache};
 use std::sync::Arc;
 
 pub async fn register() {
@@ -47,7 +47,7 @@ pub async fn register() {
 ### Manual Configuration
 
 ```rust
-use cancer::{Cache, CacheConfig};
+use ferro::{Cache, CacheConfig};
 use std::time::Duration;
 
 // In-memory cache with custom config
@@ -249,13 +249,13 @@ Enable the Redis backend in `Cargo.toml`:
 
 ```toml
 [dependencies]
-cancer = { version = "0.1", features = ["redis-backend"] }
+ferro = { version = "0.1", features = ["redis-backend"] }
 ```
 
 ## Example: API Response Caching
 
 ```rust
-use cancer::{Request, Response, Cache};
+use ferro::{Request, Response, Cache};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -280,7 +280,7 @@ async fn get_products(
 ## Example: User Session Caching
 
 ```rust
-use cancer::Cache;
+use ferro::Cache;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -311,7 +311,7 @@ async fn invalidate_user_sessions(
 ## Example: Rate Limiting with Cache
 
 ```rust
-use cancer::Cache;
+use ferro::Cache;
 use std::sync::Arc;
 
 async fn check_rate_limit(

@@ -1,13 +1,13 @@
 # Validation
 
-Cancer provides a powerful validation system with a fluent API, built-in rules, custom messages, and automatic request validation through Form Requests.
+Ferro provides a powerful validation system with a fluent API, built-in rules, custom messages, and automatic request validation through Form Requests.
 
 ## Basic Usage
 
 ### Creating a Validator
 
 ```rust
-use cancer::validation::{Validator, rules};
+use ferro::validation::{Validator, rules};
 
 let data = serde_json::json!({
     "name": "John Doe",
@@ -31,7 +31,7 @@ if errors.is_empty() {
 ### Quick Validation
 
 ```rust
-use cancer::validation::{validate, rules};
+use ferro::validation::{validate, rules};
 
 let data = serde_json::json!({
     "email": "invalid-email"
@@ -53,7 +53,7 @@ if errors.fails() {
 ### Required Rules
 
 ```rust
-use cancer::validation::rules::*;
+use ferro::validation::rules::*;
 
 // Field must be present and not empty
 required()
@@ -153,7 +153,7 @@ accepted()
 ### User Registration
 
 ```rust
-use cancer::validation::{Validator, rules};
+use ferro::validation::{Validator, rules};
 
 let data = serde_json::json!({
     "username": "johndoe",
@@ -249,7 +249,7 @@ let errors = Validator::new()
 The `ValidationError` type collects and manages validation errors:
 
 ```rust
-use cancer::validation::ValidationError;
+use ferro::validation::ValidationError;
 
 let errors: ValidationError = validator.validate(&data);
 
@@ -286,7 +286,7 @@ if errors.fails() {
 ### JSON Error Response
 
 ```rust
-use cancer::{Response, json_response};
+use ferro::{Response, json_response};
 
 if errors.fails() {
     return json_response!(422, {
@@ -303,7 +303,7 @@ Form Requests provide automatic validation and authorization for HTTP requests.
 ### Defining a Form Request
 
 ```rust
-use cancer::http::FormRequest;
+use ferro::http::FormRequest;
 use serde::Deserialize;
 use validator::Validate;
 
@@ -328,7 +328,7 @@ impl FormRequest for CreateUserRequest {}
 ### Using Form Requests in Handlers
 
 ```rust
-use cancer::{handler, Response, json_response};
+use ferro::{handler, Response, json_response};
 use crate::requests::CreateUserRequest;
 
 #[handler]
@@ -351,7 +351,7 @@ pub async fn store(request: CreateUserRequest) -> Response {
 Override the `authorize` method to add authorization logic:
 
 ```rust
-use cancer::http::{FormRequest, Request};
+use ferro::http::{FormRequest, Request};
 
 impl FormRequest for UpdatePostRequest {
     fn authorize(req: &Request) -> bool {
@@ -425,7 +425,7 @@ fn validate_username(username: &str) -> Result<(), validator::ValidationError> {
 Create custom validation rules by implementing the `Rule` trait:
 
 ```rust
-use cancer::validation::Rule;
+use ferro::validation::Rule;
 use serde_json::Value;
 
 pub struct Uppercase;
@@ -501,8 +501,8 @@ let errors = Validator::new()
 ## API Validation Pattern
 
 ```rust
-use cancer::{handler, Request, Response, json_response};
-use cancer::validation::{Validator, rules};
+use ferro::{handler, Request, Response, json_response};
+use ferro::validation::{Validator, rules};
 
 #[handler]
 pub async fn store(req: Request) -> Response {

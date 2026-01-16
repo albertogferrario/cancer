@@ -1,6 +1,6 @@
 # Queues & Background Jobs
 
-Cancer provides a Redis-backed queue system for processing jobs asynchronously. This is essential for handling time-consuming tasks like sending emails, processing uploads, or generating reports without blocking HTTP requests.
+Ferro provides a Redis-backed queue system for processing jobs asynchronously. This is essential for handling time-consuming tasks like sending emails, processing uploads, or generating reports without blocking HTTP requests.
 
 ## Configuration
 
@@ -27,7 +27,7 @@ REDIS_DATABASE=0
 In `src/bootstrap.rs`, initialize the queue system:
 
 ```rust
-use cancer::{Queue, QueueConfig};
+use ferro::{Queue, QueueConfig};
 
 pub async fn register() {
     // ... other setup ...
@@ -47,13 +47,13 @@ pub async fn register() {
 Generate a new job:
 
 ```bash
-cancer make:job ProcessPayment
+ferro make:job ProcessPayment
 ```
 
 This creates `src/jobs/process_payment.rs`:
 
 ```rust
-use cancer::{Job, Error, async_trait};
+use ferro::{Job, Error, async_trait};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -154,7 +154,7 @@ Run a worker process to consume jobs from Redis:
 
 ```rust
 // src/bin/worker.rs
-use cancer::{Worker, WorkerConfig};
+use ferro::{Worker, WorkerConfig};
 use myapp::jobs::{ProcessPayment, SendEmail, GenerateReport};
 
 #[tokio::main]
@@ -254,7 +254,7 @@ impl Job for ProcessPayment {
 |----------|-------------|---------|
 | `QUEUE_CONNECTION` | "sync" or "redis" | sync |
 | `QUEUE_DEFAULT` | Default queue name | default |
-| `QUEUE_PREFIX` | Redis key prefix | cancer_queue |
+| `QUEUE_PREFIX` | Redis key prefix | ferro_queue |
 | `QUEUE_BLOCK_TIMEOUT` | Worker polling timeout (seconds) | 5 |
 | `QUEUE_MAX_CONCURRENT` | Max parallel jobs per worker | 10 |
 | `REDIS_URL` | Full Redis URL (overrides individual settings) | - |

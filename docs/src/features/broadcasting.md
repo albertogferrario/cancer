@@ -1,6 +1,6 @@
 # Broadcasting
 
-Cancer provides a Laravel Echo-inspired WebSocket broadcasting system for real-time communication. Push updates to clients instantly through public, private, and presence channels.
+Ferro provides a Laravel Echo-inspired WebSocket broadcasting system for real-time communication. Push updates to clients instantly through public, private, and presence channels.
 
 ## Configuration
 
@@ -26,7 +26,7 @@ BROADCAST_ALLOW_CLIENT_EVENTS=true
 In `src/bootstrap.rs`, create the broadcaster:
 
 ```rust
-use cancer::{App, Broadcaster, BroadcastConfig};
+use ferro::{App, Broadcaster, BroadcastConfig};
 use std::sync::Arc;
 
 pub async fn register() {
@@ -44,7 +44,7 @@ pub async fn register() {
 ### Manual Configuration
 
 ```rust
-use cancer::{Broadcaster, BroadcastConfig};
+use ferro::{Broadcaster, BroadcastConfig};
 use std::time::Duration;
 
 let config = BroadcastConfig::new()
@@ -88,7 +88,7 @@ Channels are determined by their name prefix:
 ### Basic Broadcast
 
 ```rust
-use cancer::Broadcast;
+use ferro::Broadcast;
 
 // In a controller or service
 let broadcast = Broadcast::new(broadcaster.clone());
@@ -136,7 +136,7 @@ Private and presence channels require authorization.
 ### Implementing an Authorizer
 
 ```rust
-use cancer::{AuthData, ChannelAuthorizer, async_trait};
+use ferro::{AuthData, ChannelAuthorizer, async_trait};
 
 pub struct MyAuthorizer {
     // Database connection, etc.
@@ -179,7 +179,7 @@ Presence channels track which users are online.
 ### Subscribing with Member Info
 
 ```rust
-use cancer::PresenceMember;
+use ferro::PresenceMember;
 
 let member = PresenceMember::new(socket_id, user_id)
     .with_info(serde_json::json!({
@@ -279,7 +279,7 @@ pub enum ClientMessage {
 ## WebSocket Handler Example
 
 ```rust
-use cancer::{Broadcaster, ClientMessage, ServerMessage};
+use ferro::{Broadcaster, ClientMessage, ServerMessage};
 use tokio::sync::mpsc;
 use tokio_tungstenite::tungstenite::Message;
 

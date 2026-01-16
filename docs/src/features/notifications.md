@@ -1,6 +1,6 @@
 # Notifications
 
-Cancer provides a Laravel-inspired multi-channel notification system. Send notifications via mail, database, Slack, and more through a unified API.
+Ferro provides a Laravel-inspired multi-channel notification system. Send notifications via mail, database, Slack, and more through a unified API.
 
 ## Configuration
 
@@ -27,7 +27,7 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/yyy/zzz
 In `src/bootstrap.rs`, initialize notifications:
 
 ```rust
-use cancer::{NotificationConfig, NotificationDispatcher};
+use ferro::{NotificationConfig, NotificationDispatcher};
 
 pub async fn register() {
     // ... other setup ...
@@ -41,7 +41,7 @@ pub async fn register() {
 ### Manual Configuration
 
 ```rust
-use cancer::{NotificationConfig, MailConfig, NotificationDispatcher};
+use ferro::{NotificationConfig, MailConfig, NotificationDispatcher};
 
 let config = NotificationConfig::new()
     .mail(
@@ -61,13 +61,13 @@ NotificationDispatcher::configure(config);
 Generate a new notification:
 
 ```bash
-cancer make:notification OrderShipped
+ferro make:notification OrderShipped
 ```
 
 This creates `src/notifications/order_shipped.rs`:
 
 ```rust
-use cancer::{Notification, Channel, MailMessage};
+use ferro::{Notification, Channel, MailMessage};
 
 pub struct OrderShipped {
     pub order_id: i64,
@@ -102,7 +102,7 @@ impl Notification for OrderShipped {
 Implement `Notifiable` on your User model:
 
 ```rust
-use cancer::{Notifiable, Channel, async_trait};
+use ferro::{Notifiable, Channel, async_trait};
 
 pub struct User {
     pub id: i64,
@@ -192,7 +192,7 @@ impl Notification for WelcomeEmail {
 Store notifications for in-app display:
 
 ```rust
-use cancer::{Notification, Channel, DatabaseMessage};
+use ferro::{Notification, Channel, DatabaseMessage};
 
 impl Notification for OrderStatusChanged {
     fn via(&self) -> Vec<Channel> {
@@ -223,7 +223,7 @@ impl Notification for OrderStatusChanged {
 Send Slack webhook notifications:
 
 ```rust
-use cancer::{Notification, Channel, SlackMessage, SlackAttachment};
+use ferro::{Notification, Channel, SlackMessage, SlackAttachment};
 
 impl Notification for DeploymentComplete {
     fn via(&self) -> Vec<Channel> {
@@ -302,7 +302,7 @@ impl Notification for OrderPlaced {
 
 ```rust
 // notifications/order_shipped.rs
-use cancer::{Notification, Channel, MailMessage, DatabaseMessage, SlackMessage, SlackAttachment};
+use ferro::{Notification, Channel, MailMessage, DatabaseMessage, SlackMessage, SlackAttachment};
 
 pub struct OrderShipped {
     pub order_id: i64,

@@ -1,6 +1,6 @@
 # Events & Listeners
 
-Cancer provides a Laravel-inspired event system for decoupling your application components. Events represent something that happened, while listeners react to those events.
+Ferro provides a Laravel-inspired event system for decoupling your application components. Events represent something that happened, while listeners react to those events.
 
 ## Creating Events
 
@@ -9,13 +9,13 @@ Cancer provides a Laravel-inspired event system for decoupling your application 
 Generate a new event:
 
 ```bash
-cancer make:event OrderPlaced
+ferro make:event OrderPlaced
 ```
 
 This creates `src/events/order_placed.rs`:
 
 ```rust
-use cancer::Event;
+use ferro::Event;
 
 #[derive(Clone)]
 pub struct OrderPlaced {
@@ -45,13 +45,13 @@ Events must implement:
 Generate a new listener:
 
 ```bash
-cancer make:listener SendOrderConfirmation
+ferro make:listener SendOrderConfirmation
 ```
 
 This creates `src/listeners/send_order_confirmation.rs`:
 
 ```rust
-use cancer::{Listener, Error, async_trait};
+use ferro::{Listener, Error, async_trait};
 use crate::events::OrderPlaced;
 
 pub struct SendOrderConfirmation;
@@ -79,7 +79,7 @@ impl Listener<OrderPlaced> for SendOrderConfirmation {
 Register listeners in `src/bootstrap.rs`:
 
 ```rust
-use cancer::{App, EventDispatcher};
+use ferro::{App, EventDispatcher};
 use crate::events::OrderPlaced;
 use crate::listeners::{SendOrderConfirmation, UpdateInventory, NotifyWarehouse};
 
@@ -141,7 +141,7 @@ OrderPlaced {
 ### Using the Dispatcher Directly
 
 ```rust
-use cancer::dispatch;
+use ferro::dispatch;
 
 dispatch(OrderPlaced {
     order_id: 123,
@@ -155,7 +155,7 @@ dispatch(OrderPlaced {
 For long-running tasks, queue listeners for background processing:
 
 ```rust
-use cancer::{Listener, ShouldQueue, Error, async_trait};
+use ferro::{Listener, ShouldQueue, Error, async_trait};
 use crate::events::OrderPlaced;
 
 pub struct GenerateInvoicePDF;

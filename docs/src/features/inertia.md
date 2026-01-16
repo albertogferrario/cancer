@@ -1,6 +1,6 @@
 # Inertia.js
 
-Cancer provides first-class Inertia.js integration, enabling you to build modern single-page applications using React while keeping your routing and controllers on the server. This gives you the best of both worlds: the snappy feel of an SPA with the simplicity of server-side rendering.
+Ferro provides first-class Inertia.js integration, enabling you to build modern single-page applications using React while keeping your routing and controllers on the server. This gives you the best of both worlds: the snappy feel of an SPA with the simplicity of server-side rendering.
 
 ## How Inertia Works
 
@@ -36,7 +36,7 @@ APP_ENV=development
 In `src/bootstrap.rs`, configure Inertia:
 
 ```rust
-use cancer::{App, InertiaConfig};
+use ferro::{App, InertiaConfig};
 
 pub async fn register() {
     // Configure from environment
@@ -48,7 +48,7 @@ pub async fn register() {
 ### Manual Configuration
 
 ```rust
-use cancer::InertiaConfig;
+use ferro::InertiaConfig;
 
 let config = InertiaConfig {
     vite_dev_server: "http://localhost:5173".to_string(),
@@ -66,8 +66,8 @@ let config = InertiaConfig {
 Use `Inertia::render()` to return an Inertia response:
 
 ```rust
-use cancer::{handler, Request, Response};
-use cancer::inertia::Inertia;
+use ferro::{handler, Request, Response};
+use ferro::inertia::Inertia;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -80,7 +80,7 @@ pub struct HomeProps {
 pub async fn index(req: Request) -> Response {
     Inertia::render(&req, "Home", HomeProps {
         title: "Welcome".to_string(),
-        message: "Hello from Cancer!".to_string(),
+        message: "Hello from Ferro!".to_string(),
     })
 }
 ```
@@ -92,7 +92,7 @@ The component name (`"Home"`) maps to `frontend/src/pages/Home.tsx`.
 For automatic camelCase conversion (standard in JavaScript), use the `InertiaProps` derive macro:
 
 ```rust
-use cancer::InertiaProps;
+use ferro::InertiaProps;
 
 #[derive(InertiaProps)]
 pub struct DashboardProps {
@@ -130,7 +130,7 @@ export default function Dashboard({ userName, totalPosts, isAdmin }: DashboardPr
 The `inertia_response!` macro validates that your component exists at compile time:
 
 ```rust
-use cancer::inertia_response;
+use ferro::inertia_response;
 
 #[handler]
 pub async fn show(req: Request) -> Response {
@@ -152,8 +152,8 @@ Shared props are data that should be available to every page component, like aut
 ### Creating the Middleware
 
 ```rust
-use cancer::{Middleware, Request, Response, Next};
-use cancer::inertia::InertiaShared;
+use ferro::{Middleware, Request, Response, Next};
+use ferro::inertia::InertiaShared;
 use async_trait::async_trait;
 
 pub struct ShareInertiaData;
@@ -200,7 +200,7 @@ impl Middleware for ShareInertiaData {
 In `src/bootstrap.rs`:
 
 ```rust
-use cancer::global_middleware;
+use ferro::global_middleware;
 use crate::middleware::ShareInertiaData;
 
 pub async fn register() {
@@ -258,9 +258,9 @@ export default function Layout({ children }) {
 When you need to consume the request body (e.g., for validation) before rendering, use `SavedInertiaContext`:
 
 ```rust
-use cancer::{handler, Request, Response};
-use cancer::inertia::{Inertia, SavedInertiaContext};
-use cancer::validation::{Validator, rules};
+use ferro::{handler, Request, Response};
+use ferro::inertia::{Inertia, SavedInertiaContext};
+use ferro::validation::{Validator, rules};
 
 #[handler]
 pub async fn store(req: Request) -> Response {
@@ -434,7 +434,7 @@ router.visit('/dashboard', {
 
 ### Server-Side Handling
 
-Cancer automatically handles partial reload requests. The `X-Inertia-Partial-Data` header specifies which props to return:
+Ferro automatically handles partial reload requests. The `X-Inertia-Partial-Data` header specifies which props to return:
 
 ```rust
 #[handler]
@@ -455,7 +455,7 @@ When your assets change (new deployment), Inertia uses versioning to force a ful
 ### Checking Version
 
 ```rust
-use cancer::inertia::Inertia;
+use ferro::inertia::Inertia;
 
 #[handler]
 pub async fn index(req: Request) -> Response {
@@ -531,7 +531,7 @@ export default function CreatePost() {
 ### Server-Side Validation Response
 
 ```rust
-use cancer::inertia::{Inertia, SavedInertiaContext};
+use ferro::inertia::{Inertia, SavedInertiaContext};
 
 #[handler]
 pub async fn store(req: Request) -> Response {
@@ -553,10 +553,10 @@ pub async fn store(req: Request) -> Response {
 
 ## TypeScript Generation
 
-Cancer can generate TypeScript types from your Rust props:
+Ferro can generate TypeScript types from your Rust props:
 
 ```bash
-cancer generate-types
+ferro generate-types
 ```
 
 This creates type definitions for your InertiaProps structs:
@@ -579,7 +579,7 @@ export interface DashboardProps {
 
 ### Development Mode
 
-In development, Cancer serves the Vite dev server with HMR:
+In development, Ferro serves the Vite dev server with HMR:
 
 ```rust
 let config = InertiaConfig {
@@ -598,7 +598,7 @@ The rendered HTML includes:
 
 ### Production Mode
 
-In production, Cancer uses the built manifest:
+In production, Ferro uses the built manifest:
 
 ```rust
 let config = InertiaConfig {
@@ -619,7 +619,7 @@ The rendered HTML includes hashed assets:
 ### Routes
 
 ```rust
-use cancer::{get, post, put, delete};
+use ferro::{get, post, put, delete};
 
 pub fn routes() -> Vec<Route> {
     vec![
@@ -637,9 +637,9 @@ pub fn routes() -> Vec<Route> {
 ### Controller
 
 ```rust
-use cancer::{handler, Request, Response, redirect};
-use cancer::inertia::{Inertia, SavedInertiaContext};
-use cancer::InertiaProps;
+use ferro::{handler, Request, Response, redirect};
+use ferro::inertia::{Inertia, SavedInertiaContext};
+use ferro::InertiaProps;
 
 #[derive(InertiaProps)]
 pub struct IndexProps {
@@ -724,7 +724,7 @@ pub async fn destroy(post: Post, _req: Request) -> Response {
 For form submissions (POST, PUT, PATCH, DELETE) that should redirect after success, use `Inertia::redirect()`:
 
 ```rust
-use cancer::{Inertia, Request, Response, Auth};
+use ferro::{Inertia, Request, Response, Auth};
 
 pub async fn login(req: Request) -> Response {
     // ... validation and auth logic ...
@@ -753,7 +753,7 @@ For Inertia pages, always use `Inertia::redirect()` which:
 If you've consumed the request with `req.input()`, use the saved context:
 
 ```rust
-use cancer::{Inertia, Request, Response, SavedInertiaContext};
+use ferro::{Inertia, Request, Response, SavedInertiaContext};
 
 pub async fn store(req: Request) -> Response {
     let ctx = SavedInertiaContext::from(&req);

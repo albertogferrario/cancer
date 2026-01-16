@@ -1,6 +1,6 @@
 # Storage
 
-Cancer provides a unified file storage abstraction inspired by Laravel's filesystem. Work with local files, memory storage, and cloud providers through a consistent API.
+Ferro provides a unified file storage abstraction inspired by Laravel's filesystem. Work with local files, memory storage, and cloud providers through a consistent API.
 
 ## Configuration
 
@@ -33,7 +33,7 @@ AWS_URL=https://your-bucket.s3.amazonaws.com
 In `src/bootstrap.rs`, configure storage:
 
 ```rust
-use cancer::{App, Storage, StorageConfig};
+use ferro::{App, Storage, StorageConfig};
 use std::sync::Arc;
 
 pub async fn register() {
@@ -51,7 +51,7 @@ pub async fn register() {
 ### Manual Configuration
 
 ```rust
-use cancer::{Storage, StorageConfig, DiskConfig};
+use ferro::{Storage, StorageConfig, DiskConfig};
 
 let config = StorageConfig::new("local")
     .disk("local", DiskConfig::local("./storage"))
@@ -66,7 +66,7 @@ let storage = Storage::with_storage_config(config);
 ### Storing Files
 
 ```rust
-use cancer::Storage;
+use ferro::Storage;
 
 // Store string content
 storage.put("documents/report.txt", "Report content").await?;
@@ -75,7 +75,7 @@ storage.put("documents/report.txt", "Report content").await?;
 storage.put("images/photo.jpg", image_bytes).await?;
 
 // Store with visibility options
-use cancer::PutOptions;
+use ferro::PutOptions;
 
 storage.put_with_options(
     "private/secret.txt",
@@ -140,7 +140,7 @@ let file = storage.disk("uploads")?.get("user-upload.pdf").await?;
 Each disk is configured independently:
 
 ```rust
-use cancer::{StorageConfig, DiskConfig};
+use ferro::{StorageConfig, DiskConfig};
 
 let config = StorageConfig::new("local")
     // Main storage disk
@@ -205,7 +205,7 @@ println!("Last modified: {:?}", metadata.last_modified);
 ### Visibility
 
 ```rust
-use cancer::{PutOptions, Visibility};
+use ferro::{PutOptions, Visibility};
 
 // Store with private visibility
 storage.put_with_options(
@@ -286,13 +286,13 @@ Requires the `s3` feature (coming soon):
 
 ```toml
 [dependencies]
-cancer = { version = "0.1", features = ["s3"] }
+ferro = { version = "0.1", features = ["s3"] }
 ```
 
 ## Example: File Upload Handler
 
 ```rust
-use cancer::{Request, Response, Storage};
+use ferro::{Request, Response, Storage};
 use std::sync::Arc;
 
 async fn upload_file(
@@ -329,7 +329,7 @@ async fn upload_file(
 ## Example: Avatar Upload with Validation
 
 ```rust
-use cancer::{Request, Response, Storage, PutOptions, Visibility};
+use ferro::{Request, Response, Storage, PutOptions, Visibility};
 use std::sync::Arc;
 
 async fn upload_avatar(

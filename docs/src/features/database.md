@@ -1,6 +1,6 @@
 # Database
 
-Cancer provides a SeaORM-based database layer with Laravel-like API, automatic route model binding, fluent query builder, and testing utilities.
+Ferro provides a SeaORM-based database layer with Laravel-like API, automatic route model binding, fluent query builder, and testing utilities.
 
 ## Configuration
 
@@ -29,7 +29,7 @@ DB_LOGGING=false
 In `src/bootstrap.rs`, configure the database:
 
 ```rust
-use cancer::{Config, DB, DatabaseConfig};
+use ferro::{Config, DB, DatabaseConfig};
 
 pub async fn register() {
     // Register database configuration
@@ -43,7 +43,7 @@ pub async fn register() {
 ### Manual Configuration
 
 ```rust
-use cancer::{Config, DB, DatabaseConfig};
+use ferro::{Config, DB, DatabaseConfig};
 
 // Build configuration programmatically
 let config = DatabaseConfig::builder()
@@ -63,7 +63,7 @@ DB::init_with(config).await?;
 ### Getting a Connection
 
 ```rust
-use cancer::DB;
+use ferro::DB;
 
 // Get the database connection
 let conn = DB::connection()?;
@@ -78,7 +78,7 @@ let conn = DB::get()?;
 ### Checking Connection Status
 
 ```rust
-use cancer::DB;
+use ferro::DB;
 
 if DB::is_connected() {
     let conn = DB::connection()?;
@@ -88,13 +88,13 @@ if DB::is_connected() {
 
 ## Models
 
-Cancer provides Laravel-like traits for SeaORM entities.
+Ferro provides Laravel-like traits for SeaORM entities.
 
 ### Defining a Model
 
 ```rust
 use sea_orm::entity::prelude::*;
-use cancer::database::{Model, ModelMut};
+use ferro::database::{Model, ModelMut};
 
 #[derive(Clone, Debug, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
@@ -112,15 +112,15 @@ pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
 
-// Add Cancer's Model traits for convenient methods
-impl cancer::database::Model for Entity {}
-impl cancer::database::ModelMut for Entity {}
+// Add Ferro's Model traits for convenient methods
+impl ferro::database::Model for Entity {}
+impl ferro::database::ModelMut for Entity {}
 ```
 
 ### Reading Records
 
 ```rust
-use cancer::models::user;
+use ferro::models::user;
 
 // Find all records
 let users = user::Entity::all().await?;
@@ -147,7 +147,7 @@ if user::Entity::exists_any().await? {
 
 ```rust
 use sea_orm::Set;
-use cancer::models::user;
+use ferro::models::user;
 
 let new_user = user::ActiveModel {
     name: Set("John Doe".to_string()),
@@ -163,7 +163,7 @@ println!("Created user with id: {}", user.id);
 
 ```rust
 use sea_orm::Set;
-use cancer::models::user;
+use ferro::models::user;
 
 // Find and update
 let user = user::Entity::find_or_fail(1).await?;
@@ -176,7 +176,7 @@ let updated = user::Entity::update_one(active).await?;
 ### Deleting Records
 
 ```rust
-use cancer::models::user;
+use ferro::models::user;
 
 // Delete by primary key
 let rows_deleted = user::Entity::delete_by_pk(1).await?;
@@ -187,7 +187,7 @@ println!("Deleted {} rows", rows_deleted);
 
 ```rust
 use sea_orm::Set;
-use cancer::models::user;
+use ferro::models::user;
 
 // Save will insert if no primary key, update if present
 let model = user::ActiveModel {
@@ -206,7 +206,7 @@ The fluent query builder provides an Eloquent-like API.
 ### Basic Queries
 
 ```rust
-use cancer::models::todo::{self, Column};
+use ferro::models::todo::{self, Column};
 
 // Get all records
 let todos = todo::Entity::query().all().await?;
@@ -221,7 +221,7 @@ let todo = todo::Entity::query().first_or_fail().await?;
 ### Filtering
 
 ```rust
-use cancer::models::todo::{self, Column};
+use ferro::models::todo::{self, Column};
 
 // Single filter
 let todos = todo::Entity::query()
@@ -252,7 +252,7 @@ let todos = todo::Entity::query()
 ### Ordering
 
 ```rust
-use cancer::models::todo::{self, Column};
+use ferro::models::todo::{self, Column};
 
 // Order ascending
 let todos = todo::Entity::query()
@@ -277,7 +277,7 @@ let todos = todo::Entity::query()
 ### Pagination
 
 ```rust
-use cancer::models::todo;
+use ferro::models::todo;
 
 // Limit results
 let todos = todo::Entity::query()
@@ -299,7 +299,7 @@ let todos = todo::Entity::query()
 ### Counting and Existence
 
 ```rust
-use cancer::models::todo::{self, Column};
+use ferro::models::todo::{self, Column};
 
 // Count matching records
 let count = todo::Entity::query()
@@ -317,7 +317,7 @@ let has_active = todo::Entity::query()
 ### Advanced Queries
 
 ```rust
-use cancer::models::todo;
+use ferro::models::todo;
 
 // Get underlying SeaORM Select for advanced operations
 let select = todo::Entity::query()
@@ -334,13 +334,13 @@ let todos = select
 
 ## Route Model Binding
 
-Cancer automatically resolves models from route parameters.
+Ferro automatically resolves models from route parameters.
 
 ### Automatic Binding
 
 ```rust
-use cancer::{handler, json_response, Response};
-use cancer::models::user;
+use ferro::{handler, json_response, Response};
+use ferro::models::user;
 
 // The 'user' parameter is automatically resolved from the route
 #[handler]
@@ -365,8 +365,8 @@ pub async fn show(user: user::Model) -> Response {
 For custom binding logic, implement the `RouteBinding` trait:
 
 ```rust
-use cancer::database::RouteBinding;
-use cancer::FrameworkError;
+use ferro::database::RouteBinding;
+use ferro::FrameworkError;
 use async_trait::async_trait;
 
 #[async_trait]
@@ -389,13 +389,13 @@ impl RouteBinding for user::Model {
 
 ## Migrations
 
-Cancer uses SeaORM migrations with a timestamp-based naming convention.
+Ferro uses SeaORM migrations with a timestamp-based naming convention.
 
 ### Creating Migrations
 
 ```bash
 # Create a new migration
-cancer make:migration create_posts_table
+ferro make:migration create_posts_table
 
 # Creates: src/migrations/m20240115_143052_create_posts_table.rs
 ```
@@ -464,27 +464,27 @@ enum Posts {
 
 ```bash
 # Run all pending migrations
-cancer migrate
+ferro migrate
 
 # Rollback the last batch
-cancer migrate:rollback
+ferro migrate:rollback
 
 # Rollback all and re-run
-cancer migrate:fresh
+ferro migrate:fresh
 
 # Check migration status
-cancer migrate:status
+ferro migrate:status
 ```
 
 ## Testing
 
-Cancer provides utilities for isolated database testing.
+Ferro provides utilities for isolated database testing.
 
 ### Test Database
 
 ```rust
-use cancer::test_database;
-use cancer::models::user;
+use ferro::test_database;
+use ferro::models::user;
 
 #[tokio::test]
 async fn test_create_user() {
@@ -513,7 +513,7 @@ async fn test_create_user() {
 ### Custom Migrator
 
 ```rust
-use cancer::testing::TestDatabase;
+use ferro::testing::TestDatabase;
 
 #[tokio::test]
 async fn test_with_custom_migrator() {
@@ -538,7 +538,7 @@ Each `TestDatabase` creates a completely isolated in-memory database:
 Use the `Database` type alias with dependency injection:
 
 ```rust
-use cancer::{injectable, Database};
+use ferro::{injectable, Database};
 
 #[injectable]
 pub struct CreateUserAction {

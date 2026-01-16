@@ -1,6 +1,6 @@
 # Testing
 
-Cancer provides a comprehensive testing suite with HTTP test client, Jest-like assertions, database factories, and isolated test databases.
+Ferro provides a comprehensive testing suite with HTTP test client, Jest-like assertions, database factories, and isolated test databases.
 
 ## HTTP Testing
 
@@ -9,7 +9,7 @@ Cancer provides a comprehensive testing suite with HTTP test client, Jest-like a
 The `TestClient` provides a fluent API for making HTTP requests to your application.
 
 ```rust
-use cancer::testing::TestClient;
+use ferro::testing::TestClient;
 
 #[tokio::test]
 async fn test_homepage() {
@@ -25,7 +25,7 @@ async fn test_homepage() {
 ### Making Requests
 
 ```rust
-use cancer::testing::TestClient;
+use ferro::testing::TestClient;
 
 let client = TestClient::new(app());
 
@@ -110,7 +110,7 @@ let response = client
 Test authenticated routes by acting as a specific user.
 
 ```rust
-use cancer::models::user;
+use ferro::models::user;
 
 let user = user::Entity::find_by_pk(1).await?.unwrap();
 
@@ -241,10 +241,10 @@ let content_type = response.header("Content-Type");
 
 ## Expect Assertions
 
-Cancer provides Jest-like `expect` assertions for expressive tests.
+Ferro provides Jest-like `expect` assertions for expressive tests.
 
 ```rust
-use cancer::testing::Expect;
+use ferro::testing::Expect;
 
 #[tokio::test]
 async fn test_user_creation() {
@@ -331,7 +331,7 @@ Factories generate fake data for testing, inspired by Laravel's model factories.
 ### Defining a Factory
 
 ```rust
-use cancer::testing::{Factory, FactoryBuilder, Fake};
+use ferro::testing::{Factory, FactoryBuilder, Fake};
 use sea_orm::Set;
 use crate::models::user;
 
@@ -375,7 +375,7 @@ let admin = UserFactory::factory()
 Define reusable states for common variations.
 
 ```rust
-use cancer::testing::{Factory, FactoryTraits};
+use ferro::testing::{Factory, FactoryTraits};
 
 impl Factory for UserFactory {
     type Model = user::ActiveModel;
@@ -423,8 +423,8 @@ let inactive_admin = UserFactory::factory()
 For factories that persist to the database.
 
 ```rust
-use cancer::testing::{DatabaseFactory, Factory, Fake};
-use cancer::DB;
+use ferro::testing::{DatabaseFactory, Factory, Fake};
+use ferro::DB;
 
 pub struct UserFactory;
 
@@ -473,7 +473,7 @@ let user = UserFactory::factory()
 Generate unique sequential values.
 
 ```rust
-use cancer::testing::Sequence;
+use ferro::testing::Sequence;
 
 let seq = Sequence::new();
 
@@ -500,7 +500,7 @@ The `Fake` helper generates realistic test data.
 ### Personal Information
 
 ```rust
-use cancer::testing::Fake;
+use ferro::testing::Fake;
 
 let name = Fake::name();           // "John Smith"
 let first = Fake::first_name();    // "John"
@@ -583,13 +583,13 @@ let custom = Fake::custom(|| {
 
 ## Test Database
 
-Cancer provides isolated database testing with automatic migrations.
+Ferro provides isolated database testing with automatic migrations.
 
 ### Using test_database! Macro
 
 ```rust
-use cancer::test_database;
-use cancer::models::user;
+use ferro::test_database;
+use ferro::models::user;
 
 #[tokio::test]
 async fn test_user_creation() {
@@ -619,7 +619,7 @@ async fn test_user_creation() {
 ### Custom Migrator
 
 ```rust
-use cancer::testing::TestDatabase;
+use ferro::testing::TestDatabase;
 
 #[tokio::test]
 async fn test_with_custom_migrator() {
@@ -648,7 +648,7 @@ Mock dependencies using the test container.
 ### Faking Services
 
 ```rust
-use cancer::testing::{TestContainer, TestContainerGuard};
+use ferro::testing::{TestContainer, TestContainerGuard};
 use std::sync::Arc;
 
 #[tokio::test]
@@ -697,8 +697,8 @@ async fn test_with_mock_repository() {
 ## Complete Test Example
 
 ```rust
-use cancer::testing::{TestClient, TestDatabase, Expect, Fake};
-use cancer::test_database;
+use ferro::testing::{TestClient, TestDatabase, Expect, Fake};
+use ferro::test_database;
 use crate::factories::UserFactory;
 
 #[tokio::test]
