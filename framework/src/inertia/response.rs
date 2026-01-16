@@ -1,5 +1,5 @@
 //! Inertia response types.
 //!
-//! Re-exports from the `inertia-rs` crate for backward compatibility.
+//! Re-exports from the `ferro-inertia` crate for backward compatibility.
 
-pub use inertia_rs::InertiaResponse;
+pub use ferro_inertia::InertiaResponse;

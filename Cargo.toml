@@ -12,7 +12,7 @@ members = [
     "ferro-storage",
     "ferro-cache",
     "ferro-mcp",
-    "inertia-rs",
+    "ferro-inertia",
 ]
 
 [workspace.package]

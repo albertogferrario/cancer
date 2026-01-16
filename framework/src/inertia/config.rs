@@ -1,5 +1,5 @@
 //! Inertia configuration.
 //!
-//! Re-exports `InertiaConfig` from the `inertia-rs` crate.
+//! Re-exports `InertiaConfig` from the `ferro-inertia` crate.
 
-pub use inertia_rs::InertiaConfig;
+pub use ferro_inertia::InertiaConfig;

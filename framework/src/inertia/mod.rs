@@ -29,7 +29,7 @@ pub use context::{Inertia, InertiaShared, SavedInertiaContext};
 pub use response::InertiaResponse;
 
 // Re-export core types from inertia-rs for advanced usage
-pub use inertia_rs::{InertiaHttpResponse, InertiaRequest as InertiaRequestTrait};
+pub use ferro_inertia::{InertiaHttpResponse, InertiaRequest as InertiaRequestTrait};
 
 // Deprecated exports for backward compatibility
 #[allow(deprecated)]

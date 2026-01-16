@@ -1,17 +1,17 @@
 //! Inertia.js integration - async-safe implementation.
 //!
 //! This module provides the main `Inertia` struct for rendering Inertia responses.
-//! It wraps the framework-agnostic `inertia-rs` crate with Cancer-specific features.
+//! It wraps the framework-agnostic `ferro-inertia` crate with Ferro-specific features.
 
 use crate::csrf::csrf_token;
 use crate::http::{HttpResponse, Request};
 use crate::Response;
-use inertia_rs::{InertiaConfig, InertiaRequest as InertiaRequestTrait};
+use ferro_inertia::{InertiaConfig, InertiaRequest as InertiaRequestTrait};
 use serde::Serialize;
 use std::collections::HashMap;
 
-// Re-export InertiaShared from inertia-rs
-pub use inertia_rs::InertiaShared;
+// Re-export InertiaShared from ferro-inertia
+pub use ferro_inertia::InertiaShared;
 
 /// Implement the framework-agnostic InertiaRequest trait for Cancer's Request type.
 impl InertiaRequestTrait for Request {
@@ -151,8 +151,8 @@ impl Inertia {
             Some(InertiaShared::new().csrf(csrf.clone()))
         };
 
-        // Use inertia-rs for the core rendering logic
-        let http_response = inertia_rs::Inertia::render_with_options(
+        // Use ferro-inertia for the core rendering logic
+        let http_response = ferro_inertia::Inertia::render_with_options(
             req,
             component,
             props,
@@ -192,7 +192,7 @@ impl Inertia {
         let csrf = csrf_token().unwrap_or_default();
         let shared = InertiaShared::new().csrf(csrf);
 
-        let http_response = inertia_rs::Inertia::render_with_options(
+        let http_response = ferro_inertia::Inertia::render_with_options(
             ctx,
             component,
             props,
@@ -203,8 +203,8 @@ impl Inertia {
         Ok(Self::convert_response(http_response))
     }
 
-    /// Convert an InertiaHttpResponse to Cancer's HttpResponse.
-    fn convert_response(inertia_response: inertia_rs::InertiaHttpResponse) -> HttpResponse {
+    /// Convert an InertiaHttpResponse to Ferro's HttpResponse.
+    fn convert_response(inertia_response: ferro_inertia::InertiaHttpResponse) -> HttpResponse {
         let mut response = match inertia_response.content_type {
             "application/json" => HttpResponse::text(inertia_response.body),
             "text/html; charset=utf-8" => HttpResponse::text(inertia_response.body),
@@ -239,7 +239,7 @@ impl Inertia {
         current_version: &str,
         redirect_url: &str,
     ) -> Option<Response> {
-        inertia_rs::Inertia::check_version(req, current_version, redirect_url)
+        ferro_inertia::Inertia::check_version(req, current_version, redirect_url)
             .map(|http_response| Ok(Self::convert_response(http_response)))
     }
 

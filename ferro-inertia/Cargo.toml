@@ -1,13 +1,13 @@
 [package]
-name = "inertia-rs"
-version = "0.1.0"
-edition = "2021"
-license = "MIT"
+name = "ferro-inertia"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
 description = "Server-side Inertia.js adapter for Rust web frameworks"
-repository = "https://github.com/inertiajs/inertia-rs"
-documentation = "https://docs.rs/inertia-rs"
+repository = "https://github.com/ferroframework/ferro"
+homepage = "https://github.com/ferroframework/ferro"
 readme = "README.md"
-keywords = ["inertia", "inertiajs", "spa", "react", "vue"]
+keywords = ["inertia", "inertiajs", "spa", "ferro", "axum"]
 categories = ["web-programming", "web-programming::http-server"]
 
 [dependencies]
