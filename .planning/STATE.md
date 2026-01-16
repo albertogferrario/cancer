@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 19 of 22 (Sample App Migration)
+Phase: 20 of 22 (Templates & Scaffolding)
 Plan: 01 completed
-Status: Phase 19 complete (single plan phase), ready for Phase 20
-Last activity: 2026-01-16 — Completed 19-01 (Sample app migrated to ferro imports)
+Status: Phase 20 complete (single plan phase), ready for Phase 21
+Last activity: 2026-01-16 — Completed 20-01 (CLI templates rebranded to ferro)
 
-Progress: ███████░░░░░░░░░░░ 35%
+Progress: ████████░░░░░░░░░░ 40%
 
 ## Performance Metrics
 
@@ -50,10 +50,11 @@ Progress: ███████░░░░░░░░░░░ 35%
 | 17 | 1 | 12 min | 12 min |
 | 18 | 4 | 36 min | 9 min |
 | 19 | 1 | 25 min | 25 min |
+| 20 | 1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 26 plans: All completed successfully
-- v2.0 rebrand in progress: Phase 19 complete
+- Last 27 plans: All completed successfully
+- v2.0 rebrand in progress: Phase 20 complete
 
 ## Accumulated Context
 
@@ -121,9 +122,10 @@ None.
 - Phase 17 complete: MCP server rebranded to Ferro
 - Phase 18 complete: Documentation update
 - Phase 19 complete: Sample app migrated to ferro imports
+- Phase 20 complete: CLI templates rebranded to ferro
 
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Phase 19 plan 01 completed
-Resume file: .planning/ROADMAP.md (check Phase 20)
+Stopped at: Phase 20 plan 01 completed
+Resume file: .planning/ROADMAP.md (check Phase 21)

@@ -24,7 +24,7 @@ Complete rebrand of the framework, including all crates, CLI tools, MCP server, 
 - [x] **Phase 17: MCP Server Rebrand** - Rename `cancer-mcp` to `ferro-mcp` and update tools
 - [x] **Phase 18: Documentation Update** - Update all docs, READMEs, and code comments
 - [x] **Phase 19: Sample App Migration** - Update sample app to use new names
-- [ ] **Phase 20: Templates & Scaffolding** - Update all CLI templates with new names
+- [x] **Phase 20: Templates & Scaffolding** - Update all CLI templates with new names
 - [ ] **Phase 21: Repository & CI** - Update repo name, CI/CD, badges, GitHub config
 - [ ] **Phase 22: Publishing & Announcement** - Prepare for crates.io, migration guide
 
