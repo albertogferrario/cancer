@@ -1,0 +1,415 @@
+mod analyzer;
+mod commands;
+mod templates;
+
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(name = "cancer")]
+#[command(about = "A CLI for scaffolding Cancer web applications", long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Create a new Cancer project
+    New {
+        /// The name of the project to create
+        name: Option<String>,
+
+        /// Skip all prompts and use defaults
+        #[arg(long)]
+        no_interaction: bool,
+
+        /// Skip git initialization
+        #[arg(long)]
+        no_git: bool,
+    },
+    /// Start the development servers (backend + frontend)
+    Serve {
+        /// Backend port (default: 8000)
+        #[arg(long, short = 'p', default_value = "8000")]
+        port: u16,
+
+        /// Frontend port (default: 5173)
+        #[arg(long, default_value = "5173")]
+        frontend_port: u16,
+
+        /// Only start backend server
+        #[arg(long)]
+        backend_only: bool,
+
+        /// Only start frontend server
+        #[arg(long)]
+        frontend_only: bool,
+
+        /// Skip TypeScript type generation
+        #[arg(long)]
+        skip_types: bool,
+    },
+    /// Generate TypeScript types from Rust InertiaProps structs
+    GenerateTypes {
+        /// Output file path (default: frontend/src/types/inertia-props.ts)
+        #[arg(long, short = 'o')]
+        output: Option<String>,
+
+        /// Watch for changes and regenerate
+        #[arg(long, short = 'w')]
+        watch: bool,
+    },
+    /// Generate a new middleware
+    #[command(name = "make:middleware")]
+    MakeMiddleware {
+        /// Name of the middleware (e.g., Auth, RateLimit)
+        name: String,
+    },
+    /// Generate a new controller
+    #[command(name = "make:controller")]
+    MakeController {
+        /// Name of the controller (e.g., users, user_profile)
+        name: String,
+    },
+    /// Generate a new action
+    #[command(name = "make:action")]
+    MakeAction {
+        /// Name of the action (e.g., AddTodo, CreateUser)
+        name: String,
+    },
+    /// Generate a new domain error
+    #[command(name = "make:error")]
+    MakeError {
+        /// Name of the error (e.g., UserNotFound, InvalidInput)
+        name: String,
+    },
+    /// Generate a new Inertia page
+    #[command(name = "make:inertia")]
+    MakeInertia {
+        /// Name of the page (e.g., About, UserProfile)
+        name: String,
+    },
+    /// Generate a new domain event
+    #[command(name = "make:event")]
+    MakeEvent {
+        /// Name of the event (e.g., UserRegistered, OrderPlaced)
+        name: String,
+    },
+    /// Generate a new test factory
+    #[command(name = "make:factory")]
+    MakeFactory {
+        /// Name of the factory (e.g., User, Post)
+        name: String,
+    },
+    /// Generate a new event listener
+    #[command(name = "make:listener")]
+    MakeListener {
+        /// Name of the listener (e.g., SendWelcomeEmail, NotifyAdmin)
+        name: String,
+        /// Event type to listen to (optional)
+        #[arg(long, short = 'e')]
+        event: Option<String>,
+    },
+    /// Generate a new background job
+    #[command(name = "make:job")]
+    MakeJob {
+        /// Name of the job (e.g., ProcessPayment, SendEmail)
+        name: String,
+    },
+    /// Generate a new notification
+    #[command(name = "make:notification")]
+    MakeNotification {
+        /// Name of the notification (e.g., OrderShipped, WelcomeUser)
+        name: String,
+    },
+    /// Generate a new database migration
+    #[command(name = "make:migration")]
+    MakeMigration {
+        /// Name of the migration (e.g., create_users_table, add_email_to_users)
+        name: String,
+    },
+    /// Generate a new authorization policy
+    #[command(name = "make:policy")]
+    MakePolicy {
+        /// Name of the policy (e.g., Post, PostPolicy)
+        name: String,
+        /// Model name (defaults to name without "Policy" suffix)
+        #[arg(long, short = 'm')]
+        model: Option<String>,
+    },
+    /// Generate a new scheduled task
+    #[command(name = "make:task")]
+    MakeTask {
+        /// Name of the task (e.g., CleanupLogs, SendReminders)
+        name: String,
+    },
+    /// Generate a new database seeder
+    #[command(name = "make:seeder")]
+    MakeSeeder {
+        /// Name of the seeder (e.g., Users, Products)
+        name: String,
+    },
+    /// Generate a complete scaffold (model, migration, controller, views)
+    #[command(name = "make:scaffold")]
+    MakeScaffold {
+        /// Name of the resource (e.g., Post, User)
+        name: String,
+        /// Fields in format field:type (e.g., title:string body:text published:bool)
+        #[arg(trailing_var_arg = true)]
+        fields: Vec<String>,
+        /// Generate test file with CRUD test stubs
+        #[arg(long)]
+        with_tests: bool,
+        /// Generate factory with field definitions
+        #[arg(long)]
+        with_factory: bool,
+        /// Automatically register routes in src/routes.rs
+        #[arg(long)]
+        auto_routes: bool,
+        /// Skip confirmation prompt for auto-routes (for CI/automation)
+        #[arg(long, short = 'y')]
+        yes: bool,
+        /// Generate API-only scaffold (JSON responses, no Inertia pages)
+        #[arg(long)]
+        api: bool,
+        /// Disable smart defaults detection (use explicit flags only)
+        #[arg(long)]
+        no_smart_defaults: bool,
+        /// Suppress smart defaults summary output
+        #[arg(long, short = 'q')]
+        quiet: bool,
+    },
+    /// Run all pending database migrations
+    Migrate,
+    /// Rollback the last database migration(s)
+    #[command(name = "migrate:rollback")]
+    MigrateRollback {
+        /// Number of migrations to rollback
+        #[arg(long, default_value = "1")]
+        step: u32,
+    },
+    /// Show the status of all migrations
+    #[command(name = "migrate:status")]
+    MigrateStatus,
+    /// Drop all tables and re-run all migrations
+    #[command(name = "migrate:fresh")]
+    MigrateFresh,
+    /// Sync database schema to entity files (runs migrations + generates entities)
+    #[command(name = "db:sync")]
+    DbSync {
+        /// Skip running migrations before sync
+        #[arg(long)]
+        skip_migrations: bool,
+        /// Regenerate model files (overwrites existing custom models with new Eloquent-like API)
+        #[arg(long)]
+        regenerate_models: bool,
+    },
+    /// Execute a raw SQL query against the database
+    #[command(name = "db:query")]
+    DbQuery {
+        /// SQL query to execute
+        query: String,
+    },
+    /// Generate a production-ready Dockerfile
+    #[command(name = "docker:init")]
+    DockerInit,
+    /// Generate docker-compose.yml for local development
+    #[command(name = "docker:compose")]
+    DockerCompose {
+        /// Include Mailpit email testing service
+        #[arg(long)]
+        with_mailpit: bool,
+        /// Include MinIO S3-compatible storage service
+        #[arg(long)]
+        with_minio: bool,
+    },
+    /// Run all due scheduled tasks once (typically called by cron every minute)
+    #[command(name = "schedule:run")]
+    ScheduleRun,
+    /// Start the scheduler daemon (runs continuously, checks every minute)
+    #[command(name = "schedule:work")]
+    ScheduleWork,
+    /// List all registered scheduled tasks
+    #[command(name = "schedule:list")]
+    ScheduleList,
+    /// Create a symbolic link from public/storage to storage/app/public
+    #[command(name = "storage:link")]
+    StorageLink {
+        /// Create a relative symlink
+        #[arg(long)]
+        relative: bool,
+    },
+    /// Start the MCP server for AI-assisted development
+    Mcp {
+        /// Working directory for the project to introspect
+        #[arg(long)]
+        cwd: Option<String>,
+    },
+    /// Install AI development boost (MCP config + guidelines)
+    #[command(name = "boost:install")]
+    BoostInstall {
+        /// Target editor: cursor, vscode, claude (auto-detected if omitted)
+        #[arg(long)]
+        editor: Option<String>,
+    },
+    /// Clean build artifacts using cargo-sweep
+    Clean {
+        /// Remove artifacts older than N days (default: 30)
+        #[arg(short, long, default_value = "30")]
+        days: u32,
+
+        /// Also remove artifacts from old toolchains
+        #[arg(short, long)]
+        toolchains: bool,
+
+        /// Skip cargo-sweep installation check
+        #[arg(long)]
+        skip_install_check: bool,
+    },
+}
+
+fn main() {
+    let cli = Cli::parse();
+
+    match cli.command {
+        Commands::New {
+            name,
+            no_interaction,
+            no_git,
+        } => {
+            commands::new::run(name, no_interaction, no_git);
+        }
+        Commands::Serve {
+            port,
+            frontend_port,
+            backend_only,
+            frontend_only,
+            skip_types,
+        } => {
+            commands::serve::run(port, frontend_port, backend_only, frontend_only, skip_types);
+        }
+        Commands::GenerateTypes { output, watch } => {
+            commands::generate_types::run(output, watch);
+        }
+        Commands::MakeMiddleware { name } => {
+            commands::make_middleware::run(name);
+        }
+        Commands::MakeController { name } => {
+            commands::make_controller::run(name);
+        }
+        Commands::MakeAction { name } => {
+            commands::make_action::run(name);
+        }
+        Commands::MakeError { name } => {
+            commands::make_error::run(name);
+        }
+        Commands::MakeInertia { name } => {
+            commands::make_inertia::run(name);
+        }
+        Commands::MakeEvent { name } => {
+            commands::make_event::run(name);
+        }
+        Commands::MakeFactory { name } => {
+            commands::make_factory::run(name);
+        }
+        Commands::MakeListener { name, event } => {
+            commands::make_listener::run(name, event);
+        }
+        Commands::MakeJob { name } => {
+            commands::make_job::run(name);
+        }
+        Commands::MakeNotification { name } => {
+            commands::make_notification::run(name);
+        }
+        Commands::MakeMigration { name } => {
+            commands::make_migration::run(name);
+        }
+        Commands::MakePolicy { name, model } => {
+            commands::make_policy::run(name, model);
+        }
+        Commands::MakeTask { name } => {
+            commands::make_task::run(name);
+        }
+        Commands::MakeSeeder { name } => {
+            commands::make_seeder::run(name);
+        }
+        Commands::MakeScaffold {
+            name,
+            fields,
+            with_tests,
+            with_factory,
+            auto_routes,
+            yes,
+            api,
+            no_smart_defaults,
+            quiet,
+        } => {
+            commands::make_scaffold::run(
+                name,
+                fields,
+                with_tests,
+                with_factory,
+                auto_routes,
+                yes,
+                api,
+                no_smart_defaults,
+                quiet,
+            );
+        }
+        Commands::Migrate => {
+            commands::migrate::run();
+        }
+        Commands::MigrateRollback { step } => {
+            commands::migrate_rollback::run(step);
+        }
+        Commands::MigrateStatus => {
+            commands::migrate_status::run();
+        }
+        Commands::MigrateFresh => {
+            commands::migrate_fresh::run();
+        }
+        Commands::DbSync {
+            skip_migrations,
+            regenerate_models,
+        } => {
+            commands::db_sync::run(skip_migrations, regenerate_models);
+        }
+        Commands::DbQuery { query } => {
+            commands::db_query::run(query);
+        }
+        Commands::DockerInit => {
+            commands::docker_init::run();
+        }
+        Commands::DockerCompose {
+            with_mailpit,
+            with_minio,
+        } => {
+            commands::docker_compose::run(with_mailpit, with_minio);
+        }
+        Commands::ScheduleRun => {
+            commands::schedule_run::run();
+        }
+        Commands::ScheduleWork => {
+            commands::schedule_work::run();
+        }
+        Commands::ScheduleList => {
+            commands::schedule_list::run();
+        }
+        Commands::StorageLink { relative } => {
+            commands::storage_link::run(relative);
+        }
+        Commands::Mcp { cwd } => {
+            commands::mcp::run(cwd);
+        }
+        Commands::BoostInstall { editor } => {
+            commands::boost_install::run(editor);
+        }
+        Commands::Clean {
+            days,
+            toolchains,
+            skip_install_check,
+        } => {
+            commands::clean::run(days, toolchains, skip_install_check);
+        }
+    }
+}
