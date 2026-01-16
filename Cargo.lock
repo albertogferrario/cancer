@@ -835,161 +835,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cancer-broadcast"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "dashmap",
- "futures-util",
- "parking_lot",
- "serde",
- "serde_json",
- "thiserror 2.0.17",
- "tokio",
- "tokio-tungstenite",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "cancer-cache"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "dashmap",
- "moka",
- "redis",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "cancer-cli"
-version = "0.1.67"
-dependencies = [
- "cancer-mcp",
- "chrono",
- "clap",
- "console",
- "ctrlc",
- "dialoguer",
- "dotenvy",
- "notify",
- "notify-debouncer-mini",
- "regex",
- "sea-orm",
- "sea-orm-migration",
- "syn 2.0.111",
- "tempfile",
- "tokio",
- "toml",
- "walkdir",
-]
-
-[[package]]
-name = "cancer-events"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "inventory",
- "parking_lot",
- "thiserror 2.0.17",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "cancer-macros"
-version = "0.1.67"
-dependencies = [
- "proc-macro2",
- "quote",
- "regex",
- "serde",
- "serde_derive_internals",
- "syn 2.0.111",
-]
-
-[[package]]
-name = "cancer-mcp"
-version = "0.1.67"
-dependencies = [
- "anyhow",
- "async-trait",
- "chrono",
- "dotenvy",
- "once_cell",
- "quote",
- "redis",
- "regex",
- "reqwest",
- "rmcp",
- "schemars",
- "sea-orm",
- "serde",
- "serde_json",
- "syn 2.0.111",
- "tempfile",
- "thiserror 2.0.17",
- "tokio",
- "toml",
- "tracing",
- "walkdir",
-]
-
-[[package]]
-name = "cancer-notifications"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "lettre",
- "reqwest",
- "serde",
- "serde_json",
- "thiserror 2.0.17",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "cancer-queue"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "chrono",
- "parking_lot",
- "redis",
- "serde",
- "serde_json",
- "serial_test",
- "thiserror 2.0.17",
- "tokio",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "cancer-storage"
-version = "0.1.67"
-dependencies = [
- "async-trait",
- "aws-config",
- "aws-sdk-s3",
- "bytes",
- "dashmap",
- "mime_guess",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "cc"
 version = "1.2.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1640,17 +1485,17 @@ dependencies = [
  "base64",
  "bcrypt",
  "bytes",
- "cancer-broadcast",
- "cancer-cache",
- "cancer-events",
- "cancer-macros",
- "cancer-notifications",
- "cancer-queue",
- "cancer-storage",
  "chrono",
  "clap",
  "dashmap",
  "dotenvy",
+ "ferro-broadcast",
+ "ferro-cache",
+ "ferro-events",
+ "ferro-macros",
+ "ferro-notifications",
+ "ferro-queue",
+ "ferro-storage",
  "form_urlencoded",
  "http 1.4.0",
  "http-body-util",
@@ -1671,6 +1516,161 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "validator",
+]
+
+[[package]]
+name = "ferro-broadcast"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "dashmap",
+ "futures-util",
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "tokio-tungstenite",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "ferro-cache"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "dashmap",
+ "moka",
+ "redis",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "ferro-cli"
+version = "0.1.67"
+dependencies = [
+ "chrono",
+ "clap",
+ "console",
+ "ctrlc",
+ "dialoguer",
+ "dotenvy",
+ "ferro-mcp",
+ "notify",
+ "notify-debouncer-mini",
+ "regex",
+ "sea-orm",
+ "sea-orm-migration",
+ "syn 2.0.111",
+ "tempfile",
+ "tokio",
+ "toml",
+ "walkdir",
+]
+
+[[package]]
+name = "ferro-events"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "inventory",
+ "parking_lot",
+ "thiserror 2.0.17",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "ferro-macros"
+version = "0.1.67"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "regex",
+ "serde",
+ "serde_derive_internals",
+ "syn 2.0.111",
+]
+
+[[package]]
+name = "ferro-mcp"
+version = "0.1.67"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "dotenvy",
+ "once_cell",
+ "quote",
+ "redis",
+ "regex",
+ "reqwest",
+ "rmcp",
+ "schemars",
+ "sea-orm",
+ "serde",
+ "serde_json",
+ "syn 2.0.111",
+ "tempfile",
+ "thiserror 2.0.17",
+ "tokio",
+ "toml",
+ "tracing",
+ "walkdir",
+]
+
+[[package]]
+name = "ferro-notifications"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "lettre",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "ferro-queue"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "parking_lot",
+ "redis",
+ "serde",
+ "serde_json",
+ "serial_test",
+ "thiserror 2.0.17",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "ferro-storage"
+version = "0.1.67"
+dependencies = [
+ "async-trait",
+ "aws-config",
+ "aws-sdk-s3",
+ "bytes",
+ "dashmap",
+ "mime_guess",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
