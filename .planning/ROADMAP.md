@@ -58,13 +58,13 @@ Complete rebrand of the framework, including all crates, CLI tools, MCP server, 
 **Goal**: Rename cancer-mcp to ferro-mcp, update tool prefixes and descriptions
 **Depends on**: Phase 16
 **Research**: Unlikely (MCP patterns established)
-**Plans**: TBD
+**Plans**: 1 (MCP Server Rebrand)
 
 #### Phase 18: Documentation Update
 **Goal**: Update all documentation, README files, and code comments
 **Depends on**: Phase 17
 **Research**: Unlikely (find and replace with review)
-**Plans**: TBD
+**Plans**: 3 (User Docs, READMEs + CLAUDE.md, Planning Docs)
 
 #### Phase 19: Sample App Migration
 **Goal**: Update sample app (app crate) to use ferro imports and patterns
@@ -226,7 +226,7 @@ Phases execute in numeric order: 1 → 2 → ... → 12 (v1.0) → 13 → ... �
 | 14. Core Framework Rename | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 15. Supporting Crates Rename | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 16. CLI Rebrand | v2.0 | 1/1 | Complete | 2026-01-16 |
-| 17. MCP Server Rebrand | v2.0 | 0/1 | Not started | - |
+| 17. MCP Server Rebrand | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 18. Documentation Update | v2.0 | 0/? | Not started | - |
 | 19. Sample App Migration | v2.0 | 0/? | Not started | - |
 | 20. Templates & Scaffolding | v2.0 | 0/? | Not started | - |
