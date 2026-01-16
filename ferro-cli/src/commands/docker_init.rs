@@ -8,12 +8,12 @@ use toml::Value;
 use crate::templates;
 
 pub fn run() {
-    // Verify we're in a Cancer project directory
+    // Verify we're in a Ferro project directory
     if !Path::new("Cargo.toml").exists() {
         eprintln!("{} Cargo.toml not found", style("Error:").red().bold());
         eprintln!(
             "{}",
-            style("Make sure you're in a Cancer project root directory.").dim()
+            style("Make sure you're in a Ferro project root directory.").dim()
         );
         std::process::exit(1);
     }

@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 pub fn run(cwd: Option<String>) {
     eprintln!(
-        "{} Starting Cancer MCP server...",
+        "{} Starting Ferro MCP server...",
         style("[MCP]").cyan().bold()
     );
 

@@ -525,7 +525,7 @@ fn generate_migration(
     } else if Path::new("src/database/migrations").exists() {
         Path::new("src/database/migrations")
     } else {
-        eprintln!("Error: migrations directory not found. Are you in a Cancer project?");
+        eprintln!("Error: migrations directory not found. Are you in a Ferro project?");
         eprintln!("Expected: src/migrations or src/database/migrations");
         std::process::exit(1);
     };

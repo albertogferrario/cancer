@@ -118,11 +118,11 @@ fn validate_cancer_project(backend_only: bool, frontend_only: bool) -> Result<()
     let frontend_dir = Path::new("frontend");
 
     if !frontend_only && !cargo_toml.exists() {
-        return Err("No Cargo.toml found. Are you in a Cancer project directory?".into());
+        return Err("No Cargo.toml found. Are you in a Ferro project directory?".into());
     }
 
     if !backend_only && !frontend_dir.exists() {
-        return Err("No frontend directory found. Are you in a Cancer project directory?".into());
+        return Err("No frontend directory found. Are you in a Ferro project directory?".into());
     }
 
     Ok(())
@@ -230,7 +230,7 @@ pub fn run(
     println!();
     println!(
         "{}",
-        style("Starting Cancer development servers...")
+        style("Starting Ferro development servers...")
             .cyan()
             .bold()
     );

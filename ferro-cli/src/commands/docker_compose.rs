@@ -9,12 +9,12 @@ use toml::Value;
 use crate::templates;
 
 pub fn run(with_mailpit: bool, with_minio: bool) {
-    // Verify we're in a Cancer project directory
+    // Verify we're in a Ferro project directory
     if !Path::new("Cargo.toml").exists() {
         eprintln!("{} Cargo.toml not found", style("Error:").red().bold());
         eprintln!(
             "{}",
-            style("Make sure you're in a Cancer project root directory.").dim()
+            style("Make sure you're in a Ferro project root directory.").dim()
         );
         std::process::exit(1);
     }
@@ -68,7 +68,7 @@ fn get_project_name() -> String {
             return std::env::current_dir()
                 .ok()
                 .and_then(|p| p.file_name().map(|s| s.to_string_lossy().to_string()))
-                .unwrap_or_else(|| "cancer_app".to_string());
+                .unwrap_or_else(|| "ferro_app".to_string());
         }
     };
 
@@ -78,13 +78,13 @@ fn get_project_name() -> String {
             return std::env::current_dir()
                 .ok()
                 .and_then(|p| p.file_name().map(|s| s.to_string_lossy().to_string()))
-                .unwrap_or_else(|| "cancer_app".to_string());
+                .unwrap_or_else(|| "ferro_app".to_string());
         }
     };
 
     parsed["package"]["name"]
         .as_str()
-        .unwrap_or("cancer_app")
+        .unwrap_or("ferro_app")
         .to_string()
 }
 

@@ -8,7 +8,7 @@ use crate::templates;
 
 pub fn run(name: Option<String>, no_interaction: bool, no_git: bool) {
     println!();
-    println!("{}", style("Welcome to Cancer!").cyan().bold());
+    println!("{}", style("Welcome to Ferro!").cyan().bold());
     println!();
 
     let project_name = get_project_name(name, no_interaction);
@@ -38,7 +38,7 @@ pub fn run(name: Option<String>, no_interaction: bool, no_git: bool) {
     println!();
     println!("Next steps:");
     println!("  {} {}", style("cd").cyan(), project_name);
-    println!("  {}", style("cancer serve").cyan());
+    println!("  {}", style("ferro serve").cyan());
     println!();
     println!(
         "Backend will be at {}",
@@ -69,12 +69,12 @@ fn get_project_name(name: Option<String>, no_interaction: bool) -> String {
 
 fn get_description(no_interaction: bool) -> String {
     if no_interaction {
-        return "A web application built with Cancer".to_string();
+        return "A web application built with Ferro".to_string();
     }
 
     Input::with_theme(&ColorfulTheme::default())
         .with_prompt("Description")
-        .default("A web application built with Cancer".to_string())
+        .default("A web application built with Ferro".to_string())
         .interact_text()
         .unwrap()
 }

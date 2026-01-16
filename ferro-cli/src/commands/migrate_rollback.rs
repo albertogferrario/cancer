@@ -3,7 +3,7 @@ use std::path::Path;
 use std::process::Command;
 
 pub fn run(step: u32) {
-    // Check we're in a Cancer project
+    // Check we're in a Ferro project
     if !Path::new("src/migrations").exists() {
         eprintln!(
             "{} No migrations directory found at src/migrations",
@@ -11,7 +11,7 @@ pub fn run(step: u32) {
         );
         eprintln!(
             "{}",
-            style("Make sure you're in a Cancer project root directory.").dim()
+            style("Make sure you're in a Ferro project root directory.").dim()
         );
         std::process::exit(1);
     }

@@ -35,15 +35,15 @@ pub fn run(name: String) {
     let mod_file = tasks_dir.join("mod.rs");
     let schedule_file = Path::new("src/schedule.rs");
 
-    // Ensure we're in a Cancer project (check for src directory)
+    // Ensure we're in a Ferro project (check for src directory)
     if !Path::new("src").exists() {
         eprintln!(
-            "{} Not in a Cancer project root directory",
+            "{} Not in a Ferro project root directory",
             style("Error:").red().bold()
         );
         eprintln!(
             "{}",
-            style("Make sure you're in a Cancer project directory with a src/ folder.").dim()
+            style("Make sure you're in a Ferro project directory with a src/ folder.").dim()
         );
         std::process::exit(1);
     }
@@ -169,11 +169,11 @@ pub fn run(name: String) {
     println!();
     println!("  {} Run the scheduler:", style("3.").dim());
     println!(
-        "     cancer schedule:work  {} Daemon mode",
+        "     ferro schedule:work  {} Daemon mode",
         style("#").dim()
     );
-    println!("     cancer schedule:run   {} Run once", style("#").dim());
-    println!("     cancer schedule:list  {} List tasks", style("#").dim());
+    println!("     ferro schedule:run   {} Run once", style("#").dim());
+    println!("     ferro schedule:list  {} List tasks", style("#").dim());
     println!();
 }
 

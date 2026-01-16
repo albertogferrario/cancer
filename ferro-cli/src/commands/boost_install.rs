@@ -7,12 +7,12 @@ use std::path::Path;
 use crate::templates;
 
 pub fn run(editor: Option<String>) {
-    // Verify we're in a Cancer project directory
+    // Verify we're in a Ferro project directory
     if !Path::new("Cargo.toml").exists() {
         eprintln!("{} Cargo.toml not found", style("Error:").red().bold());
         eprintln!(
             "{}",
-            style("Make sure you're in a Cancer project root directory.").dim()
+            style("Make sure you're in a Ferro project root directory.").dim()
         );
         std::process::exit(1);
     }
@@ -49,11 +49,11 @@ pub fn run(editor: Option<String>) {
             println!("To activate MCP in Cursor:");
             println!("  1. Open Command Palette (Cmd+Shift+P / Ctrl+Shift+P)");
             println!("  2. Search for 'Reload Window'");
-            println!("  3. The Cancer MCP tools will now be available");
+            println!("  3. The Ferro MCP tools will now be available");
         }
         "claude" => {
             println!("MCP configuration written to {}", style(".mcp.json").cyan());
-            println!("CLAUDE.md updated with Cancer framework guidelines.");
+            println!("CLAUDE.md updated with Ferro framework guidelines.");
             println!();
             println!("Claude Code will automatically use these configurations.");
         }
@@ -103,7 +103,7 @@ fn generate_mcp_config(editor: &str) {
         }
     };
 
-    // Try to find the cancer binary path
+    // Try to find the ferro binary path
     let cancer_command = find_cancer_binary();
     let config_content = format!(
         r#"{{
@@ -140,7 +140,7 @@ fn generate_mcp_config(editor: &str) {
 }
 
 fn find_cancer_binary() -> String {
-    // First, check if cancer is in PATH
+    // First, check if ferro is in PATH
     if let Ok(output) = std::process::Command::new("which").arg("cancer").output() {
         if output.status.success() {
             if let Ok(path) = String::from_utf8(output.stdout) {
@@ -172,7 +172,7 @@ fn find_cancer_binary() -> String {
                 return cancer_in_same_dir.to_string_lossy().to_string();
             }
         }
-        // If this IS the cancer binary, use its path
+        // If this IS the ferro binary, use its path
         if current_exe
             .file_name()
             .map(|n| n == "cancer")
@@ -198,7 +198,7 @@ fn generate_ai_guidelines(editor: &str) {
         return;
     }
 
-    // Generate Cancer framework guidelines
+    // Generate Ferro framework guidelines
     let cancer_md_path = guidelines_dir.join("cancer.md");
     if !cancer_md_path.exists() {
         let content = templates::cancer_guidelines_template();
@@ -251,9 +251,9 @@ fn generate_ai_guidelines(editor: &str) {
                     println!("{} Created CLAUDE.md", style("✓").green());
                 }
             } else {
-                // Append Cancer-specific instructions if not already present
+                // Append Ferro-specific instructions if not already present
                 let existing = fs::read_to_string(claude_md_path).unwrap_or_default();
-                if !existing.contains("Cancer Framework") {
+                if !existing.contains("Ferro Framework") {
                     let cancer_section = templates::claude_md_cancer_section();
                     if let Err(e) = fs::write(
                         claude_md_path,
@@ -266,13 +266,13 @@ fn generate_ai_guidelines(editor: &str) {
                         );
                     } else {
                         println!(
-                            "{} Updated CLAUDE.md with Cancer guidelines",
+                            "{} Updated CLAUDE.md with Ferro guidelines",
                             style("✓").green()
                         );
                     }
                 } else {
                     println!(
-                        "{} CLAUDE.md already contains Cancer guidelines, skipping",
+                        "{} CLAUDE.md already contains Ferro guidelines, skipping",
                         style("→").dim()
                     );
                 }

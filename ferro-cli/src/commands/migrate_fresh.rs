@@ -3,7 +3,7 @@ use std::path::Path;
 use std::process::Command;
 
 pub fn run() {
-    // Check we're in a Cancer project
+    // Check we're in a Ferro project
     if !Path::new("src/migrations").exists() {
         eprintln!(
             "{} No migrations directory found at src/migrations",
@@ -11,7 +11,7 @@ pub fn run() {
         );
         eprintln!(
             "{}",
-            style("Run 'cancer make:migration <name>' to create your first migration.").dim()
+            style("Run 'ferro make:migration <name>' to create your first migration.").dim()
         );
         std::process::exit(1);
     }

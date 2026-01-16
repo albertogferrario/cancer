@@ -110,7 +110,7 @@ pub fn run(name: String) {
     println!(
         "  {} Run {} to apply the migration",
         style("2.").dim(),
-        style("cancer migrate").cyan()
+        style("ferro migrate").cyan()
     );
     println!();
 }

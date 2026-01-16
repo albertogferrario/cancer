@@ -11,10 +11,10 @@ use crate::templates;
 use crate::templates::{ColumnInfo, TableInfo};
 
 pub fn run(skip_migrations: bool, regenerate_models: bool) {
-    // Check we're in a Cancer project
+    // Check we're in a Ferro project
     if !Path::new("src/models").exists() && !Path::new("src/migrations").exists() {
         eprintln!(
-            "{} Not in a Cancer project directory",
+            "{} Not in a Ferro project directory",
             style("Error:").red().bold()
         );
         std::process::exit(1);
