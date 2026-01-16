@@ -27,7 +27,7 @@
 //! ```
 
 #[allow(unused_imports)]
-use cancer::{
+use ferro::{
     bind, global_middleware, singleton, App, CsrfMiddleware,
     SessionConfig, SessionMiddleware, DB,
     // Events
@@ -55,7 +55,7 @@ pub async fn register() {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::from_default_env()
-                .add_directive("cancer=info".parse().unwrap())
+                .add_directive("ferro=info".parse().unwrap())
         )
         .init();
 

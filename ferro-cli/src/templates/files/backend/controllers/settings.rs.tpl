@@ -1,6 +1,6 @@
 //! Settings controller
 
-use cancer::{
+use ferro::{
     redirect, serde_json, Auth, Inertia, InertiaProps, Request, Response,
     SavedInertiaContext,
 };
@@ -64,7 +64,7 @@ pub struct UpdateSettingsRequest {
 
 pub async fn update(req: Request) -> Response {
     let ctx = SavedInertiaContext::from(&req);
-    let _user_id = Auth::user_id().ok_or_else(|| cancer::FrameworkError::AuthenticationRequired)?;
+    let _user_id = Auth::user_id().ok_or_else(|| ferro::FrameworkError::AuthenticationRequired)?;
     let form: UpdateSettingsRequest = req.input().await?;
 
     // In a real application, you would save settings to database

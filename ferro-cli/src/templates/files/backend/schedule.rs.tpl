@@ -10,7 +10,7 @@
 //!
 //! ```rust,ignore
 //! // In src/tasks/cleanup_logs.rs
-//! use cancer::{Task, TaskResult};
+//! use ferro::{Task, TaskResult};
 //! use async_trait::async_trait;
 //!
 //! pub struct CleanupLogsTask;
@@ -48,16 +48,16 @@
 //!
 //! ```bash
 //! # Run due tasks once (for cron)
-//! cancer schedule:run
+//! ferro schedule:run
 //!
 //! # Run as daemon (checks every minute)
-//! cancer schedule:work
+//! ferro schedule:work
 //!
 //! # List all tasks
-//! cancer schedule:list
+//! ferro schedule:list
 //! ```
 
-use cancer::Schedule;
+use ferro::Schedule;
 
 // Import your tasks here
 // use crate::tasks;

@@ -5,15 +5,15 @@ services:
     container_name: {project_name}_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-cancer}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-cancer_secret}
-      POSTGRES_DB: ${DB_NAME:-cancer_db}
+      POSTGRES_USER: ${DB_USER:-ferro}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ferro_secret}
+      POSTGRES_DB: ${DB_NAME:-ferro_db}
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-cancer} -d ${DB_NAME:-cancer_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ferro} -d ${DB_NAME:-ferro_db}"]
       interval: 10s
       timeout: 5s
       retries: 5

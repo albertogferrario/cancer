@@ -1,6 +1,6 @@
 //! Cancer Application Entry Point
 
-use cancer::{Config, Server};
+use ferro::{Config, Server};
 use clap::{Parser, Subcommand};
 use sea_orm_migration::prelude::*;
 use std::env;
@@ -180,7 +180,7 @@ async fn fresh_migrations() {
 
 async fn run_seeders(class: Option<String>) {
     // Initialize database for seeders
-    cancer::database::DB::init().await.expect("Failed to connect to database");
+    ferro::database::DB::init().await.expect("Failed to connect to database");
 
     let registry = seeders::register();
 

@@ -1,4 +1,4 @@
-use cancer::{delete, get, group, post, put, routes};
+use ferro::{delete, get, group, post, put, routes};
 
 use crate::controllers;
 use crate::middleware;

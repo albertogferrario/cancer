@@ -1,6 +1,6 @@
 //! Authentication middleware helpers
 
-pub use cancer::{AuthMiddleware, GuestMiddleware};
+pub use ferro::{AuthMiddleware, GuestMiddleware};
 
 /// Create auth middleware that redirects unauthenticated users to login
 pub fn auth() -> AuthMiddleware {

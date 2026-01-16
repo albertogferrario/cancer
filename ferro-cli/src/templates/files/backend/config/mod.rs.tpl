@@ -4,7 +4,7 @@ mod mail;
 pub use database::DatabaseConfig;
 pub use mail::MailConfig;
 
-use cancer::{Config, DatabaseConfig as CancerDatabaseConfig};
+use ferro::{Config, DatabaseConfig as FerroDatabaseConfig};
 
 /// Register all application configs
 pub fn register_all() {

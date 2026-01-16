@@ -17,7 +17,7 @@ DB_LOGGING=false
 
 # Session
 SESSION_LIFETIME=120
-SESSION_COOKIE=cancer_session
+SESSION_COOKIE=ferro_session
 SESSION_SECURE=false
 SESSION_PATH=/
 SESSION_SAME_SITE=Lax
@@ -30,7 +30,7 @@ REDIS_DATABASE=0
 
 # Cache
 CACHE_DRIVER=memory
-CACHE_PREFIX=cancer_cache_
+CACHE_PREFIX=ferro_cache_
 
 # Queue
 QUEUE_CONNECTION=sync

@@ -1,6 +1,6 @@
 //! Dashboard controller
 
-use cancer::{Auth, Inertia, InertiaProps, Model, Request, Response};
+use ferro::{Auth, Inertia, InertiaProps, Model, Request, Response};
 use serde::Serialize;
 
 use crate::models::user::Entity as UserEntity;

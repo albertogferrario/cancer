@@ -1,6 +1,6 @@
 //! Password reset tokens migration
 
-use cancer::migration::{Migration, Schema, Table};
+use ferro::migration::{Migration, Schema, Table};
 
 pub struct CreatePasswordResetTokensTable;
 

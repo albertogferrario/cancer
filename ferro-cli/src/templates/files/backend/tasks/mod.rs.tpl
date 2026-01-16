@@ -1,19 +1,19 @@
 //! Scheduled Tasks
 //!
 //! This module contains all scheduled task definitions.
-//! Use `cancer make:task <name>` to generate new tasks.
+//! Use `ferro make:task <name>` to generate new tasks.
 //!
 //! # Creating Tasks
 //!
 //! ```bash
-//! cancer make:task CleanupLogs
-//! cancer make:task SendReminders
+//! ferro make:task CleanupLogs
+//! ferro make:task SendReminders
 //! ```
 //!
 //! # Example Task
 //!
 //! ```rust,ignore
-//! use cancer::{ScheduledTask, CronExpression, FrameworkError};
+//! use ferro::{ScheduledTask, CronExpression, FrameworkError};
 //! use async_trait::async_trait;
 //!
 //! pub struct MyTask;

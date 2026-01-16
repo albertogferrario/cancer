@@ -1,6 +1,6 @@
 //! Authentication controller
 
-use cancer::{
+use ferro::{
     serde_json, Auth, Inertia, InertiaProps, Request, Response, SavedInertiaContext, Validate,
 };
 use serde::Deserialize;
@@ -85,7 +85,7 @@ pub async fn login(req: Request) -> Response {
     // Handle remember me
     if form.remember {
         // Generate and store remember token
-        let token = cancer::session::generate_session_id();
+        let token = ferro::session::generate_session_id();
         user.update_remember_token(Some(token)).await?;
     }
 

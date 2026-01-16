@@ -1,6 +1,6 @@
 //! User model
 
-use cancer::database::{Model as DatabaseModel, ModelMut, QueryBuilder};
+use ferro::database::{Model as DatabaseModel, ModelMut, QueryBuilder};
 use sea_orm::entity::prelude::*;
 use sea_orm::Set;
 use serde::Serialize;
@@ -38,7 +38,7 @@ impl Model {
     }
 
     /// Find a user by their email address
-    pub async fn find_by_email(email: &str) -> Result<Option<Self>, cancer::FrameworkError> {
+    pub async fn find_by_email(email: &str) -> Result<Option<Self>, ferro::FrameworkError> {
         Self::query()
             .filter(Column::Email.eq(email))
             .first()
@@ -46,8 +46,8 @@ impl Model {
     }
 
     /// Verify the user's password
-    pub fn verify_password(&self, password: &str) -> Result<bool, cancer::FrameworkError> {
-        cancer::hashing::verify(password, &self.password)
+    pub fn verify_password(&self, password: &str) -> Result<bool, ferro::FrameworkError> {
+        ferro::hashing::verify(password, &self.password)
     }
 
     /// Create a new user with a hashed password
@@ -55,8 +55,8 @@ impl Model {
         name: impl Into<String>,
         email: impl Into<String>,
         password: &str,
-    ) -> Result<Self, cancer::FrameworkError> {
-        let hashed = cancer::hashing::hash(password)?;
+    ) -> Result<Self, ferro::FrameworkError> {
+        let hashed = ferro::hashing::hash(password)?;
 
         let model = ActiveModel {
             name: Set(name.into()),
@@ -72,7 +72,7 @@ impl Model {
     pub async fn update_remember_token(
         &self,
         token: Option<String>,
-    ) -> Result<(), cancer::FrameworkError> {
+    ) -> Result<(), ferro::FrameworkError> {
         let mut active: ActiveModel = self.clone().into();
         active.remember_token = Set(token);
         Entity::update_one(active).await?;

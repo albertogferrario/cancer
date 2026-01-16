@@ -1,4 +1,4 @@
-use cancer::{Inertia, InertiaProps, Request, Response};
+use ferro::{Inertia, InertiaProps, Request, Response};
 
 #[derive(InertiaProps)]
 pub struct HomeProps {

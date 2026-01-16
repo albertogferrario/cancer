@@ -1,6 +1,6 @@
 //! Profile controller
 
-use cancer::{
+use ferro::{
     serde_json, Auth, Inertia, InertiaProps, Request, Response, SavedInertiaContext, Validate,
 };
 use serde::Deserialize;
@@ -34,7 +34,7 @@ pub struct UpdateProfileRequest {
 
 pub async fn update(req: Request) -> Response {
     let ctx = SavedInertiaContext::from(&req);
-    let user_id = Auth::user_id().ok_or_else(|| cancer::FrameworkError::AuthenticationRequired)?;
+    let user_id = Auth::user_id().ok_or_else(|| ferro::FrameworkError::AuthenticationRequired)?;
     let form: UpdateProfileRequest = req.input().await?;
 
     // Validate the form
@@ -51,7 +51,7 @@ pub async fn update(req: Request) -> Response {
 
     // Get current user
     let user = User::find_by_id(user_id).await?.ok_or_else(|| {
-        cancer::FrameworkError::NotFound("User not found".to_string())
+        ferro::FrameworkError::NotFound("User not found".to_string())
     })?;
 
     // Check if email is already taken by another user
@@ -91,7 +91,7 @@ pub struct UpdatePasswordRequest {
 
 pub async fn update_password(req: Request) -> Response {
     let ctx = SavedInertiaContext::from(&req);
-    let user_id = Auth::user_id().ok_or_else(|| cancer::FrameworkError::AuthenticationRequired)?;
+    let user_id = Auth::user_id().ok_or_else(|| ferro::FrameworkError::AuthenticationRequired)?;
     let form: UpdatePasswordRequest = req.input().await?;
 
     // Validate the form
@@ -122,7 +122,7 @@ pub async fn update_password(req: Request) -> Response {
 
     // Get current user
     let user = User::find_by_id(user_id).await?.ok_or_else(|| {
-        cancer::FrameworkError::NotFound("User not found".to_string())
+        ferro::FrameworkError::NotFound("User not found".to_string())
     })?;
 
     // Verify current password
@@ -150,11 +150,11 @@ pub async fn update_password(req: Request) -> Response {
 // ============================================================================
 
 pub async fn destroy(req: Request) -> Response {
-    let user_id = Auth::user_id().ok_or_else(|| cancer::FrameworkError::AuthenticationRequired)?;
+    let user_id = Auth::user_id().ok_or_else(|| ferro::FrameworkError::AuthenticationRequired)?;
 
     // Get current user
     let user = User::find_by_id(user_id).await?.ok_or_else(|| {
-        cancer::FrameworkError::NotFound("User not found".to_string())
+        ferro::FrameworkError::NotFound("User not found".to_string())
     })?;
 
     // Delete user

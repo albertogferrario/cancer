@@ -8,7 +8,7 @@ SERVER_PORT=8080
 
 VITE_PORT=5173
 
-# Build cleanup: auto-remove artifacts older than N days on `cancer serve`
+# Build cleanup: auto-remove artifacts older than N days on `ferro serve`
 # Set to 0 to disable automatic cleanup (requires cargo-sweep)
 CARGO_SWEEP_DAYS=7
 

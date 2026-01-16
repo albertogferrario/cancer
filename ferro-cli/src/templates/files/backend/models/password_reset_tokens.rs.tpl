@@ -1,6 +1,6 @@
 //! Password reset tokens model
 
-use cancer::database::{Model as DatabaseModel, ModelMut, QueryBuilder, DB};
+use ferro::database::{Model as DatabaseModel, ModelMut, QueryBuilder, DB};
 use chrono::{Duration, Utc};
 use sea_orm::entity::prelude::*;
 use sea_orm::Set;
@@ -35,13 +35,13 @@ impl Model {
     }
 
     /// Create a password reset token for an email
-    pub async fn create_for_email(email: &str) -> Result<String, cancer::FrameworkError> {
+    pub async fn create_for_email(email: &str) -> Result<String, ferro::FrameworkError> {
         // Delete any existing token for this email
         Self::delete_for_email(email).await?;
 
         // Generate a new token
-        let token = cancer::session::generate_session_id();
-        let hashed_token = cancer::hashing::hash(&token)?;
+        let token = ferro::session::generate_session_id();
+        let hashed_token = ferro::hashing::hash(&token)?;
 
         let model = ActiveModel {
             email: Set(email.to_string()),
@@ -55,7 +55,7 @@ impl Model {
     }
 
     /// Find a valid token by email
-    pub async fn find_valid_by_email(email: &str) -> Result<Option<Self>, cancer::FrameworkError> {
+    pub async fn find_valid_by_email(email: &str) -> Result<Option<Self>, ferro::FrameworkError> {
         let token = Self::query()
             .filter(Column::Email.eq(email))
             .first()
@@ -72,17 +72,17 @@ impl Model {
     }
 
     /// Verify a token matches for an email
-    pub async fn verify(email: &str, token: &str) -> Result<bool, cancer::FrameworkError> {
+    pub async fn verify(email: &str, token: &str) -> Result<bool, ferro::FrameworkError> {
         let record = Self::find_valid_by_email(email).await?;
 
         match record {
-            Some(r) => cancer::hashing::verify(token, &r.token),
+            Some(r) => ferro::hashing::verify(token, &r.token),
             None => Ok(false),
         }
     }
 
     /// Delete token for an email
-    pub async fn delete_for_email(email: &str) -> Result<(), cancer::FrameworkError> {
+    pub async fn delete_for_email(email: &str) -> Result<(), ferro::FrameworkError> {
         Entity::delete_many()
             .filter(Column::Email.eq(email))
             .exec(DB::get()?.inner())

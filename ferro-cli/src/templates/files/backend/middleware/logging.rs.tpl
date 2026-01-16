@@ -1,6 +1,6 @@
 //! Logging middleware - logs all requests
 
-use cancer::{async_trait, Middleware, Next, Request, Response};
+use ferro::{async_trait, Middleware, Next, Request, Response};
 
 /// Middleware that logs all incoming requests
 pub struct LoggingMiddleware;
