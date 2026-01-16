@@ -31,3 +31,7 @@
 # Reference
 
 - [CLI Reference](reference/cli.md)
+
+# Upgrading
+
+- [Migration Guide](upgrading/migration-guide.md)
