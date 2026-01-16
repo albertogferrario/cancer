@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 20 of 22 (Templates & Scaffolding)
+Phase: 21 of 22 (Repository & CI)
 Plan: 01 completed
-Status: Phase 20 complete (single plan phase), ready for Phase 21
-Last activity: 2026-01-16 — Completed 20-01 (CLI templates rebranded to ferro)
+Status: Phase 21 complete (single plan phase), ready for Phase 22
+Last activity: 2026-01-16 — Completed 21-01 (Repository & CI rebranded)
 
-Progress: ████████░░░░░░░░░░ 40%
+Progress: █████████████████░ 90%
 
 ## Performance Metrics
 
@@ -51,10 +51,11 @@ Progress: ████████░░░░░░░░░░ 40%
 | 18 | 4 | 36 min | 9 min |
 | 19 | 1 | 25 min | 25 min |
 | 20 | 1 | 3 min | 3 min |
+| 21 | 1 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 27 plans: All completed successfully
-- v2.0 rebrand in progress: Phase 20 complete
+- Last 28 plans: All completed successfully
+- v2.0 rebrand in progress: Phase 21 complete
 
 ## Accumulated Context
 
@@ -123,9 +124,10 @@ None.
 - Phase 18 complete: Documentation update
 - Phase 19 complete: Sample app migrated to ferro imports
 - Phase 20 complete: CLI templates rebranded to ferro
+- Phase 21 complete: Repository & CI rebranded to ferroframework/ferro
 
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Phase 20 plan 01 completed
-Resume file: .planning/ROADMAP.md (check Phase 21)
+Stopped at: Phase 21 plan 01 completed
+Resume file: .planning/ROADMAP.md (check Phase 22)

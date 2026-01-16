@@ -25,7 +25,7 @@ Complete rebrand of the framework, including all crates, CLI tools, MCP server, 
 - [x] **Phase 18: Documentation Update** - Update all docs, READMEs, and code comments
 - [x] **Phase 19: Sample App Migration** - Update sample app to use new names
 - [x] **Phase 20: Templates & Scaffolding** - Update all CLI templates with new names
-- [ ] **Phase 21: Repository & CI** - Update repo name, CI/CD, badges, GitHub config
+- [x] **Phase 21: Repository & CI** - Update repo name, CI/CD, badges, GitHub config
 - [ ] **Phase 22: Publishing & Announcement** - Prepare for crates.io, migration guide
 
 ### Phase Details
@@ -229,6 +229,6 @@ Phases execute in numeric order: 1 → 2 → ... → 12 (v1.0) → 13 → ... �
 | 17. MCP Server Rebrand | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 18. Documentation Update | v2.0 | 3/3 | Complete | 2026-01-16 |
 | 19. Sample App Migration | v2.0 | 1/1 | Complete | 2026-01-16 |
-| 20. Templates & Scaffolding | v2.0 | 0/? | Not started | - |
-| 21. Repository & CI | v2.0 | 0/? | Not started | - |
+| 20. Templates & Scaffolding | v2.0 | 1/1 | Complete | 2026-01-16 |
+| 21. Repository & CI | v2.0 | 1/1 | Complete | 2026-01-16 |
 | 22. Publishing & Announcement | v2.0 | 0/? | Not started | - |
