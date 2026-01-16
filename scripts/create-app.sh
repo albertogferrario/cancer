@@ -1,15 +1,15 @@
 #!/bin/sh
-# Cancer Create App - One-liner project creation
-# Usage: curl -fsSL https://raw.githubusercontent.com/USER/cancer/main/scripts/create-app.sh | sh -s -- my-app
+# Ferro Create App - One-liner project creation
+# Usage: curl -fsSL https://raw.githubusercontent.com/ferroframework/ferro/main/scripts/create-app.sh | sh -s -- my-app
 #
-# This script downloads the cancer CLI to a temp directory, creates your project,
+# This script downloads the Ferro CLI to a temp directory, creates your project,
 # and cleans up. No permanent installation required.
 
 set -e
 
 # Configuration
-REPO="albertogferrario/cancer"
-BINARY_NAME="cancer"
+REPO="ferroframework/ferro"
+BINARY_NAME="ferro"
 
 # Colors
 RED='\033[0;31m'
@@ -25,7 +25,7 @@ error() { printf "${RED}✗${NC} %s\n" "$1"; exit 1; }
 PROJECT_NAME="$1"
 if [ -z "$PROJECT_NAME" ]; then
     echo ""
-    printf "${CYAN}Cancer${NC} - Create a new project\n"
+    printf "${CYAN}Ferro${NC} - Create a new project\n"
     echo ""
     echo "Usage:"
     echo "  curl -fsSL https://raw.githubusercontent.com/${REPO}/main/scripts/create-app.sh | sh -s -- <project-name>"
@@ -75,7 +75,7 @@ get_latest_version() {
 
 main() {
     echo ""
-    printf "${CYAN}Creating Cancer project:${NC} %s\n" "$PROJECT_NAME"
+    printf "${CYAN}Creating Ferro project:${NC} %s\n" "$PROJECT_NAME"
     echo ""
 
     # Check if directory exists
@@ -86,7 +86,7 @@ main() {
     detect_platform
     get_latest_version
 
-    info "Downloading Cancer CLI ($VERSION)..."
+    info "Downloading Ferro CLI ($VERSION)..."
 
     # Create temp directory
     TMP_DIR=$(mktemp -d)
@@ -94,15 +94,15 @@ main() {
 
     # Download
     if [ "$OS" = "windows" ]; then
-        ARCHIVE="cancer-${VERSION}-${TARGET}.zip"
+        ARCHIVE="ferro-${VERSION}-${TARGET}.zip"
     else
-        ARCHIVE="cancer-${VERSION}-${TARGET}.tar.gz"
+        ARCHIVE="ferro-${VERSION}-${TARGET}.tar.gz"
     fi
 
     DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${VERSION}/${ARCHIVE}"
 
     cd "$TMP_DIR"
-    curl -fsSL "$DOWNLOAD_URL" -o "$ARCHIVE" || error "Failed to download Cancer CLI"
+    curl -fsSL "$DOWNLOAD_URL" -o "$ARCHIVE" || error "Failed to download Ferro CLI"
 
     # Extract
     if [ "$OS" = "windows" ]; then
@@ -113,7 +113,7 @@ main() {
 
     chmod +x "$BINARY_NAME" 2>/dev/null || true
 
-    success "Downloaded Cancer CLI"
+    success "Downloaded Ferro CLI"
 
     # Create project
     info "Generating project structure..."
@@ -126,7 +126,7 @@ main() {
     cd "$PROJECT_NAME"
     git init -q
     git add .
-    git commit -q -m "Initial commit from Cancer"
+    git commit -q -m "Initial commit from Ferro"
     cd - > /dev/null
 
     success "Project created successfully!"
@@ -138,8 +138,8 @@ main() {
     printf "  ${CYAN}cargo run -- migrate${NC}\n"
     printf "  ${CYAN}cargo run -- serve${NC}\n"
     echo ""
-    printf "Or install Cancer CLI globally:\n"
-    printf "  ${CYAN}cargo install cancer-cli${NC}\n"
+    printf "Or install Ferro CLI globally:\n"
+    printf "  ${CYAN}cargo install ferro-cli${NC}\n"
     echo ""
 }
 

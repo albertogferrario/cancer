@@ -1,14 +1,14 @@
 #!/bin/sh
-# Cancer Framework Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/USER/cancer/main/scripts/install.sh | sh
+# Ferro Framework Installer
+# Usage: curl -fsSL https://raw.githubusercontent.com/ferroframework/ferro/main/scripts/install.sh | sh
 # Or with project creation: curl -fsSL ... | sh -s -- my-app
 
 set -e
 
 # Configuration
-REPO="albertogferrario/cancer"
-BINARY_NAME="cancer"
-INSTALL_DIR="${CANCER_INSTALL_DIR:-$HOME/.cancer/bin}"
+REPO="ferroframework/ferro"
+BINARY_NAME="ferro"
+INSTALL_DIR="${FERRO_INSTALL_DIR:-$HOME/.ferro/bin}"
 
 # Colors
 RED='\033[0;31m'
@@ -78,15 +78,15 @@ get_latest_version() {
 }
 
 # Download and install the binary
-install_cancer() {
+install_ferro() {
     info "Detected platform: $PLATFORM"
     info "Latest version: $VERSION"
 
     # Construct download URL
     if [ "$OS" = "windows" ]; then
-        ARCHIVE_NAME="cancer-${VERSION}-${PLATFORM}.zip"
+        ARCHIVE_NAME="ferro-${VERSION}-${PLATFORM}.zip"
     else
-        ARCHIVE_NAME="cancer-${VERSION}-${PLATFORM}.tar.gz"
+        ARCHIVE_NAME="ferro-${VERSION}-${PLATFORM}.tar.gz"
     fi
     DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${VERSION}/${ARCHIVE_NAME}"
 
@@ -125,7 +125,7 @@ install_cancer() {
         chmod +x "$INSTALL_DIR/$BINARY_NAME"
     fi
 
-    success "Cancer installed to $INSTALL_DIR/$BINARY_NAME"
+    success "Ferro installed to $INSTALL_DIR/$BINARY_NAME"
 }
 
 # Add to PATH instructions
@@ -153,7 +153,7 @@ setup_path() {
     fi
 
     echo ""
-    warn "Add Cancer to your PATH by adding this to $PROFILE:"
+    warn "Add Ferro to your PATH by adding this to $PROFILE:"
     echo ""
     if [ "$SHELL_NAME" = "fish" ]; then
         printf "  ${CYAN}set -gx PATH \$PATH %s${NC}\n" "$INSTALL_DIR"
@@ -181,20 +181,20 @@ create_project() {
         echo "Next steps:"
         printf "  ${CYAN}cd %s${NC}\n" "$PROJECT_NAME"
         printf "  ${CYAN}cd frontend && npm install && cd ..${NC}\n"
-        printf "  ${CYAN}cancer migrate${NC}\n"
-        printf "  ${CYAN}cancer serve${NC}\n"
+        printf "  ${CYAN}ferro migrate${NC}\n"
+        printf "  ${CYAN}ferro serve${NC}\n"
     fi
 }
 
 # Main
 main() {
     echo ""
-    printf "${CYAN}Cancer Framework Installer${NC}\n"
+    printf "${CYAN}Ferro Framework Installer${NC}\n"
     echo ""
 
     detect_platform
     get_latest_version
-    install_cancer
+    install_ferro
     setup_path
 
     # If a project name was passed as argument, create the project
