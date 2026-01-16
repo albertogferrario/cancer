@@ -87,41 +87,41 @@ pub use schedule::{CronExpression, DayOfWeek, Schedule, Task, TaskBuilder, TaskE
 pub use seeder::{DatabaseSeeder, Seeder, SeederRegistry};
 pub use server::Server;
 
-// Re-export cancer-events for event-driven architecture
-pub use cancer_events::{
+// Re-export ferro-events for event-driven architecture
+pub use ferro_events::{
     dispatch as dispatch_event, dispatch_sync, Error as EventError, Event, EventDispatcher,
     Listener, ShouldQueue,
 };
 
-// Re-export cancer-queue for background job processing
-pub use cancer_queue::{
+// Re-export ferro-queue for background job processing
+pub use ferro_queue::{
     dispatch as queue_dispatch, dispatch_later, dispatch_to, Error as QueueError, Job, JobPayload,
     PendingDispatch, Queue, QueueConfig, QueueConnection, Queueable, Worker, WorkerConfig,
 };
 
-// Re-export cancer-notifications for multi-channel notifications
-pub use cancer_notifications::{
+// Re-export ferro-notifications for multi-channel notifications
+pub use ferro_notifications::{
     Channel as NotificationChannel, ChannelResult, DatabaseMessage, DatabaseNotificationStore,
     Error as NotificationError, MailConfig, MailMessage, Notifiable, Notification,
     NotificationConfig, NotificationDispatcher, SlackAttachment, SlackField, SlackMessage,
     StoredNotification,
 };
 
-// Re-export cancer-broadcast for real-time WebSocket channels
-pub use cancer_broadcast::{
+// Re-export ferro-broadcast for real-time WebSocket channels
+pub use ferro_broadcast::{
     AuthData, Broadcast, BroadcastBuilder, BroadcastMessage, Broadcaster, ChannelAuthorizer,
     ChannelInfo, ChannelType, Client as BroadcastClient, ClientMessage, Error as BroadcastError,
     PresenceMember, ServerMessage,
 };
 
-// Re-export cancer-storage for file storage abstraction
-pub use cancer_storage::{
+// Re-export ferro-storage for file storage abstraction
+pub use ferro_storage::{
     Disk, DiskConfig, DiskDriver, Error as StorageError, FileMetadata, LocalDriver,
     MemoryDriver as StorageMemoryDriver, PutOptions, Storage, StorageDriver, Visibility,
 };
 
-// Re-export cancer-cache for caching with tags
-pub use cancer_cache::{
+// Re-export ferro-cache for caching with tags
+pub use ferro_cache::{
     Cache as TaggableCache, CacheConfig as TaggableCacheConfig, CacheStore as TaggableCacheStore,
     Error as TaggableCacheError, MemoryStore as TaggableCacheMemoryStore, TaggedCache,
 };
@@ -179,22 +179,22 @@ pub use validation::{
 };
 
 // Re-export the proc-macros for compile-time component validation and type safety
-pub use cancer_macros::cancer_test;
-pub use cancer_macros::domain_error;
-pub use cancer_macros::handler;
-pub use cancer_macros::inertia_response;
-pub use cancer_macros::injectable;
-pub use cancer_macros::redirect;
-pub use cancer_macros::request;
-pub use cancer_macros::service;
-pub use cancer_macros::CancerModel;
-pub use cancer_macros::FormRequest as FormRequestDerive;
-pub use cancer_macros::InertiaProps;
-pub use cancer_macros::ValidateRules;
+pub use ferro_macros::cancer_test;
+pub use ferro_macros::domain_error;
+pub use ferro_macros::handler;
+pub use ferro_macros::inertia_response;
+pub use ferro_macros::injectable;
+pub use ferro_macros::redirect;
+pub use ferro_macros::request;
+pub use ferro_macros::service;
+pub use ferro_macros::CancerModel;
+pub use ferro_macros::FormRequest as FormRequestDerive;
+pub use ferro_macros::InertiaProps;
+pub use ferro_macros::ValidateRules;
 
 // Re-export Jest-like testing macros
-pub use cancer_macros::describe;
-pub use cancer_macros::test;
+pub use ferro_macros::describe;
+pub use ferro_macros::test;
 
 // Re-export testing utilities
 pub use testing::{

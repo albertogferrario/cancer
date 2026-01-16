@@ -156,11 +156,11 @@ pub fn handle_metrics() -> hyper::Response<Full<Bytes>> {
 #[derive(Debug, Serialize)]
 pub struct QueueJobsInfo {
     /// Pending jobs (ready to process)
-    pub pending: Vec<cancer_queue::JobInfo>,
+    pub pending: Vec<ferro_queue::JobInfo>,
     /// Delayed jobs (waiting for available_at)
-    pub delayed: Vec<cancer_queue::JobInfo>,
+    pub delayed: Vec<ferro_queue::JobInfo>,
     /// Failed jobs
-    pub failed: Vec<cancer_queue::FailedJobInfo>,
+    pub failed: Vec<ferro_queue::FailedJobInfo>,
 }
 
 /// Handle /_cancer/queue/jobs endpoint
@@ -177,7 +177,7 @@ pub async fn handle_queue_jobs() -> hyper::Response<Full<Bytes>> {
     }
 
     // Check if queue is initialized
-    if !cancer_queue::Queue::is_initialized() {
+    if !ferro_queue::Queue::is_initialized() {
         return json_response(
             DebugErrorResponse {
                 success: false,
@@ -189,7 +189,7 @@ pub async fn handle_queue_jobs() -> hyper::Response<Full<Bytes>> {
         );
     }
 
-    let conn = cancer_queue::Queue::connection();
+    let conn = ferro_queue::Queue::connection();
     let default_queue = conn.config().default_queue.as_str();
 
     // Fetch jobs from the default queue
@@ -231,7 +231,7 @@ pub async fn handle_queue_stats() -> hyper::Response<Full<Bytes>> {
     }
 
     // Check if queue is initialized
-    if !cancer_queue::Queue::is_initialized() {
+    if !ferro_queue::Queue::is_initialized() {
         return json_response(
             DebugErrorResponse {
                 success: false,
@@ -243,7 +243,7 @@ pub async fn handle_queue_stats() -> hyper::Response<Full<Bytes>> {
         );
     }
 
-    let conn = cancer_queue::Queue::connection();
+    let conn = ferro_queue::Queue::connection();
     let default_queue = conn.config().default_queue.as_str();
 
     // Get stats for default queue
