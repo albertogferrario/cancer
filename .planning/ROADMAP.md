@@ -4,6 +4,105 @@
 
 - ✅ [**v1.0 DX Overhaul**](milestones/v1.0-ROADMAP.md) — Phases 1-12 (shipped 2026-01-16)
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
+- 🚧 **v2.1 JSON-UI** — Phases 23-32 (in progress)
+
+---
+
+### 🚧 v2.1 JSON-UI (In Progress)
+
+**Milestone Goal:** Add JSON-based UI rendering as an alternative to Inertia for rapid, beautiful UI without frontend builds.
+
+#### Phase 23: JSON-UI Schema
+
+**Goal**: Define core JSON schema for UI elements (components, props, visibility rules, actions)
+**Depends on**: Previous milestone complete
+**Research**: Likely (study json-render patterns, JSON schema design)
+**Research topics**: json-render by Vercel, component catalog patterns, action declaration
+
+Plans:
+- [ ] 23-01: TBD (run /gsd:plan-phase 23 to break down)
+
+#### Phase 24: Component Catalog
+
+**Goal**: Implement default components: Table, Form, Card, Input, Button, Alert, Badge, Modal, etc.
+**Depends on**: Phase 23
+**Research**: Unlikely (internal patterns)
+
+Plans:
+- [ ] 24-01: TBD
+
+#### Phase 25: Data Binding
+
+**Goal**: JSONPath-based data binding to handler props and responses
+**Depends on**: Phase 24
+**Research**: Unlikely (internal patterns)
+
+Plans:
+- [ ] 25-01: TBD
+
+#### Phase 26: Action System
+
+**Goal**: Map declared actions to Ferro handlers with form submissions and confirmations
+**Depends on**: Phase 25
+**Research**: Unlikely (internal patterns)
+
+Plans:
+- [ ] 26-01: TBD
+
+#### Phase 27: Validation Integration
+
+**Goal**: Connect to existing Ferro validation system, display errors in components
+**Depends on**: Phase 26
+**Research**: Unlikely (internal patterns)
+
+Plans:
+- [ ] 27-01: TBD
+
+#### Phase 28: HTML Renderer
+
+**Goal**: Rust-based JSON→HTML renderer outputting Tailwind classes
+**Depends on**: Phase 27
+**Research**: Likely (templating approaches, HTML generation in Rust)
+**Research topics**: maud, askama, or custom builder patterns
+
+Plans:
+- [ ] 28-01: TBD
+
+#### Phase 29: Layout System
+
+**Goal**: Layouts, partials, and slots for page structure
+**Depends on**: Phase 28
+**Research**: Unlikely (internal patterns)
+
+Plans:
+- [ ] 29-01: TBD
+
+#### Phase 30: CLI Scaffolding
+
+**Goal**: `ferro make:json-view` command to generate JSON view files
+**Depends on**: Phase 29
+**Research**: Unlikely (internal patterns)
+
+Plans:
+- [ ] 30-01: TBD
+
+#### Phase 31: MCP UI Tools
+
+**Goal**: MCP tools to generate and inspect JSON-UI specs from models/routes
+**Depends on**: Phase 30
+**Research**: Unlikely (internal patterns)
+
+Plans:
+- [ ] 31-01: TBD
+
+#### Phase 32: Documentation
+
+**Goal**: Guides, component reference, and examples for JSON-UI
+**Depends on**: Phase 31
+**Research**: Unlikely (internal patterns)
+
+Plans:
+- [ ] 32-01: TBD
 
 ---
 
@@ -63,22 +162,23 @@
 
 ## Progress Summary
 
-**All milestones complete.**
-
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
+| v2.1 JSON-UI | 23-32 | 0/? | 🚧 In Progress | - |
 
-**Total:** 22 phases, 31 plans executed.
+## Progress (v2.1 JSON-UI)
 
----
-
-## Next Steps
-
-The framework is ready for crates.io publication. Manual steps remaining:
-
-1. **Publish crates** using `PUBLISHING.md` checklist
-2. **Announce release** on Rust forums, social media
-
-No further phases planned. Project complete pending manual publishing.
+| Phase | Plans | Status | Completed |
+|-------|-------|--------|-----------|
+| 23. JSON-UI Schema | 0/? | Not started | - |
+| 24. Component Catalog | 0/? | Not started | - |
+| 25. Data Binding | 0/? | Not started | - |
+| 26. Action System | 0/? | Not started | - |
+| 27. Validation Integration | 0/? | Not started | - |
+| 28. HTML Renderer | 0/? | Not started | - |
+| 29. Layout System | 0/? | Not started | - |
+| 30. CLI Scaffolding | 0/? | Not started | - |
+| 31. MCP UI Tools | 0/? | Not started | - |
+| 32. Documentation | 0/? | Not started | - |
