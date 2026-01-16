@@ -21,13 +21,13 @@ async-trait = "0.1"
 bytes = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-cancer-macros = { path = "../ferro-macros", package = "ferro-macros", version = "0.1" }
-cancer-events = { path = "../ferro-events", package = "ferro-events", version = "0.1" }
-cancer-queue = { path = "../ferro-queue", package = "ferro-queue", version = "0.1" }
-cancer-notifications = { path = "../ferro-notifications", package = "ferro-notifications", version = "0.1" }
-cancer-broadcast = { path = "../ferro-broadcast", package = "ferro-broadcast", version = "0.1" }
-cancer-storage = { path = "../ferro-storage", package = "ferro-storage", version = "0.1" }
-cancer-cache = { path = "../ferro-cache", package = "ferro-cache", version = "0.1" }
+ferro-macros = { path = "../ferro-macros", version = "0.1" }
+ferro-events = { path = "../ferro-events", version = "0.1" }
+ferro-queue = { path = "../ferro-queue", version = "0.1" }
+ferro-notifications = { path = "../ferro-notifications", version = "0.1" }
+ferro-broadcast = { path = "../ferro-broadcast", version = "0.1" }
+ferro-storage = { path = "../ferro-storage", version = "0.1" }
+ferro-cache = { path = "../ferro-cache", version = "0.1" }
 inertia-rs = { path = "../inertia-rs", version = "0.1" }
 dotenvy = "0.15"
 inventory = "0.3"
