@@ -268,6 +268,8 @@ impl InertiaPropsVisitor {
                             Box::new(RustType::Custom("unknown".to_string())),
                         )
                     }
+                    // serde_json::Value maps to unknown (any JSON value)
+                    "Value" => RustType::Custom("unknown".to_string()),
                     other => RustType::Custom(other.to_string()),
                 }
             }
@@ -1067,6 +1069,35 @@ mod tests {
     }
 
     #[test]
+    fn test_serde_json_value_maps_to_unknown() {
+        // serde_json::Value should map to 'unknown' in TypeScript
+        let structs = vec![InertiaPropsStruct {
+            name: "FormProps".to_string(),
+            fields: vec![
+                StructField {
+                    name: "errors".to_string(),
+                    ty: RustType::Option(Box::new(RustType::Custom("unknown".to_string()))),
+                    serde_rename: None,
+                },
+                StructField {
+                    name: "data".to_string(),
+                    ty: RustType::Custom("unknown".to_string()),
+                    serde_rename: None,
+                },
+            ],
+            rename_all: SerdeCase::None,
+        }];
+
+        let typescript = generate_typescript(&structs);
+
+        // Value should be mapped to 'unknown'
+        assert!(typescript.contains("errors: unknown | null;"));
+        assert!(typescript.contains("data: unknown;"));
+        // Should NOT contain 'Value' as a type
+        assert!(!typescript.contains(": Value"));
+    }
+
+    #[test]
     fn test_collect_referenced_types() {
         let structs = vec![InertiaPropsStruct {
             name: "TestProps".to_string(),
@@ -1242,6 +1273,54 @@ mod tests {
             // Check field-level rename
             let some_field = s.fields.iter().find(|f| f.name == "some_field").unwrap();
             assert_eq!(some_field.serde_rename, Some("customName".to_string()));
+        } else {
+            panic!("Failed to parse test code");
+        }
+    }
+
+    #[test]
+    fn test_parse_serde_json_value_type() {
+        // When parsing serde_json::Value, it should map to 'unknown'
+        let code = r#"
+            use serde::Serialize;
+            use serde_json::Value;
+
+            #[derive(Serialize)]
+            pub struct FormProps {
+                pub errors: Option<Value>,
+                pub data: Value,
+            }
+        "#;
+
+        let mut target_types = HashSet::new();
+        target_types.insert("FormProps".to_string());
+
+        if let Ok(syntax) = syn::parse_file(code) {
+            let mut visitor = SerializeStructVisitor::new(target_types);
+            syn::visit::Visit::visit_file(&mut visitor, &syntax);
+
+            assert_eq!(visitor.structs.len(), 1);
+            let s = &visitor.structs[0];
+
+            // errors: Option<Value> should parse to Option(Custom("unknown"))
+            let errors_field = s.fields.iter().find(|f| f.name == "errors").unwrap();
+            assert!(matches!(
+                &errors_field.ty,
+                RustType::Option(inner) if matches!(inner.as_ref(), RustType::Custom(name) if name == "unknown")
+            ));
+
+            // data: Value should parse to Custom("unknown")
+            let data_field = s.fields.iter().find(|f| f.name == "data").unwrap();
+            assert!(matches!(
+                &data_field.ty,
+                RustType::Custom(name) if name == "unknown"
+            ));
+
+            // Generate TypeScript and verify output
+            let typescript = generate_typescript(&visitor.structs);
+            assert!(typescript.contains("errors: unknown | null;"));
+            assert!(typescript.contains("data: unknown;"));
+            assert!(!typescript.contains(": Value"));
         } else {
             panic!("Failed to parse test code");
         }
