@@ -33,3 +33,4 @@ pub mod schedule_run;
 pub mod schedule_work;
 pub mod serve;
 pub mod storage_link;
+pub mod validate_contracts;

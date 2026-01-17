@@ -281,6 +281,17 @@ enum Commands {
         #[arg(long)]
         skip_install_check: bool,
     },
+    /// Validate Inertia frontend/backend prop contracts
+    #[command(name = "validate:contracts")]
+    ValidateContracts {
+        /// Filter by route or component name
+        #[arg(long, short = 'f')]
+        filter: Option<String>,
+
+        /// Output results as JSON
+        #[arg(long)]
+        json: bool,
+    },
 }
 
 fn main() {
@@ -432,6 +443,9 @@ fn main() {
             skip_install_check,
         } => {
             commands::clean::run(days, toolchains, skip_install_check);
+        }
+        Commands::ValidateContracts { filter, json } => {
+            commands::validate_contracts::run(filter, json);
         }
     }
 }

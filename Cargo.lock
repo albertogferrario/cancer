@@ -1547,6 +1547,8 @@ dependencies = [
  "regex",
  "sea-orm",
  "sea-orm-migration",
+ "serde",
+ "serde_json",
  "syn 2.0.111",
  "tempfile",
  "tokio",
