@@ -9,6 +9,8 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Fields, FieldsNamed};
 
+use crate::ferro_crate;
+
 /// Check if a field has the #[inject] attribute
 fn has_inject_attr(field: &syn::Field) -> bool {
     field
@@ -58,6 +60,9 @@ fn has_inject_attr(field: &syn::Field) -> bool {
 /// ```
 pub fn injectable_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+
+    let ferro = ferro_crate();
+
     let name = &input.ident;
     let name_str = name.to_string();
     let vis = &input.vis;
@@ -68,7 +73,7 @@ pub fn injectable_impl(input: TokenStream) -> TokenStream {
         syn::Data::Struct(data_struct) => {
             match &data_struct.fields {
                 Fields::Named(fields_named) => {
-                    generate_for_named_struct(name, name_str, vis, attrs, generics, fields_named)
+                    generate_for_named_struct(&ferro, name, name_str, vis, attrs, generics, fields_named)
                 }
                 Fields::Unit => {
                     // Unit struct - use Default
@@ -77,10 +82,10 @@ pub fn injectable_impl(input: TokenStream) -> TokenStream {
                         #[derive(Default, Clone)]
                         #vis struct #name #generics;
 
-                        ::ferro_rs::inventory::submit! {
-                            ::ferro_rs::container::provider::SingletonEntry {
+                        #ferro::inventory::submit! {
+                            #ferro::container::provider::SingletonEntry {
                                 register: || {
-                                    ::ferro_rs::App::singleton(<#name as ::std::default::Default>::default());
+                                    #ferro::App::singleton(<#name as ::std::default::Default>::default());
                                 },
                                 name: #name_str,
                             }
@@ -102,6 +107,7 @@ pub fn injectable_impl(input: TokenStream) -> TokenStream {
 }
 
 fn generate_for_named_struct(
+    ferro: &proc_macro2::TokenStream,
     name: &syn::Ident,
     name_str: String,
     vis: &syn::Visibility,
@@ -116,7 +122,7 @@ fn generate_for_named_struct(
 
     if has_injected_fields {
         // Generate code for structs with injected dependencies
-        generate_with_injection(name, name_str, vis, attrs, generics, fields_named)
+        generate_with_injection(ferro, name, name_str, vis, attrs, generics, fields_named)
     } else {
         // Generate code for simple structs (use Default)
         let fields_without_inject: Vec<_> = fields.iter().collect();
@@ -128,10 +134,10 @@ fn generate_for_named_struct(
                 #(#fields_without_inject),*
             }
 
-            ::ferro_rs::inventory::submit! {
-                ::ferro_rs::container::provider::SingletonEntry {
+            #ferro::inventory::submit! {
+                #ferro::container::provider::SingletonEntry {
                     register: || {
-                        ::ferro_rs::App::singleton(<#name as ::std::default::Default>::default());
+                        #ferro::App::singleton(<#name as ::std::default::Default>::default());
                     },
                     name: #name_str,
                 }
@@ -141,6 +147,7 @@ fn generate_for_named_struct(
 }
 
 fn generate_with_injection(
+    ferro: &proc_macro2::TokenStream,
     name: &syn::Ident,
     name_str: String,
     vis: &syn::Visibility,
@@ -174,7 +181,7 @@ fn generate_with_injection(
         if has_inject_attr(field) {
             // This field needs to be resolved from the container
             field_initializations.push(quote! {
-                #field_name: ::ferro_rs::App::resolve::<#field_ty>()
+                #field_name: #ferro::App::resolve::<#field_ty>()
                     .expect(&format!(
                         "Failed to resolve dependency '{}' for '{}'. \
                          Make sure '{}' is registered before '{}'.",
@@ -208,10 +215,10 @@ fn generate_with_injection(
             }
         }
 
-        ::ferro_rs::inventory::submit! {
-            ::ferro_rs::container::provider::SingletonEntry {
+        #ferro::inventory::submit! {
+            #ferro::container::provider::SingletonEntry {
                 register: || {
-                    ::ferro_rs::App::singleton(#name::__resolve_dependencies());
+                    #ferro::App::singleton(#name::__resolve_dependencies());
                 },
                 name: #name_str,
             }
