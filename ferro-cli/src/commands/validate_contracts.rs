@@ -15,6 +15,12 @@ use std::path::Path;
 /// Result of contract validation
 #[derive(Debug, Serialize)]
 pub struct ContractValidationResult {
+    /// ISO 8601 timestamp of when validation ran
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub timestamp: Option<String>,
+    /// Ferro CLI version
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ferro_version: Option<String>,
     pub total_routes: usize,
     pub validated: usize,
     pub passed: usize,
@@ -137,6 +143,8 @@ pub fn execute(
     }
 
     Ok(ContractValidationResult {
+        timestamp: None,
+        ferro_version: None,
         total_routes,
         validated,
         passed,
@@ -885,8 +893,12 @@ pub fn run(filter: Option<String>, json: bool) {
     }
 
     match execute(project_path, filter.as_deref()) {
-        Ok(result) => {
+        Ok(mut result) => {
             if json {
+                // Add metadata for JSON output
+                result.timestamp = Some(chrono::Utc::now().to_rfc3339());
+                result.ferro_version = Some(env!("CARGO_PKG_VERSION").to_string());
+
                 // Output JSON for programmatic use
                 match serde_json::to_string_pretty(&result) {
                     Ok(json_output) => println!("{}", json_output),
