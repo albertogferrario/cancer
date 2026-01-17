@@ -5,7 +5,7 @@
 - ✅ [**v1.0 DX Overhaul**](milestones/v1.0-ROADMAP.md) — Phases 1-12 (shipped 2026-01-16)
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
 - ✅ **v2.0.1 Macro Fix** — Phase 22.1-22.3 (shipped 2026-01-17)
-- 🚧 **v2.0.2 Type Generator Fixes** — Phase 22.4-22.7 (in progress)
+- 🚧 **v2.0.2 Type Generator Fixes** — Phase 22.4-22.8 (in progress)
 - 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
 
 ---
@@ -28,7 +28,7 @@ Issues addressed:
 - #8 Serde rename_all Causes Silent Frontend Failures (High)
 
 Plans:
-- [ ] 22.4-01: Fix serde attributes, shared.ts imports, type re-exports
+- [x] 22.4-01: Fix serde attributes, shared.ts imports, type re-exports
 
 #### Phase 22.5: Prop Naming Collisions
 
@@ -68,6 +68,18 @@ Issues addressed:
 
 Plans:
 - [ ] 22.7-01: TBD (run /gsd:plan-phase 22.7 to break down)
+
+#### Phase 22.8: Nested Types Generation
+
+**Goal**: Generate TypeScript interfaces for all nested/referenced types used in InertiaProps, not just the page props themselves
+**Depends on**: Phase 22.7
+**Research**: Unlikely (internal patterns)
+
+Issues addressed:
+- Type Generator Missing Nested Types (High) - Props reference undefined types like UserInfo, MenuSummary, TenantInfo
+
+Plans:
+- [ ] 22.8-01: Recursive nested type resolution and generation
 
 **Deferred to future milestone:**
 - #7 Missing Animal Images Relationship (Eager Loading) - Significant feature requiring architectural work
@@ -245,17 +257,18 @@ Plans:
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.2 Type Generator Fixes | 22.4-22.7 | 0/? | 🚧 In Progress | - |
+| v2.0.2 Type Generator Fixes | 22.4-22.8 | 0/? | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Progress (v2.0.2 Type Generator Fixes)
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
-| 22.4. Type Generator Fixes | 0/1 | Planned | - |
+| 22.4. Type Generator Fixes | 1/1 | Complete | 2026-01-17 |
 | 22.5. Prop Naming Collisions | 0/? | Not started | - |
 | 22.6. Contract Validation CLI | 0/? | Not started | - |
 | 22.7. DateTime Handling | 0/? | Not started | - |
+| 22.8. Nested Types Generation | 0/1 | Planned | - |
 
 ## Progress (v2.1 JSON-UI)
 
