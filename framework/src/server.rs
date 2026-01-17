@@ -87,7 +87,7 @@ impl Server {
         let addr: SocketAddr = self.get_addr();
         let listener = TcpListener::bind(addr).await?;
 
-        println!("Cancer server running on http://{}", addr);
+        println!("Ferro server running on http://{}", addr);
 
         let router = self.router;
         let middleware = Arc::new(self.middleware);
@@ -122,17 +122,17 @@ async fn handle_request(
     let path = req.uri().path().to_string();
     let query = req.uri().query().unwrap_or("");
 
-    // Built-in framework endpoints at /_cancer/*
+    // Built-in framework endpoints at /_ferro/*
     // Uses framework prefix to avoid conflicts with user-defined routes
-    if path.starts_with("/_cancer/") && method == hyper::Method::GET {
+    if path.starts_with("/_ferro/") && method == hyper::Method::GET {
         return match path.as_str() {
-            "/_cancer/health" => health_response(query).await,
-            "/_cancer/routes" => crate::debug::handle_routes(),
-            "/_cancer/middleware" => crate::debug::handle_middleware(),
-            "/_cancer/services" => crate::debug::handle_services(),
-            "/_cancer/metrics" => crate::debug::handle_metrics(),
-            "/_cancer/queue/jobs" => crate::debug::handle_queue_jobs().await,
-            "/_cancer/queue/stats" => crate::debug::handle_queue_stats().await,
+            "/_ferro/health" => health_response(query).await,
+            "/_ferro/routes" => crate::debug::handle_routes(),
+            "/_ferro/middleware" => crate::debug::handle_middleware(),
+            "/_ferro/services" => crate::debug::handle_services(),
+            "/_ferro/metrics" => crate::debug::handle_metrics(),
+            "/_ferro/queue/jobs" => crate::debug::handle_queue_jobs().await,
+            "/_ferro/queue/stats" => crate::debug::handle_queue_stats().await,
             _ => HttpResponse::text("404 Not Found").status(404).into_hyper(),
         };
     }
@@ -194,9 +194,9 @@ async fn handle_request(
     response
 }
 
-/// Built-in health check endpoint at /_cancer/health
+/// Built-in health check endpoint at /_ferro/health
 /// Returns {"status": "ok", "timestamp": "..."} by default
-/// Add ?db=true to also check database connectivity (/_cancer/health?db=true)
+/// Add ?db=true to also check database connectivity (/_ferro/health?db=true)
 async fn health_response(query: &str) -> hyper::Response<Full<Bytes>> {
     use chrono::Utc;
     use serde_json::json;
