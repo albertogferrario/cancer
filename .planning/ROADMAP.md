@@ -5,7 +5,7 @@
 - ✅ [**v1.0 DX Overhaul**](milestones/v1.0-ROADMAP.md) — Phases 1-12 (shipped 2026-01-16)
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
 - ✅ **v2.0.1 Macro Fix** — Phase 22.1-22.3 (shipped 2026-01-17)
-- 🚧 **v2.0.2 Type Generator Fixes** — Phase 22.4-22.8 (in progress)
+- 🚧 **v2.0.2 Type Generator Fixes** — Phase 22.4-22.9 (in progress)
 - 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
 
 ---
@@ -79,7 +79,19 @@ Issues addressed:
 - Type Generator Missing Nested Types (High) - Props reference undefined types like UserInfo, MenuSummary, TenantInfo
 
 Plans:
-- [ ] 22.8-01: Recursive nested type resolution and generation
+- [x] 22.8-01: Recursive nested type resolution and generation
+
+#### Phase 22.9: ValidationErrors Type
+
+**Goal**: Add dedicated ValidationErrors type that generates proper TypeScript Record<string, string[]> instead of unknown
+**Depends on**: Phase 22.8
+**Research**: Unlikely (internal patterns)
+
+Issues addressed:
+- ValidationErrors should have a dedicated type (Medium) - Avoids manual type casts in frontend forms
+
+Plans:
+- [ ] 22.9-01: ValidationErrors type handling
 
 **Deferred to future milestone:**
 - #7 Missing Animal Images Relationship (Eager Loading) - Significant feature requiring architectural work
@@ -257,7 +269,7 @@ Plans:
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.2 Type Generator Fixes | 22.4-22.8 | 0/? | 🚧 In Progress | - |
+| v2.0.2 Type Generator Fixes | 22.4-22.9 | 3/6 | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Progress (v2.0.2 Type Generator Fixes)
@@ -268,7 +280,8 @@ Plans:
 | 22.5. Prop Naming Collisions | 0/? | Not started | - |
 | 22.6. Contract Validation CLI | 0/? | Not started | - |
 | 22.7. DateTime Handling | 0/? | Not started | - |
-| 22.8. Nested Types Generation | 0/1 | Planned | - |
+| 22.8. Nested Types Generation | 1/1 | Complete | 2026-01-17 |
+| 22.9. ValidationErrors Type | 0/1 | Planned | - |
 
 ## Progress (v2.1 JSON-UI)
 
