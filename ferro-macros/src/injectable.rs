@@ -72,9 +72,15 @@ pub fn injectable_impl(input: TokenStream) -> TokenStream {
     let expanded = match &input.data {
         syn::Data::Struct(data_struct) => {
             match &data_struct.fields {
-                Fields::Named(fields_named) => {
-                    generate_for_named_struct(&ferro, name, name_str, vis, attrs, generics, fields_named)
-                }
+                Fields::Named(fields_named) => generate_for_named_struct(
+                    &ferro,
+                    name,
+                    name_str,
+                    vis,
+                    attrs,
+                    generics,
+                    fields_named,
+                ),
                 Fields::Unit => {
                     // Unit struct - use Default
                     quote! {
