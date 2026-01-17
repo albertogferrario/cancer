@@ -19,7 +19,7 @@
 //! ```
 
 use clap::{Parser, Subcommand};
-use ferro_rs::{Config, Server};
+use ferro::{Config, Server};
 use sea_orm_migration::prelude::*;
 use std::env;
 use std::path::Path;

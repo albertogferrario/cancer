@@ -1,4 +1,4 @@
-use ferro_rs::{handler, json_response, Config, Response};
+use ferro::{handler, json_response, Config, Response};
 
 use crate::config::{DatabaseConfig, MailConfig};
 

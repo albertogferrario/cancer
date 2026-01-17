@@ -8,7 +8,7 @@
 // Re-export the auto-generated entity (includes CancerModel-generated boilerplate)
 pub use super::entities::users::*;
 
-use ferro_rs::Authenticatable;
+use ferro::Authenticatable;
 use std::any::Any;
 
 /// Type alias for convenient access

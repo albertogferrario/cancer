@@ -1,4 +1,4 @@
-use ferro_rs::env;
+use ferro::env;
 
 /// Mail configuration
 #[derive(Debug, Clone)]

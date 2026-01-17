@@ -4,7 +4,7 @@ mod mail;
 pub use database::DatabaseConfig;
 pub use mail::MailConfig;
 
-use ferro_rs::{Config, DatabaseConfig as FerroDatabaseConfig};
+use ferro::{Config, DatabaseConfig as FerroDatabaseConfig};
 
 /// Register all application configs
 pub fn register_all() {
