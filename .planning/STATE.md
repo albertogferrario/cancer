@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-01-16)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** v2.1 JSON-UI — Alternative UI rendering without frontend builds
+**Current focus:** v2.0.1 Macro Fix — Fix hardcoded crate paths in proc macros
 
 ## Current Position
 
-Phase: 23 of 32 (JSON-UI Schema)
+Phase: 22.1 (Macro Crate Path Resolution)
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-01-16 — Milestone v2.1 JSON-UI created
+Last activity: 2026-01-17 — Inserted Phase 22.1 for urgent macro fix
 
 Progress: ░░░░░░░░░░ 0%
 
@@ -22,11 +22,19 @@ Progress: ░░░░░░░░░░ 0%
 |-----------|--------|-------|--------|---------|
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
-| v2.1 JSON-UI | 23-32 | 0/? | 🚧 In Progress | - |
+| v2.0.1 Macro Fix | 22.1 | 0/3 | 🚧 In Progress | - |
+| v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
 
-### Key Decisions (v2.1)
+### Key Decisions (v2.0.1)
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Resolution approach | proc-macro-crate | Standard solution for dynamic crate name resolution |
+| Fallback | `ferro_rs` default | Backwards compatibility if detection fails |
+
+### Key Decisions (v2.1 - deferred)
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
@@ -37,7 +45,7 @@ Progress: ░░░░░░░░░░ 0%
 
 ### Pending Todos
 
-None — milestone just created.
+None — phase 22.1 ready for planning.
 
 ### Blockers/Concerns
 
@@ -50,10 +58,11 @@ None — milestone just created.
 
 - v1.0 DX Overhaul complete: 12 phases, 18 plans (2026-01-15 to 2026-01-16)
 - v2.0 Rebrand complete: 10 phases, 13 plans (2026-01-16)
-- v2.1 JSON-UI created: 10 phases (Phase 23-32)
+- v2.0.1 Macro Fix inserted: 1 phase (Phase 22.1) - urgent fix before v2.1
+- v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.1
 
 ## Session Continuity
 
-Last session: 2026-01-16
-Stopped at: Milestone v2.1 JSON-UI initialization
+Last session: 2026-01-17
+Stopped at: Phase 22.1 inserted, ready for planning
 Resume file: None
