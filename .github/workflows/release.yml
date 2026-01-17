@@ -119,8 +119,8 @@ jobs:
       - name: Update repo in install script
         run: |
           REPO="${{ github.repository }}"
-          sed -i "s|REPO=\"ferroframework/ferro\"|REPO=\"$REPO\"|g" scripts/install.sh
-          sed -i "s|REPO=\"ferroframework/ferro\"|REPO=\"$REPO\"|g" scripts/create-app.sh
+          sed -i "s|REPO=\"albertogferrario/ferro\"|REPO=\"$REPO\"|g" scripts/install.sh
+          sed -i "s|REPO=\"albertogferrario/ferro\"|REPO=\"$REPO\"|g" scripts/create-app.sh
 
       - name: Commit changes
         run: |

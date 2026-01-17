@@ -1,12 +1,12 @@
 #!/bin/sh
 # Ferro Framework Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/ferroframework/ferro/main/scripts/install.sh | sh
+# Usage: curl -fsSL https://raw.githubusercontent.com/albertogferrario/ferro/main/scripts/install.sh | sh
 # Or with project creation: curl -fsSL ... | sh -s -- my-app
 
 set -e
 
 # Configuration
-REPO="ferroframework/ferro"
+REPO="albertogferrario/ferro"
 BINARY_NAME="ferro"
 INSTALL_DIR="${FERRO_INSTALL_DIR:-$HOME/.ferro/bin}"
 

@@ -11,7 +11,7 @@ cargo install ferro-cli
 Or build from source:
 
 ```bash
-git clone https://github.com/ferroframework/ferro
+git clone https://github.com/albertogferrario/ferro
 cd ferro/ferro-cli
 cargo install --path .
 ```

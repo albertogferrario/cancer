@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "WebSocket broadcasting and real-time channels for Ferro framework"
-repository = "https://github.com/ferroframework/ferro"
+repository = "https://github.com/albertogferrario/ferro"
 keywords = ["websocket", "broadcast", "channels", "realtime", "ferro"]
 categories = ["web-programming", "asynchronous"]
 

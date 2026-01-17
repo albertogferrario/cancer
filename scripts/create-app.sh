@@ -1,6 +1,6 @@
 #!/bin/sh
 # Ferro Create App - One-liner project creation
-# Usage: curl -fsSL https://raw.githubusercontent.com/ferroframework/ferro/main/scripts/create-app.sh | sh -s -- my-app
+# Usage: curl -fsSL https://raw.githubusercontent.com/albertogferrario/ferro/main/scripts/create-app.sh | sh -s -- my-app
 #
 # This script downloads the Ferro CLI to a temp directory, creates your project,
 # and cleans up. No permanent installation required.
@@ -8,7 +8,7 @@
 set -e
 
 # Configuration
-REPO="ferroframework/ferro"
+REPO="albertogferrario/ferro"
 BINARY_NAME="ferro"
 
 # Colors
