@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-16)
 ## Current Position
 
 Phase: 22.4 (Type Generator Fixes)
-Plan: 22.4-01 (ready to execute)
-Status: Planned
-Last activity: 2026-01-17 — Phase 22.4 plan created
+Plan: 22.4-01 (complete)
+Status: Execute next plan (22.5) or continue with remaining phases
+Last activity: 2026-01-17 — Phase 22.4-01 complete (serde, imports, re-exports)
 
-Progress: ▓░░░░░░░░░ 5%
+Progress: ▓▓▓░░░░░░░ 25%
 
 ## Milestone Summary
 
@@ -23,10 +23,20 @@ Progress: ▓░░░░░░░░░ 5%
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.2 Type Generator Fixes | 22.4-22.7 | 0/? | 🚧 In Progress | - |
+| v2.0.2 Type Generator Fixes | 22.4-22.7 | 1/4 | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
+
+### Key Decisions (v2.0.2)
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Serde case handling | Enum with `apply()` method | Type-safe, exhaustive pattern matching |
+| Per-field vs struct-level | Field rename takes precedence | Matches serde's actual behavior |
+| Import generation | Only referenced types | Keeps imports minimal and relevant |
+| Re-export generation | All shared.ts types | Convenience for component imports |
+| Re-export control | `--no-reexports` flag | Flexibility for projects that don't want re-exports |
 
 ### Key Decisions (v2.0.1)
 
@@ -46,7 +56,7 @@ Progress: ▓░░░░░░░░░ 5%
 
 ### Pending Todos
 
-None — v2.0.2 milestone just started.
+None — Phase 22.4-01 complete, ready for next phase.
 
 ### Blockers/Concerns
 
@@ -60,11 +70,11 @@ None — v2.0.2 milestone just started.
 - v1.0 DX Overhaul complete: 12 phases, 18 plans (2026-01-15 to 2026-01-16)
 - v2.0 Rebrand complete: 10 phases, 13 plans (2026-01-16)
 - v2.0.1 Macro Fix complete: 3 phases (Phase 22.1-22.3) (2026-01-17)
-- v2.0.2 Type Generator Fixes created: 4 phases (Phase 22.4-22.7) - issues from adotta-animali port
+- v2.0.2 Type Generator Fixes: 4 phases (Phase 22.4-22.7) - 22.4-01 complete
 - v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.2
 
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Created v2.0.2 Type Generator Fixes milestone
+Stopped at: Completed Phase 22.4-01 (serde rename_all, shared.ts imports, type re-exports)
 Resume file: None
