@@ -771,3 +771,178 @@ pub fn run(output: Option<String>) {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ===== Controller Name Extraction Tests (Phase 22.5) =====
+
+    #[test]
+    fn test_extract_controller_name_flat() {
+        // controllers::user -> user
+        assert_eq!(extract_controller_name("controllers::user"), "user");
+    }
+
+    #[test]
+    fn test_extract_controller_name_nested_single() {
+        // controllers::shelter::dashboard -> shelter_dashboard
+        assert_eq!(
+            extract_controller_name("controllers::shelter::dashboard"),
+            "shelter_dashboard"
+        );
+    }
+
+    #[test]
+    fn test_extract_controller_name_nested_deep() {
+        // controllers::admin::settings::security -> admin_settings_security
+        assert_eq!(
+            extract_controller_name("controllers::admin::settings::security"),
+            "admin_settings_security"
+        );
+    }
+
+    #[test]
+    fn test_extract_controller_name_no_prefix() {
+        // user (no controllers:: prefix) -> user
+        assert_eq!(extract_controller_name("user"), "user");
+    }
+
+    #[test]
+    fn test_extract_controller_name_empty_after_prefix() {
+        // controllers:: -> empty string (edge case)
+        assert_eq!(extract_controller_name("controllers::"), "");
+    }
+
+    #[test]
+    fn test_to_pascal_case_single_word() {
+        assert_eq!(to_pascal_case("user"), "User");
+    }
+
+    #[test]
+    fn test_to_pascal_case_snake_case() {
+        assert_eq!(to_pascal_case("user_profile"), "UserProfile");
+    }
+
+    #[test]
+    fn test_to_pascal_case_multi_segment() {
+        assert_eq!(to_pascal_case("admin_user_settings"), "AdminUserSettings");
+    }
+
+    #[test]
+    fn test_parse_routes_file_simple() {
+        let content = r#"
+            get!("/users", controllers::user::index);
+            post!("/users", controllers::user::store);
+        "#;
+
+        let routes = parse_routes_file(content);
+        assert_eq!(routes.len(), 2);
+        assert_eq!(routes[0].method, HttpMethod::Get);
+        assert_eq!(routes[0].path, "/users");
+        assert_eq!(routes[0].handler_module, "controllers::user");
+        assert_eq!(routes[0].handler_fn, "index");
+    }
+
+    #[test]
+    fn test_parse_routes_file_with_params() {
+        let content = r#"
+            get!("/users/{id}", controllers::user::show);
+            delete!("/users/{id}/posts/{post_id}", controllers::post::destroy);
+        "#;
+
+        let routes = parse_routes_file(content);
+        assert_eq!(routes.len(), 2);
+
+        // First route has 1 param
+        assert_eq!(routes[0].path_params.len(), 1);
+        assert_eq!(routes[0].path_params[0].name, "id");
+
+        // Second route has 2 params
+        assert_eq!(routes[1].path_params.len(), 2);
+        assert_eq!(routes[1].path_params[0].name, "id");
+        assert_eq!(routes[1].path_params[1].name, "post_id");
+    }
+
+    #[test]
+    fn test_parse_routes_file_with_name() {
+        let content = r#"
+            get!("/", controllers::home::index).name("home");
+            get!("/dashboard", controllers::dashboard::index).name("dashboard.index");
+        "#;
+
+        let routes = parse_routes_file(content);
+        assert_eq!(routes.len(), 2);
+        assert_eq!(routes[0].name, Some("home".to_string()));
+        assert_eq!(routes[1].name, Some("dashboard.index".to_string()));
+    }
+
+    #[test]
+    fn test_parse_routes_file_nested_controller() {
+        let content = r#"
+            get!("/shelter/dashboard", controllers::shelter::dashboard::index);
+            get!("/adopter/dashboard", controllers::adopter::dashboard::index);
+        "#;
+
+        let routes = parse_routes_file(content);
+        assert_eq!(routes.len(), 2);
+        assert_eq!(routes[0].handler_module, "controllers::shelter::dashboard");
+        assert_eq!(routes[1].handler_module, "controllers::adopter::dashboard");
+    }
+
+    #[test]
+    fn test_generate_url_with_params() {
+        // /users/{id} -> `${params.id}`
+        let result = generate_url_with_params("/users/{id}");
+        assert_eq!(result, "`/users/${params.id}`");
+    }
+
+    #[test]
+    fn test_generate_url_with_multiple_params() {
+        // /users/{id}/posts/{post_id} -> `/users/${params.id}/posts/${params.post_id}`
+        let result = generate_url_with_params("/users/{id}/posts/{post_id}");
+        assert_eq!(result, "`/users/${params.id}/posts/${params.post_id}`");
+    }
+
+    #[test]
+    fn test_generate_params_interface_name() {
+        let route = GeneratedRoute {
+            definition: RouteDefinition {
+                method: HttpMethod::Get,
+                path: "/users/{id}".to_string(),
+                handler_module: "controllers::user".to_string(),
+                handler_fn: "show".to_string(),
+                name: None,
+                path_params: vec![PathParam {
+                    name: "id".to_string(),
+                }],
+            },
+            handler_info: None,
+            request_struct: None,
+        };
+
+        let name = generate_params_interface_name(&route);
+        assert_eq!(name, "UserShowParams");
+    }
+
+    #[test]
+    fn test_generate_params_interface_name_nested_controller() {
+        let route = GeneratedRoute {
+            definition: RouteDefinition {
+                method: HttpMethod::Get,
+                path: "/shelter/applications/{id}".to_string(),
+                handler_module: "controllers::shelter::applications".to_string(),
+                handler_fn: "show".to_string(),
+                name: None,
+                path_params: vec![PathParam {
+                    name: "id".to_string(),
+                }],
+            },
+            handler_info: None,
+            request_struct: None,
+        };
+
+        let name = generate_params_interface_name(&route);
+        assert_eq!(name, "ShelterApplicationsShowParams");
+    }
+}
