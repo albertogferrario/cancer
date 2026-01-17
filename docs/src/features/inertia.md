@@ -617,6 +617,20 @@ export interface DashboardProps {
 }
 ```
 
+### Automatic Type Generation
+
+When running `ferro serve`, TypeScript types are automatically regenerated whenever you modify a file containing `InertiaProps` structs. Changes are debounced (500ms) to avoid excessive regeneration.
+
+You'll see `[types] Regenerated N type(s)` in the console when types are updated.
+
+To disable automatic regeneration:
+
+```bash
+ferro serve --skip-types
+```
+
+> **Note:** Type watching is disabled in `--backend-only` mode since there's no frontend to update.
+
 ## Development vs Production
 
 ### Development Mode
