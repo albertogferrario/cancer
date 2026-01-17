@@ -6,6 +6,10 @@
 use crate::error::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
+
+/// Timeout for HTTP requests to the running application
+const HTTP_TIMEOUT: Duration = Duration::from_secs(2);
 
 /// Queue status information
 #[derive(Debug, Serialize)]
@@ -111,7 +115,11 @@ pub struct FailedJobInfo {
 async fn fetch_runtime_jobs(base_url: &str) -> Option<QueueJobsSnapshot> {
     let url = format!("{}/_ferro/queue/jobs", base_url);
 
-    let response = reqwest::get(&url).await.ok()?;
+    let client = reqwest::Client::builder()
+        .timeout(HTTP_TIMEOUT)
+        .build()
+        .ok()?;
+    let response = client.get(&url).send().await.ok()?;
 
     if !response.status().is_success() {
         return None;
@@ -130,7 +138,11 @@ async fn fetch_runtime_jobs(base_url: &str) -> Option<QueueJobsSnapshot> {
 async fn fetch_runtime_stats(base_url: &str) -> Option<QueueStatsSnapshot> {
     let url = format!("{}/_ferro/queue/stats", base_url);
 
-    let response = reqwest::get(&url).await.ok()?;
+    let client = reqwest::Client::builder()
+        .timeout(HTTP_TIMEOUT)
+        .build()
+        .ok()?;
+    let response = client.get(&url).send().await.ok()?;
 
     if !response.status().is_success() {
         return None;

@@ -5,6 +5,10 @@
 
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
+
+/// Timeout for HTTP requests to the running application
+const HTTP_TIMEOUT: Duration = Duration::from_secs(2);
 
 #[derive(Debug, Serialize)]
 pub struct MetricsInfo {
@@ -55,7 +59,11 @@ pub struct RouteMetricsView {
 async fn fetch_runtime_metrics(base_url: &str) -> Option<MetricsSnapshot> {
     let url = format!("{}/_ferro/metrics", base_url);
 
-    let response = reqwest::get(&url).await.ok()?;
+    let client = reqwest::Client::builder()
+        .timeout(HTTP_TIMEOUT)
+        .build()
+        .ok()?;
+    let response = client.get(&url).send().await.ok()?;
 
     if !response.status().is_success() {
         return None;
