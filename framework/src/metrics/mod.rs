@@ -1,7 +1,7 @@
 //! Request metrics collection for performance monitoring
 //!
 //! Collects request counts, response times, and error rates per route.
-//! Metrics are stored in-memory and exposed via `/_cancer/metrics`.
+//! Metrics are stored in-memory and exposed via `/_ferro/metrics`.
 
 use serde::Serialize;
 use std::collections::HashMap;
@@ -188,7 +188,7 @@ pub fn reset_metrics() {
 
 /// Check if metrics collection is enabled
 pub fn is_enabled() -> bool {
-    std::env::var("CANCER_COLLECT_METRICS")
+    std::env::var("FERRO_COLLECT_METRICS")
         .map(|v| v == "true" || v == "1")
         .unwrap_or(true) // Enabled by default in development
 }

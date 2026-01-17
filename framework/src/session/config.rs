@@ -25,7 +25,7 @@ impl Default for SessionConfig {
     fn default() -> Self {
         Self {
             lifetime: Duration::from_secs(120 * 60), // 2 hours (120 minutes)
-            cookie_name: "cancer_session".to_string(),
+            cookie_name: "ferro_session".to_string(),
             cookie_path: "/".to_string(),
             cookie_secure: true,
             cookie_http_only: true,
@@ -45,7 +45,7 @@ impl SessionConfig {
     ///
     /// Environment variables:
     /// - `SESSION_LIFETIME`: Session lifetime in minutes (default: 120)
-    /// - `SESSION_COOKIE`: Cookie name (default: cancer_session)
+    /// - `SESSION_COOKIE`: Cookie name (default: ferro_session)
     /// - `SESSION_SECURE`: Set Secure flag (default: true)
     /// - `SESSION_PATH`: Cookie path (default: /)
     /// - `SESSION_SAME_SITE`: SameSite attribute (default: Lax)
@@ -61,7 +61,7 @@ impl SessionConfig {
         Self {
             lifetime: Duration::from_secs(lifetime_minutes * 60),
             cookie_name: crate::env_optional("SESSION_COOKIE")
-                .unwrap_or_else(|| "cancer_session".to_string()),
+                .unwrap_or_else(|| "ferro_session".to_string()),
             cookie_path: crate::env_optional("SESSION_PATH").unwrap_or_else(|| "/".to_string()),
             cookie_secure,
             cookie_http_only: true, // Always true for security

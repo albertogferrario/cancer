@@ -46,7 +46,7 @@ impl InMemoryCache {
     pub fn new() -> Self {
         Self {
             store: RwLock::new(HashMap::new()),
-            prefix: "cancer_cache:".to_string(),
+            prefix: "ferro_cache:".to_string(),
         }
     }
 

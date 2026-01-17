@@ -46,7 +46,7 @@ impl Middleware for MetricsMiddleware {
 
         // Skip internal debug endpoints
         let path = request.path();
-        if path.starts_with("/_cancer/") {
+        if path.starts_with("/_ferro/") {
             return next(request).await;
         }
 
