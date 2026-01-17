@@ -41,7 +41,7 @@ Issues addressed:
 - #2 Type Generator: Duplicate Properties in routes.ts (Medium)
 
 Plans:
-- [ ] 22.5-01: Module path tracking and namespaced type generation
+- [x] 22.5-01: Module path tracking and namespaced type generation
 
 #### Phase 22.6: Contract Validation CLI
 
@@ -269,7 +269,7 @@ Plans:
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.2 Type Generator Fixes | 22.4-22.9 | 3/6 | 🚧 In Progress | - |
+| v2.0.2 Type Generator Fixes | 22.4-22.9 | 4/6 | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Progress (v2.0.2 Type Generator Fixes)
@@ -277,7 +277,7 @@ Plans:
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
 | 22.4. Type Generator Fixes | 1/1 | Complete | 2026-01-17 |
-| 22.5. Prop Naming Collisions | 0/1 | Planned | - |
+| 22.5. Prop Naming Collisions | 1/1 | Complete | 2026-01-17 |
 | 22.6. Contract Validation CLI | 0/? | Not started | - |
 | 22.7. DateTime Handling | 0/? | Not started | - |
 | 22.8. Nested Types Generation | 1/1 | Complete | 2026-01-17 |
