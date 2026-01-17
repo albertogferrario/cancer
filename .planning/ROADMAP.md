@@ -29,9 +29,9 @@
 - `ferro-macros/src/inertia.rs` - 5+ occurrences
 
 Plans:
-- [ ] 22.1-01: Add proc-macro-crate dependency and helper function
-- [ ] 22.1-02: Update all macros to use dynamic crate resolution
-- [ ] 22.1-03: Test with alternate crate names and document
+- [ ] [22.1-01](phases/22.1-macro-crate-paths/PLAN-22.1-01.md): Add proc-macro-crate dependency and helper function
+- [ ] [22.1-02](phases/22.1-macro-crate-paths/PLAN-22.1-02.md): Update all macros to use dynamic crate resolution
+- [ ] [22.1-03](phases/22.1-macro-crate-paths/PLAN-22.1-03.md): Test with alternate crate names and document
 
 ---
 
@@ -200,7 +200,7 @@ Plans:
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
-| 22.1 Macro Crate Paths (INSERTED) | 0/3 | Not started | - |
+| 22.1 Macro Crate Paths (INSERTED) | 3/3 | Planned | - |
 
 ## Progress (v2.1 JSON-UI)
 
