@@ -4,34 +4,8 @@
 
 - ✅ [**v1.0 DX Overhaul**](milestones/v1.0-ROADMAP.md) — Phases 1-12 (shipped 2026-01-16)
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
-- 🚧 **v2.0.1 Macro Fix** — Phase 22.1 (in progress)
+- ✅ **v2.0.1 Macro Fix** — Phase 22.1 (shipped 2026-01-17)
 - 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
-
----
-
-### 🚧 v2.0.1 Macro Fix (In Progress)
-
-**Milestone Goal:** Fix hardcoded `::ferro_rs::` paths in proc macros using `proc-macro-crate` for dynamic resolution.
-
-#### Phase 22.1: Macro Crate Path Resolution (INSERTED)
-
-**Goal**: Replace hardcoded `::ferro_rs::` paths with dynamic crate name resolution
-**Depends on**: Phase 22 (v2.0 complete)
-**Research**: Likely (proc-macro-crate usage patterns)
-**Research topics**: proc-macro-crate API, FoundCrate handling, fallback strategies
-
-**Problem**: Macros generate code with hardcoded `::ferro_rs::` paths, forcing users to name their dependency exactly `ferro_rs` in Cargo.toml. This breaks natural import conventions (`ferro = ...`).
-
-**Affected files**:
-- `ferro-macros/src/test_macro.rs` - 8 occurrences
-- `ferro-macros/src/request.rs` - 2 occurrences
-- `ferro-macros/src/redirect.rs` - 2 occurrences
-- `ferro-macros/src/inertia.rs` - 5+ occurrences
-
-Plans:
-- [x] [22.1-01](phases/22.1-macro-crate-paths/PLAN-22.1-01.md): Add proc-macro-crate dependency and helper function
-- [ ] [22.1-02](phases/22.1-macro-crate-paths/PLAN-22.1-02.md): Update all macros to use dynamic crate resolution
-- [ ] [22.1-03](phases/22.1-macro-crate-paths/PLAN-22.1-03.md): Test with alternate crate names and document
 
 ---
 
@@ -136,6 +110,21 @@ Plans:
 ## Completed Milestones
 
 <details>
+<summary>✅ v2.0.1 Macro Fix (Phase 22.1) — SHIPPED 2026-01-17</summary>
+
+**Milestone Goal:** Fix hardcoded `::ferro_rs::` paths in proc macros using `proc-macro-crate` for dynamic resolution.
+
+| Phase | Plans | Status | Completed |
+|-------|-------|--------|-----------|
+| 22.1 Macro Crate Paths | 3/3 | Complete | 2026-01-17 |
+
+**Total:** 1 phase, 3 plans
+
+[Full details →](phases/22.1-macro-crate-paths/)
+
+</details>
+
+<details>
 <summary>✅ v2.0 Rebrand (Phases 13-22) — SHIPPED 2026-01-16</summary>
 
 **Milestone Goal:** Rename the framework from "cancer" to "ferro" for crates.io publication and public release.
@@ -193,14 +182,8 @@ Plans:
 |-----------|--------|-------|--------|---------|
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
-| v2.0.1 Macro Fix | 22.1 | 1/3 | 🚧 In Progress | - |
+| v2.0.1 Macro Fix | 22.1 | 3 | ✅ Complete | 2026-01-17 |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
-
-## Progress (v2.0.1 Macro Fix)
-
-| Phase | Plans | Status | Completed |
-|-------|-------|--------|-----------|
-| 22.1 Macro Crate Paths (INSERTED) | 1/3 | In progress | - |
 
 ## Progress (v2.1 JSON-UI)
 

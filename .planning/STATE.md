@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-16)
 ## Current Position
 
 Phase: 22.1 (Macro Crate Path Resolution)
-Plan: 1 of 3 in current phase
-Status: In progress
-Last activity: 2026-01-17 — Completed PLAN-22.1-01.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-01-17 — Completed PLAN-22.1-03.md
 
-Progress: ███░░░░░░░ 33%
+Progress: ██████████ 100%
 
 ## Milestone Summary
 
@@ -22,7 +22,7 @@ Progress: ███░░░░░░░ 33%
 |-----------|--------|-------|--------|---------|
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
-| v2.0.1 Macro Fix | 22.1 | 1/3 | 🚧 In Progress | - |
+| v2.0.1 Macro Fix | 22.1 | 3/3 | ✅ Complete | 2026-01-17 |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
@@ -64,5 +64,5 @@ None — phase 22.1 plans created, ready for execution.
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Completed PLAN-22.1-01.md
+Stopped at: Completed PLAN-22.1-03.md (Phase 22.1 complete, Milestone v2.0.1 complete)
 Resume file: None
