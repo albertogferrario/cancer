@@ -218,6 +218,13 @@ enum Commands {
     /// Generate a production-ready Dockerfile
     #[command(name = "docker:init")]
     DockerInit,
+    /// Generate DigitalOcean App Platform deployment spec
+    #[command(name = "do:init")]
+    DoInit {
+        /// GitHub repository (owner/repo format)
+        #[arg(long = "repo", short = 'r')]
+        repo: Option<String>,
+    },
     /// Generate docker-compose.yml for local development
     #[command(name = "docker:compose")]
     DockerCompose {
@@ -409,6 +416,9 @@ fn main() {
         }
         Commands::DockerInit => {
             commands::docker_init::run();
+        }
+        Commands::DoInit { repo } => {
+            commands::do_init::run(repo);
         }
         Commands::DockerCompose {
             with_mailpit,

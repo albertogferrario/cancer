@@ -3,6 +3,7 @@ pub mod claude_install;
 pub mod clean;
 pub mod db_query;
 pub mod db_sync;
+pub mod do_init;
 pub mod docker_compose;
 pub mod docker_init;
 pub mod generate_routes;
