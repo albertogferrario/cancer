@@ -4,6 +4,7 @@ use quote::quote;
 use std::path::{Path, PathBuf};
 use syn::{parse::Parse, parse::ParseStream, parse_macro_input, LitStr};
 
+use crate::ferro_crate;
 use crate::utils::levenshtein_distance;
 
 /// Custom parser for redirect! macro
@@ -26,6 +27,9 @@ impl Parse for RedirectInput {
 /// - Named route: `redirect!("users.index")` → `Redirect::route("users.index")`
 pub fn redirect_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as RedirectInput);
+
+    let ferro = ferro_crate();
+
     let route_name = input.route_name.value();
     let route_lit = &input.route_name;
 
@@ -33,7 +37,7 @@ pub fn redirect_impl(input: TokenStream) -> TokenStream {
     if route_name.starts_with('/') {
         // Path redirect - use Redirect::to() directly
         let expanded = quote! {
-            ::ferro_rs::Redirect::to(#route_lit)
+            #ferro::Redirect::to(#route_lit)
         };
         return expanded.into();
     }
@@ -45,7 +49,7 @@ pub fn redirect_impl(input: TokenStream) -> TokenStream {
 
     // Generate the redirect builder for named routes
     let expanded = quote! {
-        ::ferro_rs::Redirect::route(#route_lit)
+        #ferro::Redirect::route(#route_lit)
     };
 
     expanded.into()
