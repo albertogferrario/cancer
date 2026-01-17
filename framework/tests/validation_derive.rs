@@ -2,6 +2,7 @@
 //!
 //! Tests declarative validation using #[derive(ValidateRules)] with #[rule(...)] attributes.
 
+extern crate ferro_rs as ferro;
 use ferro_rs::validation::Validatable;
 use ferro_rs::ValidateRules;
 use serde::{Deserialize, Serialize};
