@@ -11,10 +11,10 @@ See: .planning/PROJECT.md (updated 2026-01-16)
 
 Phase: 22.6 (Contract Validation CLI)
 Plan: 22.6-01 (Expose MCP validate_contracts as CLI command)
-Status: Planned
-Last activity: 2026-01-17 — Phase 22.6-01 planned
+Status: Complete
+Last activity: 2026-01-17 — Phase 22.6-01 complete
 
-Progress: ▓▓▓▓▓▓▓▓░░ 80%
+Progress: ▓▓▓▓▓▓▓▓▓░ 90%
 
 ## Milestone Summary
 
@@ -23,7 +23,7 @@ Progress: ▓▓▓▓▓▓▓▓░░ 80%
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.2 Type Generator Fixes | 22.4-22.9 | 4/? | 🔄 In Progress | - |
+| v2.0.2 Type Generator Fixes | 22.4-22.9 | 5/? | 🔄 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
@@ -62,7 +62,7 @@ Progress: ▓▓▓▓▓▓▓▓░░ 80%
 
 ### Pending Todos
 
-Phase 22.6-01 planned. Ready for execution.
+Phase 22.6-01 complete. Ready for next phase.
 
 ### Blockers/Concerns
 
@@ -76,11 +76,11 @@ Phase 22.6-01 planned. Ready for execution.
 - v1.0 DX Overhaul complete: 12 phases, 18 plans (2026-01-15 to 2026-01-16)
 - v2.0 Rebrand complete: 10 phases, 13 plans (2026-01-16)
 - v2.0.1 Macro Fix complete: 3 phases (Phase 22.1-22.3) (2026-01-17)
-- v2.0.2 Type Generator Fixes in progress: 4 plans (22.4-01, 22.5-01, 22.8-01, 22.9-01) (2026-01-17)
+- v2.0.2 Type Generator Fixes in progress: 5 plans (22.4-01, 22.5-01, 22.6-01, 22.8-01, 22.9-01) (2026-01-17)
 - v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.2
 
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Completed Phase 22.5-01 (Prop Naming Collisions)
+Stopped at: Completed Phase 22.6-01 (Contract Validation CLI)
 Resume file: None
