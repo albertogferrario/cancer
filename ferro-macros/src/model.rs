@@ -1,6 +1,6 @@
 //! Derive macro for reducing SeaORM model boilerplate
 //!
-//! Generates builder, setters, and trait implementations for Cancer models.
+//! Generates builder, setters, and trait implementations for Ferro models.
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
@@ -13,7 +13,7 @@ fn ferro() -> TokenStream2 {
 }
 
 /// Generate model boilerplate from a SeaORM Model struct
-pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
+pub fn ferro_model_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
     let ferro = ferro();
@@ -25,13 +25,13 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
         Data::Struct(data) => match &data.fields {
             Fields::Named(fields) => &fields.named,
             _ => {
-                return syn::Error::new_spanned(&input, "CancerModel only supports named structs")
+                return syn::Error::new_spanned(&input, "FerroModel only supports named structs")
                     .to_compile_error()
                     .into();
             }
         },
         _ => {
-            return syn::Error::new_spanned(&input, "CancerModel only supports structs")
+            return syn::Error::new_spanned(&input, "FerroModel only supports structs")
                 .to_compile_error()
                 .into();
         }
@@ -234,10 +234,10 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
         // Implement SeaORM ActiveModelBehavior for lifecycle hooks
         impl sea_orm::ActiveModelBehavior for ActiveModel {}
 
-        // Implement Cancer's Model trait for convenient read operations
+        // Implement Ferro's Model trait for convenient read operations
         impl #ferro::database::Model for Entity {}
 
-        // Implement Cancer's ModelMut trait for write operations
+        // Implement Ferro's ModelMut trait for write operations
         impl #ferro::database::ModelMut for Entity {}
     };
 

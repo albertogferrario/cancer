@@ -430,10 +430,10 @@ pub fn test(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ferro::CancerModel;
+/// use ferro::FerroModel;
 /// use sea_orm::entity::prelude::*;
 ///
-/// #[derive(Clone, Debug, DeriveEntityModel, CancerModel)]
+/// #[derive(Clone, Debug, DeriveEntityModel, FerroModel)]
 /// #[sea_orm(table_name = "users")]
 /// pub struct Model {
 ///     #[sea_orm(primary_key)]
@@ -463,9 +463,9 @@ pub fn test(input: TokenStream) -> TokenStream {
 ///     .all()
 ///     .await?;
 /// ```
-#[proc_macro_derive(CancerModel)]
-pub fn derive_cancer_model(input: TokenStream) -> TokenStream {
-    model::cancer_model_impl(input)
+#[proc_macro_derive(FerroModel)]
+pub fn derive_ferro_model(input: TokenStream) -> TokenStream {
+    model::ferro_model_impl(input)
 }
 
 /// Derive macro for declarative struct validation using Ferro's rules
