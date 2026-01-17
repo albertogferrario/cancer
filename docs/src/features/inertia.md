@@ -291,6 +291,48 @@ pub async fn store(req: Request) -> Response {
 }
 ```
 
+## Common Patterns
+
+### Form Handling with Validation
+
+The most common pattern requiring `SavedInertiaContext` is form validation. Here's the complete flow:
+
+```rust
+use ferro::{handler, Request, Response};
+use ferro::inertia::{Inertia, SavedInertiaContext};
+use ferro::validation::{Validator, rules};
+
+#[handler]
+pub async fn store(req: Request) -> Response {
+    // STEP 1: Save context BEFORE consuming the request body
+    // This is required because req.json()/req.input() consumes the body
+    let ctx = SavedInertiaContext::from_request(&req);
+
+    // STEP 2: Now safely consume the request body
+    let data: CreateItemRequest = req.json().await?;
+
+    // STEP 3: Validate
+    let errors = Validator::new()
+        .rule("name", rules![required(), string(), min(1)])
+        .rule("email", rules![required(), email()])
+        .validate(&data);
+
+    // STEP 4: On validation failure, render with saved context
+    if errors.fails() {
+        return Inertia::render_ctx(&ctx, "Items/Create", FormProps {
+            errors: Some(errors.to_json()),
+            old: Some(data),
+        });
+    }
+
+    // STEP 5: On success, redirect
+    let item = Item::create(&data).await?;
+    Inertia::redirect_ctx(&ctx, &format!("/items/{}", item.id))
+}
+```
+
+> **Why SavedInertiaContext?** The request body in Rust can only be read once. Once you call `req.json()` or `req.input()`, the body is consumed. But `Inertia::render()` needs request metadata (headers, URL). `SavedInertiaContext` captures this metadata before body consumption.
+
 ## Frontend Setup
 
 ### Project Structure
@@ -776,3 +818,58 @@ pub async fn store(req: Request) -> Response {
 7. **Keep props minimal** - Only send what the page needs
 8. **Use partial reloads** - Optimize updates by requesting only changed data
 9. **Use `Inertia::redirect()` for form success** - Ensures proper 303 status for Inertia XHR requests
+
+## Troubleshooting
+
+### Request Body Already Consumed
+
+**Symptom:** Error when calling `Inertia::render()` after `req.json()` or `req.input()`.
+
+**Cause:** The request body was consumed before rendering. In Rust, request bodies can only be read once.
+
+**Solution:** Use `SavedInertiaContext` to capture request metadata before consuming the body:
+
+```rust
+let ctx = SavedInertiaContext::from_request(&req);  // Save first
+let data = req.json().await?;                        // Then consume
+Inertia::render_ctx(&ctx, "Component", props)        // Use saved context
+```
+
+### Validation Errors Not Displaying
+
+**Symptom:** Form validation errors are lost after redirect.
+
+**Cause:** Using `redirect!()` after validation failure instead of re-rendering with errors.
+
+**Solution:** On validation failure, render the form again with errors. On success, redirect:
+
+```rust
+if errors.fails() {
+    // Re-render form with errors (don't redirect)
+    return Inertia::render_ctx(&ctx, "Form", FormProps {
+        errors: Some(errors.to_json()),
+        old: Some(data),
+    });
+}
+
+// Only redirect on success
+Inertia::redirect_ctx(&ctx, "/success")
+```
+
+### Props Not Updating After Navigation
+
+**Symptom:** Page shows stale data after Inertia navigation.
+
+**Cause:** Browser caching or partial reload configuration issue.
+
+**Solution:** Check that your handler returns fresh data and consider using `router.reload()` on the frontend to force a refresh:
+
+```tsx
+import { router } from '@inertiajs/react';
+
+// Force reload current page data
+router.reload();
+
+// Reload only specific props
+router.reload({ only: ['items'] });
+```
