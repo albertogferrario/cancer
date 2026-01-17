@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-16)
 
 ## Current Position
 
-Phase: 22.5 (Prop Naming Collisions)
-Plan: 22.5-01 (Module path tracking and namespaced type generation)
-Status: Complete
-Last activity: 2026-01-17 — Phase 22.5-01 executed
+Phase: 22.6 (Contract Validation CLI)
+Plan: 22.6-01 (Expose MCP validate_contracts as CLI command)
+Status: Planned
+Last activity: 2026-01-17 — Phase 22.6-01 planned
 
-Progress: ▓▓▓▓▓▓▓▓▓▓ 100%
+Progress: ▓▓▓▓▓▓▓▓░░ 80%
 
 ## Milestone Summary
 
@@ -62,7 +62,7 @@ Progress: ▓▓▓▓▓▓▓▓▓▓ 100%
 
 ### Pending Todos
 
-None — Phase 22.5 complete. Next: 22.6 (Contract Validation CLI) or 22.7 (DateTime Handling).
+Phase 22.6-01 planned. Ready for execution.
 
 ### Blockers/Concerns
 

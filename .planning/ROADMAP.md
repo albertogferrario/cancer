@@ -54,7 +54,7 @@ Issues addressed:
 - #9 Nested vs Flat Props Structure Mismatch (High)
 
 Plans:
-- [ ] 22.6-01: TBD (run /gsd:plan-phase 22.6 to break down)
+- [ ] 22.6-01: Expose MCP validate_contracts as CLI command with structural nesting validation
 
 #### Phase 22.7: DateTime Handling
 
@@ -269,7 +269,7 @@ Plans:
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.2 Type Generator Fixes | 22.4-22.9 | 4/6 | 🚧 In Progress | - |
+| v2.0.2 Type Generator Fixes | 22.4-22.9 | 4/7 | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Progress (v2.0.2 Type Generator Fixes)
@@ -278,7 +278,7 @@ Plans:
 |-------|-------|--------|-----------|
 | 22.4. Type Generator Fixes | 1/1 | Complete | 2026-01-17 |
 | 22.5. Prop Naming Collisions | 1/1 | Complete | 2026-01-17 |
-| 22.6. Contract Validation CLI | 0/? | Not started | - |
+| 22.6. Contract Validation CLI | 0/1 | Planned | - |
 | 22.7. DateTime Handling | 0/? | Not started | - |
 | 22.8. Nested Types Generation | 1/1 | Complete | 2026-01-17 |
 | 22.9. ValidationErrors Type | 0/1 | Planned | - |
