@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-16)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** v2.0.2 Type Generator Fixes — Fix type generation issues from adotta-animali port
+**Current focus:** v2.0.3 DO Apps Deploy — Enable one-click deployment to DigitalOcean App Platform
 
 ## Current Position
 
-Phase: 22.7 (DateTime Handling)
-Plan: 22.7-01 (Add chrono datetime type support)
-Status: Complete
-Last activity: 2026-01-17 — Phase 22.7-01 complete
+Phase: 22.10 (DigitalOcean Apps One-Click Deploy)
+Plan: None yet (run /gsd:plan-phase 22.10)
+Status: Not started
+Last activity: 2026-01-17 — Completed v2.0.2 milestone
 
-Progress: ▓▓▓▓▓▓▓▓▓░ 95%
+Progress: ░░░░░░░░░░ 0%
 
 ## Milestone Summary
 
@@ -23,10 +23,17 @@ Progress: ▓▓▓▓▓▓▓▓▓░ 95%
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.2 Type Generator Fixes | 22.4-22.9 | 5/? | 🔄 In Progress | - |
+| v2.0.2 Type Generator Fixes | 22.4-22.9 | 6 | ✅ Complete | 2026-01-17 |
+| v2.0.3 DO Apps Deploy | 22.10 | 0/? | 🔄 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
+
+### Key Decisions (v2.0.3)
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| (none yet) | - | - |
 
 ### Key Decisions (v2.0.2)
 
@@ -46,25 +53,9 @@ Progress: ▓▓▓▓▓▓▓▓▓░ 95%
 | DateTime variant structure | No inner type | All chrono types serialize to ISO8601 strings regardless of timezone |
 | DateTime type recognition | Before `other` fallback | Catch datetime types before they become Custom() |
 
-### Key Decisions (v2.0.1)
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Resolution approach | Hardcode `ferro::` | Simple, direct - no runtime detection needed |
-| Previous approach | ~~proc-macro-crate~~ | Over-engineered; being removed in 22.2 |
-
-### Key Decisions (v2.1 - deferred)
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| CSS approach | Tailwind classes in HTML | No extra CSS file, inherits project theme |
-| Render location | Server-side (Rust) | No JS build required |
-| Component style | Beautiful by default | shadcn/ui quality via predefined components |
-| Coexistence | Alongside Inertia | Use JSON-UI for simple pages, Inertia for custom |
-
 ### Pending Todos
 
-Phase 22.7-01 complete. Ready for next phase.
+v2.0.2 complete. Ready to plan v2.0.3.
 
 ### Blockers/Concerns
 
@@ -78,11 +69,12 @@ Phase 22.7-01 complete. Ready for next phase.
 - v1.0 DX Overhaul complete: 12 phases, 18 plans (2026-01-15 to 2026-01-16)
 - v2.0 Rebrand complete: 10 phases, 13 plans (2026-01-16)
 - v2.0.1 Macro Fix complete: 3 phases (Phase 22.1-22.3) (2026-01-17)
-- v2.0.2 Type Generator Fixes in progress: 6 plans (22.4-01, 22.5-01, 22.6-01, 22.7-01, 22.8-01, 22.9-01) (2026-01-17)
-- v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.2
+- v2.0.2 Type Generator Fixes complete: 6 phases, 6 plans (Phase 22.4-22.9) (2026-01-17)
+- v2.0.3 DO Apps Deploy started: 1 phase (Phase 22.10) (2026-01-17)
+- v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.3
 
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Completed Phase 22.7-01 (DateTime Handling)
+Stopped at: Completed v2.0.2 milestone, ready for v2.0.3
 Resume file: None

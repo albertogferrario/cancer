@@ -5,95 +5,24 @@
 - ✅ [**v1.0 DX Overhaul**](milestones/v1.0-ROADMAP.md) — Phases 1-12 (shipped 2026-01-16)
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
 - ✅ **v2.0.1 Macro Fix** — Phase 22.1-22.3 (shipped 2026-01-17)
-- 🚧 **v2.0.2 Type Generator Fixes** — Phase 22.4-22.9 (in progress)
+- ✅ [**v2.0.2 Type Generator Fixes**](milestones/v2.0.2-ROADMAP.md) — Phase 22.4-22.9 (shipped 2026-01-17)
+- 🚧 **v2.0.3 DO Apps Deploy** — Phase 22.10 (in progress)
 - 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
 
 ---
 
-### 🚧 v2.0.2 Type Generator Fixes (In Progress)
+### 🚧 v2.0.3 DO Apps Deploy (In Progress)
 
-**Milestone Goal:** Fix type generation issues discovered during adotta-animali port to improve TypeScript integration reliability.
+**Milestone Goal:** Enable one-click deployment to DigitalOcean App Platform with minimal infrastructure configuration.
 
-**Source:** [.planning/backlog/adotta-animali-issues.md](backlog/adotta-animali-issues.md)
+#### Phase 22.10: DigitalOcean Apps One-Click Deploy
 
-#### Phase 22.4: Type Generator Fixes
-
-**Goal**: Fix missing shared.ts imports, type re-exports, and serde attribute handling in generated TypeScript files
-**Depends on**: v2.0.1 complete
-**Research**: Unlikely (internal patterns)
-
-Issues addressed:
-- #1 Type Generator: Missing Imports from shared.ts (High)
-- #5 Type Re-exports Not Generated (Medium)
-- #8 Serde rename_all Causes Silent Frontend Failures (High)
+**Goal**: Add DigitalOcean App Platform deployment support with minimal infrastructure requirements
+**Depends on**: v2.0.2 complete
+**Research**: Likely (DO App Platform specs, app.yaml format)
 
 Plans:
-- [x] 22.4-01: Fix serde attributes, shared.ts imports, type re-exports
-
-#### Phase 22.5: Prop Naming Collisions
-
-**Goal**: Resolve InertiaProps naming collisions and duplicate routes.ts entries
-**Depends on**: Phase 22.4
-**Research**: Unlikely (internal patterns)
-
-Issues addressed:
-- #3 InertiaProps Naming Collisions (High)
-- #2 Type Generator: Duplicate Properties in routes.ts (Medium)
-
-Plans:
-- [x] 22.5-01: Module path tracking and namespaced type generation
-
-#### Phase 22.6: Contract Validation CLI
-
-**Goal**: Expose MCP validate_contracts tool as a CLI command with structural nesting validation for CI integration
-**Depends on**: Phase 22.5
-**Research**: Unlikely (MCP tool already exists)
-
-Issues addressed:
-- #4 No Props Contract Validation CLI (Medium)
-- #9 Nested vs Flat Props Structure Mismatch (High)
-
-Plans:
-- [x] 22.6-01: Expose MCP validate_contracts as CLI command with structural nesting validation
-
-#### Phase 22.7: DateTime Handling
-
-**Goal**: Improve datetime field handling with proper types instead of strings
-**Depends on**: Phase 22.6
-**Research**: Unlikely (type generator patterns established)
-
-Issues addressed:
-- #6 Inconsistent Date/Time Field Handling (Low)
-
-Plans:
-- [ ] 22.7-01: Add chrono datetime type support to TypeScript generator
-
-#### Phase 22.8: Nested Types Generation
-
-**Goal**: Generate TypeScript interfaces for all nested/referenced types used in InertiaProps, not just the page props themselves
-**Depends on**: Phase 22.7
-**Research**: Unlikely (internal patterns)
-
-Issues addressed:
-- Type Generator Missing Nested Types (High) - Props reference undefined types like UserInfo, MenuSummary, TenantInfo
-
-Plans:
-- [x] 22.8-01: Recursive nested type resolution and generation
-
-#### Phase 22.9: ValidationErrors Type
-
-**Goal**: Add dedicated ValidationErrors type that generates proper TypeScript Record<string, string[]> instead of unknown
-**Depends on**: Phase 22.8
-**Research**: Unlikely (internal patterns)
-
-Issues addressed:
-- ValidationErrors should have a dedicated type (Medium) - Avoids manual type casts in frontend forms
-
-Plans:
-- [ ] 22.9-01: ValidationErrors type handling
-
-**Deferred to future milestone:**
-- #7 Missing Animal Images Relationship (Eager Loading) - Significant feature requiring architectural work
+- [ ] 22.10-01: TBD (run /gsd:plan-phase 22.10 to break down)
 
 ---
 
@@ -197,6 +126,26 @@ Plans:
 
 ## Completed Milestones
 
+<details>
+<summary>✅ v2.0.2 Type Generator Fixes (Phases 22.4-22.9) — SHIPPED 2026-01-17</summary>
+
+**Milestone Goal:** Fix type generation issues discovered during adotta-animali port to improve TypeScript integration reliability.
+
+| Phase | Plans | Status | Completed |
+|-------|-------|--------|-----------|
+| 22.4 Type Generator Fixes | 1/1 | Complete | 2026-01-17 |
+| 22.5 Prop Naming Collisions | 1/1 | Complete | 2026-01-17 |
+| 22.6 Contract Validation CLI | 1/1 | Complete | 2026-01-17 |
+| 22.7 DateTime Handling | 1/1 | Complete | 2026-01-17 |
+| 22.8 Nested Types Generation | 1/1 | Complete | 2026-01-17 |
+| 22.9 ValidationErrors Type | 1/1 | Complete | 2026-01-17 |
+
+**Total:** 6 phases, 6 plans
+
+[Full details →](milestones/v2.0.2-ROADMAP.md)
+
+</details>
+
 ### ✅ v2.0.1 Macro Fix (Complete)
 
 **Milestone Goal:** Fix hardcoded `::ferro_rs::` paths in proc macros to use canonical `ferro::` name.
@@ -268,19 +217,15 @@ Plans:
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.2 Type Generator Fixes | 22.4-22.9 | 4/7 | 🚧 In Progress | - |
+| v2.0.2 Type Generator Fixes | 22.4-22.9 | 6 | ✅ Complete | 2026-01-17 |
+| v2.0.3 DO Apps Deploy | 22.10 | 0/? | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
-## Progress (v2.0.2 Type Generator Fixes)
+## Progress (v2.0.3 DO Apps Deploy)
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
-| 22.4. Type Generator Fixes | 1/1 | Complete | 2026-01-17 |
-| 22.5. Prop Naming Collisions | 1/1 | Complete | 2026-01-17 |
-| 22.6. Contract Validation CLI | 0/1 | Planned | - |
-| 22.7. DateTime Handling | 0/? | Not started | - |
-| 22.8. Nested Types Generation | 1/1 | Complete | 2026-01-17 |
-| 22.9. ValidationErrors Type | 0/1 | Planned | - |
+| 22.10. DigitalOcean Apps Deploy | 0/? | Not started | - |
 
 ## Progress (v2.1 JSON-UI)
 
