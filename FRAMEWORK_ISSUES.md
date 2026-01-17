@@ -87,6 +87,17 @@ pub use ferro_macros::cancer_test;
 ```
 **Should be:** `ferro_test`
 
+### 8. `ferro db:sync` generates `CancerModel` derive
+
+**Problem:** Running `ferro db:sync` generates entity files with `#[derive(CancerModel)]` instead of `#[derive(FerroModel)]`.
+
+**Impact:** Projects scaffolded from templates fail to compile until manually fixed:
+```bash
+sed -i '' 's/CancerModel/FerroModel/g' src/models/entities/*.rs
+```
+
+**Fix needed:** Update CLI templates to use `FerroModel`.
+
 ---
 
 ## Suggested Improvements
