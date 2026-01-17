@@ -1,4 +1,4 @@
-//! Database configuration for Cancer framework
+//! Database configuration for Ferro framework
 
 use crate::config::{env, env_optional};
 

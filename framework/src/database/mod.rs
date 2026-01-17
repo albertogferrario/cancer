@@ -1,4 +1,4 @@
-//! Database module for Cancer framework
+//! Database module for Ferro framework
 //!
 //! Provides a SeaORM-based ORM with Laravel-like API.
 //!

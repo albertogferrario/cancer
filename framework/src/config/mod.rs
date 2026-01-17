@@ -1,4 +1,4 @@
-//! Configuration module for Cancer framework
+//! Configuration module for Ferro framework
 //!
 //! This module provides Laravel-like configuration management including:
 //! - Automatic `.env` file loading with environment-based precedence

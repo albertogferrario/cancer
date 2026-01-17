@@ -1,10 +1,10 @@
-//! Authorization system for Cancer framework.
+//! Authorization system for Ferro framework.
 //!
 //! Provides Laravel-like authorization with Gates and Policies.
 //!
 //! # Overview
 //!
-//! Cancer authorization works through two main concepts:
+//! Ferro authorization works through two main concepts:
 //!
 //! - **Gates**: Simple closures for checking abilities not tied to specific models
 //! - **Policies**: Classes that organize authorization logic around a model

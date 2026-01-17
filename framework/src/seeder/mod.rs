@@ -1,4 +1,4 @@
-//! Database seeding for Cancer framework
+//! Database seeding for Ferro framework
 //!
 //! Provides a trait-based system for populating the database with test data,
 //! similar to Laravel's database seeders.

@@ -1,4 +1,4 @@
-//! Model traits for Cancer ORM
+//! Model traits for Ferro ORM
 //!
 //! Provides Laravel-like active record pattern over SeaORM entities.
 //!
@@ -58,7 +58,7 @@ use crate::error::FrameworkError;
 ///
 /// impl ActiveModelBehavior for ActiveModel {}
 ///
-/// // Add Cancer's Model trait
+/// // Add Ferro's Model trait
 /// impl ferro_rs::database::Model for Entity {}
 ///
 /// // Now you can use:

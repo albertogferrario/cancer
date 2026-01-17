@@ -1,4 +1,4 @@
-//! Service auto-registration for Cancer framework
+//! Service auto-registration for Ferro framework
 //!
 //! This module provides automatic service registration via macros:
 //! - `#[service(ConcreteType)]` - auto-register trait bindings

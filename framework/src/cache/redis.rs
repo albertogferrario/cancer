@@ -24,15 +24,12 @@ impl RedisCache {
             .map_err(|e| FrameworkError::internal(format!("Redis connection error: {}", e)))?;
 
         // Timeout after 2 seconds to avoid hanging when Redis is unavailable
-        let conn = tokio::time::timeout(
-            Duration::from_secs(2),
-            ConnectionManager::new(client),
-        )
-        .await
-        .map_err(|_| FrameworkError::internal("Redis connection timeout".to_string()))?
-        .map_err(|e| {
-            FrameworkError::internal(format!("Redis connection manager error: {}", e))
-        })?;
+        let conn = tokio::time::timeout(Duration::from_secs(2), ConnectionManager::new(client))
+            .await
+            .map_err(|_| FrameworkError::internal("Redis connection timeout".to_string()))?
+            .map_err(|e| {
+                FrameworkError::internal(format!("Redis connection manager error: {}", e))
+            })?;
 
         let default_ttl = if config.default_ttl > 0 {
             Some(Duration::from_secs(config.default_ttl))

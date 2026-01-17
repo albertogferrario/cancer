@@ -34,6 +34,6 @@ pub trait Validatable {
     /// Get the static rule definitions for this type.
     ///
     /// Returns a list of (field_name, rules) tuples that can be used
-    /// for introspection (e.g., by cancer-mcp).
+    /// for introspection (e.g., by ferro-mcp).
     fn validation_rules() -> Vec<(&'static str, Vec<Box<dyn Rule>>)>;
 }

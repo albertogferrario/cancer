@@ -5,7 +5,7 @@
 //!
 //! This file is NEVER overwritten by `ferro db:sync` - your custom code is safe here.
 
-// Re-export the auto-generated entity (includes CancerModel-generated boilerplate)
+// Re-export the auto-generated entity (includes FerroModel-generated boilerplate)
 pub use super::entities::todos::*;
 
 /// Type alias for convenient access

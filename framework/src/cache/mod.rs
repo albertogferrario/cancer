@@ -1,4 +1,4 @@
-//! Cache module for Cancer framework
+//! Cache module for Ferro framework
 //!
 //! Provides a Redis-backed cache with automatic in-memory fallback.
 //!

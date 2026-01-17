@@ -1,4 +1,4 @@
-//! Rate limiting middleware for Cancer framework
+//! Rate limiting middleware for Ferro framework
 //!
 //! Provides flexible rate limiting with multiple strategies and configurable limits.
 //!

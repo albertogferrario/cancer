@@ -1,4 +1,4 @@
-//! Cookie handling for Cancer framework
+//! Cookie handling for Ferro framework
 //!
 //! Provides Laravel-like cookie API with secure defaults.
 

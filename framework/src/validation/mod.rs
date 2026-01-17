@@ -1,4 +1,4 @@
-//! Request validation for Cancer framework.
+//! Request validation for Ferro framework.
 //!
 //! Provides Laravel-inspired validation with declarative rules.
 //!

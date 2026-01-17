@@ -1,10 +1,10 @@
-//! Authentication module for Cancer framework
+//! Authentication module for Ferro framework
 //!
 //! Provides Laravel-like authentication with guards and middleware.
 //!
 //! # Overview
 //!
-//! Cancer provides a simple, session-based authentication system:
+//! Ferro provides a simple, session-based authentication system:
 //!
 //! - `Auth` facade for login/logout operations
 //! - `AuthMiddleware` for protecting routes

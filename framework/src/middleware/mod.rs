@@ -1,4 +1,4 @@
-//! Middleware system for Cancer framework
+//! Middleware system for Ferro framework
 //!
 //! This module provides Laravel 12.x-style middleware support with:
 //! - Global middleware (runs on all routes)

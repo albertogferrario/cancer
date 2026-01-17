@@ -1,4 +1,4 @@
-//! Task Scheduler module for Cancer framework
+//! Task Scheduler module for Ferro framework
 //!
 //! Provides a Laravel-like task scheduling system with support for:
 //! - Trait-based tasks (implement `Task`)
@@ -68,13 +68,13 @@
 //!
 //! ```bash
 //! # Run due tasks once (for cron)
-//! cancer schedule:run
+//! ferro schedule:run
 //!
 //! # Run as daemon (continuous)
-//! cancer schedule:work
+//! ferro schedule:work
 //!
 //! # List all scheduled tasks
-//! cancer schedule:list
+//! ferro schedule:list
 //! ```
 
 pub mod builder;

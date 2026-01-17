@@ -179,15 +179,15 @@ pub use validation::{
 };
 
 // Re-export the proc-macros for compile-time component validation and type safety
-pub use ferro_macros::cancer_test;
 pub use ferro_macros::domain_error;
+pub use ferro_macros::ferro_test;
 pub use ferro_macros::handler;
 pub use ferro_macros::inertia_response;
 pub use ferro_macros::injectable;
 pub use ferro_macros::redirect;
 pub use ferro_macros::request;
 pub use ferro_macros::service;
-pub use ferro_macros::CancerModel;
+pub use ferro_macros::FerroModel;
 pub use ferro_macros::FormRequest as FormRequestDerive;
 pub use ferro_macros::InertiaProps;
 pub use ferro_macros::ValidateRules;

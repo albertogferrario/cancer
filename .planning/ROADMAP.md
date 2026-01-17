@@ -4,7 +4,7 @@
 
 - ✅ [**v1.0 DX Overhaul**](milestones/v1.0-ROADMAP.md) — Phases 1-12 (shipped 2026-01-16)
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
-- 🚧 **v2.0.1 Macro Fix** — Phase 22.1-22.2 (in progress)
+- 🚧 **v2.0.1 Macro Fix** — Phase 22.1-22.3 (in progress)
 - 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
 
 ---
@@ -116,7 +116,8 @@ Plans:
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
 | 22.1 Macro Crate Paths | 3/3 | ✅ Complete | 2026-01-17 |
-| 22.2 Simplify Macro Crate Paths | 0/1 | 📋 Planned | - |
+| 22.2 Simplify Macro Crate Paths | 1/1 | ✅ Complete | 2026-01-17 |
+| 22.3 Complete Rebrand | 0/? | 📋 Planned | - |
 
 #### Phase 22.2: Simplify Macro Crate Paths
 
@@ -131,6 +132,22 @@ Tasks:
 
 Plans:
 - [ ] 22.2-01: Remove proc-macro-crate and hardcode ferro:: paths
+
+#### Phase 22.3: Complete Cancer→Ferro Rebrand
+
+**Goal:** Fix remaining "cancer" references missed in v2.0 rebrand
+**Depends on:** Phase 22.2
+
+Issues to fix:
+- Server startup message says "Cancer server"
+- Debug endpoints use `/_cancer/` prefix
+- Session cookie defaults to "cancer_session"
+- Cache prefix defaults to "cancer_cache:"
+- Documentation comments reference "Cancer framework"
+- Test macro named `cancer_test` should be `ferro_test`
+
+Plans:
+- [ ] 22.3-01: TBD (run /gsd:plan-phase 22.3 to break down)
 
 <details>
 <summary>✅ v2.0 Rebrand (Phases 13-22) — SHIPPED 2026-01-16</summary>
@@ -190,7 +207,7 @@ Plans:
 |-----------|--------|-------|--------|---------|
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
-| v2.0.1 Macro Fix | 22.1-22.2 | 3/4 | 🚧 In Progress | - |
+| v2.0.1 Macro Fix | 22.1-22.3 | 4/? | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Progress (v2.1 JSON-UI)

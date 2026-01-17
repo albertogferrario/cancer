@@ -1,6 +1,6 @@
-//! Application builder for Cancer framework
+//! Application builder for Ferro framework
 //!
-//! Provides a fluent builder API to configure and run a Cancer application.
+//! Provides a fluent builder API to configure and run a Ferro application.
 //!
 //! # Example
 //!
@@ -31,10 +31,10 @@ use std::pin::Pin;
 /// Type alias for async bootstrap function
 type BootstrapFn = Box<dyn FnOnce() -> Pin<Box<dyn Future<Output = ()> + Send>> + Send>;
 
-/// CLI structure for Cancer applications
+/// CLI structure for Ferro applications
 #[derive(Parser)]
 #[command(name = "app")]
-#[command(about = "Cancer application server and utilities")]
+#[command(about = "Ferro application server and utilities")]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -81,9 +81,9 @@ enum Commands {
     },
 }
 
-/// Application builder for Cancer framework
+/// Application builder for Ferro framework
 ///
-/// Use this to configure and run your Cancer application with a fluent API.
+/// Use this to configure and run your Ferro application with a fluent API.
 pub struct Application<M = NoMigrator>
 where
     M: MigratorTrait,
@@ -420,16 +420,16 @@ where
         }
 
         println!("==============================================");
-        println!("  Cancer Scheduler Daemon");
+        println!("  Ferro Scheduler Daemon");
         println!("==============================================");
         println!();
-        println!("  Note: Create tasks with `cancer make:task <name>`");
+        println!("  Note: Create tasks with `ferro make:task <name>`");
         println!("  Press Ctrl+C to stop");
         println!();
         println!("==============================================");
 
         eprintln!("Scheduler daemon is not yet configured.");
-        eprintln!("Create a scheduled task with: cancer make:task <name>");
+        eprintln!("Create a scheduled task with: ferro make:task <name>");
         eprintln!("Then register it in src/schedule.rs");
     }
 
@@ -441,13 +441,13 @@ where
 
         println!("Running scheduled tasks...");
         eprintln!("Scheduler is not yet configured.");
-        eprintln!("Create a scheduled task with: cancer make:task <name>");
+        eprintln!("Create a scheduled task with: ferro make:task <name>");
     }
 
     async fn list_scheduled_tasks() {
         println!("Registered scheduled tasks:");
         println!();
         eprintln!("No scheduled tasks registered.");
-        eprintln!("Create a scheduled task with: cancer make:task <name>");
+        eprintln!("Create a scheduled task with: ferro make:task <name>");
     }
 }

@@ -10,9 +10,9 @@
 
 use proc_macro::TokenStream;
 
-mod ferro_test;
 mod describe;
 mod domain_error;
+mod ferro_test;
 mod handler;
 mod inertia;
 mod injectable;

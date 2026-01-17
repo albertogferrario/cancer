@@ -1,4 +1,4 @@
-//! CSRF protection for Cancer framework
+//! CSRF protection for Ferro framework
 //!
 //! Provides Laravel-like CSRF protection using per-session tokens.
 //!

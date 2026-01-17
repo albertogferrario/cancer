@@ -1,4 +1,4 @@
-//! Password hashing for Cancer framework
+//! Password hashing for Ferro framework
 //!
 //! Provides secure password hashing using bcrypt, the same default as Laravel.
 //!

@@ -1,4 +1,4 @@
-//! Session middleware for Cancer framework
+//! Session middleware for Ferro framework
 
 use crate::http::cookie::{Cookie, SameSite};
 use crate::http::Response;

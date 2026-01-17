@@ -1,4 +1,4 @@
-//! Session management for Cancer framework
+//! Session management for Ferro framework
 //!
 //! Provides Laravel-like session handling with database storage.
 //!

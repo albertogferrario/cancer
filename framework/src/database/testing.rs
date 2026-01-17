@@ -146,7 +146,7 @@ impl TestDatabase {
 /// Create a test database with default migrator
 ///
 /// This macro creates a `TestDatabase` using `crate::migrations::Migrator` as the
-/// default migrator. This follows the Cancer convention where migrations are defined
+/// default migrator. This follows the Ferro convention where migrations are defined
 /// in `src/migrations/mod.rs`.
 ///
 /// # Example

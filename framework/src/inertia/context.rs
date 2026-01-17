@@ -13,7 +13,7 @@ use std::collections::HashMap;
 // Re-export InertiaShared from ferro-inertia
 pub use ferro_inertia::InertiaShared;
 
-/// Implement the framework-agnostic InertiaRequest trait for Cancer's Request type.
+/// Implement the framework-agnostic InertiaRequest trait for Ferro's Request type.
 impl InertiaRequestTrait for Request {
     fn inertia_header(&self, name: &str) -> Option<&str> {
         self.header(name)
@@ -95,7 +95,7 @@ impl InertiaRequestTrait for SavedInertiaContext {
     }
 }
 
-/// Main Inertia integration struct for Cancer framework.
+/// Main Inertia integration struct for Ferro framework.
 ///
 /// Provides methods for rendering Inertia responses in an async-safe manner.
 /// All state is derived from the Request, not thread-local storage.
@@ -160,7 +160,7 @@ impl Inertia {
             config,
         );
 
-        // Convert InertiaHttpResponse to Cancer's Response
+        // Convert InertiaHttpResponse to Ferro's Response
         Ok(Self::convert_response(http_response))
     }
 

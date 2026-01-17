@@ -1,7 +1,7 @@
-//! Inertia.js integration for Cancer framework.
+//! Inertia.js integration for Ferro framework.
 //!
 //! This module provides the integration between the framework-agnostic
-//! `inertia-rs` crate and the Cancer framework's HTTP types.
+//! `inertia-rs` crate and the Ferro framework's HTTP types.
 //!
 //! # Example
 //!

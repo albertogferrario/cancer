@@ -33,7 +33,7 @@ pub struct DebugErrorResponse {
 pub fn is_debug_enabled() -> bool {
     // Disabled in production unless explicitly enabled
     if Config::is_production() {
-        return std::env::var("CANCER_DEBUG_ENDPOINTS")
+        return std::env::var("FERRO_DEBUG_ENDPOINTS")
             .map(|v| v == "true" || v == "1")
             .unwrap_or(false);
     }
@@ -50,7 +50,7 @@ fn json_response<T: Serialize>(data: T, status: u16) -> hyper::Response<Full<Byt
         .unwrap()
 }
 
-/// Handle /_cancer/routes endpoint
+/// Handle /_ferro/routes endpoint
 pub fn handle_routes() -> hyper::Response<Full<Bytes>> {
     if !is_debug_enabled() {
         return json_response(
@@ -80,7 +80,7 @@ pub struct MiddlewareInfo {
     pub global: Vec<String>,
 }
 
-/// Handle /_cancer/middleware endpoint
+/// Handle /_ferro/middleware endpoint
 pub fn handle_middleware() -> hyper::Response<Full<Bytes>> {
     if !is_debug_enabled() {
         return json_response(
@@ -104,7 +104,7 @@ pub fn handle_middleware() -> hyper::Response<Full<Bytes>> {
     )
 }
 
-/// Handle /_cancer/services endpoint
+/// Handle /_ferro/services endpoint
 pub fn handle_services() -> hyper::Response<Full<Bytes>> {
     if !is_debug_enabled() {
         return json_response(
@@ -128,7 +128,7 @@ pub fn handle_services() -> hyper::Response<Full<Bytes>> {
     )
 }
 
-/// Handle /_cancer/metrics endpoint
+/// Handle /_ferro/metrics endpoint
 pub fn handle_metrics() -> hyper::Response<Full<Bytes>> {
     if !is_debug_enabled() {
         return json_response(
@@ -163,7 +163,7 @@ pub struct QueueJobsInfo {
     pub failed: Vec<ferro_queue::FailedJobInfo>,
 }
 
-/// Handle /_cancer/queue/jobs endpoint
+/// Handle /_ferro/queue/jobs endpoint
 pub async fn handle_queue_jobs() -> hyper::Response<Full<Bytes>> {
     if !is_debug_enabled() {
         return json_response(
@@ -217,7 +217,7 @@ pub async fn handle_queue_jobs() -> hyper::Response<Full<Bytes>> {
     )
 }
 
-/// Handle /_cancer/queue/stats endpoint
+/// Handle /_ferro/queue/stats endpoint
 pub async fn handle_queue_stats() -> hyper::Response<Full<Bytes>> {
     if !is_debug_enabled() {
         return json_response(

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-16)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** v2.0.1 Macro Fix — Fix hardcoded crate paths in proc macros
+**Current focus:** v2.0.1 Macro Fix — Complete Cancer→Ferro rebrand
 
 ## Current Position
 
-Phase: 22.2 (Simplify Macro Crate Paths)
-Plan: 1 of 1 in current phase
-Status: Complete
-Last activity: 2026-01-17 — Completed PLAN-22.2-01.md
+Phase: 22.3 (Complete Cancer→Ferro Rebrand)
+Plan: 0 of ? in current phase
+Status: Not planned yet
+Last activity: 2026-01-17 — Added Phase 22.3
 
-Progress: ██████████ 100%
+Progress: ░░░░░░░░░░ 0%
 
 ## Milestone Summary
 
@@ -22,7 +22,7 @@ Progress: ██████████ 100%
 |-----------|--------|-------|--------|---------|
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
-| v2.0.1 Macro Fix | 22.1-22.2 | 4/4 | ✅ Complete | 2026-01-17 |
+| v2.0.1 Macro Fix | 22.1-22.3 | 4/? | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
@@ -45,7 +45,7 @@ Progress: ██████████ 100%
 
 ### Pending Todos
 
-None — milestone v2.0.1 complete. Ready for v2.1 JSON-UI.
+Phase 22.3 needs planning — fix remaining Cancer references from FRAMEWORK_ISSUES.md.
 
 ### Blockers/Concerns
 
@@ -61,9 +61,10 @@ None — milestone v2.0.1 complete. Ready for v2.1 JSON-UI.
 - v2.0.1 Macro Fix inserted: 2 phases (Phase 22.1-22.2) - urgent fix before v2.1
 - Phase 22.2 added: Simplify macro crate paths (undo proc-macro-crate workaround)
 - v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.1
+- Phase 22.3 added: Complete Cancer→Ferro rebrand (fix remaining references)
 
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Completed PLAN-22.2-01.md (Phase 22.2 complete, Milestone v2.0.1 complete)
+Stopped at: Added Phase 22.3 for branding cleanup
 Resume file: None
