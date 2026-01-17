@@ -631,6 +631,78 @@ ferro serve --skip-types
 
 > **Note:** Type watching is disabled in `--backend-only` mode since there's no frontend to update.
 
+### Custom Types
+
+The type generator automatically discovers structs with `#[derive(InertiaProps)]`. For nested types that don't have this derive, you have two options.
+
+#### Option 1: Manual Type Files (Recommended)
+
+Create manual TypeScript type files for complex domain types:
+
+```typescript
+// frontend/src/types/theme-config.ts
+export interface ThemeConfig {
+  primaryColor?: string;
+  fontFamily?: string;
+  borderRadius?: number;
+}
+
+export interface BottomNavConfig {
+  enabled: boolean;
+  items: NavItem[];
+}
+```
+
+Then import in your components:
+
+```tsx
+import { ThemeConfig } from '@/types/theme-config';
+import { DashboardProps } from '@/types/props';  // Auto-generated
+
+interface Props extends DashboardProps {
+  themeConfig: ThemeConfig;
+}
+```
+
+#### Option 2: Add InertiaProps Derive
+
+For shared types used in multiple props, add the derive:
+
+```rust
+#[derive(Serialize, InertiaProps)]
+pub struct ThemeConfig {
+    pub primary_color: Option<String>,
+    pub font_family: Option<String>,
+}
+```
+
+This will include ThemeConfig in the generated types.
+
+> **Note:** The generator only scans `src/` directory for InertiaProps. Types in libraries or other locations need manual definitions.
+
+### Generated Type Utilities
+
+The generated `props.d.ts` includes utility types:
+
+```typescript
+// Arbitrary JSON values
+export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
+// Validation errors
+export type ValidationErrors = Record<string, string[]>;
+```
+
+Use these in your components:
+
+```tsx
+import { JsonValue, ValidationErrors } from '@/types/props';
+
+interface FormProps {
+  errors: ValidationErrors | null;
+  metadata: JsonValue;
+}
+```
+
 ## Development vs Production
 
 ### Development Mode
