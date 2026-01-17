@@ -9,8 +9,6 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Fields, FieldsNamed};
 
-use crate::ferro_crate;
-
 /// Check if a field has the #[inject] attribute
 fn has_inject_attr(field: &syn::Field) -> bool {
     field
@@ -61,7 +59,7 @@ fn has_inject_attr(field: &syn::Field) -> bool {
 pub fn injectable_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    let ferro = ferro_crate();
+    let ferro = quote!(::ferro);
 
     let name = &input.ident;
     let name_str = name.to_string();

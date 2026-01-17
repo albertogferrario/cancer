@@ -7,8 +7,6 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, FnArg, ItemFn, Pat, Type};
 
-use crate::ferro_crate;
-
 /// Parse the macro attributes
 struct CancerTestArgs {
     migrator: Option<syn::Path>,
@@ -62,7 +60,7 @@ pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     let args = parse_macro_input!(attr as CancerTestArgs);
     let input_fn = parse_macro_input!(input as ItemFn);
 
-    let ferro = ferro_crate();
+    let ferro = quote!(::ferro);
 
     let fn_name = &input_fn.sig.ident;
     let fn_block = &input_fn.block;

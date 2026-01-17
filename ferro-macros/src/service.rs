@@ -10,8 +10,6 @@ use quote::quote;
 use syn::parse::{Parse, ParseStream};
 use syn::{parse_macro_input, Ident, ItemTrait, Path, Token};
 
-use crate::ferro_crate;
-
 /// Parsed arguments from the service attribute
 struct ServiceArgs {
     impl_type: Option<Path>,
@@ -110,7 +108,7 @@ pub fn service_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     let args = parse_macro_input!(attr as ServiceArgs);
     let mut item_trait = parse_macro_input!(input as ItemTrait);
 
-    let ferro = ferro_crate();
+    let ferro = quote!(::ferro);
 
     // Add Send + Sync + 'static to the trait's supertraits
     let send_bound: syn::TypeParamBound = syn::parse_quote!(Send);

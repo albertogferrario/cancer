@@ -4,7 +4,6 @@ use quote::quote;
 use std::path::{Path, PathBuf};
 use syn::{parse::Parse, parse::ParseStream, parse_macro_input, DeriveInput, Expr, LitStr, Token};
 
-use crate::ferro_crate;
 use crate::utils::levenshtein_distance;
 
 /// Props can be either a typed struct expression or JSON-like syntax
@@ -123,7 +122,7 @@ fn parse_rename_all(attrs: &[syn::Attribute]) -> RenameAll {
 pub fn derive_inertia_props_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    let ferro = ferro_crate();
+    let ferro = quote!(::ferro);
 
     let name = &input.ident;
     let generics = &input.generics;
@@ -188,7 +187,7 @@ pub fn derive_inertia_props_impl(input: TokenStream) -> TokenStream {
 pub fn inertia_response_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as InertiaResponseInput);
 
-    let ferro = ferro_crate();
+    let ferro = quote!(::ferro);
 
     let component_name = input.component.value();
     let component_lit = &input.component;

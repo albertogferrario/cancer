@@ -4,7 +4,6 @@ use quote::quote;
 use std::path::{Path, PathBuf};
 use syn::{parse::Parse, parse::ParseStream, parse_macro_input, LitStr};
 
-use crate::ferro_crate;
 use crate::utils::levenshtein_distance;
 
 /// Custom parser for redirect! macro
@@ -28,7 +27,7 @@ impl Parse for RedirectInput {
 pub fn redirect_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as RedirectInput);
 
-    let ferro = ferro_crate();
+    let ferro = quote!(::ferro);
 
     let route_name = input.route_name.value();
     let route_lit = &input.route_name;

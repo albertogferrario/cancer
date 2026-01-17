@@ -7,8 +7,6 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Expr, Lit, Meta};
 
-use crate::ferro_crate;
-
 /// Parse the attributes from #[domain_error(status = 404, message = "...")]
 struct DomainErrorAttrs {
     status: u16,
@@ -94,7 +92,7 @@ pub fn domain_error_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     let attrs = parse_attrs(attr);
     let input = parse_macro_input!(input as DeriveInput);
 
-    let ferro = ferro_crate();
+    let ferro = quote!(::ferro);
 
     let name = &input.ident;
     let vis = &input.vis;

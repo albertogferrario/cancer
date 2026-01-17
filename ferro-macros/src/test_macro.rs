@@ -9,8 +9,6 @@ use quote::{format_ident, quote};
 use syn::parse::{Parse, ParseStream};
 use syn::{braced, parenthesized, Ident, LitStr, Token, Type};
 
-use crate::ferro_crate;
-
 /// Convert a string to snake_case for function names
 fn to_snake_case(name: &str) -> String {
     let mut result = String::new();
@@ -127,7 +125,7 @@ pub fn test_impl(input: TokenStream) -> TokenStream {
         Err(e) => return e.to_compile_error().into(),
     };
 
-    let ferro = ferro_crate();
+    let ferro = quote!(::ferro);
 
     let name_str = args.name.value();
     let fn_name = format_ident!("{}", to_snake_case(&name_str));
