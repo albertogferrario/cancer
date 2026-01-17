@@ -44,19 +44,14 @@ impl FileMetadata {
 }
 
 /// Visibility of stored files.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Visibility {
     /// File is publicly accessible.
     Public,
     /// File is private.
+    #[default]
     Private,
-}
-
-impl Default for Visibility {
-    fn default() -> Self {
-        Self::Private
-    }
 }
 
 /// Options for storing files.
