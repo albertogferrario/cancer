@@ -5,18 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-17)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** v2.1 JSON-UI — Add JSON-based UI rendering as an alternative to Inertia
+**Current focus:** v2.1 Inertia DX & Fixes — Improve Inertia developer experience and fix documentation issues
 
 ## Current Position
 
-Phase: 33 (Inertia DX Improvements)
-Plan: 33-01, 33-02, 33-03 complete
-Status: Phase Complete
-Last activity: 2026-01-17 — Completed Plan 33-03 (Type Generation Gaps)
+Phase: 34 (Docs URL References)
+Plan: 34-01 (Fix Documentation URL References)
+Status: Ready to execute
+Last activity: 2026-01-17 — Phase 33 complete, roadmap reorganized
 
-Progress: ██████████ 100%
-
-> **Note:** Phase 33 executes before JSON-UI (23-32) as a prerequisite DX improvement.
+Progress: █████░░░░░ 50% (1/2 phases)
 
 ## Milestone Summary
 
@@ -27,7 +25,8 @@ Progress: ██████████ 100%
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.2 Type Generator Fixes | 22.4-22.9 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.3 DO Apps Deploy | 22.10 | 1 | ✅ Complete | 2026-01-17 |
-| v2.1 JSON-UI | 23-33 | 0/? | 📋 Planned | - |
+| v2.1 Inertia DX & Fixes | 33-34 | 4/4 | 📋 In Progress | - |
+| v3.0 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
 
@@ -37,10 +36,12 @@ Progress: ██████████ 100%
 |----------|--------|-----------|
 | JSON fallback opt-in | render_with_json_fallback() | Security consideration for sensitive data |
 | Accept header detection | accepts_json() on InertiaRequest trait | Framework-agnostic approach |
+| Docs URL | docs.ferro-rs.dev | Dedicated subdomain for documentation |
+| Website URL | ferro-rs.dev | Main framework website |
 
 ### Pending Todos
 
-Phase 33 (Inertia DX Improvements) complete. All 3 plans executed successfully.
+Phase 34: Fix wrong documentation URL references throughout codebase.
 
 ### Blockers/Concerns
 
@@ -56,11 +57,12 @@ Phase 33 (Inertia DX Improvements) complete. All 3 plans executed successfully.
 - v2.0.1 Macro Fix complete: 3 phases (Phase 22.1-22.3) (2026-01-17)
 - v2.0.2 Type Generator Fixes complete: 6 phases, 6 plans (Phase 22.4-22.9) (2026-01-17)
 - v2.0.3 DO Apps Deploy complete: 1 phase, 1 plan (Phase 22.10) (2026-01-17)
-- v2.1 JSON-UI ready: 11 phases (Phase 23-33) - awaiting planning
-- Phase 33 added: Inertia DX Improvements (from backlog)
+- v2.1 reorganized: Inertia DX & Fixes (Phases 33-34)
+- v3.0 created: JSON-UI (Phases 23-32) — moved from v2.1
+- Phase 34 added: Docs URL References (fix wrong URL references)
 
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Completed Plan 33-03 (Type Generation Gaps)
+Stopped at: Roadmap reorganized, Phase 34 ready to plan
 Resume file: None
