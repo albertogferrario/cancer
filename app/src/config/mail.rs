@@ -30,7 +30,7 @@ impl MailConfig {
             username: env("MAIL_USERNAME", "".to_string()),
             password: env("MAIL_PASSWORD", "".to_string()),
             from_address: env("MAIL_FROM_ADDRESS", "hello@example.com".to_string()),
-            from_name: env("MAIL_FROM_NAME", "Cancer App".to_string()),
+            from_name: env("MAIL_FROM_NAME", "Ferro App".to_string()),
         }
     }
 }

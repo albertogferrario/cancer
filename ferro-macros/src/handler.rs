@@ -135,8 +135,8 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
         // If we have a Request param, we need to handle it specially
         quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: #ferro::Request) #fn_output {
-                let __cancer_params = __cancer_req.params().clone();
+            #fn_vis #async_token fn #fn_name #fn_generics(__ferro_req: #ferro::Request) #fn_output {
+                let __ferro_params = __ferro_req.params().clone();
                 #(#extractions)*
                 #fn_block
             }
@@ -144,8 +144,8 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
     } else {
         quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: #ferro::Request) #fn_output {
-                let __cancer_params = __cancer_req.params().clone();
+            #fn_vis #async_token fn #fn_name #fn_generics(__ferro_req: #ferro::Request) #fn_output {
+                let __ferro_params = __ferro_req.params().clone();
                 #(#extractions)*
                 #fn_block
             }
@@ -174,9 +174,7 @@ fn classify_param_type(ty: &Type) -> ParamKind {
             if segments.len() == 1 && segments[0].ident == "Request" {
                 return ParamKind::Request;
             }
-            if segments.len() == 2
-                && (segments[0].ident == "ferro" || segments[0].ident == "cancer")
-                && segments[1].ident == "Request"
+            if segments.len() == 2 && segments[0].ident == "ferro" && segments[1].ident == "Request"
             {
                 return ParamKind::Request;
             }
@@ -237,14 +235,14 @@ fn generate_extraction(
             *has_request = true;
             *has_consumer = true;
             quote! {
-                let #pat: #ty = __cancer_req;
+                let #pat: #ty = __ferro_req;
             }
         }
         ParamKind::Primitive => {
             // Extract from path params using FromParam
             quote! {
                 let #pat: #ty = {
-                    let __value = __cancer_params.get(#param_name)
+                    let __value = __ferro_params.get(#param_name)
                         .ok_or_else(|| #ferro::FrameworkError::param(#param_name))?;
                     <#ty as #ferro::FromParam>::from_param(__value)?
                 };
@@ -255,7 +253,7 @@ fn generate_extraction(
             // The parameter name comes from the function signature
             quote! {
                 let #pat: #ty = {
-                    let __value = __cancer_params.get(#param_name)
+                    let __value = __ferro_params.get(#param_name)
                         .ok_or_else(|| #ferro::FrameworkError::param(#param_name))?;
                     <#ty as #ferro::AutoRouteBinding>::from_route_param(__value).await?
                 };
@@ -265,7 +263,7 @@ fn generate_extraction(
             // Use FromRequest trait (consumes request body)
             *has_consumer = true;
             quote! {
-                let #pat: #ty = <#ty as #ferro::FromRequest>::from_request(__cancer_req).await?;
+                let #pat: #ty = <#ty as #ferro::FromRequest>::from_request(__ferro_req).await?;
             }
         }
     }

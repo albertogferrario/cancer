@@ -27,10 +27,10 @@ fn ferro() -> proc_macro2::TokenStream {
 /// }
 /// ```
 ///
-/// Or with the cancer prelude which re-exports these:
+/// Or with the ferro prelude which re-exports these:
 ///
 /// ```rust,ignore
-/// use cancer::{FormRequest, Deserialize, Validate};
+/// use ferro::{FormRequest, Deserialize, Validate};
 ///
 /// #[derive(Deserialize, Validate, FormRequest)]
 /// pub struct CreateUserRequest {
@@ -60,7 +60,7 @@ pub fn derive_request_impl(input: TokenStream) -> TokenStream {
 /// the necessary derives. Just use `#[request]` and you're done:
 ///
 /// ```rust,ignore
-/// use cancer::request;
+/// use ferro::request;
 ///
 /// #[request]
 /// pub struct CreateUserRequest {

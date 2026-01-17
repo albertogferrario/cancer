@@ -34,7 +34,7 @@ pub async fn index(req: Request) -> Response {
         &req,
         "Home",
         HomeProps {
-            title: "Welcome to Cancer!".to_string(),
+            title: "Welcome to Ferro!".to_string(),
             message,
             user: User {
                 name: "John Doe".to_string(),

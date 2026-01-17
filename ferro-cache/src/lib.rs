@@ -1,6 +1,6 @@
-//! # Cancer Cache
+//! # Ferro Cache
 //!
-//! Caching with tags for the Cancer framework.
+//! Caching with tags for the Ferro framework.
 //!
 //! Provides a unified caching API with support for:
 //! - Multiple backends (Redis, in-memory)

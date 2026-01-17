@@ -1,6 +1,6 @@
-//! # Cancer Queue
+//! # Ferro Queue
 //!
-//! Background job queue system for the Cancer framework.
+//! Background job queue system for the Ferro framework.
 //!
 //! Provides a Laravel-inspired queue system with support for:
 //! - Redis-backed job queues

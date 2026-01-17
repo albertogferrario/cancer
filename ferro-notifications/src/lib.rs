@@ -1,6 +1,6 @@
-//! # Cancer Notifications
+//! # Ferro Notifications
 //!
-//! Multi-channel notification system for the Cancer framework.
+//! Multi-channel notification system for the Ferro framework.
 //!
 //! Provides a Laravel-inspired notification system with support for:
 //! - Mail notifications via SMTP

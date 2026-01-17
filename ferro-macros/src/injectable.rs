@@ -27,7 +27,7 @@ fn has_inject_attr(field: &syn::Field) -> bool {
 /// # Example - Simple (no dependencies)
 ///
 /// ```rust,ignore
-/// use cancer::injectable;
+/// use ferro::injectable;
 ///
 /// #[injectable]
 /// pub struct AppState {
@@ -42,7 +42,7 @@ fn has_inject_attr(field: &syn::Field) -> bool {
 /// # Example - With Dependencies
 ///
 /// ```rust,ignore
-/// use cancer::injectable;
+/// use ferro::injectable;
 ///
 /// #[injectable]
 /// pub struct MyService {

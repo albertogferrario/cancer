@@ -1,6 +1,6 @@
-//! # Cancer Broadcast
+//! # Ferro Broadcast
 //!
-//! WebSocket broadcasting and real-time channels for the Cancer framework.
+//! WebSocket broadcasting and real-time channels for the Ferro framework.
 //!
 //! Provides a Laravel Echo-inspired broadcasting system with support for:
 //! - Public channels (anyone can subscribe)

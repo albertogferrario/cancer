@@ -71,7 +71,7 @@ fn parse_attrs(attr: TokenStream) -> DomainErrorAttrs {
 /// # Example
 ///
 /// ```rust,ignore
-/// use cancer::domain_error;
+/// use ferro::domain_error;
 ///
 /// #[domain_error(status = 404, message = "User not found")]
 /// pub struct UserNotFoundError {

@@ -1,6 +1,6 @@
-//! # Cancer Storage
+//! # Ferro Storage
 //!
-//! File storage abstraction for the Cancer framework.
+//! File storage abstraction for the Ferro framework.
 //!
 //! Provides a unified API for working with different storage backends:
 //! - Local filesystem
