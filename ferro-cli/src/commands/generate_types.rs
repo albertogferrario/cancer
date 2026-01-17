@@ -451,6 +451,26 @@ fn compute_module_path(file_path: &Path, src_path: &Path) -> String {
         .to_string()
 }
 
+/// Generate a unique namespaced TypeScript interface name from module path and struct name.
+///
+/// Combines the module path with the struct name using PascalCase.
+///
+/// Examples:
+/// - ("shelter::applications", "ShowProps") -> "ShelterApplicationsShowProps"
+/// - ("adopter::applications", "ShowProps") -> "AdopterApplicationsShowProps"
+/// - ("user", "IndexProps") -> "UserIndexProps"
+/// - ("", "GlobalProps") -> "GlobalProps" (root-level, no namespace)
+fn generate_namespaced_name(module_path: &str, struct_name: &str) -> String {
+    if module_path.is_empty() {
+        return struct_name.to_string();
+    }
+
+    // Convert module path segments to PascalCase and join with struct name
+    let namespace: String = module_path.split("::").map(snake_to_pascal).collect();
+
+    format!("{}{}", namespace, struct_name)
+}
+
 /// Scan all Rust files for Serialize structs matching the target type names
 pub fn scan_serialize_structs(
     project_path: &Path,
@@ -502,21 +522,6 @@ pub fn scan_inertia_props(project_path: &Path) -> Vec<InertiaPropsStruct> {
     }
 
     all_structs
-}
-
-/// Convert a RustType to TypeScript type string
-fn rust_type_to_ts(ty: &RustType) -> String {
-    match ty {
-        RustType::String => "string".to_string(),
-        RustType::Number => "number".to_string(),
-        RustType::Bool => "boolean".to_string(),
-        RustType::Option(inner) => format!("{} | null", rust_type_to_ts(inner)),
-        RustType::Vec(inner) => format!("{}[]", rust_type_to_ts(inner)),
-        RustType::HashMap(key, val) => {
-            format!("Record<{}, {}>", rust_type_to_ts(key), rust_type_to_ts(val))
-        }
-        RustType::Custom(name) => name.clone(),
-    }
 }
 
 /// Sort structs topologically so dependencies come first
@@ -687,8 +692,12 @@ pub fn generate_typescript_with_options(
 ) -> String {
     let sorted = topological_sort(structs);
 
-    // Collect struct names (types defined in this file)
-    let defined_types: HashSet<String> = structs.iter().map(|s| s.name.clone()).collect();
+    // Build name mapping: original name -> namespaced name
+    // Also check for collisions
+    let name_map = build_name_map(structs);
+
+    // Collect struct names (types defined in this file) - use namespaced names
+    let defined_types: HashSet<String> = name_map.values().cloned().collect();
 
     // Parse shared.ts types
     let shared_types = project_path.map(parse_shared_types).unwrap_or_default();
@@ -734,9 +743,10 @@ pub fn generate_typescript_with_options(
     }
 
     for s in sorted {
-        output.push_str(&format!("export interface {} {{\n", s.name));
+        let interface_name = name_map.get(&s.name).unwrap_or(&s.name);
+        output.push_str(&format!("export interface {} {{\n", interface_name));
         for field in &s.fields {
-            let ts_type = rust_type_to_ts(&field.ty);
+            let ts_type = rust_type_to_ts_with_mapping(&field.ty, &name_map);
             let ts_name = apply_field_rename(field, s.rename_all);
             output.push_str(&format!("  {}: {};\n", ts_name, ts_type));
         }
@@ -744,6 +754,61 @@ pub fn generate_typescript_with_options(
     }
 
     output
+}
+
+/// Build a mapping from original struct name to namespaced TypeScript name.
+/// Detects collisions where two different structs would produce the same namespaced name.
+fn build_name_map(structs: &[InertiaPropsStruct]) -> HashMap<String, String> {
+    let mut name_map = HashMap::new();
+    let mut reverse_map: HashMap<String, Vec<(String, String)>> = HashMap::new(); // namespaced -> [(original, module_path), ...]
+
+    for s in structs {
+        let namespaced = generate_namespaced_name(&s.module_path, &s.name);
+        name_map.insert(s.name.clone(), namespaced.clone());
+        reverse_map
+            .entry(namespaced)
+            .or_default()
+            .push((s.name.clone(), s.module_path.clone()));
+    }
+
+    // Check for collisions
+    for (namespaced, sources) in &reverse_map {
+        if sources.len() > 1 {
+            let collision_info: Vec<String> = sources
+                .iter()
+                .map(|(name, path)| format!("{}::{}", path, name))
+                .collect();
+            eprintln!(
+                "Warning: TypeScript name collision detected for '{}'. Sources: {}",
+                namespaced,
+                collision_info.join(", ")
+            );
+        }
+    }
+
+    name_map
+}
+
+/// Convert RustType to TypeScript type string, applying name mapping for custom types
+fn rust_type_to_ts_with_mapping(ty: &RustType, name_map: &HashMap<String, String>) -> String {
+    match ty {
+        RustType::String => "string".to_string(),
+        RustType::Number => "number".to_string(),
+        RustType::Bool => "boolean".to_string(),
+        RustType::Option(inner) => {
+            format!("{} | null", rust_type_to_ts_with_mapping(inner, name_map))
+        }
+        RustType::Vec(inner) => format!("{}[]", rust_type_to_ts_with_mapping(inner, name_map)),
+        RustType::HashMap(k, v) => format!(
+            "Record<{}, {}>",
+            rust_type_to_ts_with_mapping(k, name_map),
+            rust_type_to_ts_with_mapping(v, name_map)
+        ),
+        RustType::Custom(name) => {
+            // Apply name mapping if this is a type we've defined
+            name_map.get(name).cloned().unwrap_or_else(|| name.clone())
+        }
+    }
 }
 
 /// Resolve all nested types referenced by InertiaProps structs
