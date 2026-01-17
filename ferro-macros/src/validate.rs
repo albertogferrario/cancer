@@ -9,6 +9,11 @@ use syn::{
     parse_macro_input, punctuated::Punctuated, Data, DeriveInput, Expr, Fields, Ident, Lit, Token,
 };
 
+/// Returns the token stream for the ferro crate path: `::ferro`
+fn ferro() -> TokenStream2 {
+    quote!(::ferro)
+}
+
 /// A single validation rule parsed from attributes
 #[derive(Debug, Clone)]
 struct ParsedRule {
@@ -90,20 +95,22 @@ pub fn validate_impl(input: TokenStream) -> TokenStream {
         }
     }
 
+    let ferro = ferro();
+
     // Generate code
-    let validate_impl = generate_validate_impl(&field_rules);
-    let rules_impl = generate_rules_impl(&field_rules);
+    let validate_impl = generate_validate_impl(&ferro, &field_rules);
+    let rules_impl = generate_rules_impl(&ferro, &field_rules);
 
     let expanded = quote! {
-        impl ferro_rs::validation::Validatable for #name
+        impl #ferro::validation::Validatable for #name
         where
             Self: ::serde::Serialize,
         {
-            fn validate(&self) -> ::std::result::Result<(), ferro_rs::validation::ValidationError> {
+            fn validate(&self) -> ::std::result::Result<(), #ferro::validation::ValidationError> {
                 #validate_impl
             }
 
-            fn validation_rules() -> ::std::vec::Vec<(&'static str, ::std::vec::Vec<::std::boxed::Box<dyn ferro_rs::validation::Rule>>)> {
+            fn validation_rules() -> ::std::vec::Vec<(&'static str, ::std::vec::Vec<::std::boxed::Box<dyn #ferro::validation::Rule>>)> {
                 #rules_impl
             }
         }
@@ -182,7 +189,7 @@ fn parse_rule_arg(expr: &Expr) -> Option<RuleArg> {
 }
 
 /// Generate the validate() method implementation
-fn generate_validate_impl(field_rules: &[FieldRules]) -> TokenStream2 {
+fn generate_validate_impl(ferro: &TokenStream2, field_rules: &[FieldRules]) -> TokenStream2 {
     if field_rules.is_empty() {
         return quote! { Ok(()) };
     }
@@ -193,24 +200,28 @@ fn generate_validate_impl(field_rules: &[FieldRules]) -> TokenStream2 {
     for fr in field_rules {
         let field_name = &fr.name;
 
-        let rule_calls: Vec<TokenStream2> = fr.rules.iter().map(generate_rule_call).collect();
+        let rule_calls: Vec<TokenStream2> = fr
+            .rules
+            .iter()
+            .map(|r| generate_rule_call(ferro, r))
+            .collect();
 
         field_validations.push(quote! {
-            validator = validator.rules(#field_name, ferro_rs::rules![#(#rule_calls),*]);
+            validator = validator.rules(#field_name, #ferro::rules![#(#rule_calls),*]);
         });
     }
 
     quote! {
         // Serialize self to JSON for validation
-        let data = ferro_rs::serde_json::to_value(self)
+        let data = #ferro::serde_json::to_value(self)
             .map_err(|e| {
-                let mut err = ferro_rs::validation::ValidationError::new();
+                let mut err = #ferro::validation::ValidationError::new();
                 err.add("_struct", format!("Failed to serialize: {}", e));
                 err
             })?;
 
         // Build validator with rules
-        let mut validator = ferro_rs::validation::Validator::new(&data);
+        let mut validator = #ferro::validation::Validator::new(&data);
         #(#field_validations)*
 
         validator.validate()
@@ -218,19 +229,19 @@ fn generate_validate_impl(field_rules: &[FieldRules]) -> TokenStream2 {
 }
 
 /// Generate a single rule function call
-fn generate_rule_call(rule: &ParsedRule) -> TokenStream2 {
+fn generate_rule_call(ferro: &TokenStream2, rule: &ParsedRule) -> TokenStream2 {
     let rule_fn = Ident::new(&rule.name, proc_macro2::Span::call_site());
 
     if rule.args.is_empty() {
-        quote! { ferro_rs::validation::#rule_fn() }
+        quote! { #ferro::validation::#rule_fn() }
     } else {
         let args = &rule.args;
-        quote! { ferro_rs::validation::#rule_fn(#(#args),*) }
+        quote! { #ferro::validation::#rule_fn(#(#args),*) }
     }
 }
 
 /// Generate the validation_rules() method implementation
-fn generate_rules_impl(field_rules: &[FieldRules]) -> TokenStream2 {
+fn generate_rules_impl(ferro: &TokenStream2, field_rules: &[FieldRules]) -> TokenStream2 {
     if field_rules.is_empty() {
         return quote! { ::std::vec::Vec::new() };
     }
@@ -244,9 +255,9 @@ fn generate_rules_impl(field_rules: &[FieldRules]) -> TokenStream2 {
             .rules
             .iter()
             .map(|rule| {
-                let call = generate_rule_call(rule);
+                let call = generate_rule_call(ferro, rule);
                 quote! {
-                    ::std::boxed::Box::new(#call) as ::std::boxed::Box<dyn ferro_rs::validation::Rule>
+                    ::std::boxed::Box::new(#call) as ::std::boxed::Box<dyn #ferro::validation::Rule>
                 }
             })
             .collect();

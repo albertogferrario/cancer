@@ -3,12 +3,21 @@
 //! Generates builder, setters, and trait implementations for Cancer models.
 
 use proc_macro::TokenStream;
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{format_ident, quote};
 use syn::{parse_macro_input, Data, DeriveInput, Fields, Type};
+
+/// Returns the token stream for the ferro crate path: `::ferro`
+fn ferro() -> TokenStream2 {
+    quote!(::ferro)
+}
 
 /// Generate model boilerplate from a SeaORM Model struct
 pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+
+    let ferro = ferro();
+
     let name = &input.ident;
 
     // Extract fields from struct
@@ -171,8 +180,8 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
     let expanded = quote! {
         impl #name {
             /// Start a new query builder
-            pub fn query() -> ferro_rs::database::QueryBuilder<Entity> {
-                ferro_rs::database::QueryBuilder::new()
+            pub fn query() -> #ferro::database::QueryBuilder<Entity> {
+                #ferro::database::QueryBuilder::new()
             }
 
             /// Create a new record builder
@@ -183,14 +192,14 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
             #(#model_setters)*
 
             /// Save changes to the database
-            pub async fn update(self) -> Result<Self, ferro_rs::FrameworkError> {
+            pub async fn update(self) -> Result<Self, #ferro::FrameworkError> {
                 let active = self.to_active_model();
-                <Entity as ferro_rs::database::ModelMut>::update_one(active).await
+                <Entity as #ferro::database::ModelMut>::update_one(active).await
             }
 
             /// Delete this record from the database
-            pub async fn delete(self) -> Result<u64, ferro_rs::FrameworkError> {
-                <Entity as ferro_rs::database::ModelMut>::delete_by_pk(self.id).await
+            pub async fn delete(self) -> Result<u64, #ferro::FrameworkError> {
+                <Entity as #ferro::database::ModelMut>::delete_by_pk(self.id).await
             }
 
             fn to_active_model(&self) -> ActiveModel {
@@ -210,9 +219,9 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
             #(#builder_setters)*
 
             /// Insert the record into the database
-            pub async fn insert(self) -> Result<#name, ferro_rs::FrameworkError> {
+            pub async fn insert(self) -> Result<#name, #ferro::FrameworkError> {
                 let active = self.build();
-                <Entity as ferro_rs::database::ModelMut>::insert_one(active).await
+                <Entity as #ferro::database::ModelMut>::insert_one(active).await
             }
 
             fn build(self) -> ActiveModel {
@@ -226,10 +235,10 @@ pub fn cancer_model_impl(input: TokenStream) -> TokenStream {
         impl sea_orm::ActiveModelBehavior for ActiveModel {}
 
         // Implement Cancer's Model trait for convenient read operations
-        impl ferro_rs::database::Model for Entity {}
+        impl #ferro::database::Model for Entity {}
 
         // Implement Cancer's ModelMut trait for write operations
-        impl ferro_rs::database::ModelMut for Entity {}
+        impl #ferro::database::ModelMut for Entity {}
     };
 
     TokenStream::from(expanded)

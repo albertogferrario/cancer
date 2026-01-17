@@ -8,6 +8,11 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{parse_macro_input, FnArg, ItemFn, Pat, Type};
 
+/// Returns the token stream for the ferro crate path: `::ferro`
+fn ferro() -> TokenStream2 {
+    quote!(::ferro)
+}
+
 /// Parameter classification for extraction strategy
 enum ParamKind {
     /// Request type - pass through unchanged
@@ -59,6 +64,8 @@ enum ParamKind {
 pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let input_fn = parse_macro_input!(input as ItemFn);
 
+    let ferro = ferro();
+
     let fn_vis = &input_fn.vis;
     let fn_name = &input_fn.sig.ident;
     let fn_generics = &input_fn.sig.generics;
@@ -80,7 +87,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
     if params.is_empty() {
         let output = quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(_: ferro_rs::Request) #fn_output {
+            #fn_vis #async_token fn #fn_name #fn_generics(_: #ferro::Request) #fn_output {
                 #fn_block
             }
         };
@@ -102,6 +109,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 let kind = classify_param_type(param_type);
 
                 let extraction = generate_extraction(
+                    &ferro,
                     param_pat,
                     param_type,
                     &param_name,
@@ -127,7 +135,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
         // If we have a Request param, we need to handle it specially
         quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: ferro_rs::Request) #fn_output {
+            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: #ferro::Request) #fn_output {
                 let __cancer_params = __cancer_req.params().clone();
                 #(#extractions)*
                 #fn_block
@@ -136,7 +144,7 @@ pub fn handler_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
     } else {
         quote! {
             #(#fn_attrs)*
-            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: ferro_rs::Request) #fn_output {
+            #fn_vis #async_token fn #fn_name #fn_generics(__cancer_req: #ferro::Request) #fn_output {
                 let __cancer_params = __cancer_req.params().clone();
                 #(#extractions)*
                 #fn_block
@@ -216,6 +224,7 @@ fn is_primitive_type_name(name: &str) -> bool {
 
 /// Generate extraction code for a parameter based on its classification
 fn generate_extraction(
+    ferro: &TokenStream2,
     pat: &Pat,
     ty: &Type,
     param_name: &str,
@@ -236,8 +245,8 @@ fn generate_extraction(
             quote! {
                 let #pat: #ty = {
                     let __value = __cancer_params.get(#param_name)
-                        .ok_or_else(|| ferro_rs::FrameworkError::param(#param_name))?;
-                    <#ty as ferro_rs::FromParam>::from_param(__value)?
+                        .ok_or_else(|| #ferro::FrameworkError::param(#param_name))?;
+                    <#ty as #ferro::FromParam>::from_param(__value)?
                 };
             }
         }
@@ -247,8 +256,8 @@ fn generate_extraction(
             quote! {
                 let #pat: #ty = {
                     let __value = __cancer_params.get(#param_name)
-                        .ok_or_else(|| ferro_rs::FrameworkError::param(#param_name))?;
-                    <#ty as ferro_rs::AutoRouteBinding>::from_route_param(__value).await?
+                        .ok_or_else(|| #ferro::FrameworkError::param(#param_name))?;
+                    <#ty as #ferro::AutoRouteBinding>::from_route_param(__value).await?
                 };
             }
         }
@@ -256,7 +265,7 @@ fn generate_extraction(
             // Use FromRequest trait (consumes request body)
             *has_consumer = true;
             quote! {
-                let #pat: #ty = <#ty as ferro_rs::FromRequest>::from_request(__cancer_req).await?;
+                let #pat: #ty = <#ty as #ferro::FromRequest>::from_request(__cancer_req).await?;
             }
         }
     }

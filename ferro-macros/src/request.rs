@@ -7,6 +7,11 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
 
+/// Returns the token stream for the ferro crate path: `::ferro`
+fn ferro() -> proc_macro2::TokenStream {
+    quote!(::ferro)
+}
+
 /// Implementation of the `#[derive(FormRequest)]` derive macro
 ///
 /// This macro generates the `FormRequest` trait implementation for a struct.
@@ -35,12 +40,15 @@ use syn::{parse_macro_input, DeriveInput};
 /// ```
 pub fn derive_request_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+
+    let ferro = ferro();
+
     let name = &input.ident;
     let generics = &input.generics;
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let output = quote! {
-        impl #impl_generics ferro_rs::FormRequest for #name #ty_generics #where_clause {}
+        impl #impl_generics #ferro::FormRequest for #name #ty_generics #where_clause {}
     };
 
     output.into()
@@ -76,7 +84,7 @@ pub fn derive_request_impl(input: TokenStream) -> TokenStream {
 ///     pub password: String,
 /// }
 ///
-/// impl ferro_rs::FormRequest for CreateUserRequest {}
+/// impl ferro::FormRequest for CreateUserRequest {}
 /// ```
 ///
 /// ## Content Type Support
@@ -88,6 +96,9 @@ pub fn derive_request_impl(input: TokenStream) -> TokenStream {
 /// The content type is automatically detected from the request headers.
 pub fn request_attr_impl(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+
+    let ferro = ferro();
+
     let name = &input.ident;
     let vis = &input.vis;
     let attrs = &input.attrs;
@@ -111,7 +122,7 @@ pub fn request_attr_impl(_attr: TokenStream, input: TokenStream) -> TokenStream 
         #[derive(serde::Deserialize, validator::Validate)]
         #vis struct #name #generics #fields
 
-        impl #impl_generics ferro_rs::FormRequest for #name #ty_generics #where_clause {}
+        impl #impl_generics #ferro::FormRequest for #name #ty_generics #where_clause {}
     };
 
     output.into()
