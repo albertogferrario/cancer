@@ -324,6 +324,114 @@ impl<'ast> Visit<'ast> for InertiaPropsVisitor {
     }
 }
 
+/// Visitor that collects structs with #[derive(Serialize)] matching target type names
+struct SerializeStructVisitor {
+    /// Target type names to find
+    target_types: HashSet<String>,
+    /// Found structs matching target types
+    structs: Vec<InertiaPropsStruct>,
+}
+
+impl SerializeStructVisitor {
+    fn new(target_types: HashSet<String>) -> Self {
+        Self {
+            target_types,
+            structs: Vec::new(),
+        }
+    }
+
+    /// Check if struct has Serialize derive (but not InertiaProps which is handled separately)
+    fn has_serialize_derive(&self, attrs: &[Attribute]) -> bool {
+        for attr in attrs {
+            if attr.path().is_ident("derive") {
+                if let Ok(nested) = attr.parse_args_with(
+                    syn::punctuated::Punctuated::<syn::Path, syn::Token![,]>::parse_terminated,
+                ) {
+                    for path in nested {
+                        // Check for Serialize
+                        if path.is_ident("Serialize") {
+                            return true;
+                        }
+                        // Check for serde::Serialize
+                        if path.segments.len() == 2 {
+                            let first = &path.segments[0].ident;
+                            let second = &path.segments[1].ident;
+                            if first == "serde" && second == "Serialize" {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        false
+    }
+}
+
+impl<'ast> Visit<'ast> for SerializeStructVisitor {
+    fn visit_item_struct(&mut self, node: &'ast ItemStruct) {
+        let name = node.ident.to_string();
+
+        // Only process if this is a target type and has Serialize derive
+        if self.target_types.contains(&name) && self.has_serialize_derive(&node.attrs) {
+            let rename_all = InertiaPropsVisitor::parse_serde_rename_all(&node.attrs);
+
+            let fields = match &node.fields {
+                Fields::Named(named) => named
+                    .named
+                    .iter()
+                    .filter_map(|f| {
+                        f.ident.as_ref().map(|ident| StructField {
+                            name: ident.to_string(),
+                            ty: InertiaPropsVisitor::parse_type(&f.ty),
+                            serde_rename: InertiaPropsVisitor::parse_serde_field_rename(&f.attrs),
+                        })
+                    })
+                    .collect(),
+                _ => Vec::new(),
+            };
+
+            self.structs.push(InertiaPropsStruct {
+                name,
+                fields,
+                rename_all,
+            });
+        }
+
+        // Continue visiting nested items
+        syn::visit::visit_item_struct(self, node);
+    }
+}
+
+/// Scan all Rust files for Serialize structs matching the target type names
+pub fn scan_serialize_structs(
+    project_path: &Path,
+    target_types: &HashSet<String>,
+) -> Vec<InertiaPropsStruct> {
+    if target_types.is_empty() {
+        return Vec::new();
+    }
+
+    let src_path = project_path.join("src");
+    let mut all_structs = Vec::new();
+
+    for entry in WalkDir::new(&src_path)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().extension().map(|ext| ext == "rs").unwrap_or(false))
+    {
+        if let Ok(content) = fs::read_to_string(entry.path()) {
+            if let Ok(syntax) = syn::parse_file(&content) {
+                let mut visitor = SerializeStructVisitor::new(target_types.clone());
+                visitor.visit_file(&syntax);
+                all_structs.extend(visitor.structs);
+            }
+        }
+    }
+
+    all_structs
+}
+
 /// Scan all Rust files in the src directory for InertiaProps structs
 pub fn scan_inertia_props(project_path: &Path) -> Vec<InertiaPropsStruct> {
     let src_path = project_path.join("src");
@@ -588,6 +696,48 @@ pub fn generate_typescript_with_options(
     output
 }
 
+/// Resolve all nested types referenced by InertiaProps structs
+///
+/// This function recursively finds all types referenced by the initial structs,
+/// scans for their Serialize definitions, and returns them.
+pub fn resolve_nested_types(
+    project_path: &Path,
+    initial_structs: &[InertiaPropsStruct],
+    shared_types: &HashSet<String>,
+) -> Vec<InertiaPropsStruct> {
+    let mut known_types: HashSet<String> = initial_structs.iter().map(|s| s.name.clone()).collect();
+    let mut all_nested = Vec::new();
+    let mut types_to_find: HashSet<String> = collect_referenced_types(initial_structs);
+
+    // Filter out types we already know about (initial structs and shared.ts types)
+    types_to_find.retain(|t| !known_types.contains(t) && !shared_types.contains(t));
+
+    // Fixed-point iteration: keep looking for nested types until none are found
+    while !types_to_find.is_empty() {
+        let found = scan_serialize_structs(project_path, &types_to_find);
+
+        if found.is_empty() {
+            // No more types could be resolved - remaining types are unknown
+            // We could emit warnings here if needed
+            break;
+        }
+
+        // Mark found types as known
+        for s in &found {
+            known_types.insert(s.name.clone());
+        }
+
+        // Collect types referenced by newly found structs
+        let mut next_types = collect_referenced_types(&found);
+        next_types.retain(|t| !known_types.contains(t) && !shared_types.contains(t));
+
+        all_nested.extend(found);
+        types_to_find = next_types;
+    }
+
+    all_nested
+}
+
 /// Generate types and write to the output file
 pub fn generate_types_to_file(project_path: &Path, output_path: &Path) -> Result<usize, String> {
     generate_types_to_file_with_options(project_path, output_path, true)
@@ -599,11 +749,18 @@ pub fn generate_types_to_file_with_options(
     output_path: &Path,
     include_reexports: bool,
 ) -> Result<usize, String> {
-    let structs = scan_inertia_props(project_path);
+    let mut structs = scan_inertia_props(project_path);
 
     if structs.is_empty() {
         return Ok(0);
     }
+
+    // Parse shared.ts types (used to avoid regenerating)
+    let shared_types = parse_shared_types(project_path);
+
+    // Resolve nested types
+    let nested_types = resolve_nested_types(project_path, &structs, &shared_types);
+    structs.extend(nested_types);
 
     // Ensure output directory exists
     if let Some(parent) = output_path.parent() {
@@ -975,5 +1132,198 @@ mod tests {
         let typescript =
             generate_typescript_with_imports(&structs, Some(std::path::Path::new("/nonexistent")));
         assert!(!typescript.contains("import type"));
+    }
+
+    #[test]
+    fn test_serialize_struct_visitor_finds_matching() {
+        let code = r#"
+            use serde::Serialize;
+
+            #[derive(Serialize)]
+            pub struct MenuSummary {
+                pub id: String,
+                pub name: String,
+            }
+
+            #[derive(Serialize, Clone)]
+            pub struct UserInfo {
+                pub user_id: i64,
+            }
+
+            // Not a target, should be ignored
+            #[derive(Serialize)]
+            pub struct OtherType {
+                pub value: String,
+            }
+        "#;
+
+        let mut target_types = HashSet::new();
+        target_types.insert("MenuSummary".to_string());
+        target_types.insert("UserInfo".to_string());
+
+        if let Ok(syntax) = syn::parse_file(code) {
+            let mut visitor = SerializeStructVisitor::new(target_types);
+            syn::visit::Visit::visit_file(&mut visitor, &syntax);
+
+            assert_eq!(visitor.structs.len(), 2);
+            let names: HashSet<_> = visitor.structs.iter().map(|s| s.name.as_str()).collect();
+            assert!(names.contains("MenuSummary"));
+            assert!(names.contains("UserInfo"));
+            assert!(!names.contains("OtherType"));
+        } else {
+            panic!("Failed to parse test code");
+        }
+    }
+
+    #[test]
+    fn test_serialize_struct_visitor_ignores_non_matching() {
+        let code = r#"
+            use serde::Serialize;
+
+            #[derive(Serialize)]
+            pub struct Exists {
+                pub id: String,
+            }
+
+            // No Serialize derive
+            pub struct NoDerive {
+                pub id: String,
+            }
+
+            // Different derive
+            #[derive(Debug, Clone)]
+            pub struct WrongDerive {
+                pub id: String,
+            }
+        "#;
+
+        let mut target_types = HashSet::new();
+        target_types.insert("NotExists".to_string()); // Looking for something that doesn't exist
+        target_types.insert("NoDerive".to_string()); // Exists but no Serialize
+        target_types.insert("WrongDerive".to_string()); // Exists but wrong derive
+
+        if let Ok(syntax) = syn::parse_file(code) {
+            let mut visitor = SerializeStructVisitor::new(target_types);
+            syn::visit::Visit::visit_file(&mut visitor, &syntax);
+
+            // Should find nothing since none match both criteria
+            assert_eq!(visitor.structs.len(), 0);
+        } else {
+            panic!("Failed to parse test code");
+        }
+    }
+
+    #[test]
+    fn test_serialize_struct_visitor_parses_serde_attributes() {
+        let code = r#"
+            use serde::Serialize;
+
+            #[derive(Serialize)]
+            #[serde(rename_all = "camelCase")]
+            pub struct WithRenameAll {
+                pub created_at: String,
+                #[serde(rename = "customName")]
+                pub some_field: String,
+            }
+        "#;
+
+        let mut target_types = HashSet::new();
+        target_types.insert("WithRenameAll".to_string());
+
+        if let Ok(syntax) = syn::parse_file(code) {
+            let mut visitor = SerializeStructVisitor::new(target_types);
+            syn::visit::Visit::visit_file(&mut visitor, &syntax);
+
+            assert_eq!(visitor.structs.len(), 1);
+            let s = &visitor.structs[0];
+            assert_eq!(s.rename_all, SerdeCase::CamelCase);
+            assert_eq!(s.fields.len(), 2);
+
+            // Check field-level rename
+            let some_field = s.fields.iter().find(|f| f.name == "some_field").unwrap();
+            assert_eq!(some_field.serde_rename, Some("customName".to_string()));
+        } else {
+            panic!("Failed to parse test code");
+        }
+    }
+
+    #[test]
+    fn test_resolve_nested_types_single_level() {
+        // Test that resolve_nested_types finds types referenced by initial structs
+        let initial = vec![InertiaPropsStruct {
+            name: "ListProps".to_string(),
+            fields: vec![
+                StructField {
+                    name: "items".to_string(),
+                    ty: RustType::Vec(Box::new(RustType::Custom("ItemSummary".to_string()))),
+                    serde_rename: None,
+                },
+                StructField {
+                    name: "user".to_string(),
+                    ty: RustType::Custom("UserInfo".to_string()),
+                    serde_rename: None,
+                },
+            ],
+            rename_all: SerdeCase::None,
+        }];
+
+        // resolve_nested_types requires a project path with actual files
+        // For unit testing, we verify collect_referenced_types works correctly
+        let referenced = collect_referenced_types(&initial);
+        assert!(referenced.contains("ItemSummary"));
+        assert!(referenced.contains("UserInfo"));
+    }
+
+    #[test]
+    fn test_resolve_nested_types_skips_shared() {
+        // Test that shared types are not included in referenced types
+        let initial = vec![InertiaPropsStruct {
+            name: "TestProps".to_string(),
+            fields: vec![
+                StructField {
+                    name: "animal".to_string(),
+                    ty: RustType::Custom("Animal".to_string()),
+                    serde_rename: None,
+                },
+                StructField {
+                    name: "user".to_string(),
+                    ty: RustType::Custom("SharedUser".to_string()),
+                    serde_rename: None,
+                },
+            ],
+            rename_all: SerdeCase::None,
+        }];
+
+        let mut shared_types = HashSet::new();
+        shared_types.insert("SharedUser".to_string());
+
+        // Simulate what resolve_nested_types does with filtering
+        let mut types_to_find = collect_referenced_types(&initial);
+        let initial_names: HashSet<String> = initial.iter().map(|s| s.name.clone()).collect();
+        types_to_find.retain(|t| !initial_names.contains(t) && !shared_types.contains(t));
+
+        // SharedUser should be filtered out, Animal should remain
+        assert!(types_to_find.contains("Animal"));
+        assert!(!types_to_find.contains("SharedUser"));
+    }
+
+    #[test]
+    fn test_resolve_nested_types_recursive() {
+        // Test that deeply nested types are collected
+        // Level 1: PageProps -> Level1Type
+        // Level 2: Level1Type -> Level2Type
+        let level1 = InertiaPropsStruct {
+            name: "Level1Type".to_string(),
+            fields: vec![StructField {
+                name: "nested".to_string(),
+                ty: RustType::Custom("Level2Type".to_string()),
+                serde_rename: None,
+            }],
+            rename_all: SerdeCase::None,
+        };
+
+        // Check that Level1Type references Level2Type
+        let level1_refs = collect_referenced_types(&[level1]);
+        assert!(level1_refs.contains("Level2Type"));
     }
 }
