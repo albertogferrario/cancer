@@ -232,6 +232,124 @@ animal.images  // Vec<AnimalImage> already loaded
 
 ---
 
+## 8. Serde rename_all Causes Silent Frontend Failures
+
+**Severity:** High
+**Component:** `InertiaProps` / type generator / documentation
+
+### Problem
+
+When using `#[serde(rename_all = "camelCase")]` on Rust structs, the JSON sent to frontend uses camelCase (`createdAt`), but the generated TypeScript types use snake_case (`created_at`). This causes **silent runtime failures** - properties appear as `undefined`, leading to cryptic errors like "Invalid time value".
+
+### Example
+
+```rust
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplicationListItem {
+    pub id: i32,
+    pub status: String,
+    pub created_at: String,  // Serialized as "createdAt"
+    pub animal: ApplicationListAnimal,
+}
+```
+
+```typescript
+// Generated TypeScript (uses snake_case)
+export interface ApplicationListItem {
+  id: number;
+  status: string;
+  created_at: string;  // Frontend expects "created_at"
+  animal: ApplicationListAnimal;
+}
+```
+
+```typescript
+// Runtime: app.created_at is undefined, app.createdAt has the value
+format(new Date(app.created_at), 'PPP')  // RangeError: Invalid time value
+```
+
+### Impact
+
+- No compile-time error
+- No runtime error message pointing to the cause
+- Hours of debugging to find the mismatch
+
+### Suggested Fixes
+
+1. **Type generator should respect serde attributes**: When generating TypeScript, read `#[serde(rename_all)]` and apply the same transformation
+2. **Convention enforcement**: Document and enforce a single convention (snake_case recommended for consistency)
+3. **Runtime validation**: Add dev-mode checks that warn when received props don't match expected types
+4. **MCP validate_contracts**: Should detect serde attribute mismatches
+
+---
+
+## 9. Nested vs Flat Props Structure Mismatch
+
+**Severity:** High
+**Component:** `InertiaProps` / type generator / validation
+
+### Problem
+
+When backend sends props as separate top-level fields but frontend expects nested structures, the mismatch causes silent runtime failures. Properties accessed via dot notation return `undefined`.
+
+### Example
+
+```rust
+// Backend sends flat structure
+#[derive(InertiaProps)]
+pub struct ShowProps {
+    pub application: ApplicationDetail,  // { id, status, created_at }
+    pub animal: ApplicationAnimal,       // Separate top-level prop
+    pub shelter: ApplicationShelter,     // Separate top-level prop
+}
+```
+
+```typescript
+// Frontend expects nested structure
+interface AdopterApplicationDetailProps {
+  application: {
+    id: number;
+    status: string;
+    created_at: string;
+    updated_at: string;  // Missing from backend!
+    animal: {            // Expected NESTED, but backend sends separately
+      id: number;
+      name: string;
+      shelter: {         // Expected NESTED inside animal
+        name: string;
+        city: string;
+      };
+    };
+  };
+}
+```
+
+```typescript
+// Runtime failure - animal is undefined inside application
+<p>{application.animal.name}</p>  // TypeError: Cannot read property 'name' of undefined
+```
+
+### Impact
+
+- No compile-time error (TypeScript types don't match actual runtime data)
+- No clear runtime error message
+- Accessing `application.animal.shelter.name` fails silently
+- Must manually compare Rust struct with TypeScript interface to find mismatch
+
+### Related Issues
+
+This is related to Issue #4 (No Props Contract Validation) but specifically about **structural nesting** rather than just missing fields.
+
+### Suggested Fixes
+
+1. **Structural validation in MCP `validate_contracts`**: Compare not just field names but the full nested structure
+2. **Type generator should preserve nesting**: When a Rust struct contains another struct, generate nested TypeScript interfaces
+3. **Dev-mode runtime validation**: In development, validate that received props match expected TypeScript structure
+4. **Lint rule**: Warn when `InertiaProps` struct has multiple fields that could be nested (e.g., `application` + `animal` + `shelter` should be `application.animal.shelter`)
+
+---
+
 ## Summary
 
 | Issue | Severity | Quick Fix Available |
@@ -243,6 +361,8 @@ animal.images  // Vec<AnimalImage> already loaded
 | Missing type re-exports | Medium | Yes - generate re-exports |
 | String datetime fields | Low | Medium - SeaORM config |
 | No eager loading | Low | No - significant feature |
+| Serde rename_all mismatch | High | Yes - type generator fix |
+| Nested vs flat props mismatch | High | Medium - structural validation |
 
 ---
 
