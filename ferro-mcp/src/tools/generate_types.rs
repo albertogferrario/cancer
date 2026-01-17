@@ -564,13 +564,15 @@ fn rust_to_typescript(rust_type: &str) -> String {
         }
     }
 
-    // Primitive types
+    // Primitive types and special framework types
     match ty {
         "String" | "&str" | "str" => "string".to_string(),
         "i8" | "i16" | "i32" | "i64" | "i128" | "isize" | "u8" | "u16" | "u32" | "u64" | "u128"
         | "usize" | "f32" | "f64" => "number".to_string(),
         "bool" => "boolean".to_string(),
         "Value" | "serde_json::Value" => "unknown".to_string(),
+        // ValidationErrors maps to Record<string, string[]>
+        "ValidationErrors" | "ferro::ValidationErrors" => "Record<string, string[]>".to_string(),
         // Custom types pass through
         _ => ty.to_string(),
     }
