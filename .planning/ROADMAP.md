@@ -45,12 +45,13 @@ Plans:
 
 #### Phase 22.6: Contract Validation CLI
 
-**Goal**: Expose MCP validate_contracts tool as a CLI command for CI integration
+**Goal**: Expose MCP validate_contracts tool as a CLI command with structural nesting validation for CI integration
 **Depends on**: Phase 22.5
 **Research**: Unlikely (MCP tool already exists)
 
 Issues addressed:
 - #4 No Props Contract Validation CLI (Medium)
+- #9 Nested vs Flat Props Structure Mismatch (High)
 
 Plans:
 - [ ] 22.6-01: TBD (run /gsd:plan-phase 22.6 to break down)
@@ -251,7 +252,7 @@ Plans:
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
-| 22.4. Type Generator Imports | 0/? | Not started | - |
+| 22.4. Type Generator Fixes | 0/? | Not started | - |
 | 22.5. Prop Naming Collisions | 0/? | Not started | - |
 | 22.6. Contract Validation CLI | 0/? | Not started | - |
 | 22.7. DateTime Handling | 0/? | Not started | - |
