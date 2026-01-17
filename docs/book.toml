@@ -14,8 +14,8 @@ default-theme = "rust"
 preferred-dark-theme = "coal"
 git-repository-url = "https://github.com/albertogferrario/ferro"
 edit-url-template = "https://github.com/albertogferrario/ferro/edit/main/docs/{path}"
-site-url = "https://ferro-rs.dev/"
-cname = "ferro-rs.dev"
+site-url = "https://docs.ferro-rs.dev/"
+cname = "docs.ferro-rs.dev"
 no-section-label = false
 
 [output.html.search]
