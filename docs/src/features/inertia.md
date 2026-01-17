@@ -656,6 +656,45 @@ The rendered HTML includes hashed assets:
 <link rel="stylesheet" href="/build/assets/main-def456.css">
 ```
 
+## JSON API Fallback
+
+For testing or API clients that need raw JSON data from Inertia routes, enable JSON fallback:
+
+```rust
+use ferro::{handler, Request, Response};
+use ferro::inertia::Inertia;
+
+#[handler]
+pub async fn show(req: Request, post: Post) -> Response {
+    Inertia::render_with_json_fallback(&req, "Posts/Show", ShowProps { post })
+}
+```
+
+When enabled:
+- Requests with `X-Inertia: true` header → Normal Inertia JSON response
+- Requests with `Accept: application/json` (no X-Inertia) → Raw props as JSON
+- Browser requests → Full HTML page
+
+This is useful for:
+- API testing with curl or Postman
+- Hybrid apps that sometimes need raw JSON
+- Debug tooling
+
+Example with curl:
+
+```bash
+# Get raw JSON props
+curl -H "Accept: application/json" http://localhost:3000/posts/1
+
+# Get normal Inertia response
+curl -H "X-Inertia: true" http://localhost:3000/posts/1
+
+# Get HTML page
+curl http://localhost:3000/posts/1
+```
+
+> **Note:** This is opt-in per route. Consider security implications before enabling on routes that return sensitive data.
+
 ## Example: Complete CRUD
 
 ### Routes

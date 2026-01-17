@@ -155,7 +155,11 @@ impl Inertia {
     ///     "post": { "id": 1, "title": "Hello" }
     /// }));
     /// ```
-    pub fn render_with_json_fallback<R, P>(req: &R, component: &str, props: P) -> InertiaHttpResponse
+    pub fn render_with_json_fallback<R, P>(
+        req: &R,
+        component: &str,
+        props: P,
+    ) -> InertiaHttpResponse
     where
         R: InertiaRequest,
         P: Serialize,
