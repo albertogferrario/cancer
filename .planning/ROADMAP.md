@@ -16,15 +16,16 @@
 
 **Source:** [.planning/backlog/adotta-animali-issues.md](backlog/adotta-animali-issues.md)
 
-#### Phase 22.4: Type Generator Imports
+#### Phase 22.4: Type Generator Fixes
 
-**Goal**: Fix missing shared.ts imports and type re-exports in generated TypeScript files
+**Goal**: Fix missing shared.ts imports, type re-exports, and serde attribute handling in generated TypeScript files
 **Depends on**: v2.0.1 complete
 **Research**: Unlikely (internal patterns)
 
 Issues addressed:
 - #1 Type Generator: Missing Imports from shared.ts (High)
 - #5 Type Re-exports Not Generated (Medium)
+- #8 Serde rename_all Causes Silent Frontend Failures (High)
 
 Plans:
 - [ ] 22.4-01: TBD (run /gsd:plan-phase 22.4 to break down)

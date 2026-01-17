@@ -9,7 +9,7 @@ See: .planning/PROJECT.md (updated 2026-01-16)
 
 ## Current Position
 
-Phase: 22.4 (Type Generator Imports)
+Phase: 22.4 (Type Generator Fixes)
 Plan: Not started
 Status: Ready to plan
 Last activity: 2026-01-17 — Milestone v2.0.2 created
