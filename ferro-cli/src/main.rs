@@ -6,6 +6,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "ferro")]
+#[command(version)]
 #[command(about = "A CLI for scaffolding Ferro web applications", long_about = None)]
 struct Cli {
     #[command(subcommand)]
