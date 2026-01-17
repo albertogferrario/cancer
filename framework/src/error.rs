@@ -3,6 +3,7 @@
 //! Provides a unified error type that can be used throughout the framework
 //! and automatically converts to appropriate HTTP responses.
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -157,9 +158,10 @@ impl From<AppError> for FrameworkError {
 ///     }
 /// }
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValidationErrors {
     /// Map of field names to their validation error messages
+    #[serde(flatten)]
     pub errors: HashMap<String, Vec<String>>,
 }
 
