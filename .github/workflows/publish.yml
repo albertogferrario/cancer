@@ -148,15 +148,18 @@ jobs:
 
           for crate in $WAVE1_CRATES; do
             echo "Publishing $crate..."
-            cargo publish -p $crate --no-verify || {
-              # Check if it's because version already exists
-              if cargo publish -p $crate --no-verify 2>&1 | grep -q "already uploaded"; then
+            # Capture output to check for "already exists" error
+            if OUTPUT=$(cargo publish -p $crate --no-verify 2>&1); then
+              echo "$crate published successfully"
+            else
+              if echo "$OUTPUT" | grep -q "already exists\|already uploaded"; then
                 echo "$crate already published, skipping"
               else
                 echo "Failed to publish $crate"
+                echo "$OUTPUT"
                 exit 1
               fi
-            }
+            fi
             # Small delay to avoid rate limiting
             sleep 5
           done
@@ -175,14 +178,17 @@ jobs:
 
           for crate in $WAVE2_CRATES; do
             echo "Publishing $crate..."
-            cargo publish -p $crate --no-verify || {
-              if cargo publish -p $crate --no-verify 2>&1 | grep -q "already uploaded"; then
+            if OUTPUT=$(cargo publish -p $crate --no-verify 2>&1); then
+              echo "$crate published successfully"
+            else
+              if echo "$OUTPUT" | grep -q "already exists\|already uploaded"; then
                 echo "$crate already published, skipping"
               else
                 echo "Failed to publish $crate"
+                echo "$OUTPUT"
                 exit 1
               fi
-            }
+            fi
             sleep 5
           done
 
@@ -194,14 +200,17 @@ jobs:
       - name: Publish Wave 3 (CLI)
         run: |
           echo "Publishing ferro-cli..."
-          cargo publish -p ferro-cli --no-verify || {
-            if cargo publish -p ferro-cli --no-verify 2>&1 | grep -q "already uploaded"; then
+          if OUTPUT=$(cargo publish -p ferro-cli --no-verify 2>&1); then
+            echo "ferro-cli published successfully"
+          else
+            if echo "$OUTPUT" | grep -q "already exists\|already uploaded"; then
               echo "ferro-cli already published, skipping"
             else
               echo "Failed to publish ferro-cli"
+              echo "$OUTPUT"
               exit 1
             fi
-          }
+          fi
 
       - name: Create and push tag
         run: |
