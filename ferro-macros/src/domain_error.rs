@@ -7,6 +7,8 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Expr, Lit, Meta};
 
+use crate::ferro_crate;
+
 /// Parse the attributes from #[domain_error(status = 404, message = "...")]
 struct DomainErrorAttrs {
     status: u16,
@@ -92,6 +94,8 @@ pub fn domain_error_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     let attrs = parse_attrs(attr);
     let input = parse_macro_input!(input as DeriveInput);
 
+    let ferro = ferro_crate();
+
     let name = &input.ident;
     let vis = &input.vis;
     let user_attrs = &input.attrs;
@@ -134,7 +138,7 @@ pub fn domain_error_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
 
                 impl #impl_generics ::std::error::Error for #name #ty_generics #where_clause {}
 
-                impl #impl_generics ::ferro_rs::HttpError for #name #ty_generics #where_clause {
+                impl #impl_generics #ferro::HttpError for #name #ty_generics #where_clause {
                     fn status_code(&self) -> u16 {
                         #status_code
                     }
@@ -144,9 +148,9 @@ pub fn domain_error_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
                     }
                 }
 
-                impl #impl_generics ::std::convert::From<#name #ty_generics> for ::ferro_rs::FrameworkError #where_clause {
+                impl #impl_generics ::std::convert::From<#name #ty_generics> for #ferro::FrameworkError #where_clause {
                     fn from(e: #name #ty_generics) -> Self {
-                        ::ferro_rs::FrameworkError::Domain {
+                        #ferro::FrameworkError::Domain {
                             message: e.to_string(),
                             status_code: #status_code,
                         }
