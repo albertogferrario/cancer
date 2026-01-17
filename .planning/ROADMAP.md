@@ -7,7 +7,7 @@
 - ✅ **v2.0.1 Macro Fix** — Phase 22.1-22.3 (shipped 2026-01-17)
 - ✅ [**v2.0.2 Type Generator Fixes**](milestones/v2.0.2-ROADMAP.md) — Phase 22.4-22.9 (shipped 2026-01-17)
 - ✅ [**v2.0.3 DO Apps Deploy**](milestones/v2.0.3-ROADMAP.md) — Phase 22.10 (shipped 2026-01-17)
-- 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
+- 📋 **v2.1 JSON-UI** — Phases 23-33 (planned)
 
 ---
 
@@ -106,6 +106,24 @@ Plans:
 
 Plans:
 - [ ] 32-01: TBD
+
+#### Phase 33: Inertia DX Improvements
+
+**Goal**: Improve Inertia developer experience with shared props, better documentation, and type generation enhancements
+**Depends on**: Phase 32
+**Research**: Unlikely (internal patterns)
+
+Issues to address:
+1. ~~Shared Props Mechanism~~ - Deferred (InertiaShared middleware pattern already documented)
+2. SavedInertiaContext Documentation - Prominent docs for request body consumption pattern
+3. Auto Type Generation - File watcher option for `ferro serve --watch-types`
+4. JSON Accept Header Handling - Optional raw JSON fallback for API clients
+5. Type Generation Gaps - JsonValue type, ValidationErrors export
+
+Plans:
+- [ ] 33-01: Quick Wins (SavedInertiaContext docs, JSON fallback)
+- [ ] 33-02: Auto Type Generation (--watch-types flag)
+- [ ] 33-03: Type Generation Gaps (JsonValue, ValidationErrors, custom types docs)
 
 ---
 
@@ -219,7 +237,7 @@ Plans:
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.2 Type Generator Fixes | 22.4-22.9 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.3 DO Apps Deploy | 22.10 | 1 | ✅ Complete | 2026-01-17 |
-| v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
+| v2.1 JSON-UI | 23-33 | 0/? | 📋 Planned | - |
 
 ## Progress (v2.1 JSON-UI)
 
@@ -235,3 +253,4 @@ Plans:
 | 30. CLI Scaffolding | 0/? | Not started | - |
 | 31. MCP UI Tools | 0/? | Not started | - |
 | 32. Documentation | 0/? | Not started | - |
+| 33. Inertia DX Improvements | 0/3 | Planned | - |
