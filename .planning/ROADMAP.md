@@ -7,12 +7,12 @@
 - ✅ **v2.0.1 Macro Fix** — Phase 22.1-22.3 (shipped 2026-01-17)
 - ✅ [**v2.0.2 Type Generator Fixes**](milestones/v2.0.2-ROADMAP.md) — Phase 22.4-22.9 (shipped 2026-01-17)
 - ✅ [**v2.0.3 DO Apps Deploy**](milestones/v2.0.3-ROADMAP.md) — Phase 22.10 (shipped 2026-01-17)
-- 📋 **v2.1 Inertia DX & Fixes** — Phases 33-34 (in progress)
+- ✅ **v2.1 Inertia DX & Fixes** — Phases 33-34 (shipped 2026-01-17)
 - 📋 **v3.0 JSON-UI** — Phases 23-32 (planned)
 
 ---
 
-### 📋 v2.1 Inertia DX & Fixes (Current)
+### ✅ v2.1 Inertia DX & Fixes (Complete)
 
 **Milestone Goal:** Improve Inertia developer experience and fix documentation issues.
 
@@ -34,14 +34,14 @@ Plans:
 - [x] 33-02: Auto Type Generation (on by default, --no-watch-types to disable)
 - [x] 33-03: Type Generation Gaps (JsonValue, ValidationErrors, custom types docs)
 
-#### Phase 34: Docs URL References
+#### Phase 34: Docs URL References ✅
 
 **Goal**: Update wrong documentation URL references (docs.ferro-rs.dev for docs, ferro-rs.dev for website)
 **Depends on**: None (independent fix)
 **Research**: Unlikely (find and replace)
 
 Plans:
-- [ ] 34-01: Fix Documentation URL References
+- [x] 34-01: Fix Documentation URL References
 
 ---
 
@@ -253,7 +253,7 @@ Plans:
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.2 Type Generator Fixes | 22.4-22.9 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.3 DO Apps Deploy | 22.10 | 1 | ✅ Complete | 2026-01-17 |
-| v2.1 Inertia DX & Fixes | 33-34 | 4/4 | 📋 In Progress | - |
+| v2.1 Inertia DX & Fixes | 33-34 | 4/4 | ✅ Complete | 2026-01-17 |
 | v3.0 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Progress (v2.1 Inertia DX & Fixes)
@@ -261,4 +261,4 @@ Plans:
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
 | **33. Inertia DX Improvements** | **3/3** | **✅ Complete** | 2026-01-17 |
-| 34. Docs URL References | 0/1 | Planned | - |
+| **34. Docs URL References** | **1/1** | **✅ Complete** | 2026-01-17 |
