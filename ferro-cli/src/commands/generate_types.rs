@@ -3,20 +3,99 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 use syn::visit::Visit;
-use syn::{Attribute, Fields, GenericArgument, ItemStruct, PathArguments, Type};
+use syn::{Attribute, Fields, GenericArgument, ItemStruct, Meta, PathArguments, Type};
 use walkdir::WalkDir;
+
+/// Serde rename_all case transformation
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum SerdeCase {
+    #[default]
+    None,
+    CamelCase,
+    SnakeCase,
+    PascalCase,
+    ScreamingSnakeCase,
+    KebabCase,
+}
+
+impl SerdeCase {
+    /// Parse from serde attribute value
+    fn from_str(s: &str) -> Self {
+        match s {
+            "camelCase" => Self::CamelCase,
+            "snake_case" => Self::SnakeCase,
+            "PascalCase" => Self::PascalCase,
+            "SCREAMING_SNAKE_CASE" => Self::ScreamingSnakeCase,
+            "kebab-case" => Self::KebabCase,
+            _ => Self::None,
+        }
+    }
+
+    /// Apply case transformation to a field name
+    fn apply(&self, name: &str) -> String {
+        match self {
+            Self::None | Self::SnakeCase => name.to_string(),
+            Self::CamelCase => snake_to_camel(name),
+            Self::PascalCase => snake_to_pascal(name),
+            Self::ScreamingSnakeCase => name.to_uppercase(),
+            Self::KebabCase => name.replace('_', "-"),
+        }
+    }
+}
+
+/// Convert snake_case to camelCase
+fn snake_to_camel(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = false;
+
+    for c in s.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.push(c.to_ascii_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}
+
+/// Convert snake_case to PascalCase
+fn snake_to_pascal(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = true;
+
+    for c in s.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.push(c.to_ascii_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}
 
 /// Represents a parsed InertiaProps struct
 #[derive(Debug, Clone)]
 pub struct InertiaPropsStruct {
     pub name: String,
     pub fields: Vec<StructField>,
+    /// Serde rename_all attribute on the struct
+    pub rename_all: SerdeCase,
 }
 
 #[derive(Debug, Clone)]
 pub struct StructField {
     pub name: String,
     pub ty: RustType,
+    /// Per-field serde rename override
+    pub serde_rename: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -67,6 +146,82 @@ impl InertiaPropsVisitor {
         false
     }
 
+    /// Parse #[serde(rename_all = "...")] from struct attributes
+    fn parse_serde_rename_all(attrs: &[Attribute]) -> SerdeCase {
+        for attr in attrs {
+            if attr.path().is_ident("serde") {
+                if let Meta::List(meta_list) = &attr.meta {
+                    // Parse the token stream to find rename_all = "value"
+                    let tokens_str = meta_list.tokens.to_string();
+                    if let Some(rename_all) = parse_serde_rename_all_value(&tokens_str) {
+                        return SerdeCase::from_str(&rename_all);
+                    }
+                }
+            }
+        }
+        SerdeCase::None
+    }
+
+    /// Parse #[serde(rename = "...")] from field attributes
+    fn parse_serde_field_rename(attrs: &[Attribute]) -> Option<String> {
+        for attr in attrs {
+            if attr.path().is_ident("serde") {
+                if let Meta::List(meta_list) = &attr.meta {
+                    let tokens_str = meta_list.tokens.to_string();
+                    if let Some(rename) = parse_serde_rename_value(&tokens_str) {
+                        return Some(rename);
+                    }
+                }
+            }
+        }
+        None
+    }
+}
+
+/// Parse rename_all = "value" from serde attribute tokens
+fn parse_serde_rename_all_value(tokens: &str) -> Option<String> {
+    // Look for rename_all = "..."
+    if let Some(start) = tokens.find("rename_all") {
+        let rest = &tokens[start..];
+        // Find the value between quotes
+        if let Some(quote_start) = rest.find('"') {
+            let after_quote = &rest[quote_start + 1..];
+            if let Some(quote_end) = after_quote.find('"') {
+                return Some(after_quote[..quote_end].to_string());
+            }
+        }
+    }
+    None
+}
+
+/// Parse rename = "value" from serde attribute tokens (but not rename_all)
+fn parse_serde_rename_value(tokens: &str) -> Option<String> {
+    // Look for "rename" followed by "=" but not "rename_all"
+    let mut search_from = 0;
+    while let Some(pos) = tokens[search_from..].find("rename") {
+        let actual_pos = search_from + pos;
+        let rest = &tokens[actual_pos..];
+        // Check if it's "rename_all"
+        if rest.starts_with("rename_all") {
+            search_from = actual_pos + 10;
+            continue;
+        }
+        // Find the value between quotes after =
+        if let Some(eq_pos) = rest.find('=') {
+            let after_eq = &rest[eq_pos..];
+            if let Some(quote_start) = after_eq.find('"') {
+                let after_quote = &after_eq[quote_start + 1..];
+                if let Some(quote_end) = after_quote.find('"') {
+                    return Some(after_quote[..quote_end].to_string());
+                }
+            }
+        }
+        break;
+    }
+    None
+}
+
+impl InertiaPropsVisitor {
     fn parse_type(ty: &Type) -> RustType {
         match ty {
             Type::Path(type_path) => {
@@ -140,6 +295,7 @@ impl<'ast> Visit<'ast> for InertiaPropsVisitor {
     fn visit_item_struct(&mut self, node: &'ast ItemStruct) {
         if self.has_inertia_props_derive(&node.attrs) {
             let name = node.ident.to_string();
+            let rename_all = Self::parse_serde_rename_all(&node.attrs);
 
             let fields = match &node.fields {
                 Fields::Named(named) => named
@@ -149,13 +305,18 @@ impl<'ast> Visit<'ast> for InertiaPropsVisitor {
                         f.ident.as_ref().map(|ident| StructField {
                             name: ident.to_string(),
                             ty: Self::parse_type(&f.ty),
+                            serde_rename: Self::parse_serde_field_rename(&f.attrs),
                         })
                     })
                     .collect(),
                 _ => Vec::new(),
             };
 
-            self.structs.push(InertiaPropsStruct { name, fields });
+            self.structs.push(InertiaPropsStruct {
+                name,
+                fields,
+                rename_all,
+            });
         }
 
         // Continue visiting nested items
@@ -269,6 +430,17 @@ fn collect_type_deps(ty: &RustType, deps: &mut HashSet<String>, known: &HashSet<
 }
 
 /// Generate TypeScript interfaces from the structs
+/// Apply serde renaming to get the final TypeScript field name
+fn apply_field_rename(field: &StructField, rename_all: SerdeCase) -> String {
+    // Per-field rename takes precedence over rename_all
+    if let Some(ref rename) = field.serde_rename {
+        return rename.clone();
+    }
+    // Apply struct-level rename_all
+    rename_all.apply(&field.name)
+}
+
+/// Generate TypeScript interfaces from the structs
 pub fn generate_typescript(structs: &[InertiaPropsStruct]) -> String {
     let sorted = topological_sort(structs);
 
@@ -280,7 +452,8 @@ pub fn generate_typescript(structs: &[InertiaPropsStruct]) -> String {
         output.push_str(&format!("export interface {} {{\n", s.name));
         for field in &s.fields {
             let ts_type = rust_type_to_ts(&field.ty);
-            output.push_str(&format!("  {}: {};\n", field.name, ts_type));
+            let ts_name = apply_field_rename(field, s.rename_all);
+            output.push_str(&format!("  {}: {};\n", ts_name, ts_type));
         }
         output.push_str("}\n\n");
     }
@@ -451,5 +624,148 @@ fn start_watcher(project_path: &Path, output_path: &Path) -> Result<(), String> 
                 return Err(format!("Watch error: {}", e));
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_snake_to_camel() {
+        assert_eq!(snake_to_camel("created_at"), "createdAt");
+        assert_eq!(snake_to_camel("user_id"), "userId");
+        assert_eq!(snake_to_camel("some_long_name"), "someLongName");
+        assert_eq!(snake_to_camel("name"), "name");
+    }
+
+    #[test]
+    fn test_snake_to_pascal() {
+        assert_eq!(snake_to_pascal("created_at"), "CreatedAt");
+        assert_eq!(snake_to_pascal("user_id"), "UserId");
+        assert_eq!(snake_to_pascal("some_long_name"), "SomeLongName");
+        assert_eq!(snake_to_pascal("name"), "Name");
+    }
+
+    #[test]
+    fn test_serde_case_apply() {
+        assert_eq!(SerdeCase::CamelCase.apply("created_at"), "createdAt");
+        assert_eq!(SerdeCase::PascalCase.apply("created_at"), "CreatedAt");
+        assert_eq!(
+            SerdeCase::ScreamingSnakeCase.apply("created_at"),
+            "CREATED_AT"
+        );
+        assert_eq!(SerdeCase::KebabCase.apply("created_at"), "created-at");
+        assert_eq!(SerdeCase::None.apply("created_at"), "created_at");
+        assert_eq!(SerdeCase::SnakeCase.apply("created_at"), "created_at");
+    }
+
+    #[test]
+    fn test_serde_case_from_str() {
+        assert_eq!(SerdeCase::from_str("camelCase"), SerdeCase::CamelCase);
+        assert_eq!(SerdeCase::from_str("PascalCase"), SerdeCase::PascalCase);
+        assert_eq!(
+            SerdeCase::from_str("SCREAMING_SNAKE_CASE"),
+            SerdeCase::ScreamingSnakeCase
+        );
+        assert_eq!(SerdeCase::from_str("kebab-case"), SerdeCase::KebabCase);
+        assert_eq!(SerdeCase::from_str("snake_case"), SerdeCase::SnakeCase);
+        assert_eq!(SerdeCase::from_str("unknown"), SerdeCase::None);
+    }
+
+    #[test]
+    fn test_parse_serde_rename_all_value() {
+        let tokens = r#"rename_all = "camelCase""#;
+        assert_eq!(
+            parse_serde_rename_all_value(tokens),
+            Some("camelCase".to_string())
+        );
+
+        let tokens = r#"derive(Serialize), rename_all = "PascalCase""#;
+        assert_eq!(
+            parse_serde_rename_all_value(tokens),
+            Some("PascalCase".to_string())
+        );
+
+        let tokens = r#"skip_serializing"#;
+        assert_eq!(parse_serde_rename_all_value(tokens), None);
+    }
+
+    #[test]
+    fn test_parse_serde_rename_value() {
+        let tokens = r#"rename = "customName""#;
+        assert_eq!(
+            parse_serde_rename_value(tokens),
+            Some("customName".to_string())
+        );
+
+        // Should not match rename_all
+        let tokens = r#"rename_all = "camelCase""#;
+        assert_eq!(parse_serde_rename_value(tokens), None);
+
+        // Should find rename after rename_all
+        let tokens = r#"rename_all = "camelCase", rename = "custom""#;
+        assert_eq!(parse_serde_rename_value(tokens), Some("custom".to_string()));
+    }
+
+    #[test]
+    fn test_apply_field_rename() {
+        let field = StructField {
+            name: "created_at".to_string(),
+            ty: RustType::String,
+            serde_rename: None,
+        };
+
+        // With camelCase rename_all
+        assert_eq!(
+            apply_field_rename(&field, SerdeCase::CamelCase),
+            "createdAt"
+        );
+
+        // With explicit rename override
+        let field_with_rename = StructField {
+            name: "created_at".to_string(),
+            ty: RustType::String,
+            serde_rename: Some("customField".to_string()),
+        };
+        assert_eq!(
+            apply_field_rename(&field_with_rename, SerdeCase::CamelCase),
+            "customField"
+        );
+    }
+
+    #[test]
+    fn test_generate_typescript_with_serde() {
+        let structs = vec![InertiaPropsStruct {
+            name: "TestProps".to_string(),
+            fields: vec![
+                StructField {
+                    name: "user_id".to_string(),
+                    ty: RustType::Number,
+                    serde_rename: None,
+                },
+                StructField {
+                    name: "created_at".to_string(),
+                    ty: RustType::String,
+                    serde_rename: None,
+                },
+                StructField {
+                    name: "special_field".to_string(),
+                    ty: RustType::String,
+                    serde_rename: Some("overridden".to_string()),
+                },
+            ],
+            rename_all: SerdeCase::CamelCase,
+        }];
+
+        let typescript = generate_typescript(&structs);
+
+        assert!(typescript.contains("userId: number;"));
+        assert!(typescript.contains("createdAt: string;"));
+        assert!(typescript.contains("overridden: string;"));
+        // Should NOT contain snake_case versions
+        assert!(!typescript.contains("user_id:"));
+        assert!(!typescript.contains("created_at:"));
+        assert!(!typescript.contains("special_field:"));
     }
 }

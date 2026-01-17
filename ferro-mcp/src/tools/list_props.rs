@@ -28,6 +28,8 @@ pub struct PropsStruct {
     pub typescript: String,
     /// Components that use this props struct
     pub used_by_components: Vec<String>,
+    /// Serde rename_all attribute value (e.g., "camelCase")
+    pub serde_rename_all: Option<String>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -36,6 +38,8 @@ pub struct PropsField {
     pub rust_type: String,
     pub typescript_type: String,
     pub optional: bool,
+    /// Per-field serde rename override
+    pub serde_rename: Option<String>,
 }
 
 pub fn execute(project_root: &Path, filter: Option<&str>) -> Result<ListPropsResult> {
@@ -105,8 +109,21 @@ fn find_inertia_props_structs(
     // Pattern to find struct definition
     let struct_pattern = Regex::new(r#"(?:pub\s+)?struct\s+(\w+)\s*\{"#).unwrap();
 
+    // Pattern to find #[serde(rename_all = "...")]
+    let rename_all_pattern =
+        Regex::new(r#"#\[serde\([^\)]*rename_all\s*=\s*"([^"]+)"[^\)]*\)\]"#).unwrap();
+
     for (i, line) in lines.iter().enumerate() {
         if derive_pattern.is_match(line) {
+            // Look for serde(rename_all) between derive and struct
+            let mut serde_rename_all = None;
+            for line in lines.iter().take(std::cmp::min(i + 5, lines.len())).skip(i) {
+                if let Some(cap) = rename_all_pattern.captures(line) {
+                    serde_rename_all = Some(cap.get(1).unwrap().as_str().to_string());
+                    break;
+                }
+            }
+
             // Look for struct definition in next few lines
             for j in (i + 1)..std::cmp::min(i + 5, lines.len()) {
                 if let Some(cap) = struct_pattern.captures(lines[j]) {
@@ -115,7 +132,11 @@ fn find_inertia_props_structs(
                     // Extract struct body
                     if let Some(struct_body) = extract_struct_body(&lines, j) {
                         let fields = parse_struct_fields(&struct_body);
-                        let typescript = generate_typescript_interface(&name, &fields);
+                        let typescript = generate_typescript_interface(
+                            &name,
+                            &fields,
+                            serde_rename_all.as_deref(),
+                        );
 
                         let relative_path = file_path
                             .strip_prefix(project_root)
@@ -130,6 +151,7 @@ fn find_inertia_props_structs(
                             fields,
                             typescript,
                             used_by_components: Vec::new(),
+                            serde_rename_all,
                         });
                     }
                     break;
@@ -175,30 +197,49 @@ fn parse_struct_fields(body: &str) -> Vec<PropsField> {
     // Pattern: pub field_name: Type, or field_name: Type,
     let field_pattern = Regex::new(r#"(?:pub\s+)?(\w+)\s*:\s*([^,\n]+)"#).unwrap();
 
-    for cap in field_pattern.captures_iter(body) {
-        let name = cap
-            .get(1)
-            .map(|m| m.as_str().to_string())
-            .unwrap_or_default();
-        let rust_type = cap
-            .get(2)
-            .map(|m| m.as_str().trim().to_string())
-            .unwrap_or_default();
+    // Pattern for #[serde(rename = "...")] - to detect field renames
+    let rename_pattern = Regex::new(r#"#\[serde\([^\)]*rename\s*=\s*"([^"]+)"[^\)]*\)\]"#).unwrap();
 
-        // Skip if it looks like an attribute or comment
-        if name.starts_with('#') || name.starts_with('/') || name.is_empty() {
+    let lines: Vec<&str> = body.lines().collect();
+    let mut pending_rename: Option<String> = None;
+
+    for line in &lines {
+        // Check for serde rename attribute
+        if let Some(cap) = rename_pattern.captures(line) {
+            // Make sure it's not rename_all
+            if !line.contains("rename_all") {
+                pending_rename = Some(cap.get(1).unwrap().as_str().to_string());
+            }
             continue;
         }
 
-        let optional = rust_type.starts_with("Option<");
-        let typescript_type = rust_to_typescript(&rust_type);
+        // Check for field definition
+        if let Some(cap) = field_pattern.captures(line) {
+            let name = cap
+                .get(1)
+                .map(|m| m.as_str().to_string())
+                .unwrap_or_default();
+            let rust_type = cap
+                .get(2)
+                .map(|m| m.as_str().trim().to_string())
+                .unwrap_or_default();
 
-        fields.push(PropsField {
-            name,
-            rust_type,
-            typescript_type,
-            optional,
-        });
+            // Skip if it looks like an attribute or comment
+            if name.starts_with('#') || name.starts_with('/') || name.is_empty() {
+                continue;
+            }
+
+            let optional = rust_type.starts_with("Option<");
+            let typescript_type = rust_to_typescript(&rust_type);
+
+            fields.push(PropsField {
+                name,
+                rust_type,
+                typescript_type,
+                optional,
+                serde_rename: pending_rename.take(),
+            });
+        }
     }
 
     fields
@@ -247,13 +288,73 @@ fn rust_to_typescript(rust_type: &str) -> String {
     }
 }
 
-fn generate_typescript_interface(name: &str, fields: &[PropsField]) -> String {
+/// Convert snake_case to camelCase
+fn snake_to_camel(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = false;
+
+    for c in s.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.push(c.to_ascii_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}
+
+/// Convert snake_case to PascalCase
+fn snake_to_pascal(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = true;
+
+    for c in s.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.push(c.to_ascii_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}
+
+/// Apply serde rename transformation to a field name
+fn apply_serde_rename(field_name: &str, rename_all: Option<&str>) -> String {
+    match rename_all {
+        Some("camelCase") => snake_to_camel(field_name),
+        Some("PascalCase") => snake_to_pascal(field_name),
+        Some("SCREAMING_SNAKE_CASE") => field_name.to_uppercase(),
+        Some("kebab-case") => field_name.replace('_', "-"),
+        Some("snake_case") | None => field_name.to_string(),
+        Some(_) => field_name.to_string(),
+    }
+}
+
+fn generate_typescript_interface(
+    name: &str,
+    fields: &[PropsField],
+    serde_rename_all: Option<&str>,
+) -> String {
     let mut ts = format!("export interface {} {{\n", name);
     for field in fields {
         let optional_marker = if field.optional { "?" } else { "" };
+        // Per-field rename takes precedence over rename_all
+        let ts_field_name = if let Some(ref rename) = field.serde_rename {
+            rename.clone()
+        } else {
+            apply_serde_rename(&field.name, serde_rename_all)
+        };
         ts.push_str(&format!(
             "  {}{}: {};\n",
-            field.name, optional_marker, field.typescript_type
+            ts_field_name, optional_marker, field.typescript_type
         ));
     }
     ts.push('}');
