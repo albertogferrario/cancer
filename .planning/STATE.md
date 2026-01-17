@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-16)
 
 ## Current Position
 
-Phase: 22.1 (Macro Crate Path Resolution)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-01-17 — Completed PLAN-22.1-03.md
+Phase: 22.2 (Simplify Macro Crate Paths)
+Plan: 0 of 1 in current phase
+Status: Planned, ready to execute
+Last activity: 2026-01-17 — Created PLAN-22.2-01.md
 
-Progress: ██████████ 100%
+Progress: ░░░░░░░░░░ 0%
 
 ## Milestone Summary
 
@@ -22,7 +22,7 @@ Progress: ██████████ 100%
 |-----------|--------|-------|--------|---------|
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
-| v2.0.1 Macro Fix | 22.1 | 3/3 | ✅ Complete | 2026-01-17 |
+| v2.0.1 Macro Fix | 22.1-22.2 | 3/4 | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
@@ -31,8 +31,8 @@ Progress: ██████████ 100%
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Resolution approach | proc-macro-crate | Standard solution for dynamic crate name resolution |
-| Fallback | `ferro_rs` default | Backwards compatibility if detection fails |
+| Resolution approach | Hardcode `ferro::` | Simple, direct - no runtime detection needed |
+| Previous approach | ~~proc-macro-crate~~ | Over-engineered; being removed in 22.2 |
 
 ### Key Decisions (v2.1 - deferred)
 
@@ -45,7 +45,7 @@ Progress: ██████████ 100%
 
 ### Pending Todos
 
-None — phase 22.1 plans created, ready for execution.
+None — phase 22.2 plan created, ready for execution.
 
 ### Blockers/Concerns
 
@@ -58,7 +58,8 @@ None — phase 22.1 plans created, ready for execution.
 
 - v1.0 DX Overhaul complete: 12 phases, 18 plans (2026-01-15 to 2026-01-16)
 - v2.0 Rebrand complete: 10 phases, 13 plans (2026-01-16)
-- v2.0.1 Macro Fix inserted: 1 phase (Phase 22.1) - urgent fix before v2.1
+- v2.0.1 Macro Fix inserted: 2 phases (Phase 22.1-22.2) - urgent fix before v2.1
+- Phase 22.2 added: Simplify macro crate paths (undo proc-macro-crate workaround)
 - v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.1
 
 ## Session Continuity

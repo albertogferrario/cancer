@@ -4,7 +4,7 @@
 
 - ✅ [**v1.0 DX Overhaul**](milestones/v1.0-ROADMAP.md) — Phases 1-12 (shipped 2026-01-16)
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
-- ✅ **v2.0.1 Macro Fix** — Phase 22.1 (shipped 2026-01-17)
+- 🚧 **v2.0.1 Macro Fix** — Phase 22.1-22.2 (in progress)
 - 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
 
 ---
@@ -109,20 +109,28 @@ Plans:
 
 ## Completed Milestones
 
-<details>
-<summary>✅ v2.0.1 Macro Fix (Phase 22.1) — SHIPPED 2026-01-17</summary>
+### 🚧 v2.0.1 Macro Fix (In Progress)
 
-**Milestone Goal:** Fix hardcoded `::ferro_rs::` paths in proc macros using `proc-macro-crate` for dynamic resolution.
+**Milestone Goal:** Fix hardcoded `::ferro_rs::` paths in proc macros to use canonical `ferro::` name.
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
-| 22.1 Macro Crate Paths | 3/3 | Complete | 2026-01-17 |
+| 22.1 Macro Crate Paths | 3/3 | ✅ Complete | 2026-01-17 |
+| 22.2 Simplify Macro Crate Paths | 0/1 | 📋 Planned | - |
 
-**Total:** 1 phase, 3 plans
+#### Phase 22.2: Simplify Macro Crate Paths
 
-[Full details →](phases/22.1-macro-crate-paths/)
+**Goal:** Remove over-engineered `proc-macro-crate` solution and hardcode `ferro::` directly
+**Depends on:** Phase 22.1
 
-</details>
+Tasks:
+- Remove `proc-macro-crate` dependency from ferro-macros
+- Replace all `ferro_crate()` calls with hardcoded `quote!(ferro)`
+- Delete `crate_path.rs` module
+- Update documentation to remove "flexible naming" section
+
+Plans:
+- [ ] 22.2-01: Remove proc-macro-crate and hardcode ferro:: paths
 
 <details>
 <summary>✅ v2.0 Rebrand (Phases 13-22) — SHIPPED 2026-01-16</summary>
@@ -182,7 +190,7 @@ Plans:
 |-----------|--------|-------|--------|---------|
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
-| v2.0.1 Macro Fix | 22.1 | 3 | ✅ Complete | 2026-01-17 |
+| v2.0.1 Macro Fix | 22.1-22.2 | 3/4 | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Progress (v2.1 JSON-UI)
