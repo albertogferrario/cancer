@@ -41,7 +41,7 @@ Issues addressed:
 - #2 Type Generator: Duplicate Properties in routes.ts (Medium)
 
 Plans:
-- [ ] 22.5-01: TBD (run /gsd:plan-phase 22.5 to break down)
+- [ ] 22.5-01: Module path tracking and namespaced type generation
 
 #### Phase 22.6: Contract Validation CLI
 
@@ -277,7 +277,7 @@ Plans:
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
 | 22.4. Type Generator Fixes | 1/1 | Complete | 2026-01-17 |
-| 22.5. Prop Naming Collisions | 0/? | Not started | - |
+| 22.5. Prop Naming Collisions | 0/1 | Planned | - |
 | 22.6. Contract Validation CLI | 0/? | Not started | - |
 | 22.7. DateTime Handling | 0/? | Not started | - |
 | 22.8. Nested Types Generation | 1/1 | Complete | 2026-01-17 |
