@@ -22,7 +22,7 @@
 **Research**: Likely (DO App Platform specs, app.yaml format)
 
 Plans:
-- [ ] 22.10-01: TBD (run /gsd:plan-phase 22.10 to break down)
+- [ ] 22.10-01: DigitalOcean App Platform CLI Command
 
 ---
 
@@ -218,14 +218,14 @@ Plans:
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.2 Type Generator Fixes | 22.4-22.9 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.3 DO Apps Deploy | 22.10 | 0/? | 🚧 In Progress | - |
+| v2.0.3 DO Apps Deploy | 22.10 | 0/1 | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Progress (v2.0.3 DO Apps Deploy)
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
-| 22.10. DigitalOcean Apps Deploy | 0/? | Not started | - |
+| 22.10. DigitalOcean Apps Deploy | 0/1 | Planned | - |
 
 ## Progress (v2.1 JSON-UI)
 
