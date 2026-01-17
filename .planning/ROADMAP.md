@@ -6,12 +6,12 @@
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
 - ✅ **v2.0.1 Macro Fix** — Phase 22.1-22.3 (shipped 2026-01-17)
 - ✅ [**v2.0.2 Type Generator Fixes**](milestones/v2.0.2-ROADMAP.md) — Phase 22.4-22.9 (shipped 2026-01-17)
-- 🚧 **v2.0.3 DO Apps Deploy** — Phase 22.10 (in progress)
+- ✅ **v2.0.3 DO Apps Deploy** — Phase 22.10 (shipped 2026-01-17)
 - 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
 
 ---
 
-### 🚧 v2.0.3 DO Apps Deploy (In Progress)
+### ✅ v2.0.3 DO Apps Deploy (Complete)
 
 **Milestone Goal:** Enable one-click deployment to DigitalOcean App Platform with minimal infrastructure configuration.
 
@@ -22,7 +22,7 @@
 **Research**: Likely (DO App Platform specs, app.yaml format)
 
 Plans:
-- [ ] 22.10-01: DigitalOcean App Platform CLI Command
+- [x] 22.10-01: DigitalOcean App Platform CLI Command (completed 2026-01-17)
 
 ---
 
