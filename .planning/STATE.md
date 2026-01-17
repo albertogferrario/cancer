@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-16)
 
 **Core value:** Agents can go from "I want an app that does X" to a working, deployed application with minimal friction.
-**Current focus:** v2.0.1 Macro Fix — Complete Cancer→Ferro rebrand
+**Current focus:** v2.0.2 Type Generator Fixes — Fix type generation issues from adotta-animali port
 
 ## Current Position
 
-Phase: 22.3 (Complete Cancer→Ferro Rebrand)
-Plan: 2 of 2 complete in current phase
-Status: Plan 02 complete
-Last activity: 2026-01-17 — Completed 22.3-02 (framework rebrand)
+Phase: 22.4 (Type Generator Imports)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-17 — Milestone v2.0.2 created
 
-Progress: ██████████ 100%
+Progress: ░░░░░░░░░░ 0%
 
 ## Milestone Summary
 
@@ -23,6 +23,7 @@ Progress: ██████████ 100%
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
+| v2.0.2 Type Generator Fixes | 22.4-22.7 | 0/? | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
@@ -45,7 +46,7 @@ Progress: ██████████ 100%
 
 ### Pending Todos
 
-None — v2.0.1 Macro Fix milestone complete.
+None — v2.0.2 milestone just started.
 
 ### Blockers/Concerns
 
@@ -58,13 +59,12 @@ None — v2.0.1 Macro Fix milestone complete.
 
 - v1.0 DX Overhaul complete: 12 phases, 18 plans (2026-01-15 to 2026-01-16)
 - v2.0 Rebrand complete: 10 phases, 13 plans (2026-01-16)
-- v2.0.1 Macro Fix inserted: 2 phases (Phase 22.1-22.2) - urgent fix before v2.1
-- Phase 22.2 added: Simplify macro crate paths (undo proc-macro-crate workaround)
-- v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.1
-- Phase 22.3 added: Complete Cancer→Ferro rebrand (fix remaining references)
+- v2.0.1 Macro Fix complete: 3 phases (Phase 22.1-22.3) (2026-01-17)
+- v2.0.2 Type Generator Fixes created: 4 phases (Phase 22.4-22.7) - issues from adotta-animali port
+- v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.2
 
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Completed v2.0.1 Macro Fix milestone (all phases complete)
+Stopped at: Created v2.0.2 Type Generator Fixes milestone
 Resume file: None

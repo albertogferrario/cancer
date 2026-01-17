@@ -5,7 +5,70 @@
 - ✅ [**v1.0 DX Overhaul**](milestones/v1.0-ROADMAP.md) — Phases 1-12 (shipped 2026-01-16)
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
 - ✅ **v2.0.1 Macro Fix** — Phase 22.1-22.3 (shipped 2026-01-17)
+- 🚧 **v2.0.2 Type Generator Fixes** — Phase 22.4-22.7 (in progress)
 - 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
+
+---
+
+### 🚧 v2.0.2 Type Generator Fixes (In Progress)
+
+**Milestone Goal:** Fix type generation issues discovered during adotta-animali port to improve TypeScript integration reliability.
+
+**Source:** [.planning/backlog/adotta-animali-issues.md](backlog/adotta-animali-issues.md)
+
+#### Phase 22.4: Type Generator Imports
+
+**Goal**: Fix missing shared.ts imports and type re-exports in generated TypeScript files
+**Depends on**: v2.0.1 complete
+**Research**: Unlikely (internal patterns)
+
+Issues addressed:
+- #1 Type Generator: Missing Imports from shared.ts (High)
+- #5 Type Re-exports Not Generated (Medium)
+
+Plans:
+- [ ] 22.4-01: TBD (run /gsd:plan-phase 22.4 to break down)
+
+#### Phase 22.5: Prop Naming Collisions
+
+**Goal**: Resolve InertiaProps naming collisions and duplicate routes.ts entries
+**Depends on**: Phase 22.4
+**Research**: Unlikely (internal patterns)
+
+Issues addressed:
+- #3 InertiaProps Naming Collisions (High)
+- #2 Type Generator: Duplicate Properties in routes.ts (Medium)
+
+Plans:
+- [ ] 22.5-01: TBD (run /gsd:plan-phase 22.5 to break down)
+
+#### Phase 22.6: Contract Validation CLI
+
+**Goal**: Expose MCP validate_contracts tool as a CLI command for CI integration
+**Depends on**: Phase 22.5
+**Research**: Unlikely (MCP tool already exists)
+
+Issues addressed:
+- #4 No Props Contract Validation CLI (Medium)
+
+Plans:
+- [ ] 22.6-01: TBD (run /gsd:plan-phase 22.6 to break down)
+
+#### Phase 22.7: DateTime Handling
+
+**Goal**: Improve datetime field handling with proper types instead of strings
+**Depends on**: Phase 22.6
+**Research**: Likely (SeaORM datetime patterns)
+**Research topics**: SeaORM datetime types, chrono integration, SQLite datetime handling
+
+Issues addressed:
+- #6 Inconsistent Date/Time Field Handling (Low)
+
+Plans:
+- [ ] 22.7-01: TBD (run /gsd:plan-phase 22.7 to break down)
+
+**Deferred to future milestone:**
+- #7 Missing Animal Images Relationship (Eager Loading) - Significant feature requiring architectural work
 
 ---
 
@@ -180,7 +243,17 @@ Plans:
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
+| v2.0.2 Type Generator Fixes | 22.4-22.7 | 0/? | 🚧 In Progress | - |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
+
+## Progress (v2.0.2 Type Generator Fixes)
+
+| Phase | Plans | Status | Completed |
+|-------|-------|--------|-----------|
+| 22.4. Type Generator Imports | 0/? | Not started | - |
+| 22.5. Prop Naming Collisions | 0/? | Not started | - |
+| 22.6. Contract Validation CLI | 0/? | Not started | - |
+| 22.7. DateTime Handling | 0/? | Not started | - |
 
 ## Progress (v2.1 JSON-UI)
 
