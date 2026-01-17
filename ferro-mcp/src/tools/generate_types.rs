@@ -3,11 +3,13 @@
 //! This provides direct introspection and type generation without running the CLI.
 
 use crate::error::{McpError, Result};
-use crate::tools::list_props::{self, PropsStruct};
+use crate::tools::list_props::{self, PropsField, PropsStruct};
+use regex::Regex;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
+use walkdir::WalkDir;
 
 #[derive(Debug, Serialize)]
 pub struct GenerateTypesResult {
@@ -54,8 +56,16 @@ pub fn execute(
         });
     }
 
+    // Parse shared.ts types (to avoid regenerating)
+    let shared_types = parse_shared_types(project_root);
+
+    // Resolve nested types
+    let mut all_props = props_result.props;
+    let nested_types = resolve_nested_types(project_root, &all_props, &shared_types);
+    all_props.extend(nested_types);
+
     // Sort topologically (dependencies first)
-    let sorted = topological_sort(&props_result.props);
+    let sorted = topological_sort(&all_props);
 
     // Generate TypeScript with imports from shared.ts
     let typescript = generate_typescript_with_imports(&sorted, Some(project_root));
@@ -357,4 +367,342 @@ fn normalize_interface_body(body: &str) -> String {
         .filter(|l| !l.is_empty())
         .collect::<Vec<_>>()
         .join("\n")
+}
+
+/// Scan for structs with #[derive(Serialize)] matching target type names
+fn scan_serialize_structs(project_root: &Path, target_types: &HashSet<String>) -> Vec<PropsStruct> {
+    if target_types.is_empty() {
+        return Vec::new();
+    }
+
+    let src_path = project_root.join("src");
+    let mut found_structs = Vec::new();
+
+    // Pattern to find #[derive(...Serialize...)]
+    let derive_pattern = Regex::new(r#"#\[derive\([^\)]*(?:serde::)?Serialize[^\)]*\)\]"#).unwrap();
+    let struct_pattern = Regex::new(r#"(?:pub\s+)?struct\s+(\w+)\s*\{"#).unwrap();
+    let rename_all_pattern =
+        Regex::new(r#"#\[serde\([^\)]*rename_all\s*=\s*"([^"]+)"[^\)]*\)\]"#).unwrap();
+    let field_pattern = Regex::new(r#"(?:pub\s+)?(\w+)\s*:\s*([^,\n]+)"#).unwrap();
+    let field_rename_pattern =
+        Regex::new(r#"#\[serde\([^\)]*rename\s*=\s*"([^"]+)"[^\)]*\)\]"#).unwrap();
+
+    for entry in WalkDir::new(&src_path)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().extension().map(|ext| ext == "rs").unwrap_or(false))
+    {
+        let path = entry.path();
+        if let Ok(content) = fs::read_to_string(path) {
+            let lines: Vec<&str> = content.lines().collect();
+
+            for (i, line) in lines.iter().enumerate() {
+                if derive_pattern.is_match(line) {
+                    // Look for serde(rename_all) between derive and struct
+                    let mut serde_rename_all = None;
+                    for check_line in lines.iter().take(std::cmp::min(i + 5, lines.len())).skip(i) {
+                        if let Some(cap) = rename_all_pattern.captures(check_line) {
+                            serde_rename_all = Some(cap.get(1).unwrap().as_str().to_string());
+                            break;
+                        }
+                    }
+
+                    // Look for struct definition in next few lines
+                    for j in (i + 1)..std::cmp::min(i + 5, lines.len()) {
+                        if let Some(cap) = struct_pattern.captures(lines[j]) {
+                            let name = cap.get(1).unwrap().as_str().to_string();
+
+                            // Only process if this is a target type
+                            if !target_types.contains(&name) {
+                                break;
+                            }
+
+                            // Extract struct body
+                            if let Some(struct_body) = extract_struct_body(&lines, j) {
+                                let fields = parse_struct_fields_for_serialize(
+                                    &struct_body,
+                                    &field_pattern,
+                                    &field_rename_pattern,
+                                );
+                                let typescript =
+                                    generate_interface(&name, &fields, serde_rename_all.as_deref());
+
+                                let relative_path = path
+                                    .strip_prefix(project_root)
+                                    .unwrap_or(path)
+                                    .to_string_lossy()
+                                    .to_string();
+
+                                found_structs.push(PropsStruct {
+                                    name,
+                                    file_path: relative_path,
+                                    line_number: j + 1,
+                                    fields,
+                                    typescript,
+                                    used_by_components: Vec::new(),
+                                    serde_rename_all,
+                                });
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    found_structs
+}
+
+fn extract_struct_body(lines: &[&str], start_line: usize) -> Option<String> {
+    let mut brace_count = 0;
+    let mut body = String::new();
+    let mut started = false;
+
+    for line in lines.iter().skip(start_line) {
+        for c in line.chars() {
+            if c == '{' {
+                brace_count += 1;
+                started = true;
+            } else if c == '}' {
+                brace_count -= 1;
+            }
+        }
+
+        if started {
+            body.push_str(line);
+            body.push('\n');
+
+            if brace_count == 0 {
+                return Some(body);
+            }
+        }
+    }
+
+    None
+}
+
+fn parse_struct_fields_for_serialize(
+    body: &str,
+    field_pattern: &Regex,
+    rename_pattern: &Regex,
+) -> Vec<PropsField> {
+    let mut fields = Vec::new();
+    let lines: Vec<&str> = body.lines().collect();
+    let mut pending_rename: Option<String> = None;
+
+    for line in &lines {
+        // Check for serde rename attribute
+        if let Some(cap) = rename_pattern.captures(line) {
+            // Make sure it's not rename_all
+            if !line.contains("rename_all") {
+                pending_rename = Some(cap.get(1).unwrap().as_str().to_string());
+            }
+            continue;
+        }
+
+        // Check for field definition
+        if let Some(cap) = field_pattern.captures(line) {
+            let name = cap
+                .get(1)
+                .map(|m| m.as_str().to_string())
+                .unwrap_or_default();
+            let rust_type = cap
+                .get(2)
+                .map(|m| m.as_str().trim().to_string())
+                .unwrap_or_default();
+
+            // Skip if it looks like an attribute or comment
+            if name.starts_with('#') || name.starts_with('/') || name.is_empty() {
+                continue;
+            }
+
+            let optional = rust_type.starts_with("Option<");
+            let typescript_type = rust_to_typescript(&rust_type);
+
+            fields.push(PropsField {
+                name,
+                rust_type,
+                typescript_type,
+                optional,
+                serde_rename: pending_rename.take(),
+            });
+        }
+    }
+
+    fields
+}
+
+fn rust_to_typescript(rust_type: &str) -> String {
+    let ty = rust_type.trim();
+
+    // Handle Option<T>
+    if ty.starts_with("Option<") && ty.ends_with('>') {
+        let inner = &ty[7..ty.len() - 1];
+        return format!("{} | null", rust_to_typescript(inner));
+    }
+
+    // Handle Vec<T>
+    if ty.starts_with("Vec<") && ty.ends_with('>') {
+        let inner = &ty[4..ty.len() - 1];
+        return format!("{}[]", rust_to_typescript(inner));
+    }
+
+    // Handle HashMap<K, V>
+    if (ty.starts_with("HashMap<") || ty.starts_with("BTreeMap<")) && ty.ends_with('>') {
+        let start = if ty.starts_with("HashMap<") { 8 } else { 9 };
+        let inner = &ty[start..ty.len() - 1];
+        // Simple split on comma (doesn't handle nested generics perfectly)
+        if let Some(comma_pos) = inner.find(',') {
+            let key = inner[..comma_pos].trim();
+            let val = inner[comma_pos + 1..].trim();
+            return format!(
+                "Record<{}, {}>",
+                rust_to_typescript(key),
+                rust_to_typescript(val)
+            );
+        }
+    }
+
+    // Primitive types
+    match ty {
+        "String" | "&str" | "str" => "string".to_string(),
+        "i8" | "i16" | "i32" | "i64" | "i128" | "isize" | "u8" | "u16" | "u32" | "u64" | "u128"
+        | "usize" | "f32" | "f64" => "number".to_string(),
+        "bool" => "boolean".to_string(),
+        "Value" | "serde_json::Value" => "unknown".to_string(),
+        // Custom types pass through
+        _ => ty.to_string(),
+    }
+}
+
+/// Convert snake_case to camelCase
+fn snake_to_camel(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = false;
+
+    for c in s.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.push(c.to_ascii_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}
+
+/// Convert snake_case to PascalCase
+fn snake_to_pascal(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = true;
+
+    for c in s.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.push(c.to_ascii_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}
+
+/// Apply serde rename transformation to a field name
+fn apply_serde_rename(field_name: &str, rename_all: Option<&str>) -> String {
+    match rename_all {
+        Some("camelCase") => snake_to_camel(field_name),
+        Some("PascalCase") => snake_to_pascal(field_name),
+        Some("SCREAMING_SNAKE_CASE") => field_name.to_uppercase(),
+        Some("kebab-case") => field_name.replace('_', "-"),
+        Some("snake_case") | None => field_name.to_string(),
+        Some(_) => field_name.to_string(),
+    }
+}
+
+fn generate_interface(name: &str, fields: &[PropsField], serde_rename_all: Option<&str>) -> String {
+    let mut ts = format!("export interface {} {{\n", name);
+    for field in fields {
+        let optional_marker = if field.optional { "?" } else { "" };
+        // Per-field rename takes precedence over rename_all
+        let ts_field_name = if let Some(ref rename) = field.serde_rename {
+            rename.clone()
+        } else {
+            apply_serde_rename(&field.name, serde_rename_all)
+        };
+        ts.push_str(&format!(
+            "  {}{}: {};\n",
+            ts_field_name, optional_marker, field.typescript_type
+        ));
+    }
+    ts.push('}');
+    ts
+}
+
+/// Collect custom type names referenced in props fields
+fn collect_nested_types(props: &[PropsStruct]) -> HashSet<String> {
+    let mut types = HashSet::new();
+    let type_pattern = Regex::new(r"\b([A-Z][a-zA-Z0-9]+)\b").unwrap();
+
+    for p in props {
+        for field in &p.fields {
+            for cap in type_pattern.captures_iter(&field.typescript_type) {
+                if let Some(name) = cap.get(1) {
+                    let type_name = name.as_str();
+                    // Filter out TypeScript built-in types
+                    if !matches!(
+                        type_name,
+                        "Record" | "Array" | "Partial" | "Required" | "Readonly" | "Map" | "Set"
+                    ) {
+                        types.insert(type_name.to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    types
+}
+
+/// Resolve all nested types referenced by InertiaProps structs
+fn resolve_nested_types(
+    project_root: &Path,
+    initial_props: &[PropsStruct],
+    shared_types: &HashSet<String>,
+) -> Vec<PropsStruct> {
+    let mut known_types: HashSet<String> = initial_props.iter().map(|p| p.name.clone()).collect();
+    let mut all_nested = Vec::new();
+    let mut types_to_find = collect_nested_types(initial_props);
+
+    // Filter out types we already know about
+    types_to_find.retain(|t| !known_types.contains(t) && !shared_types.contains(t));
+
+    // Fixed-point iteration
+    while !types_to_find.is_empty() {
+        let found = scan_serialize_structs(project_root, &types_to_find);
+
+        if found.is_empty() {
+            break;
+        }
+
+        // Mark found types as known
+        for s in &found {
+            known_types.insert(s.name.clone());
+        }
+
+        // Collect types referenced by newly found structs
+        let mut next_types = collect_nested_types(&found);
+        next_types.retain(|t| !known_types.contains(t) && !shared_types.contains(t));
+
+        all_nested.extend(found);
+        types_to_find = next_types;
+    }
+
+    all_nested
 }
