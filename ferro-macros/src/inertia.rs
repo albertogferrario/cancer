@@ -4,6 +4,7 @@ use quote::quote;
 use std::path::{Path, PathBuf};
 use syn::{parse::Parse, parse::ParseStream, parse_macro_input, DeriveInput, Expr, LitStr, Token};
 
+use crate::ferro_crate;
 use crate::utils::levenshtein_distance;
 
 /// Props can be either a typed struct expression or JSON-like syntax
@@ -121,6 +122,9 @@ fn parse_rename_all(attrs: &[syn::Attribute]) -> RenameAll {
 /// Implementation for the InertiaProps derive macro
 pub fn derive_inertia_props_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+
+    let ferro = ferro_crate();
+
     let name = &input.ident;
     let generics = &input.generics;
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
@@ -162,12 +166,12 @@ pub fn derive_inertia_props_impl(input: TokenStream) -> TokenStream {
         .collect();
 
     let expanded = quote! {
-        impl #impl_generics ::ferro_rs::serde::Serialize for #name #ty_generics #where_clause {
+        impl #impl_generics #ferro::serde::Serialize for #name #ty_generics #where_clause {
             fn serialize<S>(&self, serializer: S) -> ::core::result::Result<S::Ok, S::Error>
             where
-                S: ::ferro_rs::serde::Serializer,
+                S: #ferro::serde::Serializer,
             {
-                use ::ferro_rs::serde::ser::SerializeStruct;
+                use #ferro::serde::ser::SerializeStruct;
                 let mut state = serializer.serialize_struct(stringify!(#name), #field_count)?;
                 #(
                     state.serialize_field(#field_name_strings, &self.#field_names)?;
@@ -184,6 +188,8 @@ pub fn derive_inertia_props_impl(input: TokenStream) -> TokenStream {
 pub fn inertia_response_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as InertiaResponseInput);
 
+    let ferro = ferro_crate();
+
     let component_name = input.component.value();
     let component_lit = &input.component;
 
@@ -197,14 +203,14 @@ pub fn inertia_response_impl(input: TokenStream) -> TokenStream {
         PropsKind::Typed(expr) => {
             // Typed struct: serialize using serde_json::to_value
             quote! {
-                ::ferro_rs::serde_json::to_value(&#expr)
+                #ferro::serde_json::to_value(&#expr)
                     .expect("Failed to serialize InertiaProps")
             }
         }
         PropsKind::Json(tokens) => {
             // JSON-like syntax: use serde_json::json! macro
             quote! {
-                ::ferro_rs::serde_json::json!({#tokens})
+                #ferro::serde_json::json!({#tokens})
             }
         }
     };
@@ -214,11 +220,11 @@ pub fn inertia_response_impl(input: TokenStream) -> TokenStream {
         let config_expr = config.expr;
         quote! {{
             let props = #props_expr;
-            let url = ::ferro_rs::InertiaContext::current_path();
-            let response = ::ferro_rs::InertiaResponse::new(#component_lit, props, url)
+            let url = #ferro::InertiaContext::current_path();
+            let response = #ferro::InertiaResponse::new(#component_lit, props, url)
                 .with_config(#config_expr);
 
-            if ::ferro_rs::InertiaContext::is_inertia_request() {
+            if #ferro::InertiaContext::is_inertia_request() {
                 Ok(response.to_json_response())
             } else {
                 Ok(response.to_html_response())
@@ -227,10 +233,10 @@ pub fn inertia_response_impl(input: TokenStream) -> TokenStream {
     } else {
         quote! {{
             let props = #props_expr;
-            let url = ::ferro_rs::InertiaContext::current_path();
-            let response = ::ferro_rs::InertiaResponse::new(#component_lit, props, url);
+            let url = #ferro::InertiaContext::current_path();
+            let response = #ferro::InertiaResponse::new(#component_lit, props, url);
 
-            if ::ferro_rs::InertiaContext::is_inertia_request() {
+            if #ferro::InertiaContext::is_inertia_request() {
                 Ok(response.to_json_response())
             } else {
                 Ok(response.to_html_response())
