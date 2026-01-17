@@ -611,6 +611,11 @@ fn rust_to_typescript(rust_type: &str) -> String {
         }
     }
 
+    // Handle DateTime<Tz> - chrono DateTime with timezone generic
+    if ty.starts_with("DateTime<") && ty.ends_with('>') {
+        return "string".to_string();
+    }
+
     // Primitive types and special framework types
     match ty {
         "String" | "&str" | "str" => "string".to_string(),
@@ -620,6 +625,9 @@ fn rust_to_typescript(rust_type: &str) -> String {
         "Value" | "serde_json::Value" => "unknown".to_string(),
         // ValidationErrors maps to Record<string, string[]>
         "ValidationErrors" | "ferro::ValidationErrors" => "Record<string, string[]>".to_string(),
+        // Chrono datetime types serialize to ISO8601 strings
+        "DateTime" | "NaiveDateTime" | "NaiveDate" | "NaiveTime" | "DateTimeUtc"
+        | "DateTimeLocal" | "Date" | "Time" => "string".to_string(),
         // Custom types pass through
         _ => ty.to_string(),
     }

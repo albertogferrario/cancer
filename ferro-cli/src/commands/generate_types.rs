@@ -107,6 +107,7 @@ pub enum RustType {
     String,
     Number,
     Bool,
+    DateTime,
     Option(Box<RustType>),
     Vec(Box<RustType>),
     HashMap(Box<RustType>, Box<RustType>),
@@ -282,6 +283,9 @@ impl InertiaPropsVisitor {
                         Box::new(RustType::String),
                         Box::new(RustType::Vec(Box::new(RustType::String))),
                     ),
+                    // Chrono datetime types serialize to ISO8601 strings
+                    "DateTime" | "NaiveDateTime" | "NaiveDate" | "NaiveTime" | "DateTimeUtc"
+                    | "DateTimeLocal" | "Date" | "Time" => RustType::DateTime,
                     other => RustType::Custom(other.to_string()),
                 }
             }
@@ -795,6 +799,7 @@ fn rust_type_to_ts_with_mapping(ty: &RustType, name_map: &HashMap<String, String
         RustType::String => "string".to_string(),
         RustType::Number => "number".to_string(),
         RustType::Bool => "boolean".to_string(),
+        RustType::DateTime => "string".to_string(),
         RustType::Option(inner) => {
             format!("{} | null", rust_type_to_ts_with_mapping(inner, name_map))
         }
@@ -1779,5 +1784,126 @@ mod tests {
 
         // The reference to DetailProps should use the namespaced name
         assert!(typescript.contains("details: ShelterDetailProps;"));
+    }
+
+    #[test]
+    fn test_datetime_type_mapping() {
+        // Test that all chrono datetime types parse to RustType::DateTime
+        use syn::parse_quote;
+
+        let datetime: Type = parse_quote!(DateTime<Utc>);
+        assert!(matches!(
+            InertiaPropsVisitor::parse_type(&datetime),
+            RustType::DateTime
+        ));
+
+        let naive_datetime: Type = parse_quote!(NaiveDateTime);
+        assert!(matches!(
+            InertiaPropsVisitor::parse_type(&naive_datetime),
+            RustType::DateTime
+        ));
+
+        let naive_date: Type = parse_quote!(NaiveDate);
+        assert!(matches!(
+            InertiaPropsVisitor::parse_type(&naive_date),
+            RustType::DateTime
+        ));
+
+        let naive_time: Type = parse_quote!(NaiveTime);
+        assert!(matches!(
+            InertiaPropsVisitor::parse_type(&naive_time),
+            RustType::DateTime
+        ));
+
+        let datetime_utc: Type = parse_quote!(DateTimeUtc);
+        assert!(matches!(
+            InertiaPropsVisitor::parse_type(&datetime_utc),
+            RustType::DateTime
+        ));
+
+        let datetime_local: Type = parse_quote!(DateTimeLocal);
+        assert!(matches!(
+            InertiaPropsVisitor::parse_type(&datetime_local),
+            RustType::DateTime
+        ));
+
+        let date: Type = parse_quote!(Date);
+        assert!(matches!(
+            InertiaPropsVisitor::parse_type(&date),
+            RustType::DateTime
+        ));
+
+        let time: Type = parse_quote!(Time);
+        assert!(matches!(
+            InertiaPropsVisitor::parse_type(&time),
+            RustType::DateTime
+        ));
+    }
+
+    #[test]
+    fn test_datetime_to_typescript() {
+        // Verify RustType::DateTime generates "string" in TypeScript
+        let name_map = HashMap::new();
+        assert_eq!(
+            rust_type_to_ts_with_mapping(&RustType::DateTime, &name_map),
+            "string"
+        );
+    }
+
+    #[test]
+    fn test_option_datetime() {
+        // Verify Option<DateTime<Utc>> generates "string | null"
+        let name_map = HashMap::new();
+        let option_datetime = RustType::Option(Box::new(RustType::DateTime));
+        assert_eq!(
+            rust_type_to_ts_with_mapping(&option_datetime, &name_map),
+            "string | null"
+        );
+    }
+
+    #[test]
+    fn test_vec_datetime() {
+        // Verify Vec<NaiveDateTime> generates "string[]"
+        let name_map = HashMap::new();
+        let vec_datetime = RustType::Vec(Box::new(RustType::DateTime));
+        assert_eq!(
+            rust_type_to_ts_with_mapping(&vec_datetime, &name_map),
+            "string[]"
+        );
+    }
+
+    #[test]
+    fn test_generate_typescript_with_datetime() {
+        // End-to-end test with a props struct containing datetime fields
+        let structs = vec![InertiaPropsStruct {
+            name: "EventProps".to_string(),
+            fields: vec![
+                StructField {
+                    name: "created_at".to_string(),
+                    ty: RustType::DateTime,
+                    serde_rename: None,
+                },
+                StructField {
+                    name: "updated_at".to_string(),
+                    ty: RustType::Option(Box::new(RustType::DateTime)),
+                    serde_rename: None,
+                },
+                StructField {
+                    name: "scheduled_dates".to_string(),
+                    ty: RustType::Vec(Box::new(RustType::DateTime)),
+                    serde_rename: None,
+                },
+            ],
+            rename_all: SerdeCase::CamelCase,
+            module_path: "events".to_string(),
+        }];
+
+        let typescript = generate_typescript(&structs);
+
+        // Should contain the interface with datetime fields mapped to string
+        assert!(typescript.contains("export interface EventsEventProps"));
+        assert!(typescript.contains("createdAt: string;"));
+        assert!(typescript.contains("updatedAt: string | null;"));
+        assert!(typescript.contains("scheduledDates: string[];"));
     }
 }
