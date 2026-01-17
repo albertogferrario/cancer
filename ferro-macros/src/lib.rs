@@ -11,7 +11,6 @@
 use proc_macro::TokenStream;
 
 mod cancer_test;
-mod crate_path;
 mod describe;
 mod domain_error;
 mod handler;
@@ -24,8 +23,6 @@ mod service;
 mod test_macro;
 mod utils;
 mod validate;
-
-pub(crate) use crate_path::ferro_crate;
 
 /// Derive macro for generating `Serialize` implementation for Inertia props
 ///
