@@ -66,6 +66,13 @@ Agents can go from "I want an app that does X" to a working, deployed applicatio
 - ✓ `ferro do:init` command for DigitalOcean App Platform — v2.0.3
 - ✓ .do/app.yaml template with service, database, redis config — v2.0.3
 
+**v2.1 Inertia DX & Fixes (shipped 2026-01-17):**
+- ✓ JSON Accept header fallback via `render_with_json_fallback()` — v2.1
+- ✓ Enhanced SavedInertiaContext documentation with patterns and troubleshooting — v2.1
+- ✓ Auto type generation enabled by default in `ferro serve` — v2.1
+- ✓ `JsonValue` and `ValidationErrors` utility types in generated TypeScript — v2.1
+- ✓ Documentation URLs corrected to docs.ferro-rs.dev — v2.1
+
 ### Active
 
 <!-- Current scope. Building toward these. -->
@@ -124,6 +131,9 @@ Reference codebase documentation in `.planning/codebase/`:
 | Tool vs Resource for MCP | Implemented features as tools rather than MCP resources for simpler agent consumption | ✓ Good |
 | Rebrand to "ferro" | Name appropriate for crates.io publication and public release | ✓ Good |
 | Alias pattern for migration | Keep code imports working during phased rename | ✓ Good |
+| JSON fallback opt-in | `render_with_json_fallback()` per route for security | ✓ Good |
+| accepts_json() on InertiaRequest | Framework-agnostic Accept header detection | ✓ Good |
+| Docs URL: docs.ferro-rs.dev | Dedicated subdomain for documentation | ✓ Good |
 
 ---
-*Last updated: 2026-01-17 after v2.0.3 DO Apps Deploy milestone*
+*Last updated: 2026-01-17 after v2.1 Inertia DX & Fixes milestone*

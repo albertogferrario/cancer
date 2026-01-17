@@ -1,5 +1,29 @@
 # Project Milestones: Ferro Framework
 
+## v2.1 Inertia DX & Fixes (Shipped: 2026-01-17)
+
+**Delivered:** Improved Inertia developer experience with JSON API fallback, auto type generation, utility types, and fixed documentation URLs.
+
+**Phases completed:** 33-34 (4 plans total)
+
+**Key accomplishments:**
+- Added JSON Accept header fallback for API testing via `render_with_json_fallback()` method
+- Enhanced SavedInertiaContext documentation with Common Patterns and Troubleshooting sections
+- Enabled auto type generation by default in `ferro serve` with file watching
+- Added `JsonValue` and `ValidationErrors` utility types to generated TypeScript
+- Fixed documentation URLs to use docs.ferro-rs.dev subdomain
+
+**Stats:**
+- 34 files modified (+1165, -219 lines)
+- 2 phases, 4 plans, ~12 tasks
+- Same day completion (2026-01-17)
+
+**Git range:** `e69749d` → `556eee7`
+
+**What's next:** v3.0 JSON-UI for JSON-based UI rendering without frontend builds.
+
+---
+
 ## v2.0.3 DO Apps Deploy (Shipped: 2026-01-17)
 
 **Delivered:** One-click deployment to DigitalOcean App Platform with `ferro do:init` CLI command.
