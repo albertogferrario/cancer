@@ -674,14 +674,27 @@ fn to_pascal_case(s: &str) -> String {
         .collect()
 }
 
-/// Extract controller name from module path
-/// e.g., "controllers::user" -> "user"
+/// Extract controller name from module path, preserving hierarchy after "controllers::"
+/// Examples:
+/// - "controllers::user" -> "user"
+/// - "controllers::shelter::dashboard" -> "shelter_dashboard"
+/// - "controllers::adopter::applications" -> "adopter_applications"
 fn extract_controller_name(module_path: &str) -> String {
-    module_path
-        .split("::")
-        .last()
-        .unwrap_or("unknown")
-        .to_string()
+    // Strip "controllers::" prefix
+    let after_controllers = module_path
+        .strip_prefix("controllers::")
+        .unwrap_or(module_path);
+
+    // Join remaining segments with underscore
+    let segments: Vec<&str> = after_controllers.split("::").collect();
+
+    if segments.is_empty() {
+        return "unknown".to_string();
+    }
+
+    // For single-level controllers (e.g., "user"), return as-is
+    // For nested controllers (e.g., "shelter::dashboard"), join with underscore
+    segments.join("_")
 }
 
 /// Generate URL template string with params interpolation
