@@ -7,7 +7,7 @@
 
 Build web applications in Rust with the developer experience you love from Laravel and Rails. Ferro gives you expressive routing, powerful tooling, and batteries-included features—without sacrificing Rust's performance.
 
-[Website](https://ferro-rs.dev/) | [Documentation](https://ferro-rs.dev/)
+[Website](https://ferro-rs.dev/) | [Documentation](https://docs.ferro-rs.dev/)
 
 ## Quick Start
 
@@ -159,7 +159,7 @@ Change a field in Rust, regenerate types, and TypeScript will catch any mismatch
 
 ## Documentation
 
-Ready to build something? Check out the [full documentation](https://ferro-rs.dev/) to get started.
+Ready to build something? Check out the [full documentation](https://docs.ferro-rs.dev/) to get started.
 
 ## License
 
