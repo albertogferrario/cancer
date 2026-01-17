@@ -46,6 +46,9 @@ pub struct PropField {
     pub name: String,
     pub field_type: String,
     pub optional: bool,
+    /// Nested fields for complex types (objects/structs)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nested: Option<Vec<PropField>>,
 }
 
 #[derive(Debug, Serialize)]
@@ -63,13 +66,15 @@ pub struct Mismatch {
     pub details: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
+#[allow(dead_code)] // TypeMismatch reserved for type comparison
 pub enum MismatchKind {
     MissingInBackend,
     MissingInFrontend,
     TypeMismatch,
     NullabilityMismatch,
+    StructureMismatch,
 }
 
 pub fn execute(
@@ -385,6 +390,7 @@ fn parse_rust_fields(fields_str: &str) -> Vec<PropField> {
             name,
             field_type,
             optional,
+            nested: None,
         });
     }
 
@@ -404,6 +410,7 @@ fn parse_inline_fields(fields_str: &str) -> Vec<PropField> {
             name,
             field_type: "unknown".to_string(),
             optional: false,
+            nested: None,
         });
     }
 
@@ -505,6 +512,7 @@ fn parse_destructured_props(destructured: &str) -> Vec<PropField> {
                 name,
                 field_type: "unknown".to_string(),
                 optional: part.contains('='), // Has default value = optional
+                nested: None,
             });
         }
     }
@@ -557,83 +565,191 @@ fn find_imported_props(
     find_interface_fields(&types_content, props_type)
 }
 
+/// Parse TypeScript interface fields with nested structure support
 fn parse_typescript_interface_fields(fields_str: &str) -> Vec<PropField> {
+    parse_typescript_fields_recursive(fields_str)
+}
+
+/// Recursively parse TypeScript fields, handling nested inline objects
+fn parse_typescript_fields_recursive(fields_str: &str) -> Vec<PropField> {
     let mut fields = Vec::new();
-    let field_pattern = Regex::new(r#"(\w+)(\?)?:\s*([^;,\n]+)"#).unwrap();
+    let chars = fields_str.chars().peekable();
+    let mut current_field = String::new();
+    let mut brace_depth = 0;
 
-    for cap in field_pattern.captures_iter(fields_str) {
-        let name = cap
-            .get(1)
-            .map(|m| m.as_str().to_string())
-            .unwrap_or_default();
-        let optional = cap.get(2).is_some();
-        let field_type = cap
-            .get(3)
-            .map(|m| m.as_str().trim().to_string())
-            .unwrap_or_default();
+    for c in chars {
+        match c {
+            '{' => {
+                brace_depth += 1;
+                current_field.push(c);
+            }
+            '}' => {
+                brace_depth -= 1;
+                current_field.push(c);
+            }
+            ';' | ',' if brace_depth == 0 => {
+                if let Some(field) = parse_single_typescript_field(&current_field) {
+                    fields.push(field);
+                }
+                current_field.clear();
+            }
+            '\n' if brace_depth == 0 && !current_field.trim().is_empty() => {
+                // Handle newline-terminated fields (common in TS)
+                if current_field.contains(':') {
+                    if let Some(field) = parse_single_typescript_field(&current_field) {
+                        fields.push(field);
+                    }
+                    current_field.clear();
+                }
+            }
+            _ => {
+                current_field.push(c);
+            }
+        }
+    }
 
-        fields.push(PropField {
-            name,
-            field_type,
-            optional,
-        });
+    // Handle last field if exists
+    if !current_field.trim().is_empty() {
+        if let Some(field) = parse_single_typescript_field(&current_field) {
+            fields.push(field);
+        }
     }
 
     fields
 }
 
+/// Parse a single TypeScript field declaration
+fn parse_single_typescript_field(field_str: &str) -> Option<PropField> {
+    let field_str = field_str.trim();
+    if field_str.is_empty() {
+        return None;
+    }
+
+    // Pattern: name?: { nested } or name?: Type
+    let field_pattern = Regex::new(r#"^(\w+)(\?)?:\s*(.+)$"#).ok()?;
+
+    let cap = field_pattern.captures(field_str)?;
+    let name = cap.get(1)?.as_str().to_string();
+    let optional = cap.get(2).is_some();
+    let type_part = cap.get(3)?.as_str().trim();
+
+    // Check if the type is an inline object (starts with { and ends with })
+    let (field_type, nested) = if type_part.starts_with('{') && type_part.ends_with('}') {
+        // Extract nested object fields
+        let inner = &type_part[1..type_part.len() - 1];
+        let nested_fields = parse_typescript_fields_recursive(inner);
+        if nested_fields.is_empty() {
+            ("object".to_string(), None)
+        } else {
+            ("object".to_string(), Some(nested_fields))
+        }
+    } else {
+        (type_part.to_string(), None)
+    };
+
+    Some(PropField {
+        name,
+        field_type,
+        optional,
+        nested,
+    })
+}
+
+/// Compare Rust and TypeScript props
 fn compare_props(rust: &PropsInfo, ts: &PropsInfo) -> Vec<Mismatch> {
+    compare_fields(&rust.fields, &ts.fields, "")
+}
+
+/// Recursively compare fields between Rust and TypeScript
+fn compare_fields(rust_fields: &[PropField], ts_fields: &[PropField], path: &str) -> Vec<Mismatch> {
     let mut mismatches = Vec::new();
 
-    let rust_fields: HashMap<_, _> = rust.fields.iter().map(|f| (f.name.clone(), f)).collect();
-    let ts_fields: HashMap<_, _> = ts.fields.iter().map(|f| (f.name.clone(), f)).collect();
+    let rust_map: HashMap<_, _> = rust_fields.iter().map(|f| (f.name.clone(), f)).collect();
+    let ts_map: HashMap<_, _> = ts_fields.iter().map(|f| (f.name.clone(), f)).collect();
+
+    // Build a map of camelCase -> original rust field names for reverse lookup
+    let rust_camel_to_snake: HashMap<String, String> = rust_map
+        .keys()
+        .map(|name| (to_camel_case(name), name.clone()))
+        .collect();
 
     // Check for fields in TypeScript but missing in Rust
-    for (name, ts_field) in &ts_fields {
-        if !rust_fields.contains_key(name) && !ts_field.optional {
+    for (name, ts_field) in &ts_map {
+        let field_path = if path.is_empty() {
+            name.clone()
+        } else {
+            format!("{}.{}", path, name)
+        };
+
+        // Check if the TS field exists in Rust (direct match or snake_case version)
+        let rust_field = rust_map.get(name).or_else(|| {
+            rust_camel_to_snake
+                .get(name)
+                .and_then(|sn| rust_map.get(sn))
+        });
+
+        if let Some(rf) = rust_field {
+            // Check structural mismatch: TS has nested but Rust doesn't
+            if ts_field.nested.is_some() && rf.nested.is_none() {
+                mismatches.push(Mismatch {
+                    kind: MismatchKind::StructureMismatch,
+                    field: field_path.clone(),
+                    details: format!(
+                        "Frontend expects '{}' to have nested properties but backend sends flat type '{}'",
+                        name, rf.field_type
+                    ),
+                });
+            } else if ts_field.nested.is_none() && rf.nested.is_some() {
+                mismatches.push(Mismatch {
+                    kind: MismatchKind::StructureMismatch,
+                    field: field_path.clone(),
+                    details: format!(
+                        "Backend sends '{}' with nested structure but frontend expects flat type '{}'",
+                        name, ts_field.field_type
+                    ),
+                });
+            } else if let (Some(ts_nested), Some(rust_nested)) = (&ts_field.nested, &rf.nested) {
+                // Recursively compare nested structures
+                mismatches.extend(compare_fields(rust_nested, ts_nested, &field_path));
+            }
+
+            // Check nullability mismatch
+            if rf.optional && !ts_field.optional && !ts_field.field_type.contains("null") {
+                mismatches.push(Mismatch {
+                    kind: MismatchKind::NullabilityMismatch,
+                    field: field_path,
+                    details: format!(
+                        "Backend sends Option<{}> but frontend expects non-nullable {}",
+                        rf.field_type, ts_field.field_type
+                    ),
+                });
+            }
+        } else if !ts_field.optional {
             mismatches.push(Mismatch {
                 kind: MismatchKind::MissingInBackend,
-                field: name.clone(),
+                field: field_path,
                 details: format!("Frontend expects '{}' but backend doesn't send it", name),
             });
         }
     }
 
-    // Check for fields in Rust but not used in TypeScript (less critical, just info)
-    for name in rust_fields.keys() {
-        if !ts_fields.contains_key(name) {
-            // Convert snake_case to camelCase for comparison
+    // Check for fields in Rust but not used in TypeScript
+    for name in rust_map.keys() {
+        let field_path = if path.is_empty() {
+            name.clone()
+        } else {
+            format!("{}.{}", path, name)
+        };
+
+        if !ts_map.contains_key(name) {
             let camel_name = to_camel_case(name);
-            if !ts_fields.contains_key(&camel_name) {
+            if !ts_map.contains_key(&camel_name) {
                 mismatches.push(Mismatch {
                     kind: MismatchKind::MissingInFrontend,
-                    field: name.clone(),
+                    field: field_path,
                     details: format!(
                         "Backend sends '{}' but frontend doesn't use it (might be intentional)",
                         name
-                    ),
-                });
-            }
-        }
-    }
-
-    // Check type mismatches for common fields
-    for (name, rust_field) in &rust_fields {
-        let ts_name = if ts_fields.contains_key(name) {
-            name.clone()
-        } else {
-            to_camel_case(name)
-        };
-
-        if let Some(ts_field) = ts_fields.get(&ts_name) {
-            // Check nullability mismatch
-            if rust_field.optional && !ts_field.optional && !ts_field.field_type.contains("null") {
-                mismatches.push(Mismatch {
-                    kind: MismatchKind::NullabilityMismatch,
-                    field: name.clone(),
-                    details: format!(
-                        "Backend sends Option<{}> but frontend expects non-nullable {}",
-                        rust_field.field_type, ts_field.field_type
                     ),
                 });
             }
