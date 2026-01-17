@@ -18,12 +18,19 @@ pub struct RedisCache {
 }
 
 impl RedisCache {
-    /// Create a new Redis cache connection
+    /// Create a new Redis cache connection with a 2-second timeout
     pub async fn connect(config: &CacheConfig) -> Result<Self, FrameworkError> {
         let client = Client::open(config.url.as_str())
             .map_err(|e| FrameworkError::internal(format!("Redis connection error: {}", e)))?;
 
-        let conn = ConnectionManager::new(client).await.map_err(|e| {
+        // Timeout after 2 seconds to avoid hanging when Redis is unavailable
+        let conn = tokio::time::timeout(
+            Duration::from_secs(2),
+            ConnectionManager::new(client),
+        )
+        .await
+        .map_err(|_| FrameworkError::internal("Redis connection timeout".to_string()))?
+        .map_err(|e| {
             FrameworkError::internal(format!("Redis connection manager error: {}", e))
         })?;
 
