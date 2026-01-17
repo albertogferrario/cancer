@@ -6,23 +6,8 @@
 - ✅ [**v2.0 Rebrand**](milestones/v2.0-ROADMAP.md) — Phases 13-22 (shipped 2026-01-16)
 - ✅ **v2.0.1 Macro Fix** — Phase 22.1-22.3 (shipped 2026-01-17)
 - ✅ [**v2.0.2 Type Generator Fixes**](milestones/v2.0.2-ROADMAP.md) — Phase 22.4-22.9 (shipped 2026-01-17)
-- ✅ **v2.0.3 DO Apps Deploy** — Phase 22.10 (shipped 2026-01-17)
+- ✅ [**v2.0.3 DO Apps Deploy**](milestones/v2.0.3-ROADMAP.md) — Phase 22.10 (shipped 2026-01-17)
 - 📋 **v2.1 JSON-UI** — Phases 23-32 (planned)
-
----
-
-### ✅ v2.0.3 DO Apps Deploy (Complete)
-
-**Milestone Goal:** Enable one-click deployment to DigitalOcean App Platform with minimal infrastructure configuration.
-
-#### Phase 22.10: DigitalOcean Apps One-Click Deploy
-
-**Goal**: Add DigitalOcean App Platform deployment support with minimal infrastructure requirements
-**Depends on**: v2.0.2 complete
-**Research**: Likely (DO App Platform specs, app.yaml format)
-
-Plans:
-- [x] 22.10-01: DigitalOcean App Platform CLI Command (completed 2026-01-17)
 
 ---
 
@@ -127,6 +112,21 @@ Plans:
 ## Completed Milestones
 
 <details>
+<summary>✅ v2.0.3 DO Apps Deploy (Phase 22.10) — SHIPPED 2026-01-17</summary>
+
+**Milestone Goal:** Enable one-click deployment to DigitalOcean App Platform with minimal infrastructure configuration.
+
+| Phase | Plans | Status | Completed |
+|-------|-------|--------|-----------|
+| 22.10 DigitalOcean Apps Deploy | 1/1 | Complete | 2026-01-17 |
+
+**Total:** 1 phase, 1 plan
+
+[Full details →](milestones/v2.0.3-ROADMAP.md)
+
+</details>
+
+<details>
 <summary>✅ v2.0.2 Type Generator Fixes (Phases 22.4-22.9) — SHIPPED 2026-01-17</summary>
 
 **Milestone Goal:** Fix type generation issues discovered during adotta-animali port to improve TypeScript integration reliability.
@@ -218,14 +218,8 @@ Plans:
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.2 Type Generator Fixes | 22.4-22.9 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.3 DO Apps Deploy | 22.10 | 0/1 | 🚧 In Progress | - |
+| v2.0.3 DO Apps Deploy | 22.10 | 1 | ✅ Complete | 2026-01-17 |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
-
-## Progress (v2.0.3 DO Apps Deploy)
-
-| Phase | Plans | Status | Completed |
-|-------|-------|--------|-----------|
-| 22.10. DigitalOcean Apps Deploy | 0/1 | Planned | - |
 
 ## Progress (v2.1 JSON-UI)
 

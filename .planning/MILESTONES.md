@@ -1,5 +1,73 @@
 # Project Milestones: Ferro Framework
 
+## v2.0.3 DO Apps Deploy (Shipped: 2026-01-17)
+
+**Delivered:** One-click deployment to DigitalOcean App Platform with `ferro do:init` CLI command.
+
+**Phases completed:** 22.10 (1 plan total)
+
+**Key accomplishments:**
+- Created DO App Platform spec template with service, database, and redis configuration
+- Implemented `ferro do:init --repo owner/repo` command following docker_init pattern
+- Generated YAML includes GitHub integration with deploy-on-push
+- Health check endpoint, environment variables, and database bindings pre-configured
+
+**Stats:**
+- 9 files modified (606 insertions)
+- 1 phase, 1 plan, 4 tasks
+- Same day completion (2026-01-17)
+
+**Git range:** `87bd781` → `705750d`
+
+**What's next:** v2.1 JSON-UI milestone for JSON-based UI rendering.
+
+---
+
+## v2.0.2 Type Generator Fixes (Shipped: 2026-01-17)
+
+**Delivered:** TypeScript type generation fixes for production-ready frontend integration.
+
+**Phases completed:** 22.4-22.9 (6 plans total)
+
+**Key accomplishments:**
+- Fixed serde case handling with enum-based approach
+- Resolved prop naming collisions with namespaced names
+- Added contract validation CLI command
+- Implemented datetime type recognition for chrono types
+- Added nested types generation with fixed-point iteration
+- Mapped ValidationErrors to Record<string, string[]>
+
+**Stats:**
+- 6 phases, 6 plans
+- Same day completion (2026-01-17)
+
+**Git range:** Phase 22.4 → Phase 22.9
+
+**What's next:** v2.0.3 DO Apps Deploy
+
+---
+
+## v2.0.1 Macro Fix (Shipped: 2026-01-17)
+
+**Delivered:** Fixed hardcoded macro crate paths from `::ferro_rs::` to canonical `ferro::`.
+
+**Phases completed:** 22.1-22.3 (6 plans total)
+
+**Key accomplishments:**
+- Fixed proc macro crate path generation
+- Simplified macro path handling
+- Completed remaining rebrand items
+
+**Stats:**
+- 3 phases, 6 plans
+- Same day completion (2026-01-17)
+
+**Git range:** Phase 22.1 → Phase 22.3
+
+**What's next:** v2.0.2 Type Generator Fixes
+
+---
+
 ## v2.0 Rebrand (Shipped: 2026-01-16)
 
 **Delivered:** Complete framework rebrand from "cancer" to "ferro" for crates.io publication and public release.

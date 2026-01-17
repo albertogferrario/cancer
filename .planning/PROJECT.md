@@ -50,6 +50,22 @@ Agents can go from "I want an app that does X" to a working, deployed applicatio
 - ✓ Migration guide for existing users — v2.0
 - ✓ Publishing checklist for crates.io — v2.0
 
+**v2.0.1 Macro Fix (shipped 2026-01-17):**
+- ✓ Fixed hardcoded ::ferro_rs:: paths in proc macros — v2.0.1
+- ✓ Simplified macro crate path handling — v2.0.1
+
+**v2.0.2 Type Generator Fixes (shipped 2026-01-17):**
+- ✓ Serde case handling with exhaustive enum matching — v2.0.2
+- ✓ Prop naming collisions resolved with namespaced names — v2.0.2
+- ✓ Contract validation CLI command — v2.0.2
+- ✓ DateTime type recognition for chrono types — v2.0.2
+- ✓ Nested types generation with fixed-point iteration — v2.0.2
+- ✓ ValidationErrors mapped to Record<string, string[]> — v2.0.2
+
+**v2.0.3 DO Apps Deploy (shipped 2026-01-17):**
+- ✓ `ferro do:init` command for DigitalOcean App Platform — v2.0.3
+- ✓ .do/app.yaml template with service, database, redis config — v2.0.3
+
 ### Active
 
 <!-- Current scope. Building toward these. -->
@@ -110,4 +126,4 @@ Reference codebase documentation in `.planning/codebase/`:
 | Alias pattern for migration | Keep code imports working during phased rename | ✓ Good |
 
 ---
-*Last updated: 2026-01-16 after v2.0 Rebrand milestone*
+*Last updated: 2026-01-17 after v2.0.3 DO Apps Deploy milestone*
