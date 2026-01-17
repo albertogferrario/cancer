@@ -1292,4 +1292,231 @@ mod tests {
         assert_eq!(mismatches[0].kind, MismatchKind::MissingInBackend);
         assert_eq!(mismatches[0].field, "application.extra");
     }
+
+    #[test]
+    fn test_parse_typescript_deeply_nested() {
+        let fields_str = r#"
+            user: { profile: { avatar: string } };
+        "#;
+
+        let fields = parse_typescript_interface_fields(fields_str);
+
+        assert_eq!(fields.len(), 1);
+        assert_eq!(fields[0].name, "user");
+        assert!(fields[0].nested.is_some());
+
+        let nested = fields[0].nested.as_ref().unwrap();
+        assert_eq!(nested.len(), 1);
+        assert_eq!(nested[0].name, "profile");
+        assert!(nested[0].nested.is_some());
+
+        let deeply_nested = nested[0].nested.as_ref().unwrap();
+        assert_eq!(deeply_nested.len(), 1);
+        assert_eq!(deeply_nested[0].name, "avatar");
+    }
+
+    #[test]
+    fn test_parse_typescript_optional_nested() {
+        let fields_str = r#"
+            data?: { id: number };
+        "#;
+
+        let fields = parse_typescript_interface_fields(fields_str);
+
+        assert_eq!(fields.len(), 1);
+        assert_eq!(fields[0].name, "data");
+        assert!(fields[0].optional);
+        assert!(fields[0].nested.is_some());
+    }
+
+    #[test]
+    fn test_compare_deeply_nested_structure() {
+        let ts = PropsInfo {
+            name: "Props".to_string(),
+            fields: vec![PropField {
+                name: "user".to_string(),
+                field_type: "object".to_string(),
+                optional: false,
+                nested: Some(vec![PropField {
+                    name: "profile".to_string(),
+                    field_type: "object".to_string(),
+                    optional: false,
+                    nested: Some(vec![PropField {
+                        name: "name".to_string(),
+                        field_type: "string".to_string(),
+                        optional: false,
+                        nested: None,
+                    }]),
+                }]),
+            }],
+            source_file: "test.tsx".to_string(),
+        };
+
+        let rust = PropsInfo {
+            name: "Props".to_string(),
+            fields: vec![PropField {
+                name: "user".to_string(),
+                field_type: "User".to_string(),
+                optional: false,
+                nested: Some(vec![PropField {
+                    name: "profile".to_string(),
+                    field_type: "Profile".to_string(),
+                    optional: false,
+                    nested: Some(vec![PropField {
+                        name: "name".to_string(),
+                        field_type: "String".to_string(),
+                        optional: false,
+                        nested: None,
+                    }]),
+                }]),
+            }],
+            source_file: "test.rs".to_string(),
+        };
+
+        let mismatches = compare_props(&rust, &ts);
+        assert!(mismatches.is_empty());
+    }
+
+    #[test]
+    fn test_compare_nested_nullability_mismatch() {
+        let ts = PropsInfo {
+            name: "Props".to_string(),
+            fields: vec![PropField {
+                name: "data".to_string(),
+                field_type: "object".to_string(),
+                optional: false,
+                nested: Some(vec![PropField {
+                    name: "value".to_string(),
+                    field_type: "string".to_string(),
+                    optional: false,
+                    nested: None,
+                }]),
+            }],
+            source_file: "test.tsx".to_string(),
+        };
+
+        let rust = PropsInfo {
+            name: "Props".to_string(),
+            fields: vec![PropField {
+                name: "data".to_string(),
+                field_type: "Data".to_string(),
+                optional: false,
+                nested: Some(vec![PropField {
+                    name: "value".to_string(),
+                    field_type: "Option<String>".to_string(),
+                    optional: true,
+                    nested: None,
+                }]),
+            }],
+            source_file: "test.rs".to_string(),
+        };
+
+        let mismatches = compare_props(&rust, &ts);
+
+        assert_eq!(mismatches.len(), 1);
+        assert_eq!(mismatches[0].kind, MismatchKind::NullabilityMismatch);
+        assert_eq!(mismatches[0].field, "data.value");
+    }
+
+    #[test]
+    fn test_all_fields_match() {
+        let rust = PropsInfo {
+            name: "TestProps".to_string(),
+            fields: vec![
+                PropField {
+                    name: "id".to_string(),
+                    field_type: "i64".to_string(),
+                    optional: false,
+                    nested: None,
+                },
+                PropField {
+                    name: "name".to_string(),
+                    field_type: "String".to_string(),
+                    optional: false,
+                    nested: None,
+                },
+            ],
+            source_file: "test.rs".to_string(),
+        };
+
+        let ts = PropsInfo {
+            name: "TestProps".to_string(),
+            fields: vec![
+                PropField {
+                    name: "id".to_string(),
+                    field_type: "number".to_string(),
+                    optional: false,
+                    nested: None,
+                },
+                PropField {
+                    name: "name".to_string(),
+                    field_type: "string".to_string(),
+                    optional: false,
+                    nested: None,
+                },
+            ],
+            source_file: "test.tsx".to_string(),
+        };
+
+        let mismatches = compare_props(&rust, &ts);
+        assert!(mismatches.is_empty());
+    }
+
+    #[test]
+    fn test_multiple_mismatches() {
+        let rust = PropsInfo {
+            name: "TestProps".to_string(),
+            fields: vec![
+                PropField {
+                    name: "id".to_string(),
+                    field_type: "i64".to_string(),
+                    optional: false,
+                    nested: None,
+                },
+                PropField {
+                    name: "extra_field".to_string(),
+                    field_type: "String".to_string(),
+                    optional: false,
+                    nested: None,
+                },
+            ],
+            source_file: "test.rs".to_string(),
+        };
+
+        let ts = PropsInfo {
+            name: "TestProps".to_string(),
+            fields: vec![
+                PropField {
+                    name: "id".to_string(),
+                    field_type: "number".to_string(),
+                    optional: false,
+                    nested: None,
+                },
+                PropField {
+                    name: "missing_in_rust".to_string(),
+                    field_type: "string".to_string(),
+                    optional: false,
+                    nested: None,
+                },
+            ],
+            source_file: "test.tsx".to_string(),
+        };
+
+        let mismatches = compare_props(&rust, &ts);
+
+        // Should have 2 mismatches: missing_in_rust in backend, extra_field in frontend
+        assert_eq!(mismatches.len(), 2);
+
+        let missing_backend = mismatches
+            .iter()
+            .find(|m| m.kind == MismatchKind::MissingInBackend);
+        let missing_frontend = mismatches
+            .iter()
+            .find(|m| m.kind == MismatchKind::MissingInFrontend);
+
+        assert!(missing_backend.is_some());
+        assert!(missing_frontend.is_some());
+        assert_eq!(missing_backend.unwrap().field, "missing_in_rust");
+        assert_eq!(missing_frontend.unwrap().field, "extra_field");
+    }
 }
