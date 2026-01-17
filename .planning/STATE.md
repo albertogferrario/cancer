@@ -9,12 +9,14 @@ See: .planning/PROJECT.md (updated 2026-01-17)
 
 ## Current Position
 
-Phase: 23 (JSON-UI Schema)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-01-17 — Completed v2.0.3 milestone
+Phase: 33 (Inertia DX Improvements)
+Plan: 33-01, 33-02, 33-03 ready
+Status: Ready to execute
+Last activity: 2026-01-17 — Planned Phase 33
 
 Progress: ░░░░░░░░░░ 0%
+
+> **Note:** Phase 33 executes before JSON-UI (23-32) as a prerequisite DX improvement.
 
 ## Milestone Summary
 
@@ -25,7 +27,7 @@ Progress: ░░░░░░░░░░ 0%
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.2 Type Generator Fixes | 22.4-22.9 | 6 | ✅ Complete | 2026-01-17 |
 | v2.0.3 DO Apps Deploy | 22.10 | 1 | ✅ Complete | 2026-01-17 |
-| v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
+| v2.1 JSON-UI | 23-33 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
 
@@ -53,7 +55,8 @@ v2.0.3 complete. Ready to plan v2.1 JSON-UI.
 - v2.0.1 Macro Fix complete: 3 phases (Phase 22.1-22.3) (2026-01-17)
 - v2.0.2 Type Generator Fixes complete: 6 phases, 6 plans (Phase 22.4-22.9) (2026-01-17)
 - v2.0.3 DO Apps Deploy complete: 1 phase, 1 plan (Phase 22.10) (2026-01-17)
-- v2.1 JSON-UI ready: 10 phases (Phase 23-32) - awaiting planning
+- v2.1 JSON-UI ready: 11 phases (Phase 23-33) - awaiting planning
+- Phase 33 added: Inertia DX Improvements (from backlog)
 
 ## Session Continuity
 
