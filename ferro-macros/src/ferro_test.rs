@@ -1,4 +1,4 @@
-//! `#[cancer_test]` attribute macro for database-enabled tests (Ferro framework)
+//! `#[ferro_test]` attribute macro for database-enabled tests (Ferro framework)
 //!
 //! This macro simplifies writing tests that need database access by automatically
 //! setting up an in-memory SQLite database with migrations applied.
@@ -8,11 +8,11 @@ use quote::quote;
 use syn::{parse_macro_input, FnArg, ItemFn, Pat, Type};
 
 /// Parse the macro attributes
-struct CancerTestArgs {
+struct FerroTestArgs {
     migrator: Option<syn::Path>,
 }
 
-impl syn::parse::Parse for CancerTestArgs {
+impl syn::parse::Parse for FerroTestArgs {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut migrator = None;
 
@@ -56,8 +56,8 @@ fn find_db_param_name(func: &ItemFn) -> Option<syn::Ident> {
     None
 }
 
-pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
-    let args = parse_macro_input!(attr as CancerTestArgs);
+pub fn ferro_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
+    let args = parse_macro_input!(attr as FerroTestArgs);
     let input_fn = parse_macro_input!(input as ItemFn);
 
     let ferro = quote!(::ferro);
@@ -67,7 +67,7 @@ pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     let fn_attrs: Vec<_> = input_fn
         .attrs
         .iter()
-        .filter(|attr| !attr.path().is_ident("cancer_test"))
+        .filter(|attr| !attr.path().is_ident("ferro_test"))
         .collect();
     let fn_vis = &input_fn.vis;
 

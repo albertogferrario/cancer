@@ -139,10 +139,10 @@ pub fn test_impl(input: TokenStream) -> TokenStream {
 
     if args.is_async {
         if has_db_param {
-            // Async with TestDatabase - use cancer_test
+            // Async with TestDatabase - use ferro_test
             let db_param_name = &db_param.unwrap().name;
             let output = quote! {
-                #[#ferro::cancer_test]
+                #[#ferro::ferro_test]
                 async fn #fn_name(#db_param_name: #ferro::testing::TestDatabase) {
                     // Set the test name for expect! macro output
                     #ferro::testing::set_current_test_name(Some(#name_str.to_string()));
@@ -160,9 +160,9 @@ pub fn test_impl(input: TokenStream) -> TokenStream {
             };
             output.into()
         } else {
-            // Async without TestDatabase - still use cancer_test for consistency
+            // Async without TestDatabase - still use ferro_test for consistency
             let output = quote! {
-                #[#ferro::cancer_test]
+                #[#ferro::ferro_test]
                 async fn #fn_name() {
                     // Set the test name for expect! macro output
                     #ferro::testing::set_current_test_name(Some(#name_str.to_string()));

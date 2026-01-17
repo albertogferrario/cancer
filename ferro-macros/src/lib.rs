@@ -10,7 +10,7 @@
 
 use proc_macro::TokenStream;
 
-mod cancer_test;
+mod ferro_test;
 mod describe;
 mod domain_error;
 mod handler;
@@ -305,10 +305,10 @@ pub fn request(attr: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// ## Basic usage (recommended):
 /// ```rust,ignore
-/// use ferro::cancer_test;
+/// use ferro::ferro_test;
 /// use ferro::testing::TestDatabase;
 ///
-/// #[cancer_test]
+/// #[ferro_test]
 /// async fn test_user_creation(db: TestDatabase) {
 ///     // db is an in-memory SQLite database with all migrations applied
 ///     // Any code using DB::connection() will use this test database
@@ -320,7 +320,7 @@ pub fn request(attr: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// ## Without TestDatabase parameter:
 /// ```rust,ignore
-/// #[cancer_test]
+/// #[ferro_test]
 /// async fn test_action_without_direct_db_access() {
 ///     // Database is set up but not directly accessed
 ///     // Actions using DB::connection() still work
@@ -331,14 +331,14 @@ pub fn request(attr: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// ## With custom migrator:
 /// ```rust,ignore
-/// #[cancer_test(migrator = my_crate::CustomMigrator)]
+/// #[ferro_test(migrator = my_crate::CustomMigrator)]
 /// async fn test_with_custom_migrator(db: TestDatabase) {
 ///     // Uses custom migrator instead of default
 /// }
 /// ```
 #[proc_macro_attribute]
-pub fn cancer_test(attr: TokenStream, input: TokenStream) -> TokenStream {
-    cancer_test::cancer_test_impl(attr, input)
+pub fn ferro_test(attr: TokenStream, input: TokenStream) -> TokenStream {
+    ferro_test::ferro_test_impl(attr, input)
 }
 
 /// Group related tests with a descriptive name
