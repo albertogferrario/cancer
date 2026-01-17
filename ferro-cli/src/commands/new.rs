@@ -42,7 +42,7 @@ pub fn run(name: Option<String>, no_interaction: bool, no_git: bool) {
     println!();
     println!(
         "Backend will be at {}",
-        style("http://localhost:8000").underlined()
+        style("http://localhost:8080").underlined()
     );
     println!(
         "Frontend dev server at {}",

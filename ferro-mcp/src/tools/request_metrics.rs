@@ -76,7 +76,7 @@ pub fn execute() -> Result<MetricsInfo> {
     if let Ok(handle) = rt {
         let runtime_metrics = handle.block_on(async {
             // Try common development ports
-            for base_url in ["http://localhost:8000", "http://127.0.0.1:8000"] {
+            for base_url in ["http://localhost:8080", "http://127.0.0.1:8080"] {
                 if let Some(metrics) = fetch_runtime_metrics(base_url).await {
                     return Some(metrics);
                 }

@@ -18,7 +18,7 @@ cd myapp
 ferro serve
 ```
 
-Your app is now running at `http://localhost:8000`
+Your app is now running at `http://localhost:8080`
 
 ## Example
 

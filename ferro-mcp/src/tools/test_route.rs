@@ -47,7 +47,7 @@ pub async fn execute(project_root: &Path, params: TestRouteParams) -> Result<Rou
     // Get the app URL from environment
     dotenvy::from_path(project_root.join(".env")).ok();
 
-    let app_url = std::env::var("APP_URL").unwrap_or_else(|_| "http://localhost:8000".to_string());
+    let app_url = std::env::var("APP_URL").unwrap_or_else(|_| "http://localhost:8080".to_string());
 
     let full_url = format!("{}{}", app_url.trim_end_matches('/'), params.path);
 

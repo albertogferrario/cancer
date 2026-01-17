@@ -151,7 +151,7 @@ pub fn execute() -> Result<QueueStatusInfo> {
     if let Ok(handle) = rt {
         let (jobs, stats) = handle.block_on(async {
             // Try common development ports
-            for base_url in ["http://localhost:8000", "http://127.0.0.1:8000"] {
+            for base_url in ["http://localhost:8080", "http://127.0.0.1:8080"] {
                 let jobs = fetch_runtime_jobs(base_url).await;
                 let stats = fetch_runtime_stats(base_url).await;
 

@@ -91,7 +91,7 @@ pub fn execute(project_root: &Path) -> Result<RoutesInfo> {
         // We're already in a tokio runtime, use block_in_place
         let runtime_routes = handle.block_on(async {
             // Try common development ports
-            for base_url in ["http://localhost:8000", "http://127.0.0.1:8000"] {
+            for base_url in ["http://localhost:8080", "http://127.0.0.1:8080"] {
                 if let Some(routes) = fetch_runtime_routes(base_url).await {
                     return Some(routes);
                 }

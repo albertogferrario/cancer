@@ -11,7 +11,7 @@ Start the Ferro development server with hot reload and request logging.
 
 <arguments>
 Optional:
-- `--port=PORT` - Port to listen on (default: 8000)
+- `--port=PORT` - Port to listen on (default: 8080)
 - `--host=HOST` - Host to bind to (default: 127.0.0.1)
 - `--release` - Run in release mode
 - `--watch` - Enable hot reload (default)
@@ -79,8 +79,8 @@ Display server info:
 ```
 🚀 Ferro Development Server
 
-   Local:    http://127.0.0.1:8000
-   Network:  http://192.168.1.100:8000
+   Local:    http://127.0.0.1:8080
+   Network:  http://192.168.1.100:8080
 
    Mode:     development
    Reload:   enabled

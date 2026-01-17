@@ -27,7 +27,7 @@ impl Server {
             router: Arc::new(router.into()),
             middleware: MiddlewareRegistry::new(),
             host: "127.0.0.1".to_string(),
-            port: 8000,
+            port: 8080,
         }
     }
 

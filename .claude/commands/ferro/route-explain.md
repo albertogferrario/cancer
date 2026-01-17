@@ -120,7 +120,7 @@ pub async fn show(
 ## Request Example
 
 ```bash
-curl -X GET "http://localhost:8000/api/users/1?include=posts" \
+curl -X GET "http://localhost:8080/api/users/1?include=posts" \
   -H "Authorization: Bearer <token>" \
   -H "Accept: application/json"
 ```

@@ -52,7 +52,7 @@ cd my-app
 ferro serve
 ```
 
-This starts both the backend (port 8000) and frontend (port 5173) servers.
+This starts both the backend (port 8080) and frontend (port 5173) servers.
 
 ### Server Options
 

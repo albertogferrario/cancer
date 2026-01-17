@@ -164,7 +164,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     // Start server
-    let addr = std::env::var("APP_URL").unwrap_or_else(|_| "127.0.0.1:8000".into());
+    let addr = std::env::var("APP_URL").unwrap_or_else(|_| "127.0.0.1:8080".into());
     tracing::info!("Starting server at http://{}", addr);
 
     app.serve(&addr).await?;
@@ -181,7 +181,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 APP_NAME={name}
 APP_ENV=development
 APP_DEBUG=true
-APP_URL=http://localhost:8000
+APP_URL=http://localhost:8080
 APP_KEY=base64:generate-a-random-key-here
 
 {if database == "sqlite"}

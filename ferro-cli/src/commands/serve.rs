@@ -191,12 +191,11 @@ pub fn run(
     let backend_host = std::env::var("SERVER_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
 
     // Resolve ports: CLI args take precedence, then env vars, then defaults
-    // CLI default is 8000, framework ServerConfig default is 8080
-    let backend_port = if port != 8000 {
-        // CLI argument was explicitly provided (different from CLI default)
+    let backend_port = if port != 8080 {
+        // CLI argument was explicitly provided (different from default)
         port
     } else {
-        // Use env var or framework default (8080)
+        // Use env var or default (8080)
         std::env::var("SERVER_PORT")
             .ok()
             .and_then(|v| v.parse().ok())

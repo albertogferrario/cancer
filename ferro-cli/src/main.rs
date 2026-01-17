@@ -30,8 +30,8 @@ enum Commands {
     },
     /// Start the development servers (backend + frontend)
     Serve {
-        /// Backend port (default: 8000)
-        #[arg(long, short = 'p', default_value = "8000")]
+        /// Backend port (default: 8080)
+        #[arg(long, short = 'p', default_value = "8080")]
         port: u16,
 
         /// Frontend port (default: 5173)
