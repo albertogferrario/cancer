@@ -14,6 +14,14 @@ pub struct ApplicationInfo {
     pub environment: String,
     pub installed_crates: Vec<CrateInfo>,
     pub models: Vec<ModelInfo>,
+    pub claude_code_skills: ClaudeCodeSkillsStatus,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ClaudeCodeSkillsStatus {
+    pub installed: bool,
+    pub skill_count: usize,
+    pub install_hint: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -48,6 +56,9 @@ pub fn execute(project_root: &Path) -> Result<ApplicationInfo> {
     // Scan for models
     let models = introspection::models::scan_models(project_root);
 
+    // Check Claude Code skills installation
+    let claude_code_skills = check_claude_code_skills();
+
     Ok(ApplicationInfo {
         framework_version,
         rust_version,
@@ -55,6 +66,7 @@ pub fn execute(project_root: &Path) -> Result<ApplicationInfo> {
         environment,
         installed_crates,
         models,
+        claude_code_skills,
     })
 }
 
@@ -178,4 +190,41 @@ fn get_installed_crates(project_root: &Path) -> Result<Vec<CrateInfo>> {
     }
 
     Ok(crates)
+}
+
+fn check_claude_code_skills() -> ClaudeCodeSkillsStatus {
+    // Get home directory and check for skills
+    let skills_dir = dirs::home_dir().map(|h| h.join(".claude").join("commands").join("ferro"));
+
+    match skills_dir {
+        Some(dir) if dir.exists() => {
+            // Count .md files in the directory
+            let skill_count = std::fs::read_dir(&dir)
+                .map(|entries| {
+                    entries
+                        .filter_map(|e| e.ok())
+                        .filter(|e| e.path().extension().map(|ext| ext == "md").unwrap_or(false))
+                        .count()
+                })
+                .unwrap_or(0);
+
+            ClaudeCodeSkillsStatus {
+                installed: skill_count > 0,
+                skill_count,
+                install_hint: if skill_count == 0 {
+                    Some("Run `ferro claude:install` to install Claude Code skills".to_string())
+                } else {
+                    None
+                },
+            }
+        }
+        _ => ClaudeCodeSkillsStatus {
+            installed: false,
+            skill_count: 0,
+            install_hint: Some(
+                "Run `ferro claude:install` to install Claude Code skills for enhanced DX"
+                    .to_string(),
+            ),
+        },
+    }
 }

@@ -743,6 +743,51 @@ ferro boost:install
 
 This sets up configuration for enhanced AI-assisted development workflows.
 
+### `ferro claude:install`
+
+Install Ferro Claude Code skills to enable `/ferro:*` slash commands in Claude Code.
+
+```bash
+# Install all skills
+ferro claude:install
+
+# Force overwrite existing skills
+ferro claude:install --force
+
+# List available skills without installing
+ferro claude:install --list
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--force`, `-f` | Overwrite existing skill files |
+| `--list`, `-l` | List available skills without installing |
+
+**Installed Location:** `~/.claude/commands/ferro/`
+
+**Available Skills:**
+
+| Command | Description |
+|---------|-------------|
+| `/ferro:help` | Show all available Ferro commands |
+| `/ferro:info` | Display project information |
+| `/ferro:routes` | List all registered routes |
+| `/ferro:route:explain` | Explain a specific route in detail |
+| `/ferro:model` | Generate a new model with migration |
+| `/ferro:models` | List all models with fields |
+| `/ferro:controller` | Generate a new controller |
+| `/ferro:middleware` | Generate new middleware |
+| `/ferro:db` | Database operations (migrate, rollback, seed) |
+| `/ferro:test` | Run tests with coverage options |
+| `/ferro:serve` | Start the development server |
+| `/ferro:new` | Create a new Ferro project |
+| `/ferro:tinker` | Interactive database REPL |
+| `/ferro:diagnose` | Diagnose errors using MCP introspection |
+
+Skills leverage ferro-mcp for intelligent code generation and project introspection.
+
 ## Command Summary
 
 | Command | Description |
@@ -779,6 +824,7 @@ This sets up configuration for enhanced AI-assisted development workflows.
 | `storage:link` | Create storage symlink |
 | `mcp` | Start MCP server |
 | `boost:install` | Install AI boost features |
+| `claude:install` | Install Claude Code skills |
 
 ## Environment Variables
 

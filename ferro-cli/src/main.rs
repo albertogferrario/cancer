@@ -252,6 +252,16 @@ enum Commands {
         #[arg(long)]
         editor: Option<String>,
     },
+    /// Install Ferro Claude Code skills to ~/.claude/commands/ferro/
+    #[command(name = "claude:install")]
+    ClaudeInstall {
+        /// Overwrite existing skill files
+        #[arg(long, short = 'f')]
+        force: bool,
+        /// List available skills without installing
+        #[arg(long, short = 'l')]
+        list: bool,
+    },
     /// Clean build artifacts using cargo-sweep
     Clean {
         /// Remove artifacts older than N days (default: 30)
@@ -403,6 +413,9 @@ fn main() {
         }
         Commands::BoostInstall { editor } => {
             commands::boost_install::run(editor);
+        }
+        Commands::ClaudeInstall { force, list } => {
+            commands::claude_install::run(force, list);
         }
         Commands::Clean {
             days,
