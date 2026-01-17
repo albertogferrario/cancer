@@ -45,3 +45,24 @@ pub fn ferro_crate() -> TokenStream {
     // Default fallback
     quote!(::ferro_rs)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_ferro_crate_returns_tokenstream() {
+        // This will use the default fallback in test context
+        // (proc-macro-crate reads from CARGO_MANIFEST_DIR which
+        // points to ferro-macros during tests)
+        let tokens = ferro_crate();
+        let token_str = tokens.to_string();
+
+        // Should produce a valid crate path
+        assert!(
+            token_str.contains("ferro") || token_str == "crate",
+            "Expected ferro crate path, got: {}",
+            token_str
+        );
+    }
+}
