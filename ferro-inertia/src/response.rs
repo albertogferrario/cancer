@@ -21,7 +21,7 @@ pub struct InertiaHttpResponse {
 }
 
 impl InertiaHttpResponse {
-    /// Create a JSON response.
+    /// Create a JSON response with Inertia headers.
     pub fn json(body: impl Into<String>) -> Self {
         Self {
             status: 200,
@@ -29,6 +29,18 @@ impl InertiaHttpResponse {
                 ("X-Inertia".to_string(), "true".to_string()),
                 ("Vary".to_string(), "X-Inertia".to_string()),
             ],
+            body: body.into(),
+            content_type: "application/json",
+        }
+    }
+
+    /// Create a raw JSON response without Inertia headers.
+    ///
+    /// Used for JSON fallback when a non-Inertia client requests JSON.
+    pub fn raw_json(body: impl Into<String>) -> Self {
+        Self {
+            status: 200,
+            headers: vec![],
             body: body.into(),
             content_type: "application/json",
         }
@@ -118,7 +130,37 @@ impl Inertia {
         R: InertiaRequest,
         P: Serialize,
     {
-        Self::render_with_options(req, component, props, None, InertiaConfig::default())
+        Self::render_internal(req, component, props, None, InertiaConfig::default(), false)
+    }
+
+    /// Render an Inertia response with JSON fallback for API clients.
+    ///
+    /// When enabled, requests with `Accept: application/json` header (but without
+    /// `X-Inertia: true`) will receive raw props as JSON instead of HTML.
+    ///
+    /// This is useful for:
+    /// - API testing with curl or Postman
+    /// - Hybrid apps that sometimes need raw JSON
+    /// - Debug tooling
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use ferro_inertia::Inertia;
+    /// use serde_json::json;
+    ///
+    /// // curl -H "Accept: application/json" http://localhost:3000/posts/1
+    /// // Returns raw JSON props instead of HTML
+    /// let response = Inertia::render_with_json_fallback(&req, "Posts/Show", json!({
+    ///     "post": { "id": 1, "title": "Hello" }
+    /// }));
+    /// ```
+    pub fn render_with_json_fallback<R, P>(req: &R, component: &str, props: P) -> InertiaHttpResponse
+    where
+        R: InertiaRequest,
+        P: Serialize,
+    {
+        Self::render_internal(req, component, props, None, InertiaConfig::default(), true)
     }
 
     /// Render an Inertia response with shared props.
@@ -132,12 +174,13 @@ impl Inertia {
         R: InertiaRequest,
         P: Serialize,
     {
-        Self::render_with_options(
+        Self::render_internal(
             req,
             component,
             props,
             Some(shared),
             InertiaConfig::default(),
+            false,
         )
     }
 
@@ -152,7 +195,7 @@ impl Inertia {
         R: InertiaRequest,
         P: Serialize,
     {
-        Self::render_with_options(req, component, props, None, config)
+        Self::render_internal(req, component, props, None, config, false)
     }
 
     /// Render an Inertia response with all options.
@@ -162,6 +205,37 @@ impl Inertia {
         props: P,
         shared: Option<&InertiaShared>,
         config: InertiaConfig,
+    ) -> InertiaHttpResponse
+    where
+        R: InertiaRequest,
+        P: Serialize,
+    {
+        Self::render_internal(req, component, props, shared, config, false)
+    }
+
+    /// Render an Inertia response with all options and JSON fallback.
+    pub fn render_with_options_and_json_fallback<R, P>(
+        req: &R,
+        component: &str,
+        props: P,
+        shared: Option<&InertiaShared>,
+        config: InertiaConfig,
+    ) -> InertiaHttpResponse
+    where
+        R: InertiaRequest,
+        P: Serialize,
+    {
+        Self::render_internal(req, component, props, shared, config, true)
+    }
+
+    /// Internal render method with all options.
+    fn render_internal<R, P>(
+        req: &R,
+        component: &str,
+        props: P,
+        shared: Option<&InertiaShared>,
+        config: InertiaConfig,
+        json_fallback: bool,
     ) -> InertiaHttpResponse
     where
         R: InertiaRequest,
@@ -195,6 +269,15 @@ impl Inertia {
                     props_value = Self::filter_partial_props(props_value, &partial_keys);
                 }
             }
+        }
+
+        // Check for JSON fallback before normal Inertia handling
+        // If JSON fallback is enabled and request accepts JSON but is not an Inertia request,
+        // return raw props as JSON
+        if json_fallback && !is_inertia && req.accepts_json() {
+            return InertiaHttpResponse::raw_json(
+                serde_json::to_string(&props_value).unwrap_or_default(),
+            );
         }
 
         let response = InertiaResponse::new(component, props_value, url).with_config(config);

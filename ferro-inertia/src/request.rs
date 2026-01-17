@@ -63,4 +63,13 @@ pub trait InertiaRequest {
     fn inertia_partial_component(&self) -> Option<&str> {
         self.inertia_header("X-Inertia-Partial-Component")
     }
+
+    /// Check if the request accepts JSON responses.
+    ///
+    /// Returns `true` if the `Accept` header contains `application/json`.
+    fn accepts_json(&self) -> bool {
+        self.inertia_header("Accept")
+            .map(|v| v.contains("application/json"))
+            .unwrap_or(false)
+    }
 }
