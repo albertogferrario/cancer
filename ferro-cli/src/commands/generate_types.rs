@@ -88,6 +88,10 @@ pub struct InertiaPropsStruct {
     pub fields: Vec<StructField>,
     /// Serde rename_all attribute on the struct
     pub rename_all: SerdeCase,
+    /// Module path where this struct is defined (e.g., "shelter::applications")
+    /// Used to generate unique namespaced TypeScript interface names
+    #[allow(dead_code)] // Will be used in namespaced interface generation (Task 2)
+    pub module_path: String,
 }
 
 #[derive(Debug, Clone)]
@@ -112,12 +116,15 @@ pub enum RustType {
 /// Visitor that collects structs with #[derive(InertiaProps)]
 struct InertiaPropsVisitor {
     structs: Vec<InertiaPropsStruct>,
+    /// Module path for the current file being scanned
+    module_path: String,
 }
 
 impl InertiaPropsVisitor {
-    fn new() -> Self {
+    fn new(module_path: String) -> Self {
         Self {
             structs: Vec::new(),
+            module_path,
         }
     }
 
@@ -323,6 +330,7 @@ impl<'ast> Visit<'ast> for InertiaPropsVisitor {
                 name,
                 fields,
                 rename_all,
+                module_path: self.module_path.clone(),
             });
         }
 
@@ -337,13 +345,16 @@ struct SerializeStructVisitor {
     target_types: HashSet<String>,
     /// Found structs matching target types
     structs: Vec<InertiaPropsStruct>,
+    /// Module path for the current file being scanned
+    module_path: String,
 }
 
 impl SerializeStructVisitor {
-    fn new(target_types: HashSet<String>) -> Self {
+    fn new(target_types: HashSet<String>, module_path: String) -> Self {
         Self {
             target_types,
             structs: Vec::new(),
+            module_path,
         }
     }
 
@@ -402,12 +413,42 @@ impl<'ast> Visit<'ast> for SerializeStructVisitor {
                 name,
                 fields,
                 rename_all,
+                module_path: self.module_path.clone(),
             });
         }
 
         // Continue visiting nested items
         syn::visit::visit_item_struct(self, node);
     }
+}
+
+/// Compute module path from file path relative to src directory.
+///
+/// Strips "src/" prefix and ".rs" extension, removes "controllers::" prefix if present,
+/// and converts path separators to "::".
+///
+/// Examples:
+/// - "src/controllers/shelter/applications.rs" -> "shelter::applications"
+/// - "src/controllers/user.rs" -> "user"
+/// - "src/models/animal.rs" -> "models::animal"
+fn compute_module_path(file_path: &Path, src_path: &Path) -> String {
+    let relative = file_path
+        .strip_prefix(src_path)
+        .unwrap_or(file_path)
+        .with_extension("");
+
+    let path_str = relative
+        .to_string_lossy()
+        .replace(std::path::MAIN_SEPARATOR, "::");
+
+    // Remove "mod" suffix if the file is mod.rs
+    let path_str = path_str.strip_suffix("::mod").unwrap_or(&path_str);
+
+    // Strip "controllers::" prefix for cleaner namespacing
+    path_str
+        .strip_prefix("controllers::")
+        .unwrap_or(path_str)
+        .to_string()
 }
 
 /// Scan all Rust files for Serialize structs matching the target type names
@@ -429,7 +470,8 @@ pub fn scan_serialize_structs(
     {
         if let Ok(content) = fs::read_to_string(entry.path()) {
             if let Ok(syntax) = syn::parse_file(&content) {
-                let mut visitor = SerializeStructVisitor::new(target_types.clone());
+                let module_path = compute_module_path(entry.path(), &src_path);
+                let mut visitor = SerializeStructVisitor::new(target_types.clone(), module_path);
                 visitor.visit_file(&syntax);
                 all_structs.extend(visitor.structs);
             }
@@ -451,7 +493,8 @@ pub fn scan_inertia_props(project_path: &Path) -> Vec<InertiaPropsStruct> {
     {
         if let Ok(content) = fs::read_to_string(entry.path()) {
             if let Ok(syntax) = syn::parse_file(&content) {
-                let mut visitor = InertiaPropsVisitor::new();
+                let module_path = compute_module_path(entry.path(), &src_path);
+                let mut visitor = InertiaPropsVisitor::new(module_path);
                 visitor.visit_file(&syntax);
                 all_structs.extend(visitor.structs);
             }
@@ -1060,6 +1103,7 @@ mod tests {
                 },
             ],
             rename_all: SerdeCase::CamelCase,
+            module_path: String::new(),
         }];
 
         let typescript = generate_typescript(&structs);
@@ -1091,6 +1135,7 @@ mod tests {
                 },
             ],
             rename_all: SerdeCase::None,
+            module_path: String::new(),
         }];
 
         let typescript = generate_typescript(&structs);
@@ -1129,6 +1174,7 @@ mod tests {
                 },
             ],
             rename_all: SerdeCase::None,
+            module_path: String::new(),
         }];
 
         let types = collect_referenced_types(&structs);
@@ -1158,6 +1204,7 @@ mod tests {
                 },
             ],
             rename_all: SerdeCase::None,
+            module_path: String::new(),
         }];
 
         // Test without project path (no imports)
@@ -1198,7 +1245,7 @@ mod tests {
         target_types.insert("UserInfo".to_string());
 
         if let Ok(syntax) = syn::parse_file(code) {
-            let mut visitor = SerializeStructVisitor::new(target_types);
+            let mut visitor = SerializeStructVisitor::new(target_types, String::new());
             syn::visit::Visit::visit_file(&mut visitor, &syntax);
 
             assert_eq!(visitor.structs.len(), 2);
@@ -1239,7 +1286,7 @@ mod tests {
         target_types.insert("WrongDerive".to_string()); // Exists but wrong derive
 
         if let Ok(syntax) = syn::parse_file(code) {
-            let mut visitor = SerializeStructVisitor::new(target_types);
+            let mut visitor = SerializeStructVisitor::new(target_types, String::new());
             syn::visit::Visit::visit_file(&mut visitor, &syntax);
 
             // Should find nothing since none match both criteria
@@ -1267,7 +1314,7 @@ mod tests {
         target_types.insert("WithRenameAll".to_string());
 
         if let Ok(syntax) = syn::parse_file(code) {
-            let mut visitor = SerializeStructVisitor::new(target_types);
+            let mut visitor = SerializeStructVisitor::new(target_types, String::new());
             syn::visit::Visit::visit_file(&mut visitor, &syntax);
 
             assert_eq!(visitor.structs.len(), 1);
@@ -1301,7 +1348,7 @@ mod tests {
         target_types.insert("FormProps".to_string());
 
         if let Ok(syntax) = syn::parse_file(code) {
-            let mut visitor = SerializeStructVisitor::new(target_types);
+            let mut visitor = SerializeStructVisitor::new(target_types, String::new());
             syn::visit::Visit::visit_file(&mut visitor, &syntax);
 
             assert_eq!(visitor.structs.len(), 1);
@@ -1349,6 +1396,7 @@ mod tests {
                 },
             ],
             rename_all: SerdeCase::None,
+            module_path: String::new(),
         }];
 
         // resolve_nested_types requires a project path with actual files
@@ -1376,6 +1424,7 @@ mod tests {
                 },
             ],
             rename_all: SerdeCase::None,
+            module_path: String::new(),
         }];
 
         let mut shared_types = HashSet::new();
@@ -1404,6 +1453,7 @@ mod tests {
                 serde_rename: None,
             }],
             rename_all: SerdeCase::None,
+            module_path: String::new(),
         };
 
         // Check that Level1Type references Level2Type
@@ -1428,7 +1478,7 @@ mod tests {
         target_types.insert("FormProps".to_string());
 
         if let Ok(syntax) = syn::parse_file(code) {
-            let mut visitor = SerializeStructVisitor::new(target_types);
+            let mut visitor = SerializeStructVisitor::new(target_types, String::new());
             syn::visit::Visit::visit_file(&mut visitor, &syntax);
 
             assert_eq!(visitor.structs.len(), 1);
@@ -1481,6 +1531,7 @@ mod tests {
                 },
             ],
             rename_all: SerdeCase::None,
+            module_path: String::new(),
         }];
 
         let typescript = generate_typescript(&structs);
