@@ -80,6 +80,39 @@ ferro boost:install
 
 This configures the MCP server and adds project guidelines for your editor.
 
+## Dependency Naming
+
+Ferro supports flexible dependency naming in your `Cargo.toml`:
+
+### Standard (Recommended)
+
+```toml
+[dependencies]
+ferro = "2.0"
+```
+
+### With Alias
+
+```toml
+[dependencies]
+my_web = { package = "ferro", version = "2.0" }
+```
+
+When using an alias, all imports use your chosen name:
+
+```rust
+use my_web::prelude::*;
+```
+
+### Legacy Name
+
+For backwards compatibility, the legacy name is still supported:
+
+```toml
+[dependencies]
+ferro_rs = "2.0"
+```
+
 ## Next Steps
 
 - [Quick Start](quickstart.md) - Build your first feature
