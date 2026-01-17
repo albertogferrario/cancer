@@ -270,6 +270,11 @@ impl InertiaPropsVisitor {
                     }
                     // serde_json::Value maps to unknown (any JSON value)
                     "Value" => RustType::Custom("unknown".to_string()),
+                    // ValidationErrors maps to Record<string, string[]>
+                    "ValidationErrors" => RustType::HashMap(
+                        Box::new(RustType::String),
+                        Box::new(RustType::Vec(Box::new(RustType::String))),
+                    ),
                     other => RustType::Custom(other.to_string()),
                 }
             }
@@ -1404,5 +1409,84 @@ mod tests {
         // Check that Level1Type references Level2Type
         let level1_refs = collect_referenced_types(&[level1]);
         assert!(level1_refs.contains("Level2Type"));
+    }
+
+    #[test]
+    fn test_parse_type_validation_errors() {
+        // Test parsing ValidationErrors type from Rust code
+        let code = r#"
+            use ferro::ValidationErrors;
+
+            #[derive(Serialize)]
+            pub struct FormProps {
+                pub errors: Option<ValidationErrors>,
+                pub all_errors: ValidationErrors,
+            }
+        "#;
+
+        let mut target_types = HashSet::new();
+        target_types.insert("FormProps".to_string());
+
+        if let Ok(syntax) = syn::parse_file(code) {
+            let mut visitor = SerializeStructVisitor::new(target_types);
+            syn::visit::Visit::visit_file(&mut visitor, &syntax);
+
+            assert_eq!(visitor.structs.len(), 1);
+            let s = &visitor.structs[0];
+
+            // errors: Option<ValidationErrors> should parse to Option(HashMap(String, Vec(String)))
+            let errors_field = s.fields.iter().find(|f| f.name == "errors").unwrap();
+            assert!(matches!(
+                &errors_field.ty,
+                RustType::Option(inner) if matches!(
+                    inner.as_ref(),
+                    RustType::HashMap(key, val) if matches!(key.as_ref(), RustType::String)
+                        && matches!(val.as_ref(), RustType::Vec(inner_vec) if matches!(inner_vec.as_ref(), RustType::String))
+                )
+            ));
+
+            // all_errors: ValidationErrors should parse to HashMap(String, Vec(String))
+            let all_errors_field = s.fields.iter().find(|f| f.name == "all_errors").unwrap();
+            assert!(matches!(
+                &all_errors_field.ty,
+                RustType::HashMap(key, val) if matches!(key.as_ref(), RustType::String)
+                    && matches!(val.as_ref(), RustType::Vec(inner_vec) if matches!(inner_vec.as_ref(), RustType::String))
+            ));
+        } else {
+            panic!("Failed to parse test code");
+        }
+    }
+
+    #[test]
+    fn test_validation_errors_to_typescript() {
+        // Test that ValidationErrors generates correct TypeScript
+        let structs = vec![InertiaPropsStruct {
+            name: "FormProps".to_string(),
+            fields: vec![
+                StructField {
+                    name: "errors".to_string(),
+                    ty: RustType::Option(Box::new(RustType::HashMap(
+                        Box::new(RustType::String),
+                        Box::new(RustType::Vec(Box::new(RustType::String))),
+                    ))),
+                    serde_rename: None,
+                },
+                StructField {
+                    name: "all_errors".to_string(),
+                    ty: RustType::HashMap(
+                        Box::new(RustType::String),
+                        Box::new(RustType::Vec(Box::new(RustType::String))),
+                    ),
+                    serde_rename: None,
+                },
+            ],
+            rename_all: SerdeCase::None,
+        }];
+
+        let typescript = generate_typescript(&structs);
+
+        // ValidationErrors should become Record<string, string[]>
+        assert!(typescript.contains("errors: Record<string, string[]> | null;"));
+        assert!(typescript.contains("all_errors: Record<string, string[]>;"));
     }
 }
