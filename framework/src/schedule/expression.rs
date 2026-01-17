@@ -82,8 +82,10 @@ impl CronField {
             CronField::Any => true,
             CronField::Value(v) => *v == value,
             CronField::Range(start, end) => value >= *start && value <= *end,
-            CronField::Step(step) => value % step == 0,
-            CronField::StepFrom(start, step) => value >= *start && (value - start) % step == 0,
+            CronField::Step(step) => value.is_multiple_of(*step),
+            CronField::StepFrom(start, step) => {
+                value >= *start && (value - start).is_multiple_of(*step)
+            }
             CronField::List(values) => values.contains(&value),
         }
     }

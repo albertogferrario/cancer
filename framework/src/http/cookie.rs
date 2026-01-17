@@ -6,17 +6,12 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 /// SameSite cookie attribute
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub enum SameSite {
     Strict,
+    #[default]
     Lax,
     None,
-}
-
-impl Default for SameSite {
-    fn default() -> Self {
-        Self::Lax
-    }
 }
 
 /// Cookie options with secure defaults
