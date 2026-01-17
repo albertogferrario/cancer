@@ -1,12 +1,12 @@
 # AI Agent Instructions
 
-Instructions for AI agents working with the Cancer framework codebase.
+Instructions for AI agents working with the Ferro framework codebase.
 
-## Quick Start: Use cancer-mcp
+## Quick Start: Use ferro-mcp
 
-**Before exploring the codebase manually, use the cancer-mcp MCP server tools.**
+**Before exploring the codebase manually, use the ferro-mcp MCP server tools.**
 
-The cancer-mcp crate provides introspection tools (like Laravel Boost) that give you instant access to:
+The ferro-mcp crate provides introspection tools (like Laravel Boost) that give you instant access to:
 
 | Tool | Use When |
 |------|----------|
@@ -32,23 +32,23 @@ The cancer-mcp crate provides introspection tools (like Laravel Boost) that give
 
 ## Project Overview
 
-Cancer is a Laravel-inspired web framework for Rust. It provides familiar patterns for developers coming from Laravel/PHP while leveraging Rust's safety and performance.
+Ferro is a Laravel-inspired web framework for Rust. It provides familiar patterns for developers coming from Laravel/PHP while leveraging Rust's safety and performance.
 
 ## Workspace Structure
 
 | Crate | Purpose |
 |-------|---------|
 | `framework` | Core web framework (routing, HTTP, database, validation, middleware) |
-| `cancer-cli` | CLI tool for project scaffolding and code generation |
-| `cancer-events` | Event dispatcher with sync/async listeners |
-| `cancer-queue` | Background job processing with Redis backend |
-| `cancer-notifications` | Multi-channel notifications (mail, database, slack) |
-| `cancer-broadcast` | WebSocket broadcasting with channel authorization |
-| `cancer-storage` | File storage abstraction (local, S3, memory drivers) |
-| `cancer-cache` | Caching with tags support |
-| `cancer-macros` | Procedural macros (#[handler], #[service], etc.) |
+| `ferro-cli` | CLI tool for project scaffolding and code generation |
+| `ferro-events` | Event dispatcher with sync/async listeners |
+| `ferro-queue` | Background job processing with Redis backend |
+| `ferro-notifications` | Multi-channel notifications (mail, database, slack) |
+| `ferro-broadcast` | WebSocket broadcasting with channel authorization |
+| `ferro-storage` | File storage abstraction (local, S3, memory drivers) |
+| `ferro-cache` | Caching with tags support |
+| `ferro-macros` | Procedural macros (#[handler], #[service], etc.) |
 | `inertia-rs` | Inertia.js adapter for full-stack React/TypeScript |
-| `cancer-mcp` | MCP server for AI-assisted development |
+| `ferro-mcp` | MCP server for AI-assisted development |
 | `app` | Sample reference application |
 
 ## Architecture Patterns
@@ -122,7 +122,7 @@ let user = User::find_by_id(1).one(&db).await?;
 ### Validation
 
 ```rust
-use cancer_rs::{Validator, rules, required, email, min};
+use ferro::{Validator, rules, required, email, min};
 
 let result = Validator::new(&data)
     .rules("email", rules![required(), email()])
@@ -198,31 +198,31 @@ Err(HttpResponse::not_found("User not found"))
 
 ```bash
 # Create new project
-cancer new my-app
+ferro new my-app
 
 # Generate code
-cancer make:controller UserController
-cancer make:model User
-cancer make:middleware AuthMiddleware
-cancer make:event UserRegistered
-cancer make:listener SendWelcomeEmail
-cancer make:job ProcessPayment
-cancer make:notification OrderShipped
+ferro make:controller UserController
+ferro make:model User
+ferro make:middleware AuthMiddleware
+ferro make:event UserRegistered
+ferro make:listener SendWelcomeEmail
+ferro make:job ProcessPayment
+ferro make:notification OrderShipped
 
 # Database
-cancer migrate
-cancer migrate:rollback
-cancer migrate:fresh
+ferro migrate
+ferro migrate:rollback
+ferro migrate:fresh
 
 # Development
-cancer serve              # Start dev server
-cancer generate-types     # Generate TypeScript types
+ferro serve              # Start dev server
+ferro generate-types     # Generate TypeScript types
 ```
 
 ## Testing
 
 ```rust
-#[cancer_test]
+#[ferro_test]
 async fn test_user_creation() {
     let client = TestClient::new().await;
 
@@ -246,20 +246,20 @@ async fn test_user_creation() {
 
 ### Adding a New Model
 
-1. Run `cancer make:model ModelName`
+1. Run `ferro make:model ModelName`
 2. Create migration
-3. Run `cancer migrate`
+3. Run `ferro migrate`
 
 ### Adding Background Jobs
 
-1. Run `cancer make:job JobName`
+1. Run `ferro make:job JobName`
 2. Implement `Runnable` trait
 3. Dispatch with `JobName::dispatch(data).await`
 
 ### Adding Events
 
-1. Run `cancer make:event EventName`
-2. Run `cancer make:listener ListenerName`
+1. Run `ferro make:event EventName`
+2. Run `ferro make:listener ListenerName`
 3. Register listener in `src/providers/event_service_provider.rs`
 4. Dispatch with `EventName { data }.dispatch().await`
 
@@ -282,15 +282,15 @@ async fn test_user_creation() {
 
 ## MCP Server Setup
 
-To enable cancer-mcp tools in your AI agent, add to your MCP configuration:
+To enable ferro-mcp tools in your AI agent, add to your MCP configuration:
 
 ```json
 {
   "mcpServers": {
-    "cancer": {
+    "ferro": {
       "command": "cargo",
-      "args": ["run", "--package", "cancer-mcp"],
-      "cwd": "/path/to/cancer/project"
+      "args": ["run", "--package", "ferro-mcp"],
+      "cwd": "/path/to/ferro/project"
     }
   }
 }
