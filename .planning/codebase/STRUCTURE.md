@@ -5,7 +5,7 @@
 ## Directory Layout
 
 ```
-cancer/
+ferro/
 ├── app/                    # Sample/reference application
 │   ├── frontend/          # React + TypeScript frontend
 │   ├── src/               # Rust application code
