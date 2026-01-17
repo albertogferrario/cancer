@@ -7,6 +7,8 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, FnArg, ItemFn, Pat, Type};
 
+use crate::ferro_crate;
+
 /// Parse the macro attributes
 struct CancerTestArgs {
     migrator: Option<syn::Path>,
@@ -60,6 +62,8 @@ pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
     let args = parse_macro_input!(attr as CancerTestArgs);
     let input_fn = parse_macro_input!(input as ItemFn);
 
+    let ferro = ferro_crate();
+
     let fn_name = &input_fn.sig.ident;
     let fn_block = &input_fn.block;
     let fn_attrs: Vec<_> = input_fn
@@ -81,9 +85,9 @@ pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
         // Function has TestDatabase parameter - bind it
         quote! {
             // Bootstrap services so #[injectable] types are available
-            ::ferro_rs::App::init();
-            ::ferro_rs::App::boot_services();
-            let #param_name = ::ferro_rs::testing::TestDatabase::fresh::<#migrator_type>()
+            #ferro::App::init();
+            #ferro::App::boot_services();
+            let #param_name = #ferro::testing::TestDatabase::fresh::<#migrator_type>()
                 .await
                 .expect("Failed to set up test database");
             #fn_block
@@ -92,9 +96,9 @@ pub fn cancer_test_impl(attr: TokenStream, input: TokenStream) -> TokenStream {
         // No TestDatabase parameter - still set up but don't bind
         quote! {
             // Bootstrap services so #[injectable] types are available
-            ::ferro_rs::App::init();
-            ::ferro_rs::App::boot_services();
-            let _db = ::ferro_rs::testing::TestDatabase::fresh::<#migrator_type>()
+            #ferro::App::init();
+            #ferro::App::boot_services();
+            let _db = #ferro::testing::TestDatabase::fresh::<#migrator_type>()
                 .await
                 .expect("Failed to set up test database");
             #fn_block
