@@ -22,7 +22,7 @@
 | `ferro-cache` | Caching with tags | `src/lib.rs` |
 | `ferro-macros` | Proc macros | `src/lib.rs` |
 | `ferro-mcp` | MCP introspection server | `src/tools/` |
-| `inertia-rs` | Inertia.js adapter | `src/lib.rs` |
+| `ferro-inertia` | Inertia.js adapter | `src/lib.rs` |
 | `app` | Sample application | Reference implementation |
 
 ## Key Patterns

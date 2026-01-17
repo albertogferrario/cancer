@@ -18,7 +18,7 @@
 **HTTP/Request-Response Layer:**
 - Purpose: Handle incoming HTTP requests and produce responses
 - Contains: Request/Response types, cookies, Inertia.js adapter
-- Location: `framework/src/http/`, `inertia-rs/src/`
+- Location: `framework/src/http/`, `ferro-inertia/src/`
 - Depends on: Hyper HTTP primitives
 - Used by: Routing layer, handlers
 

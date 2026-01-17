@@ -1,14 +1,14 @@
-# inertia-rs
+# Ferro Inertia
 
-Server-side [Inertia.js](https://inertiajs.com) adapter for Rust web frameworks.
+Server-side [Inertia.js](https://inertiajs.com) adapter for the Ferro framework.
 
-[![Crates.io](https://img.shields.io/crates/v/inertia-rs.svg)](https://crates.io/crates/inertia-rs)
-[![Documentation](https://docs.rs/inertia-rs/badge.svg)](https://docs.rs/inertia-rs)
+[![Crates.io](https://img.shields.io/crates/v/ferro-inertia.svg)](https://crates.io/crates/ferro-inertia)
+[![Documentation](https://docs.rs/ferro-inertia/badge.svg)](https://docs.rs/ferro-inertia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
 
-- **Framework-agnostic** - Works with Axum, Actix-web, Rocket, Hyper, or any Rust web framework
+- **Ferro integration** - Seamlessly works with the Ferro framework
 - **Async-safe** - No thread-local storage, safe for async runtimes like Tokio
 - **Partial reloads** - Efficient updates via `X-Inertia-Partial-Data` header
 - **Shared props** - Easily share auth, flash messages, CSRF tokens across all responses
@@ -19,7 +19,7 @@ Server-side [Inertia.js](https://inertiajs.com) adapter for Rust web frameworks.
 
 ```toml
 [dependencies]
-inertia-rs = "0.1"
+ferro-inertia = "0.1"
 ```
 
 ## Quick Start
@@ -27,7 +27,7 @@ inertia-rs = "0.1"
 ### 1. Implement the `InertiaRequest` trait
 
 ```rust
-use inertia_rs::InertiaRequest;
+use ferro_inertia::InertiaRequest;
 
 impl InertiaRequest for MyRequest {
     fn inertia_header(&self, name: &str) -> Option<&str> {
@@ -43,7 +43,7 @@ impl InertiaRequest for MyRequest {
 ### 2. Render Inertia responses
 
 ```rust
-use inertia_rs::Inertia;
+use ferro_inertia::Inertia;
 use serde_json::json;
 
 async fn index(req: MyRequest) -> MyResponse {
@@ -63,7 +63,7 @@ async fn index(req: MyRequest) -> MyResponse {
 ### 3. Add shared props via middleware
 
 ```rust
-use inertia_rs::{Inertia, InertiaShared};
+use ferro_inertia::{Inertia, InertiaShared};
 
 async fn handler(req: MyRequest) -> MyResponse {
     let shared = InertiaShared::new()
@@ -79,7 +79,7 @@ async fn handler(req: MyRequest) -> MyResponse {
 ## Configuration
 
 ```rust
-use inertia_rs::InertiaConfig;
+use ferro_inertia::InertiaConfig;
 
 // Development (default)
 let config = InertiaConfig::new()
@@ -131,7 +131,7 @@ Only the requested props (`user`, `notifications`) will be included in the respo
 
 ```rust
 use axum::{response::IntoResponse, http::StatusCode};
-use inertia_rs::InertiaHttpResponse;
+use ferro_inertia::InertiaHttpResponse;
 
 impl IntoResponse for InertiaHttpResponse {
     fn into_response(self) -> axum::response::Response {
@@ -154,7 +154,7 @@ impl IntoResponse for InertiaHttpResponse {
 
 ```rust
 use actix_web::HttpResponse;
-use inertia_rs::InertiaHttpResponse;
+use ferro_inertia::InertiaHttpResponse;
 
 impl From<InertiaHttpResponse> for HttpResponse {
     fn from(res: InertiaHttpResponse) -> Self {

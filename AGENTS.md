@@ -47,7 +47,7 @@ Ferro is a Laravel-inspired web framework for Rust. It provides familiar pattern
 | `ferro-storage` | File storage abstraction (local, S3, memory drivers) |
 | `ferro-cache` | Caching with tags support |
 | `ferro-macros` | Procedural macros (#[handler], #[service], etc.) |
-| `inertia-rs` | Inertia.js adapter for full-stack React/TypeScript |
+| `ferro-inertia` | Inertia.js adapter for full-stack React/TypeScript |
 | `ferro-mcp` | MCP server for AI-assisted development |
 | `app` | Sample reference application |
 

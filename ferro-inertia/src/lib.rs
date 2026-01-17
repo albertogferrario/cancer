@@ -1,4 +1,4 @@
-//! # inertia-rs
+//! # Ferro Inertia
 //!
 //! Server-side [Inertia.js](https://inertiajs.com) adapter for Rust web frameworks.
 //!

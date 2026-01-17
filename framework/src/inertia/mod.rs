@@ -1,7 +1,7 @@
 //! Inertia.js integration for Ferro framework.
 //!
 //! This module provides the integration between the framework-agnostic
-//! `inertia-rs` crate and the Ferro framework's HTTP types.
+//! `ferro-inertia` crate and the Ferro framework's HTTP types.
 //!
 //! # Example
 //!
@@ -28,7 +28,7 @@ pub use config::InertiaConfig;
 pub use context::{Inertia, InertiaShared, SavedInertiaContext};
 pub use response::InertiaResponse;
 
-// Re-export core types from inertia-rs for advanced usage
+// Re-export core types from ferro-inertia for advanced usage
 pub use ferro_inertia::{InertiaHttpResponse, InertiaRequest as InertiaRequestTrait};
 
 // Deprecated exports for backward compatibility

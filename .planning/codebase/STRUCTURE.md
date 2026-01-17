@@ -21,7 +21,7 @@ cancer/
 ├── ferro-storage/        # File storage abstraction
 ├── ferro-cache/          # Caching layer
 ├── ferro-mcp/            # MCP introspection server
-├── inertia-rs/            # Inertia.js adapter
+├── ferro-inertia/            # Inertia.js adapter
 ├── docs/                  # User documentation (mdBook)
 ├── scripts/               # Helper scripts
 ├── Cargo.toml             # Workspace definition
@@ -99,7 +99,7 @@ cancer/
 - Key files: `lib.rs`
 - Subdirectories: `tools/`
 
-**inertia-rs/src/**
+**ferro-inertia/src/**
 - Purpose: Inertia.js server-side adapter
 - Contains: Request handling, response generation
 - Key files: `lib.rs`, `response.rs`, `config.rs`, `request.rs`

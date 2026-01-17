@@ -28,7 +28,7 @@
 **Core:**
 - Hyper 1.x - HTTP server foundation (`framework/Cargo.toml`)
 - SeaORM 1.0 - ORM with migrations (`framework/Cargo.toml`)
-- Inertia.js - Server-side rendering bridge (`inertia-rs/`)
+- Inertia.js - Server-side rendering bridge (`ferro-inertia/`)
 
 **Frontend:**
 - React 18.2 - UI framework (`app/frontend/package.json`)

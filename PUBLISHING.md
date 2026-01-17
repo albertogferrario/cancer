@@ -39,7 +39,7 @@ cargo publish -p ferro-notifications
 cargo publish -p ferro-broadcast
 cargo publish -p ferro-storage
 cargo publish -p ferro-cache
-cargo publish -p inertia-rs
+cargo publish -p ferro-inertia
 cargo publish -p ferro-mcp
 ```
 
@@ -125,7 +125,7 @@ Comment out `path = "..."` from the dependency declaration, publish, then restor
 | ferro-broadcast | ferro-broadcast | 1 |
 | ferro-storage | ferro-storage | 1 |
 | ferro-cache | ferro-cache | 1 |
-| inertia-rs | inertia-rs | 1 |
+| ferro-inertia | ferro-inertia | 1 |
 | ferro-mcp | ferro-mcp | 1 |
 | framework | ferro | 2 |
 | ferro-cli | ferro-cli | 3 |
