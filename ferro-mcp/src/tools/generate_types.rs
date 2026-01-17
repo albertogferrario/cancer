@@ -78,7 +78,10 @@ pub fn execute(
         None
     };
 
-    let interfaces: Vec<String> = sorted.iter().map(|p| p.name.clone()).collect();
+    let interfaces: Vec<String> = sorted
+        .iter()
+        .map(|p| generate_namespaced_name(&p.module_path, &p.name))
+        .collect();
     let types_generated = interfaces.len();
 
     // Preview (truncate if too long)
@@ -252,8 +255,14 @@ fn collect_referenced_types(props: &[&PropsStruct]) -> HashSet<String> {
 }
 
 fn generate_typescript_with_imports(props: &[&PropsStruct], project_root: Option<&Path>) -> String {
-    // Collect struct names (types defined in this file)
-    let defined_types: HashSet<String> = props.iter().map(|p| p.name.clone()).collect();
+    // Build name map for namespacing
+    let name_map = build_name_map(props);
+
+    // Collect struct names (types defined in this file) - use namespaced names
+    let defined_types: HashSet<String> = props
+        .iter()
+        .map(|p| generate_namespaced_name(&p.module_path, &p.name))
+        .collect();
 
     // Parse shared.ts types
     let shared_types = project_root.map(parse_shared_types).unwrap_or_default();
@@ -298,8 +307,16 @@ fn generate_typescript_with_imports(props: &[&PropsStruct], project_root: Option
         ));
     }
 
+    // Generate interfaces with namespaced names
     for p in props {
-        output.push_str(&p.typescript);
+        let namespaced_name = generate_namespaced_name(&p.module_path, &p.name);
+        let interface = generate_interface_with_mapping(
+            &namespaced_name,
+            &p.fields,
+            p.serde_rename_all.as_deref(),
+            &name_map,
+        );
+        output.push_str(&interface);
         output.push_str("\n\n");
     }
 
@@ -314,7 +331,11 @@ fn compute_diff(existing: &str, _new: &str, props: &[&PropsStruct]) -> Option<Ty
         .filter_map(|c| c.get(1).map(|m| m.as_str().to_string()))
         .collect();
 
-    let new_interfaces: HashSet<_> = props.iter().map(|p| p.name.clone()).collect();
+    // Use namespaced names for new interfaces
+    let new_interfaces: HashSet<_> = props
+        .iter()
+        .map(|p| generate_namespaced_name(&p.module_path, &p.name))
+        .collect();
 
     let added: Vec<_> = new_interfaces
         .difference(&existing_interfaces)
@@ -329,11 +350,12 @@ fn compute_diff(existing: &str, _new: &str, props: &[&PropsStruct]) -> Option<Ty
     // Check for modifications (same name but different content)
     let mut modified = Vec::new();
     for p in props {
-        if existing_interfaces.contains(&p.name) {
+        let namespaced_name = generate_namespaced_name(&p.module_path, &p.name);
+        if existing_interfaces.contains(&namespaced_name) {
             // Simple check: see if the interface body changed
             let existing_pattern = regex::Regex::new(&format!(
                 r"(?:export\s+)?interface\s+{}\s*\{{\s*([^}}]+)\}}",
-                regex::escape(&p.name)
+                regex::escape(&namespaced_name)
             ))
             .ok()?;
 
@@ -344,7 +366,7 @@ fn compute_diff(existing: &str, _new: &str, props: &[&PropsStruct]) -> Option<Ty
                 let new_normalized = normalize_interface_body(&p.typescript);
 
                 if existing_normalized != new_normalized {
-                    modified.push(p.name.clone());
+                    modified.push(namespaced_name);
                 }
             }
         }
@@ -393,6 +415,9 @@ fn scan_serialize_structs(project_root: &Path, target_types: &HashSet<String>) -
         .filter(|e| e.path().extension().map(|ext| ext == "rs").unwrap_or(false))
     {
         let path = entry.path();
+        // Compute module path for this file
+        let module_path = compute_module_path(path, &src_path);
+
         if let Ok(content) = fs::read_to_string(path) {
             let lines: Vec<&str> = content.lines().collect();
 
@@ -441,6 +466,7 @@ fn scan_serialize_structs(project_root: &Path, target_types: &HashSet<String>) -
                                     typescript,
                                     used_by_components: Vec::new(),
                                     serde_rename_all,
+                                    module_path: module_path.clone(),
                                 });
                             }
                             break;
@@ -452,6 +478,27 @@ fn scan_serialize_structs(project_root: &Path, target_types: &HashSet<String>) -
     }
 
     found_structs
+}
+
+/// Compute module path from file path, stripping src/ prefix and .rs extension.
+fn compute_module_path(file_path: &Path, src_path: &Path) -> String {
+    let relative = file_path
+        .strip_prefix(src_path)
+        .unwrap_or(file_path)
+        .with_extension("");
+
+    let path_str = relative
+        .to_string_lossy()
+        .replace(std::path::MAIN_SEPARATOR, "::");
+
+    // Remove "mod" suffix if the file is mod.rs
+    let path_str = path_str.strip_suffix("::mod").unwrap_or(&path_str);
+
+    // Strip "controllers::" prefix for cleaner namespacing
+    path_str
+        .strip_prefix("controllers::")
+        .unwrap_or(path_str)
+        .to_string()
 }
 
 fn extract_struct_body(lines: &[&str], start_line: usize) -> Option<String> {
@@ -616,6 +663,86 @@ fn snake_to_pascal(s: &str) -> String {
     result
 }
 
+/// Generate a namespaced TypeScript name from module path and struct name
+fn generate_namespaced_name(module_path: &str, struct_name: &str) -> String {
+    if module_path.is_empty() {
+        return struct_name.to_string();
+    }
+    let namespace: String = module_path.split("::").map(snake_to_pascal).collect();
+    format!("{}{}", namespace, struct_name)
+}
+
+/// Build a map from original struct name to namespaced name, with collision detection
+fn build_name_map(structs: &[&PropsStruct]) -> HashMap<String, String> {
+    let mut name_map = HashMap::new();
+    let mut reverse_map: HashMap<String, Vec<(String, String)>> = HashMap::new();
+
+    for s in structs {
+        let namespaced = generate_namespaced_name(&s.module_path, &s.name);
+        name_map.insert(s.name.clone(), namespaced.clone());
+        reverse_map
+            .entry(namespaced)
+            .or_default()
+            .push((s.name.clone(), s.module_path.clone()));
+    }
+
+    // Collision detection
+    for (namespaced, sources) in &reverse_map {
+        if sources.len() > 1 {
+            eprintln!(
+                "Warning: TypeScript name collision detected for '{}': {:?}",
+                namespaced, sources
+            );
+        }
+    }
+
+    name_map
+}
+
+/// Convert Rust type to TypeScript with namespaced name mapping for custom types
+fn rust_type_to_ts_with_mapping(rust_type: &str, name_map: &HashMap<String, String>) -> String {
+    let ty = rust_type.trim();
+
+    // Handle Option<T>
+    if ty.starts_with("Option<") && ty.ends_with('>') {
+        let inner = &ty[7..ty.len() - 1];
+        return format!("{} | null", rust_type_to_ts_with_mapping(inner, name_map));
+    }
+
+    // Handle Vec<T>
+    if ty.starts_with("Vec<") && ty.ends_with('>') {
+        let inner = &ty[4..ty.len() - 1];
+        return format!("{}[]", rust_type_to_ts_with_mapping(inner, name_map));
+    }
+
+    // Handle HashMap<K, V>
+    if (ty.starts_with("HashMap<") || ty.starts_with("BTreeMap<")) && ty.ends_with('>') {
+        let start = if ty.starts_with("HashMap<") { 8 } else { 9 };
+        let inner = &ty[start..ty.len() - 1];
+        if let Some(comma_pos) = inner.find(',') {
+            let key = inner[..comma_pos].trim();
+            let val = inner[comma_pos + 1..].trim();
+            return format!(
+                "Record<{}, {}>",
+                rust_type_to_ts_with_mapping(key, name_map),
+                rust_type_to_ts_with_mapping(val, name_map)
+            );
+        }
+    }
+
+    // Primitive types and special framework types
+    match ty {
+        "String" | "&str" | "str" => "string".to_string(),
+        "i8" | "i16" | "i32" | "i64" | "i128" | "isize" | "u8" | "u16" | "u32" | "u64" | "u128"
+        | "usize" | "f32" | "f64" => "number".to_string(),
+        "bool" => "boolean".to_string(),
+        "Value" | "serde_json::Value" => "unknown".to_string(),
+        "ValidationErrors" | "ferro::ValidationErrors" => "Record<string, string[]>".to_string(),
+        // Check if it's a known custom type that needs namespacing
+        _ => name_map.get(ty).cloned().unwrap_or_else(|| ty.to_string()),
+    }
+}
+
 /// Apply serde rename transformation to a field name
 fn apply_serde_rename(field_name: &str, rename_all: Option<&str>) -> String {
     match rename_all {
@@ -641,6 +768,33 @@ fn generate_interface(name: &str, fields: &[PropsField], serde_rename_all: Optio
         ts.push_str(&format!(
             "  {}{}: {};\n",
             ts_field_name, optional_marker, field.typescript_type
+        ));
+    }
+    ts.push('}');
+    ts
+}
+
+/// Generate interface with namespaced type references
+fn generate_interface_with_mapping(
+    name: &str,
+    fields: &[PropsField],
+    serde_rename_all: Option<&str>,
+    name_map: &HashMap<String, String>,
+) -> String {
+    let mut ts = format!("export interface {} {{\n", name);
+    for field in fields {
+        let optional_marker = if field.optional { "?" } else { "" };
+        // Per-field rename takes precedence over rename_all
+        let ts_field_name = if let Some(ref rename) = field.serde_rename {
+            rename.clone()
+        } else {
+            apply_serde_rename(&field.name, serde_rename_all)
+        };
+        // Use namespaced type references
+        let ts_type = rust_type_to_ts_with_mapping(&field.rust_type, name_map);
+        ts.push_str(&format!(
+            "  {}{}: {};\n",
+            ts_field_name, optional_marker, ts_type
         ));
     }
     ts.push('}');

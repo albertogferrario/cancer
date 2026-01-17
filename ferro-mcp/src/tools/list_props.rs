@@ -30,6 +30,8 @@ pub struct PropsStruct {
     pub used_by_components: Vec<String>,
     /// Serde rename_all attribute value (e.g., "camelCase")
     pub serde_rename_all: Option<String>,
+    /// Module path where this struct is defined (e.g., "shelter::applications")
+    pub module_path: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -113,6 +115,10 @@ fn find_inertia_props_structs(
     let rename_all_pattern =
         Regex::new(r#"#\[serde\([^\)]*rename_all\s*=\s*"([^"]+)"[^\)]*\)\]"#).unwrap();
 
+    // Compute module path for this file
+    let src_path = project_root.join("src");
+    let module_path = compute_module_path(file_path, &src_path);
+
     for (i, line) in lines.iter().enumerate() {
         if derive_pattern.is_match(line) {
             // Look for serde(rename_all) between derive and struct
@@ -152,6 +158,7 @@ fn find_inertia_props_structs(
                             typescript,
                             used_by_components: Vec::new(),
                             serde_rename_all,
+                            module_path: module_path.clone(),
                         });
                     }
                     break;
@@ -161,6 +168,32 @@ fn find_inertia_props_structs(
     }
 
     result
+}
+
+/// Compute module path from file path, stripping src/ prefix and .rs extension.
+///
+/// Examples:
+/// - "src/controllers/shelter/applications.rs" -> "shelter::applications"
+/// - "src/controllers/user.rs" -> "user"
+/// - "src/models/animal.rs" -> "models::animal"
+fn compute_module_path(file_path: &Path, src_path: &Path) -> String {
+    let relative = file_path
+        .strip_prefix(src_path)
+        .unwrap_or(file_path)
+        .with_extension("");
+
+    let path_str = relative
+        .to_string_lossy()
+        .replace(std::path::MAIN_SEPARATOR, "::");
+
+    // Remove "mod" suffix if the file is mod.rs
+    let path_str = path_str.strip_suffix("::mod").unwrap_or(&path_str);
+
+    // Strip "controllers::" prefix for cleaner namespacing
+    path_str
+        .strip_prefix("controllers::")
+        .unwrap_or(path_str)
+        .to_string()
 }
 
 fn extract_struct_body(lines: &[&str], start_line: usize) -> Option<String> {
