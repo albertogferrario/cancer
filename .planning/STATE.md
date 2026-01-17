@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-17)
 ## Current Position
 
 Phase: 33 (Inertia DX Improvements)
-Plan: 33-01, 33-02, 33-03 ready
-Status: Ready to execute
-Last activity: 2026-01-17 — Planned Phase 33
+Plan: 33-01 complete, 33-02, 33-03 ready
+Status: Executing
+Last activity: 2026-01-17 — Completed Plan 33-01 (Inertia DX Quick Wins)
 
-Progress: ░░░░░░░░░░ 0%
+Progress: ███░░░░░░░ 33%
 
 > **Note:** Phase 33 executes before JSON-UI (23-32) as a prerequisite DX improvement.
 
@@ -35,11 +35,12 @@ Progress: ░░░░░░░░░░ 0%
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| (none yet) | - | - |
+| JSON fallback opt-in | render_with_json_fallback() | Security consideration for sensitive data |
+| Accept header detection | accepts_json() on InertiaRequest trait | Framework-agnostic approach |
 
 ### Pending Todos
 
-v2.0.3 complete. Ready to plan v2.1 JSON-UI.
+Plan 33-01 complete. Continue with 33-02 (Render Methods) and 33-03 (Export organization).
 
 ### Blockers/Concerns
 
@@ -61,5 +62,5 @@ v2.0.3 complete. Ready to plan v2.1 JSON-UI.
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Completed v2.0.3 milestone, ready for v2.1
+Stopped at: Completed Plan 33-01 (Inertia DX Quick Wins)
 Resume file: None
