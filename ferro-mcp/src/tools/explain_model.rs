@@ -47,7 +47,7 @@ pub struct FieldExplanation {
 }
 
 /// Execute the explain_model tool
-pub fn execute(project_root: &Path, model_name: &str) -> Result<ModelExplanation> {
+pub async fn execute(project_root: &Path, model_name: &str) -> Result<ModelExplanation> {
     // Get all models
     let models = list_models(project_root)?;
 
@@ -59,6 +59,7 @@ pub fn execute(project_root: &Path, model_name: &str) -> Result<ModelExplanation
 
     // Get routes for finding related routes
     let routes = list_routes(project_root)
+        .await
         .map(|r| r.routes)
         .unwrap_or_default();
 

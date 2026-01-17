@@ -76,21 +76,10 @@ async fn fetch_runtime_middleware(base_url: &str) -> Option<Vec<MiddlewareItem>>
     )
 }
 
-pub fn execute(project_root: &Path) -> Result<MiddlewareInfo> {
-    // Try runtime endpoint first (synchronously block on async)
-    let rt = tokio::runtime::Handle::try_current();
-    if let Ok(handle) = rt {
-        let runtime_middleware = handle.block_on(async {
-            // Try common development ports
-            for base_url in ["http://localhost:8080", "http://127.0.0.1:8080"] {
-                if let Some(middleware) = fetch_runtime_middleware(base_url).await {
-                    return Some(middleware);
-                }
-            }
-            None
-        });
-
-        if let Some(middleware) = runtime_middleware {
+pub async fn execute(project_root: &Path) -> Result<MiddlewareInfo> {
+    // Try runtime endpoint first
+    for base_url in ["http://localhost:8080", "http://127.0.0.1:8080"] {
+        if let Some(middleware) = fetch_runtime_middleware(base_url).await {
             return Ok(MiddlewareInfo {
                 middleware,
                 source: MiddlewareSource::Runtime,

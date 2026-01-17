@@ -78,21 +78,10 @@ async fn fetch_runtime_metrics(base_url: &str) -> Option<MetricsSnapshot> {
     Some(debug_response.data)
 }
 
-pub fn execute() -> Result<MetricsInfo> {
-    // Try runtime endpoint (synchronously block on async)
-    let rt = tokio::runtime::Handle::try_current();
-    if let Ok(handle) = rt {
-        let runtime_metrics = handle.block_on(async {
-            // Try common development ports
-            for base_url in ["http://localhost:8080", "http://127.0.0.1:8080"] {
-                if let Some(metrics) = fetch_runtime_metrics(base_url).await {
-                    return Some(metrics);
-                }
-            }
-            None
-        });
-
-        if let Some(metrics) = runtime_metrics {
+pub async fn execute() -> Result<MetricsInfo> {
+    // Try runtime endpoints
+    for base_url in ["http://localhost:8080", "http://127.0.0.1:8080"] {
+        if let Some(metrics) = fetch_runtime_metrics(base_url).await {
             return Ok(MetricsInfo {
                 metrics,
                 source: MetricsSource::Runtime,

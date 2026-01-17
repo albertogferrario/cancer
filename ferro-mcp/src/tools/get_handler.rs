@@ -30,9 +30,9 @@ pub struct PropsField {
     pub value_source: String,
 }
 
-pub fn execute(project_root: &Path, route_path: &str) -> Result<HandlerInfo> {
+pub async fn execute(project_root: &Path, route_path: &str) -> Result<HandlerInfo> {
     // First find the handler for this route
-    let routes = list_routes::execute(project_root)?;
+    let routes = list_routes::execute(project_root).await?;
 
     let route = routes
         .routes

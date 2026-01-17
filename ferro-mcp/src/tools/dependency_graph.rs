@@ -192,7 +192,7 @@ pub async fn execute(project_root: &Path) -> Result<DependencyGraph> {
     }
 
     // 3. Collect routes and their dependencies
-    let routes_info = list_routes::execute(project_root)?;
+    let routes_info = list_routes::execute(project_root).await?;
     let mut component_nodes: HashSet<String> = HashSet::new();
 
     for route in &routes_info.routes {
@@ -218,7 +218,7 @@ pub async fn execute(project_root: &Path) -> Result<DependencyGraph> {
         }
 
         // Get route dependencies
-        if let Ok(deps) = route_dependencies::execute(project_root, &route.path) {
+        if let Ok(deps) = route_dependencies::execute(project_root, &route.path).await {
             // Add edges for model usage
             for model_usage in &deps.models_used {
                 let model_id = format!("model:{}", model_usage.model);

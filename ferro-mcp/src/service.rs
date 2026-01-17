@@ -269,7 +269,7 @@ impl FerroMcpService {
             **Combine with:** `get_handler` to see implementation, `test_route` to exercise endpoints."
     )]
     pub async fn list_routes(&self) -> String {
-        match tools::list_routes::execute(&self.project_root) {
+        match tools::list_routes::execute(&self.project_root).await {
             Ok(routes) => {
                 serde_json::to_string_pretty(&routes).unwrap_or_else(|_| "[]".to_string())
             }
@@ -353,7 +353,7 @@ impl FerroMcpService {
             **Combine with:** `get_middleware` to see implementation, `list_routes` to see per-route middleware."
     )]
     pub async fn list_middleware(&self) -> String {
-        match tools::list_middleware::execute(&self.project_root) {
+        match tools::list_middleware::execute(&self.project_root).await {
             Ok(middleware) => {
                 serde_json::to_string_pretty(&middleware).unwrap_or_else(|_| "[]".to_string())
             }
@@ -371,7 +371,7 @@ impl FerroMcpService {
             **Combine with:** `get_handler` to see service usage, `application_info` for service overview."
     )]
     pub async fn list_services(&self) -> String {
-        match tools::list_services::execute(&self.project_root) {
+        match tools::list_services::execute(&self.project_root).await {
             Ok(services) => {
                 serde_json::to_string_pretty(&services).unwrap_or_else(|_| "[]".to_string())
             }
@@ -389,7 +389,7 @@ impl FerroMcpService {
             **Combine with:** `list_routes` to correlate with endpoints, `read_logs` for error details."
     )]
     pub async fn request_metrics(&self) -> String {
-        match tools::request_metrics::execute() {
+        match tools::request_metrics::execute().await {
             Ok(metrics) => {
                 serde_json::to_string_pretty(&metrics).unwrap_or_else(|_| "{}".to_string())
             }
@@ -408,7 +408,7 @@ impl FerroMcpService {
             **Note:** Requires Redis-backed queue driver (not sync mode)."
     )]
     pub async fn queue_status(&self) -> String {
-        match tools::queue_status::execute() {
+        match tools::queue_status::execute().await {
             Ok(status) => {
                 serde_json::to_string_pretty(&status).unwrap_or_else(|_| "{}".to_string())
             }
@@ -444,7 +444,7 @@ impl FerroMcpService {
             **Combine with:** `list_routes` to find routes, `validate_contracts` for type checking."
     )]
     pub async fn get_handler(&self, params: Parameters<GetHandlerParams>) -> String {
-        match tools::get_handler::execute(&self.project_root, &params.0.route) {
+        match tools::get_handler::execute(&self.project_root, &params.0.route).await {
             Ok(handler) => {
                 serde_json::to_string_pretty(&handler).unwrap_or_else(|_| "{}".to_string())
             }
@@ -814,7 +814,7 @@ impl FerroMcpService {
         // Get models and routes to generate glossary
         let models = tools::list_models::execute(&self.project_root).unwrap_or_default();
 
-        let routes = match tools::list_routes::execute(&self.project_root) {
+        let routes = match tools::list_routes::execute(&self.project_root).await {
             Ok(routes_info) => routes_info.routes,
             Err(_) => Vec::new(),
         };
@@ -833,7 +833,7 @@ impl FerroMcpService {
             **Combine with:** `get_handler` to see implementation, `domain_glossary` for term definitions."
     )]
     pub async fn explain_route(&self, params: Parameters<ExplainRouteParams>) -> String {
-        match tools::explain_route::execute(&self.project_root, &params.0.route) {
+        match tools::explain_route::execute(&self.project_root, &params.0.route).await {
             Ok(explanation) => {
                 serde_json::to_string_pretty(&explanation).unwrap_or_else(|_| "{}".to_string())
             }
@@ -851,7 +851,7 @@ impl FerroMcpService {
             **Combine with:** `list_models` to see all models, `relation_map` for visual relationships."
     )]
     pub async fn explain_model(&self, params: Parameters<ExplainModelParams>) -> String {
-        match tools::explain_model::execute(&self.project_root, &params.0.model) {
+        match tools::explain_model::execute(&self.project_root, &params.0.model).await {
             Ok(explanation) => {
                 serde_json::to_string_pretty(&explanation).unwrap_or_else(|_| "{}".to_string())
             }
@@ -925,7 +925,7 @@ impl FerroMcpService {
             `get_handler` to see source code."
     )]
     pub async fn route_dependencies(&self, params: Parameters<RouteDependenciesParams>) -> String {
-        match tools::route_dependencies::execute(&self.project_root, &params.0.route) {
+        match tools::route_dependencies::execute(&self.project_root, &params.0.route).await {
             Ok(deps) => serde_json::to_string_pretty(&deps).unwrap_or_else(|_| "{}".to_string()),
             Err(e) => format!("{{\"error\": \"{}\"}}", e),
         }
@@ -943,7 +943,7 @@ impl FerroMcpService {
             for full picture, `explain_model` for model context."
     )]
     pub async fn model_usages(&self, params: Parameters<ModelUsagesParams>) -> String {
-        match tools::model_usages::execute(&self.project_root, &params.0.model) {
+        match tools::model_usages::execute(&self.project_root, &params.0.model).await {
             Ok(usages) => {
                 serde_json::to_string_pretty(&usages).unwrap_or_else(|_| "{}".to_string())
             }

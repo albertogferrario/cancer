@@ -157,24 +157,13 @@ async fn fetch_runtime_stats(base_url: &str) -> Option<QueueStatsSnapshot> {
     Some(debug_response.data)
 }
 
-pub fn execute() -> Result<QueueStatusInfo> {
-    // Try runtime endpoints (synchronously block on async)
-    let rt = tokio::runtime::Handle::try_current();
-    if let Ok(handle) = rt {
-        let (jobs, stats) = handle.block_on(async {
-            // Try common development ports
-            for base_url in ["http://localhost:8080", "http://127.0.0.1:8080"] {
-                let jobs = fetch_runtime_jobs(base_url).await;
-                let stats = fetch_runtime_stats(base_url).await;
+pub async fn execute() -> Result<QueueStatusInfo> {
+    // Try runtime endpoints
+    for base_url in ["http://localhost:8080", "http://127.0.0.1:8080"] {
+        let jobs = fetch_runtime_jobs(base_url).await;
+        let stats = fetch_runtime_stats(base_url).await;
 
-                // If we got either, we connected to the app
-                if jobs.is_some() || stats.is_some() {
-                    return (jobs, stats);
-                }
-            }
-            (None, None)
-        });
-
+        // If we got either, we connected to the app
         if jobs.is_some() || stats.is_some() {
             return Ok(QueueStatusInfo {
                 jobs,

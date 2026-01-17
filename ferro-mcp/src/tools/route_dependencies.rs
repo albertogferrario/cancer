@@ -73,9 +73,9 @@ pub enum ModelUsageType {
     TypeAnnotation,
 }
 
-pub fn execute(project_root: &Path, route_path: &str) -> Result<RouteDependencies> {
+pub async fn execute(project_root: &Path, route_path: &str) -> Result<RouteDependencies> {
     // Get handler source code
-    let handler_info = get_handler::execute(project_root, route_path)?;
+    let handler_info = get_handler::execute(project_root, route_path).await?;
 
     // Get list of known models for validation
     let known_models = list_models::execute(project_root).unwrap_or_default();

@@ -32,9 +32,9 @@ pub struct RouteExplanation {
 }
 
 /// Execute the explain_route tool
-pub fn execute(project_root: &Path, route_path: &str) -> Result<RouteExplanation> {
+pub async fn execute(project_root: &Path, route_path: &str) -> Result<RouteExplanation> {
     // Get all routes
-    let routes_info = list_routes(project_root)?;
+    let routes_info = list_routes(project_root).await?;
     let routes = routes_info.routes;
 
     // Find the matching route

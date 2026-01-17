@@ -44,9 +44,9 @@ pub struct UsageSummary {
     pub filter_routes: usize,
 }
 
-pub fn execute(project_root: &Path, model_name: &str) -> Result<ModelUsages> {
+pub async fn execute(project_root: &Path, model_name: &str) -> Result<ModelUsages> {
     // Get all routes
-    let routes_info = list_routes::execute(project_root)?;
+    let routes_info = list_routes::execute(project_root).await?;
 
     let mut route_usages = Vec::new();
     let mut query_count = 0;
@@ -61,7 +61,7 @@ pub fn execute(project_root: &Path, model_name: &str) -> Result<ModelUsages> {
         }
 
         // Get dependencies for this route
-        let deps = match route_dependencies::execute(project_root, &route.path) {
+        let deps = match route_dependencies::execute(project_root, &route.path).await {
             Ok(d) => d,
             Err(_) => continue, // Skip routes we can't analyze
         };
