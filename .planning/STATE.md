@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-16)
 ## Current Position
 
 Phase: 22.8 (Nested Types Generation)
-Plan: 22.8-01 (planned)
-Status: Ready to execute phase 22.8-01
-Last activity: 2026-01-17 — Phase 22.8-01 planned (nested type generation)
+Plan: 22.8-01 (complete)
+Status: Phase 22.8-01 complete — v2.0.2 Type Generator Fixes milestone complete
+Last activity: 2026-01-17 — Phase 22.8-01 complete (nested type generation)
 
-Progress: ▓▓▓░░░░░░░ 25%
+Progress: ▓▓▓▓▓▓▓▓▓▓ 100%
 
 ## Milestone Summary
 
@@ -23,7 +23,7 @@ Progress: ▓▓▓░░░░░░░ 25%
 | v1.0 DX Overhaul | 1-12 | 18 | ✅ Complete | 2026-01-16 |
 | v2.0 Rebrand | 13-22 | 13 | ✅ Complete | 2026-01-16 |
 | v2.0.1 Macro Fix | 22.1-22.3 | 6 | ✅ Complete | 2026-01-17 |
-| v2.0.2 Type Generator Fixes | 22.4-22.8 | 1/5 | 🚧 In Progress | - |
+| v2.0.2 Type Generator Fixes | 22.4-22.8 | 2/5 | ✅ Complete | 2026-01-17 |
 | v2.1 JSON-UI | 23-32 | 0/? | 📋 Planned | - |
 
 ## Accumulated Context
@@ -37,6 +37,8 @@ Progress: ▓▓▓░░░░░░░ 25%
 | Import generation | Only referenced types | Keeps imports minimal and relevant |
 | Re-export generation | All shared.ts types | Convenience for component imports |
 | Re-export control | `--no-reexports` flag | Flexibility for projects that don't want re-exports |
+| Nested type scanning | SerializeStructVisitor | Finds #[derive(Serialize)] structs by name |
+| Nested resolution | Fixed-point iteration | Recursively finds all referenced types |
 
 ### Key Decisions (v2.0.1)
 
@@ -56,7 +58,7 @@ Progress: ▓▓▓░░░░░░░ 25%
 
 ### Pending Todos
 
-None — Phase 22.4-01 complete, ready for next phase.
+None — v2.0.2 Type Generator Fixes milestone complete.
 
 ### Blockers/Concerns
 
@@ -70,12 +72,11 @@ None — Phase 22.4-01 complete, ready for next phase.
 - v1.0 DX Overhaul complete: 12 phases, 18 plans (2026-01-15 to 2026-01-16)
 - v2.0 Rebrand complete: 10 phases, 13 plans (2026-01-16)
 - v2.0.1 Macro Fix complete: 3 phases (Phase 22.1-22.3) (2026-01-17)
-- v2.0.2 Type Generator Fixes: 5 phases (Phase 22.4-22.8) - 22.4-01 complete
-- Phase 22.8 added: Nested Types Generation (generate TypeScript interfaces for referenced types)
+- v2.0.2 Type Generator Fixes complete: 2 plans (Phase 22.4, 22.8) - 22.4-01, 22.8-01 complete
 - v2.1 JSON-UI deferred: 10 phases (Phase 23-32) - awaiting v2.0.2
 
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Completed Phase 22.4-01 (serde rename_all, shared.ts imports, type re-exports)
+Stopped at: Completed Phase 22.8-01 (nested type generation) — v2.0.2 milestone complete
 Resume file: None
