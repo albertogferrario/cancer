@@ -28,7 +28,7 @@ Issues addressed:
 - #8 Serde rename_all Causes Silent Frontend Failures (High)
 
 Plans:
-- [ ] 22.4-01: TBD (run /gsd:plan-phase 22.4 to break down)
+- [ ] 22.4-01: Fix serde attributes, shared.ts imports, type re-exports
 
 #### Phase 22.5: Prop Naming Collisions
 
@@ -252,7 +252,7 @@ Plans:
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
-| 22.4. Type Generator Fixes | 0/? | Not started | - |
+| 22.4. Type Generator Fixes | 0/1 | Planned | - |
 | 22.5. Prop Naming Collisions | 0/? | Not started | - |
 | 22.6. Contract Validation CLI | 0/? | Not started | - |
 | 22.7. DateTime Handling | 0/? | Not started | - |
