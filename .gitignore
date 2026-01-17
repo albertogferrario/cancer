@@ -16,3 +16,4 @@ Thumbs.db
 
 # mdBook output
 docs/book/
+database.db
