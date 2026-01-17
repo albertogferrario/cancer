@@ -54,20 +54,19 @@ Issues addressed:
 - #9 Nested vs Flat Props Structure Mismatch (High)
 
 Plans:
-- [ ] 22.6-01: Expose MCP validate_contracts as CLI command with structural nesting validation
+- [x] 22.6-01: Expose MCP validate_contracts as CLI command with structural nesting validation
 
 #### Phase 22.7: DateTime Handling
 
 **Goal**: Improve datetime field handling with proper types instead of strings
 **Depends on**: Phase 22.6
-**Research**: Likely (SeaORM datetime patterns)
-**Research topics**: SeaORM datetime types, chrono integration, SQLite datetime handling
+**Research**: Unlikely (type generator patterns established)
 
 Issues addressed:
 - #6 Inconsistent Date/Time Field Handling (Low)
 
 Plans:
-- [ ] 22.7-01: TBD (run /gsd:plan-phase 22.7 to break down)
+- [ ] 22.7-01: Add chrono datetime type support to TypeScript generator
 
 #### Phase 22.8: Nested Types Generation
 
